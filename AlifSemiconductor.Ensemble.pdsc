@@ -1284,7 +1284,6 @@
      <files>
        <file category="source" name="Alif_CMSIS/Source/Driver_I2C.c"/>
        <file category="header" name="Alif_CMSIS/Source/Driver_I2C_Private.h"/>
-       <file category="header" name="Alif_CMSIS/Include/Driver_I2C.h"/>
        <file category="source" name="drivers/source/i2c.c"/>
        <file category="header" name="drivers/include/i2c.h"/>
      </files>
