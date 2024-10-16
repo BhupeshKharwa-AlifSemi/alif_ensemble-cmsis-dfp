@@ -1950,8 +1950,8 @@ static int32_t ARM_UTIMER0_Uninitialize(uint8_t channel)
 }
 
 /*UTIMER Control Block */
-extern ARM_DRIVER_UTIMER DRIVER_UTIMER0;
-ARM_DRIVER_UTIMER DRIVER_UTIMER0 = {
+extern ARM_DRIVER_UTIMER Driver_UTIMER0;
+ARM_DRIVER_UTIMER Driver_UTIMER0 = {
     ARM_UTIMER0_Initialize,
     ARM_UTIMER0_PowerControl,
     ARM_UTIMER0_ConfigCounter,
