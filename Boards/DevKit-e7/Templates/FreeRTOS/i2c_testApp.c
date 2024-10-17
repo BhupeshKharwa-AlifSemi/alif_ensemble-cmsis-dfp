@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "RTE_Device.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
@@ -39,10 +40,10 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+
 #if defined(RTE_Compiler_IO_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_Compiler_IO_STDOUT */
-
 
 /* Defining Address modes */
 #define ADDRESS_MODE_7BIT   1                   /* I2C 7 bit addressing mode     */
@@ -58,30 +59,21 @@
 #endif
 
 /* Communication commands*/
-#define RESTART           (0X01)
-#define STOP              (0X00)
-
-/* master transmit and slave receive */
-#define MST_BYTE_TO_TRANSMIT        30
-
-/* slave transmit and master receive */
-#define SLV_BYTE_TO_TRANSMIT        29
+#define STOP                          (0X00)
 
 /*Define for FreeRTOS notification objects */
-#define I2C_MST_TRANSFER_DONE       0x01
-#define I2C_SLV_TRANSFER_DONE       0x02
-#define I2C_TWO_WAY_TRANSFER_DONE   (I2C_MST_TRANSFER_DONE | I2C_SLV_TRANSFER_DONE)
-
+#define I2C_MST_TRANSFER_DONE         0x01
+#define I2C_SLV_TRANSFER_DONE         0x02
+#define I2C_TWO_WAY_TRANSFER_DONE     (I2C_MST_TRANSFER_DONE | \
+                                       I2C_SLV_TRANSFER_DONE)
 /*Define for FreeRTOS*/
-#define STACK_SIZE                    1024
+#define TASK_STACK_SIZE               512
 #define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
 #define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
-
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
-StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
-StaticTask_t TimerTcb;
-
+static StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+static StaticTask_t IdleTcb;
+static StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+static StaticTask_t TimerTcb;
 /* I2C Driver instance */
 extern ARM_DRIVER_I2C Driver_I2C1;
 static ARM_DRIVER_I2C *I2C_MstDrv = &Driver_I2C1;
@@ -90,10 +82,78 @@ extern ARM_DRIVER_I2C Driver_I2C0;
 static ARM_DRIVER_I2C *I2C_SlvDrv = &Driver_I2C0;
 
 /* Task handle */
-TaskHandle_t i2c_xHandle;
+static TaskHandle_t i2c_xHandle;
+
+#if (RTE_I2C0_DMA_ENABLE || RTE_I2C1_DMA_ENABLE)
+    #define I2C_DMA_ENABLED     1
+#else
+    #define I2C_DMA_ENABLED     0
+#endif
+
+#if I2C_DMA_ENABLED
+    /* master transmit and slave receive */
+    #define MST_BYTE_TO_TRANSMIT            11
+
+    /* slave transmit and master receive */
+    #define SLV_BYTE_TO_TRANSMIT            10
+
+    /* Tx and Rx buffers arein multiples of 2bytes
+     * as the DMA processes in 2bytes fashion only */
+    /* Master parameter set */
+    /* Master TX Data */
+    static uint16_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
+    {
+        /* MST_TX_BUF data = "Master_Data" */
+        77, 97, 115, 116, 101, 114, 95, 68, 97, 116, 97
+    };
+
+    /* master receive buffer */
+    static uint16_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
+    /* Master parameter set END  */
+
+    /* Slave parameter set */
+    /* slave receive buffer */
+    static uint16_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
+
+    /* Slave TX Data */
+    static uint16_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
+    {
+        /* SLV_TX_BUF data =  "Slave_Data" */
+        83, 108, 97, 118, 101, 95, 68, 97, 116, 97
+    };
+    /* Slave parameter set END */
+#else
+
+    /* master transmit and slave receive */
+    #define MST_BYTE_TO_TRANSMIT            30
+
+    /* slave transmit and master receive */
+    #define SLV_BYTE_TO_TRANSMIT            29
+    /* Master parameter set */
+
+    /* Master TX Data (Any random value). */
+    static uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
+    {
+        "!*!Test Message from Master!*!"
+    };
+
+    /* master receive buffer */
+    static uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
+    /* Master parameter set END  */
+
+    /* Slave parameter set */
+    /* slave receive buffer */
+    static uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
+
+    /* Slave TX Data */
+    static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
+    {
+        "!*!Test Message from Slave!*!"
+    };
+    /* Slave parameter set END */
+#endif
 
 /****************************** FreeRTOS functions **********************/
-
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
       StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
    *ppxIdleTaskTCBBuffer = &IdleTcb;
@@ -103,8 +163,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-   (void) pxTask;
-
+   ARG_UNUSED(pxTask);
+   ARG_UNUSED(pcTaskName);
    for (;;);
 }
 
@@ -121,33 +181,13 @@ void vApplicationIdleHook(void)
    for (;;);
 }
 
-/* Master parameter set */
-
-/* Master TX Data (Any random value). */
-uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
-{
-    "!*!Test Message from Master!*!"
-};
-
-/* master receive buffer */
-uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
-
-/* Master parameter set END  */
-
-
-/* Slave parameter set */
-
-/* slave receive buffer */
-uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
-
-/* Slave TX Data (Any random value). */
-uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
-{
-    "!*!Test Message from Slave!*!"
-};
-
-/* Slave parameter set END */
-
+/**
+ * @fn      static void i2c_mst_transfer_callback(uint32_t event)
+ * @brief   I2C master event callback
+ * @note    none
+ * @param   event : Callback Event
+ * @retval  none
+ */
 static void i2c_mst_transfer_callback(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
@@ -165,6 +205,13 @@ static void i2c_mst_transfer_callback(uint32_t event)
     }
 }
 
+/**
+ * @fn      static void i2c_slv_transfer_callback(uint32_t event)
+ * @brief   I2C slave event callback
+ * @note    none
+ * @param   event : Callback Event
+ * @retval  none
+ */
 static void i2c_slv_transfer_callback(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
@@ -182,8 +229,14 @@ static void i2c_slv_transfer_callback(uint32_t event)
     }
 }
 
-/* Pinmux */
-void hardware_init()
+/**
+ * @fn      static void hardware_init(void)
+ * @brief   Assigns I2C0 and I2C1 Pin mux
+ * @note    none
+ * @param   none
+ * @retval  none
+ */
+static void hardware_init(void)
 {
     /* I2C0_SDA_A */
     pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, \
@@ -202,12 +255,19 @@ void hardware_init()
          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
 }
 
-void I2C_Thread(void *pvParameters)
+/**
+ * @fn      static void I2C_Thread(void *pvParameters)
+ * @brief   I2C communication task
+ * @note    none
+ * @param   pvParameters : Task Parameter
+ * @retval  none
+ */
+static void I2C_Thread(void *pvParameters)
 {
     int ret                      = 0;
     ARM_DRIVER_VERSION version;
-    ARM_I2C_CAPABILITIES capabilities;
     uint32_t task_notified_value = 0;
+    ARG_UNUSED(pvParameters);
 
     printf("\r\n >>> I2C demo Thread starting up!!! <<< \r\n");
 
@@ -215,7 +275,8 @@ void I2C_Thread(void *pvParameters)
     hardware_init();
 
     version = I2C_MstDrv->GetVersion();
-    printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",version.api, version.drv);
+    printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",
+            version.api, version.drv);
 
     /* Initialize Master I2C driver */
     ret = I2C_MstDrv->Initialize(i2c_mst_transfer_callback);
@@ -242,14 +303,14 @@ void I2C_Thread(void *pvParameters)
     ret = I2C_SlvDrv->PowerControl(ARM_POWER_FULL);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: I2C Slave Power up failed\n");
-        goto error_poweroff;
+        goto error_uninitialize;
     }
 
     /* I2C Master Control */
     ret = I2C_MstDrv->Control(ARM_I2C_BUS_SPEED, ARM_I2C_BUS_SPEED_STANDARD);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: I2C Master Control failed\n");
-        goto error_uninitialize;
+        goto error_poweroff;
     }
 
     /* I2C Slave Control */
@@ -259,44 +320,109 @@ void I2C_Thread(void *pvParameters)
 #else
     ret = I2C_SlvDrv->Control(ARM_I2C_OWN_ADDRESS, SAR_ADDRS);
 #endif
-     if(ret != ARM_DRIVER_OK){
-         printf("\r\n Error: I2C Slave Control failed\n");
-         goto error_uninitialize;
-     }
+    if (ret != ARM_DRIVER_OK){
+        printf("\r\n Error: I2C Slave Control failed\n");
+        goto error_poweroff;
+    }
 
-     printf("\n----------------Master transmit/slave receive-----------------------\n");
+    printf("\n---------Master transmit/slave receive---------\n");
+    /* I2C Slave Receive */
+    ret = I2C_SlvDrv->SlaveReceive((uint8_t*)SLV_RX_BUF,
+                                    MST_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Slave Receive failed\n");
+        goto error_poweroff;
+    }
+    /* delay */
+    vTaskDelay(1);
 
-     /* I2C Slave Receive */
-     ret = I2C_SlvDrv->SlaveReceive(SLV_RX_BUF, MST_BYTE_TO_TRANSMIT);
-     if (ret != ARM_DRIVER_OK)
-     {
-         printf("\r\n Error: I2C Slave Receive failed\n");
-         goto error_uninitialize;
-     }
-     /* delay */
-     sys_busy_loop_us(500);
-
-     /* I2C Master Transmit */
+    /* I2C Master Transmit */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
     I2C_MstDrv->MasterTransmit((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
-                               MST_TX_BUF, MST_BYTE_TO_TRANSMIT, STOP);
+                               (uint8_t*)MST_TX_BUF,
+                               MST_BYTE_TO_TRANSMIT,
+                               STOP);
 #else
-    I2C_MstDrv->MasterTransmit(TAR_ADDRS, MST_TX_BUF,
+    I2C_MstDrv->MasterTransmit(TAR_ADDRS, (uint8_t*)MST_TX_BUF,
                                MST_BYTE_TO_TRANSMIT, STOP);
 #endif
-     if (ret != ARM_DRIVER_OK)
-     {
-         printf("\r\n Error: I2C Master Transmit failed\n");
-         goto error_uninitialize;
-     }
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Master Transmit failed\n");
+        goto error_poweroff;
+    }
+    while(pdTRUE)
+    {
+        /* wait for master/slave callback. */
+        if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
+                            portMAX_DELAY) != pdFALSE)
+        {
+            /* Checks if both callbacks are successful */
+            if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
+            {
+                xTaskNotifyStateClear(NULL);
+            }
+            else
+            {
+                task_notified_value = 0;
+                break;
+            }
+        }
+    }
 
-     while(pdTRUE)
-     {
+    /* 3ms delay */
+    vTaskDelay(3);
+
+    /* Compare received data. */
+#if I2C_DMA_ENABLED
+    if (memcmp(&SLV_RX_BUF, &MST_TX_BUF, (MST_BYTE_TO_TRANSMIT * 2)))
+#else
+    if (memcmp(&SLV_RX_BUF, &MST_TX_BUF, MST_BYTE_TO_TRANSMIT))
+#endif
+    {
+        printf("\n Error: Master transmit/slave receive failed \n");
+        printf("\n ---Stop--- \r\n wait forever >>> \n");
+        while(1);
+    }
+
+    printf("\n---------Master receive/slave transmit---------\n");
+
+    /* I2C Master Receive */
+#if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
+    ret = I2C_MstDrv->MasterReceive((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
+                                    (uint8_t*)MST_RX_BUF,
+                                    SLV_BYTE_TO_TRANSMIT,
+                                    STOP);
+#else
+    ret = I2C_MstDrv->MasterReceive(TAR_ADDRS, (uint8_t*)MST_RX_BUF,
+                                    SLV_BYTE_TO_TRANSMIT, STOP);
+#endif
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Master Receive failed\n");
+        goto error_poweroff;
+    }
+
+    /* 1ms delay */
+    vTaskDelay(1);
+
+    /* I2C Slave Transmit */
+    ret = I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Slave Transmit failed\n");
+        goto error_poweroff;
+    }
+
+    while(pdTRUE)
+    {
          /* wait for master/slave callback. */
-         if(xTaskNotifyWait(NULL, NULL, &task_notified_value, portMAX_DELAY) != pdFALSE)
+         if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
+                             portMAX_DELAY) != pdFALSE)
          {
              /* Checks if both callbacks are successful */
-             if(task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
+             if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
              {
                  xTaskNotifyStateClear(NULL);
              }
@@ -306,122 +432,65 @@ void I2C_Thread(void *pvParameters)
                  break;
              }
          }
-     }
+    }
 
-     /* 3ms delay */
-     vTaskDelay(3);
+    /* 3ms delay */
+    vTaskDelay(3);
 
-     /* Compare received data. */
-     if(memcmp(&SLV_RX_BUF, &MST_TX_BUF, MST_BYTE_TO_TRANSMIT))
-     {
-         printf("\n Error: Master transmit/slave receive failed \n");
-         printf("\n ---Stop--- \r\n wait forever >>> \n");
-         while(1);
-     }
-
-     printf("\n----------------Master receive/slave transmit-----------------------\n");
-
-     /* I2C Master Receive */
-#if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
-     ret = I2C_MstDrv->MasterReceive((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
-                                     MST_RX_BUF, SLV_BYTE_TO_TRANSMIT, STOP);
+    /* Compare received data. */
+#if I2C_DMA_ENABLED
+    if (memcmp(&SLV_TX_BUF, &MST_RX_BUF, (SLV_BYTE_TO_TRANSMIT * 2)))
 #else
-     ret = I2C_MstDrv->MasterReceive(TAR_ADDRS, MST_RX_BUF,
-                                     SLV_BYTE_TO_TRANSMIT, STOP);
+    if (memcmp(&SLV_TX_BUF, &MST_RX_BUF, SLV_BYTE_TO_TRANSMIT))
 #endif
-     if (ret != ARM_DRIVER_OK)
-     {
-         printf("\r\n Error: I2C Master Receive failed\n");
-         goto error_uninitialize;
-     }
+    {
+        printf("\n Error: Master receive/slave transmit failed\n");
+        printf("\n ---Stop--- \r\n wait forever >>> \n");
+        while(1);
+    }
+    printf("\n >>> I2C Communication completed without any error <<< \n");
 
-     /* I2C Slave Transmit */
-     I2C_SlvDrv->SlaveTransmit(SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
-     if (ret != ARM_DRIVER_OK)
-     {
-         printf("\r\n Error: I2C Slave Transmit failed\n");
-         goto error_uninitialize;
-     }
+error_poweroff:
+    /* Power off I2C peripheral */
+    ret = I2C_MstDrv->PowerControl(ARM_POWER_OFF);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Master Power OFF failed\r\n");
+    }
 
-     while(pdTRUE)
-     {
-          /* wait for master/slave callback. */
-          if(xTaskNotifyWait(NULL, NULL, &task_notified_value, portMAX_DELAY) != pdFALSE)
-          {
-              /* Checks if both callbacks are successful */
-              if(task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
-              {
-                  xTaskNotifyStateClear(NULL);
-              }
-              else
-              {
-                  task_notified_value = 0;
-                  break;
-              }
-          }
-     }
-     /* 3ms delay */
-     vTaskDelay(3);
+    ret = I2C_SlvDrv->PowerControl(ARM_POWER_OFF);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Slave Power OFF failed\r\n");
+    }
 
-     /* Compare received data. */
-     if(memcmp(&SLV_TX_BUF, &MST_RX_BUF, SLV_BYTE_TO_TRANSMIT))
-     {
-         printf("\n Error: Master receive/slave transmit failed\n");
-         printf("\n ---Stop--- \r\n wait forever >>> \n");
-         while(1);
-     }
+error_uninitialize:
+    /* Un-initialize I2C driver */
+    ret = I2C_MstDrv->Uninitialize();
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n I2C Master Uninitialize failed\r\n");
+    }
 
-     ret =I2C_MstDrv->Uninitialize();
-     if (ret == ARM_DRIVER_OK)
-     {
-         printf("\r\n I2C Master Uninitialized\n");
-         goto error_uninitialize;
-     }
-     ret =I2C_SlvDrv->Uninitialize();
-     if (ret == ARM_DRIVER_OK)
-     {
-         printf("\r\n I2C Slave Uninitialized\n");
-         goto error_uninitialize;
-     }
+    ret = I2C_SlvDrv->Uninitialize();
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n I2C Slave Uninitialize failed\r\n");
+    }
 
-     printf("\n >>> I2C Communication completed without any error <<< \n");
-     printf("\n ---END--- \r\n wait forever >>> \n");
-     while(1);
+    printf("\r\n >>> I2C demo thread exiting <<<\r\n");
+    printf("\n ---END--- \r\n wait forever >>> \n");
+    while(1);
 
-  error_poweroff:
-      /* Power off I2C peripheral */
-      ret = I2C_MstDrv->PowerControl(ARM_POWER_OFF);
-      if(ret != ARM_DRIVER_OK)
-      {
-         printf("\r\n Error: I2C Power OFF failed.\r\n");
-      }
-      ret = I2C_SlvDrv->PowerControl(ARM_POWER_OFF);
-      if(ret != ARM_DRIVER_OK)
-      {
-         printf("\r\n Error: I2C Power OFF failed.\r\n");
-      }
-
-  error_uninitialize:
-      /* Un-initialize I2C driver */
-      ret = I2C_MstDrv->Uninitialize();
-      if(ret == ARM_DRIVER_OK)
-      {
-        printf("\r\n I2C Master Uninitialized\r\n");
-      }
-      ret = I2C_SlvDrv->Uninitialize();
-      if(ret == ARM_DRIVER_OK)
-      {
-         printf("\r\n I2C Slave Uninitialized\r\n");
-      }
-          printf("\r\n >>> I2C demo thread exiting <<<\r\n");
-
-      /* thread delete */
-      vTaskDelete( NULL );
 }
 
-/*----------------------------------------------------------------------------
- *      Main: Initialize and start the FreeRTOS Kernel
- *---------------------------------------------------------------------------*/
+/**
+ * @fn      int main(void)
+ * @brief   Entry point for I2C comm
+ * @note    none
+ * @param   none
+ * @retval  none
+ */
 int main(void)
 {
     #if defined(RTE_Compiler_IO_STDOUT_User)
@@ -439,7 +508,8 @@ int main(void)
    SystemCoreClockUpdate();
 
    /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(I2C_Thread, "I2C_Thread", 256, NULL,
+   BaseType_t xReturned = xTaskCreate(I2C_Thread, "I2C_Thread",
+                                      TASK_STACK_SIZE, NULL,
                                       configMAX_PRIORITIES-1, &i2c_xHandle);
    if (xReturned != pdPASS)
    {
