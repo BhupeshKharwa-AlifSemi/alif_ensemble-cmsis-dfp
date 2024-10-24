@@ -12,25 +12,50 @@
   -->
 
   <releases>
-     <release version="1.3.0-rc6" date="2024-10-03">
-      - rc6 release for DFPv1.3.0
+     <release version="1.3.0"  tag="v1.3.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.0/AlifSemiconductor.Ensemble.1.3.0.pack" date="2024-10-04">
+      - ICM42670 driver
+      - New component for MIPI DPHY
+      - Support for ILI9488 1-lane Display
+      - Support for AR0145 Camera Sensor
+      - Support for OV5647 Camera Sensor
+      - Updated I3C Driver
+      - Baremetal FATFS demo for SD
+      - Update SE services to v1.100.0
     </release>
-     <release version="1.2.2" date="2024-08-13">
+    <release version="1.2.2" tag="v1.2.2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.2.2/AlifSemiconductor.Ensemble.1.2.2.pack" date="2024-08-13">
       - update SD Driver for various fixes
-      - Add emmc init sequence 
+      - Add emmc init sequence
       - Low Capacity SD card support
     </release>
-    <release version="1.2.1" date="2024-06-27">
+    <release version="1.2.1" tag="v1.2.1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.2.1/AlifSemiconductor.Ensemble.1.2.1.pack" date="2024-06-27">
       - update SE services to 1.97.0
     </release>
-  <release version="1.2.0" date="2024-06-19">
-      - update to 1.2.0 release
+    <release version="1.2.0" tag="v1.2.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.2.0/AlifSemiconductor.Ensemble.1.2.0.pack" date="2024-06-19">
+      - CANFD Blocking mode support
+      - FreeRTOS test apps for DMA, I2S, ADC
+      - Add Support for RAW8 and RGB565 for MT9M114
+      - MT9M114-mipi, HM0360 Camera sensor support
+      - Polling mode driver for PDM, CAN-FD, I2S, LPSPI
+      - SDMMC Driver IRQ mode support
+      - Updates in DMA, SPI, I2S, UART, SD, CAN-FD driver
+      - Updates in UART, I2C, ADC, PM, SDC, CAN-FD applications
+      - Auto timing calculation for CSI
+      - Compiler warnings and Error Fixes
+      - Change SDMMC default clock to 50MHz
+      - Update SE services to v1.96.0
     </release>
-    <release version="1.1.3" date="2024-05-13">
+    <release version="1.1.3" tag="v1.1.3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.1.3/AlifSemiconductor.Ensemble.1.1.3.pack" date="2024-05-13">
       - Fix FLM file format issue
+      - Minor updates to Demo_pm_baremetal and mhu_sender sources
+      - Update SE services to v1.0.94
     </release>
-    <release version="1.1.2" date="2024-04-19">
+    <release version="1.1.2" tag="v1.1.2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.1.2/AlifSemiconductor.Ensemble.1.1.2.pack" date="2024-04-19">
       - Update SE services to v1.0.93
+    </release>
+    <release version="1.1.1" tag="v1.1.1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.1.1/AlifSemiconductor.Ensemble.1.1.1.pack" date="2024-03-25">
+      - Update SE services to v1.0.92
+      - Update drivers and testapps
+      - Rename HSCMP component as CMP
     </release>
   <release version="1.0.0" date="2023-11-15">
       Initial release
@@ -889,23 +914,23 @@
     <condition id="Retarget IO STDIN">
       <description>Requirement for Retarget IO STDIN</description>
       <require condition="Ensemble CMSIS_Driver"/>
-	  <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
-	  <require Cclass="CMSIS-Compiler" Cgroup="I/O" Csub="STDIN" Cvariant="User"/>
-	</condition>
+      <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
+      <require Cclass="CMSIS-Compiler" Cgroup="STDIN" Csub="Custom"/>
+    </condition>
 
     <condition id="Retarget IO STDOUT">
       <description>Requirement for Retarget IO STDOUT</description>
       <require condition="Ensemble CMSIS_Driver"/>
-	  <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
-	  <require Cclass="CMSIS-Compiler" Cgroup="I/O" Csub="STDOUT" Cvariant="User"/>
-	</condition>
+      <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
+      <require Cclass="CMSIS-Compiler" Cgroup="STDOUT" Csub="Custom"/>
+    </condition>
 
     <condition id="Retarget IO STDERR">
       <description>Requirement for Retarget IO STDERR</description>
       <require condition="Ensemble CMSIS_Driver"/>
-	  <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
-	  <require Cclass="CMSIS-Compiler" Cgroup="I/O" Csub="STDERR" Cvariant="User"/>
-	</condition>
+      <require Cclass="Device" Cgroup="SOC Peripherals" Csub="USART"/>
+      <require Cclass="CMSIS-Compiler" Cgroup="STDERR" Csub="Custom"/>
+    </condition>
 
   </conditions>
 <!-- component section -->
@@ -1221,7 +1246,6 @@
 		<file category="header" name="drivers/include/uart.h"/>
 		<file category="header" name="drivers/include/sys_ctrl_uart.h"/>
 	    <file category="header" name="Alif_CMSIS/Source/Driver_USART_Private.h"/>
-        <file category="header" name="Alif_CMSIS/Include/Driver_USART.h"/>
       </files>
     </component>
 
@@ -1392,7 +1416,6 @@
         #define RTE_Drivers_SPI   1           /* Driver SPI */
       </RTE_Components_h>
       <files>
-	    <file category="header" name="Alif_CMSIS/Include/Driver_SPI.h"/>
         <file category="source" name="Alif_CMSIS/Source/Driver_SPI.c"/>
         <file category="header" name="Alif_CMSIS/Source/Driver_SPI_Private.h"/>
 		<file category="header" name="drivers/include/spi.h"/>
@@ -1475,6 +1498,16 @@
       </RTE_Components_h>
       <files>
         <file category="source" name="components/Source/OV5647_camera_sensor.c"/>
+      </files>
+    </component>
+
+    <component Cclass="BSP" Cgroup="External peripherals" Csub="CAMERA Sensor OV5675" Cversion="1.3.0" condition="Camera Sensor Driver">
+      <description>CAMERA Sensor Driver for OV5675</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_CAMERA_SENSOR_OV5675			1           /* Driver CAMERA Sensor */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="components/Source/OV5675_camera_sensor.c"/>
       </files>
     </component>
 
@@ -1724,7 +1757,6 @@
         #define RTE_Drivers_CANFD   1           /* Driver CAN-FD */
       </RTE_Components_h>
       <files>
-        <file category="header" name="Alif_CMSIS/Include/Driver_CAN.h"/>
         <file category="header" name="Alif_CMSIS/Source/CANFD_Private.h"/>
         <file category="source" name="Alif_CMSIS/Source/Driver_CAN.c"/>
         <file category="header" name="drivers/include/canfd.h"/>
@@ -1837,7 +1869,7 @@
       </files>
     </component>
 
-    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.100.0" condition="SE SERVICES MHU">
+    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.101.0" condition="SE SERVICES MHU">
       <description>Message Handling Unit driver for Alif Soc</description>
       <files>
         <file category="header" name="drivers/include/drivers_common.h"/>
@@ -1859,10 +1891,10 @@
       </files>
     </component> -->
 
-    <component Cclass="Device" Cgroup="SE runtime Services" Csub="core" Cvariant="Source" Cversion="1.100.0" condition="SE SERVICES SRC">
+    <component Cclass="Device" Cgroup="SE runtime Services" Csub="core" Cvariant="Source" Cversion="1.101.0" condition="SE SERVICES SRC">
       <description>SE runtime Services for RTSS cores</description>
       <files>
-        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.100.0.pdf"/>
+        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.101.0.pdf"/>
         <file category="include" name="se_services/include/"/>
         <file category="source" name="se_services/source/services_host_application.c"/>
         <file category="source" name="se_services/source/services_host_boot.c"/>
