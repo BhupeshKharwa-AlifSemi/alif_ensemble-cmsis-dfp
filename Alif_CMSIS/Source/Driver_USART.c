@@ -369,12 +369,8 @@ static int32_t ARM_USART_PowerControl (ARM_POWER_STATE   state,
             /* Clear Any Pending IRQ*/
             NVIC_ClearPendingIRQ (uart->irq_num);
 
-            /* Make sure all fifo data is transmitted */
-            if(READ_BIT(uart->regs->UART_FCR, BIT(0)) == UART_FCR_FIFO_ENABLE)
-            {
-                /* wait for data to be transmitted */
-                while(READ_BIT(uart->regs->UART_LSR, BIT(6)) != UART_LSR_TRANSMITTER_EMPTY);
-            }
+            /* wait for data to be transmitted */
+            while(READ_BIT(uart->regs->UART_LSR, BIT(6)) != UART_LSR_TRANSMITTER_EMPTY);
 
             /* uart EXPMST0 configuration,
              * Disable the selected UART instance. */
