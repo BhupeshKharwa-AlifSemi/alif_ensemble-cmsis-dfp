@@ -152,14 +152,15 @@ static int32_t DSI_Initialize (ARM_MIPI_DSI_SignalEvent_t cb_event,
 
     /* SCALE = LANEBYTECLK / PIXCLK
      * MIPI data rate must be exactly equal, not greater than, for 1.5 scale to work
-     * MIPI data rate + 33% allows for scaling times 2
-     *    24 x 1.333 / 16 = 2
+     * Adding 33% to the MIPI data rate allows for scaling flexibility
+     * SCALE = 24 x 1.333 / (8 * number_of_lanes)
      * LANEBYTECLK = PIXCLK * SCALE
      * lanebyteclk frequency is 1/4th of the DPHY frequency
      * PLL frequency = LANEBYTECLK * 4
      *               = PIXCLK * SCALE * 4
      */
-    dsi->frequency = pixclk * 2 * 4;
+
+    dsi->frequency = (uint32_t)(pixclk *  (24 * 1.333f / (8 * dsi_info->n_lanes)) * 4 + 0.5f);
 
     /*Checking LCD Panel supports MIPI DSI DPHY data rate*/
     if((dsi->frequency * 2) > (dsi_info->max_bitrate * 1000000))
