@@ -46,7 +46,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 
 #include "RTE_Device.h"
 #include "RTE_Components.h"

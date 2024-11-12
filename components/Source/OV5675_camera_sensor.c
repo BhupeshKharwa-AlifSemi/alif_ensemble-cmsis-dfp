@@ -14,7 +14,7 @@
 #include CMSIS_device_header
 #include "Camera_Sensor.h"
 #include "Camera_Sensor_i2c.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "Driver_CPI.h"
 
 #if (RTE_OV5675_CAMERA_SENSOR_ENABLE)

@@ -29,7 +29,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "pinconf.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"

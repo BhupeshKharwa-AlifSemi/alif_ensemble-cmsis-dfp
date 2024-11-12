@@ -328,7 +328,7 @@ static int32_t lptimer_init(void)
 /*******************************   LPGPIO    **********************************/
 
 
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 
 static uint32_t volatile gpioevent = 0;
 

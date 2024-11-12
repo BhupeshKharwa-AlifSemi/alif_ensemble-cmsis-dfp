@@ -34,7 +34,7 @@
  ******************************************************************************/
 
 /* System Includes */
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include <stdio.h>
 #include "system_utils.h"
 #include "pinconf.h"

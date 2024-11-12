@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     Driver_GPIO_Private.h
+ * @file     Driver_IO_Private.h
  * @author   Girish BN, Manoj A Murudi
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0

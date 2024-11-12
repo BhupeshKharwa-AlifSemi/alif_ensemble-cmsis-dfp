@@ -27,7 +27,7 @@
 /* System Includes */
 #include <stdio.h>
 #include "Driver_UTIMER.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "pinconf.h"
 
 /*RTOS Includes */

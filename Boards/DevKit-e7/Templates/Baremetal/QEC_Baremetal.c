@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include "Driver_UTIMER.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "pinconf.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)

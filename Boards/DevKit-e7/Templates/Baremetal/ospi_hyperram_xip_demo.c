@@ -19,7 +19,7 @@
 
 #include "ospi_hyperram_xip.h"
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"

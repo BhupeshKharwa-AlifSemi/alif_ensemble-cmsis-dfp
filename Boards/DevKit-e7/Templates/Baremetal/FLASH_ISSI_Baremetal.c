@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "pinconf.h"
 #include "Driver_Flash.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)

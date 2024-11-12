@@ -46,7 +46,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"

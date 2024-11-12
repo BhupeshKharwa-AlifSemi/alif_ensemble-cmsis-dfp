@@ -25,7 +25,7 @@
 /* include for Drivers */
 #include "Driver_SPI.h"
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 /*RTOS Includes */
 #include "RTE_Components.h"
 #include CMSIS_device_header

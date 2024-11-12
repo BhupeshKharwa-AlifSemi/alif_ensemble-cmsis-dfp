@@ -16,7 +16,7 @@
 #if RTE_MIPI_DSI_ILI9488_PANEL
 
 #include "DSI_DCS.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "display.h"
 
 /* ILI9488 panel reset GPIO port */

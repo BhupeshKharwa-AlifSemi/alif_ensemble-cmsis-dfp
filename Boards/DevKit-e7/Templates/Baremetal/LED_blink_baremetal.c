@@ -19,7 +19,7 @@
  * @Note     None.
  ******************************************************************************/
 
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "pinconf.h"
 #include <stdio.h>
 #include <RTE_Components.h>

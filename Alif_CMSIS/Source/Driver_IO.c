@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     Driver_GPIO.c
+ * @file     Driver_IO.c
  * @author   Girish BN, Manoj A Murudi
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0

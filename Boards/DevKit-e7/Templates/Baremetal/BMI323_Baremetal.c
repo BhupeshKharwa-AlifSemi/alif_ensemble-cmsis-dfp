@@ -31,7 +31,7 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_Compiler_IO_STDOUT */
 
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "Driver_IMU.h"
 
 /* IMU Driver instance */

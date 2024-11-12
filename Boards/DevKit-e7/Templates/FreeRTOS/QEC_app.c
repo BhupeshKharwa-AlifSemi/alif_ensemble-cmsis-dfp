@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "Driver_UTIMER.h"
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 
 /*RTOS Includes */
 #include "RTE_Components.h"
