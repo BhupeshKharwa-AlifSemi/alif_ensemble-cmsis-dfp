@@ -407,7 +407,7 @@ static inline void cpi_disable_interrupt(CPI_Type *cpi, uint32_t irq_bitmask)
 */
 static inline void cpi_irq_handler_clear_intr_status(CPI_Type *cpi, uint32_t irq_bitmask)
 {
-    cpi->CAM_INTR |= irq_bitmask;
+    cpi->CAM_INTR = irq_bitmask;
     (void)cpi->CAM_INTR;
 }
 
