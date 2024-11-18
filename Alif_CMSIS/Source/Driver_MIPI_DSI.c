@@ -25,15 +25,13 @@
 #include "DPHY_DSI.h"
 #include "display.h"
 
-#define ARM_MIPI_DSI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /*driver version*/
+#if defined(RTE_Drivers_MIPI_DSI)
 
 #if !(RTE_MIPI_DSI)
-#error "MIPI DSI is not enabled in the RTE_Device.h"
+    #error "MIPI DSI is not enabled in the RTE_Device.h"
 #endif
 
-#if (!defined(RTE_Drivers_MIPI_DSI))
-#error "MIPI DSI not configured in RTE_Components.h!"
-#endif
+#define ARM_MIPI_DSI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /*driver version*/
 
 /* High speed transition timing range */
 static const DSI_DPHY_HS_TRANSITION_TIMINGS_RANGE hstransition_timing_range[] =
@@ -821,3 +819,5 @@ ARM_DRIVER_MIPI_DSI Driver_MIPI_DSI =
     ARM_MIPI_DSI_StartVideoMode,
     ARM_MIPI_DSI_Stop
 };
+
+#endif /* defined(RTE_Drivers_MIPI_DSI) */

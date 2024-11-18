@@ -26,9 +26,7 @@
 #if RTE_ILI6122_PANEL
 #include "display.h"
 
-#if (!defined(RTE_Drivers_CDC_ILI6122_PANEL))
-#error "ILI6122 Display Panel not configured in RTE_Components.h!"
-#endif
+#if defined(RTE_Drivers_CDC_ILI6122_PANEL)
 
 /* CDC polarities information assignment */
 static CDC_INFO ili6122_cdc_info =
@@ -57,3 +55,5 @@ static DISPLAY_PANEL_DEVICE ILI6122_display_panel =
 DISPLAY_PANEL(ILI6122_display_panel)
 
 #endif /* RTE_ILI6122_PANEL */
+
+#endif /* defined(RTE_Drivers_CDC_ILI6122_PANEL) */

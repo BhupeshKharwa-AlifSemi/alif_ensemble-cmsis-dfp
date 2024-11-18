@@ -23,6 +23,8 @@
 #include "Driver_PDM_Private.h"
 #include "sys_ctrl_pdm.h"
 
+#if defined(RTE_Drivers_PDM)
+
 #define ARM_PDM_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 1)  /*  Driver version */
 
 /*Driver version*/
@@ -1097,3 +1099,4 @@ ARM_DRIVER_PDM Driver_LPPDM = {
     LPPDM_GetStatus
 };
 #endif /* RTE_LPPDM */
+#endif /* RTE_Drivers_PDM */

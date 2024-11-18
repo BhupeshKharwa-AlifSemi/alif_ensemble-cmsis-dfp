@@ -34,11 +34,10 @@
 #include "Driver_CSI_Private.h"
 #include "Camera_Sensor.h"
 
+#if defined(RTE_Drivers_MIPI_CSI2)
+
 #if !(RTE_MIPI_CSI2)
-#error "MIPI CSI2 is not enabled in the RTE_Device.h"
-#endif
-#if (!defined(RTE_Drivers_MIPI_CSI2))
-#error "MIPI CSI2 not configured in RTE_Components.h!"
+    #error "MIPI CSI2 is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_MIPI_CSI2_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)
@@ -696,6 +695,7 @@ static int32_t CSI2_StopIPI (CSI_RESOURCES *CSI2)
     return ARM_DRIVER_OK;
 }
 
+#if (RTE_MIPI_CSI2)
 /* CSI frame configuration */
 CSI_FRAME_INFO CSI_FRAME_CFG =
 {
@@ -797,5 +797,7 @@ ARM_DRIVER_MIPI_CSI2 Driver_MIPI_CSI2 =
     MIPI_CSI2_StartIPI,
     MIPI_CSI2_StopIPI,
 };
+#endif /* RTE_MIPI_CSI2 */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif /* RTE_Drivers_MIPI_CSI2 */

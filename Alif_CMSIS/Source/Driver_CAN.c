@@ -22,12 +22,11 @@
 #include <string.h>
 #include "CANFD_Private.h"
 
+
+#if defined (RTE_Drivers_CANFD)
+
 #if !(RTE_CANFD)
     #error "CANFD is not enabled in RTE_Device.h"
-#endif
-
-#if !defined (RTE_Drivers_CANFD)
-#error "CANFD is not enabled in RTE_Components.h"
 #endif
 
 #define ARM_CAN_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)
@@ -1388,6 +1387,7 @@ static int32_t ARM_CAN_Control(CANFD_RESOURCES* CANFD,
     return ARM_DRIVER_OK;
 }
 
+#if (RTE_CANFD)
 /* CANFD Driver Instance */
 static CANFD_RESOURCES CANFD_RES =
 {
@@ -1603,3 +1603,7 @@ ARM_DRIVER_CAN Driver_CANFD = {
     ARM_CANx_Control,
     ARM_CANx_GetStatus
 };
+
+#endif /* RTE_CANFD */
+
+#endif /* RTE_Drivers_CANFD */

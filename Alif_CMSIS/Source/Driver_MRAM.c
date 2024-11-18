@@ -26,12 +26,10 @@
 #include "Driver_MRAM_Private.h"
 #include "mram.h"
 
-#if !(RTE_MRAM)
-#error "MRAM is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_MRAM)
 
-#if (defined(RTE_Drivers_MRAM) && !RTE_MRAM)
-#error "MRAM not configured in RTE_Device.h!"
+#if !(RTE_MRAM)
+    #error "MRAM is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_MRAM_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* driver version */
@@ -345,3 +343,5 @@ ARM_DRIVER_MRAM Driver_MRAM =
 #endif /* RTE_MRAM */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+
+#endif /* defined(RTE_Drivers_MRAM) */

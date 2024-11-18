@@ -22,12 +22,10 @@
 #include "Driver_LPTIMER.h"
 #include "Driver_LPTIMER_Private.h"
 
-#if !(RTE_LPTIMER)
-#error "LPTIMER is not enabled in RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_LPTIMER)
 
-#if !defined(RTE_Drivers_LPTIMER)
-#error "LPTIMER is not enabled in the RTE_Components.h"
+#if !(RTE_LPTIMER)
+    #error "LPTIMER is not enabled in RTE_Device.h"
 #endif
 
 /**
@@ -421,3 +419,5 @@ ARM_DRIVER_LPTIMER  DRIVER_LPTIMER0 = {
 #endif /* RTE_LPTIMER */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+
+#endif /* RTE_Drivers_LPTIMER */

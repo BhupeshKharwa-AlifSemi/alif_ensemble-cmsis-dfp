@@ -28,12 +28,10 @@
 
 #define ARM_CDC200_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /*driver version*/
 
-#if !(RTE_CDC200)
-#error "CDC200 is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_CDC200)
 
-#if (!defined(RTE_Drivers_CDC200))
-#error "CDC200 not configured in RTE_Components.h!"
+#if !(RTE_CDC200)
+    #error "CDC200 is not enabled in the RTE_Device.h"
 #endif
 
 #if (RTE_MIPI_DSI)
@@ -789,4 +787,5 @@ ARM_DRIVER_CDC200 Driver_CDC200 =
     CDC200_StartDisplay,
     CDC200_StopDisplay
 };
-#endif
+#endif /* RTE_CDC200 */
+#endif /* RTE_Drivers_CDC200 */

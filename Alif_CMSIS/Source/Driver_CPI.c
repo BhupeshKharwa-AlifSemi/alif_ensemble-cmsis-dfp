@@ -32,12 +32,11 @@
 /* CMSIS CPI driver Includes */
 #include "Driver_CPI.h"
 
-#if !(RTE_CPI || RTE_LPCPI)
-#error "CAMERA is not enabled in the RTE_Device.h"
-#endif
 
-#if !defined(RTE_Drivers_CPI)
-#error "CAMERA not configured in RTE_Components.h!"
+#if defined(RTE_Drivers_CPI)
+
+#if !(RTE_CPI || RTE_LPCPI)
+    #error "CAMERA is not enabled in the RTE_Device.h"
 #endif
 
 #if (RTE_MIPI_CSI2)
@@ -893,3 +892,4 @@ ARM_DRIVER_CPI Driver_LPCPI =
 #endif /* End of RTE_LPCPI */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif /* RTE_Drivers_CPI */

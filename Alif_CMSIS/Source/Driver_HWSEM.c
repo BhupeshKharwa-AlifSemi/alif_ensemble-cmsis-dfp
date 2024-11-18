@@ -23,6 +23,8 @@
 #include "hwsem.h"
 #include "Driver_HWSEM_Private.h"
 
+#if defined(RTE_Drivers_HWSEM)
+
 #define ARM_HWSEM_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* Driver version */
 
 /* Driver Version */
@@ -1239,3 +1241,4 @@ ARM_DRIVER_HWSEM DRIVER_HWSEM15 =
 };
 
 #endif
+#endif /* RTE_Drivers_HWSEM */

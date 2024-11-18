@@ -13,6 +13,8 @@
 
 #define ARM_I2C_DRV_VERISON ARM_DRIVER_VERSION_MAJOR_MINOR(0,0) /*DRIVER VERSION*/
 
+#if defined (RTE_Drivers_LPI2C)
+
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
     ARM_I2C_API_VERSION,
@@ -398,3 +400,4 @@ ARM_DRIVER_I2C Driver_LPI2C = {
 };
 
 #endif /*(RTE_LPI2C)*/
+#endif /* RTE_Drivers_LPI2C */

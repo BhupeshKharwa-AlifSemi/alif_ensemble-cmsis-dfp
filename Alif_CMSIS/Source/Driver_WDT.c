@@ -24,12 +24,10 @@
 #include "Driver_WDT.h"
 #include "Driver_WDT_Private.h"
 
-#if !(RTE_WDT0)
-#error "Watchdog Timer WDT is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_WDT)
 
-#if (defined(RTE_Drivers_WDT0) && !RTE_WDT0)
-#error "Watchdog Timer WDT0 not configured in RTE_Device.h!"
+#if !(RTE_WDT0)
+    #error "Watchdog Timer WDT is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_WDT_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /* driver version */
@@ -405,3 +403,4 @@ ARM_DRIVER_WDT Driver_WDT0 =
 #endif /* End of RTE_WDT0 */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif /* defined(RTE_Drivers_WDT) */

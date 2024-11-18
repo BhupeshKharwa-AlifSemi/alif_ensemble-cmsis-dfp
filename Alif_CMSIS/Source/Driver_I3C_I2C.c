@@ -22,6 +22,8 @@
 #include "Driver_I3C.h"
 #include "RTE_Device.h"
 
+#if defined(RTE_Drivers_I2C_I3C)
+
 #if !(RTE_I3C)
 #error "I3C is not enabled in the RTE_Device.h"
 #endif
@@ -382,3 +384,4 @@ ARM_DRIVER_I2C Driver_I2CI3C = {
 };
 
 #endif /* RTE_I2CI3C */
+#endif /* RTE_Drivers_I2C_I3C */

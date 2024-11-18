@@ -27,9 +27,7 @@
 /* I3C Driver */
 #include "Driver_I3C.h"
 
-#if !defined (RTE_Drivers_ICM42670P)
-    #error "IMU ICM42670P is not configured in RTE_Components.h"
-#endif
+#if defined (RTE_Drivers_ICM42670P)
 
 #define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 2)
 
@@ -1059,3 +1057,4 @@ ARM_DRIVER_IMU ICM42670P =
     ARM_IMU_PowerControl,
     ARM_IMU_Control
 };
+#endif /* defined (RTE_Drivers_ICM42670P) */

@@ -26,12 +26,10 @@
 #include "IS25WX256.h"
 #include CMSIS_device_header
 
-#if !(RTE_ISSI_FLASH)
-#error "ISSI Flash driver is not enabled in RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_ISSI_FLASH)
 
-#if !(RTE_Drivers_ISSI_FLASH)
-#error "ISSI Flash driver is not enabled in RTE_Components.h"
+#if !(RTE_ISSI_FLASH)
+    #error "ISSI Flash driver is not enabled in RTE_Device.h"
 #endif
 
 #define ARM_FLASH_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1,0) /* driver version */
@@ -1187,3 +1185,4 @@ ARM_DRIVER_FLASH ARM_Driver_Flash_(DRIVER_FLASH_NUM) = {
     GetStatus,
     GetInfo
 };
+#endif /* defined(RTE_Drivers_ISSI_FLASH) */

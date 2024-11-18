@@ -15,28 +15,10 @@
 #include "analog_config.h"
 #include "sys_ctrl_cmp.h"
 
+#if defined(RTE_Drivers_CMP)
+
 #if !(RTE_HSCMP0 || RTE_HSCMP1 || RTE_HSCMP2 || RTE_HSCMP3 || RTE_LPCMP)
-#error "Comparator is not configured in RTE_device.h!"
-#endif
-
-#if(defined(RTE_Drivers_CMP0) && !RTE_HSCMP0)
-#error "HSCMP0 not configured in RTE_Device.h!"
-#endif
-
-#if(defined(RTE_Drivers_CMP1) && !RTE_HSCMP1)
-#error "CMP1 not configured in RTE_Device.h!"
-#endif
-
-#if(defined(RTE_Drivers_CMP2) && !RTE_HSCMP2)
-#error "HSCMP2 not configured in RTE_Device.h!"
-#endif
-
-#if(defined(RTE_Drivers_CMP3) && !RTE_HSCMP3)
-#error "HSCMP3 not configured in RTE_Device.h!"
-#endif
-
-#if(defined(RTE_Drivers_LPCMP) && !RTE_LPCMP)
-#error "LPCMP not configured in RTE_Device.h!"
+    #error "Comparator is not configured in RTE_device.h!"
 #endif
 
 #define ARM_CMP_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /*  Driver version */
@@ -918,3 +900,4 @@ ARM_DRIVER_CMP Driver_LPCMP =
 };
 
 #endif
+#endif /* defined(RTE_Drivers_CMP) */

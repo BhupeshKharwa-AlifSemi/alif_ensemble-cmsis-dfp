@@ -30,9 +30,7 @@
 #include "Driver_GPIO.h"
 #include "display.h"
 
-#if (!defined(RTE_Drivers_MIPI_DSI_ILI9806E_PANEL))
-#error "MIPI DSI ILI9806E Panel not configured in RTE_Components.h!"
-#endif
+#if defined(RTE_Drivers_MIPI_DSI_ILI9806E_PANEL)
 
 /* ILI9806E panel reset GPIO port */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_ILI9806E_PANEL_RESET_GPIO_PORT);
@@ -558,3 +556,4 @@ static DISPLAY_PANEL_DEVICE ILI9806E_display_panel =
 DISPLAY_PANEL(ILI9806E_display_panel)
 
 #endif /* RTE_MIPI_DSI_ILI9806E_PANEL */
+#endif /* defined(RTE_Drivers_MIPI_DSI_ILI9806E_PANEL) */

@@ -23,12 +23,10 @@
 #include "Driver_UTIMER_Private.h"
 #include "utimer.h"
 
-#if !(RTE_UTIMER)
-#error "UTIMER is not enabled in RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_UTIMER)
 
-#if !defined(RTE_Drivers_UTIMER)
-#error "UTIMER not configured in RTE_Component.h"
+#if !(RTE_UTIMER)
+    #error "UTIMER is not enabled in RTE_Device.h"
 #endif
 
 /**
@@ -1965,3 +1963,4 @@ ARM_DRIVER_UTIMER DRIVER_UTIMER0 = {
     ARM_UTIMER0_Uninitialize
 };
 #endif /* RTE_UTIMER */
+#endif /* defined(RTE_Drivers_UTIMER) */

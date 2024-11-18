@@ -39,16 +39,14 @@
 /* Touchscreen Driver */
 #include "Driver_Touch_Screen.h"
 
-#if (!defined(RTE_Drivers_GT911))
-#error "GT911 Touch not configured in RTE_Components.h!"
+#if defined(RTE_Drivers_GT911)
+
+#if !(RTE_GT911)
+    #error "GT911 Touch is not enabled in the RTE_Device.h"
 #endif
 
 #if !( RTE_TOUCH_SCREEN)
 #error "Touch Driver not enabled in the RTE_Device.h"
-#endif
-
-#if !(RTE_GT911)
-#error "GT911 Touch is not enabled in the RTE_Device.h"
 #endif
 
 #if !(RTE_ACTIVE_TOUCH_POINTS)
@@ -725,3 +723,4 @@ ARM_DRIVER_TOUCH_SCREEN GT911 =
     ARM_TOUCH_SCREEN_PowerControl,
     ARM_TOUCH_SCREEN_GetState
 };
+#endif /* defined(RTE_Drivers_GT911) */

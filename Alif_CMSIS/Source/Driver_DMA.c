@@ -24,6 +24,12 @@
 #include <dma_op.h>
 #include <string.h>
 
+#if defined(RTE_Drivers_DMA)
+
+#if !((RTE_DMA0) || (RTE_DMALOCAL))
+    #error "DMA is not enabled in the RTE_Device.h"
+#endif
+
 #define ARM_DMA_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(2, 1) /*!< DMA Driver Version */
 
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -33,14 +39,6 @@ static const ARM_DRIVER_VERSION DriverVersion = {
 
 #if ((RTE_DMA1) || (RTE_DMA2))
 #define RTE_DMALOCAL 1
-#endif
-
-#if !((RTE_DMA0) || (RTE_DMALOCAL))
-#error "DMA is not enabled in the RTE_Device.h"
-#endif
-
-#if !defined(RTE_Drivers_DMA)
-#error "DMA not defined in RTE_Components.h!"
 #endif
 
 #if RTE_GPIO3
@@ -1995,3 +1993,5 @@ ARM_DRIVER_DMA Driver_DMALOCAL = {
     DMALOCAL_DeAllocate
 };
 #endif
+
+#endif /* defined(RTE_Drivers_DMA) */

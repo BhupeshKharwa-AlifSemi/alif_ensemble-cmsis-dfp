@@ -22,16 +22,10 @@
 #include "Driver_DAC_Private.h"
 #include "analog_config.h"
 
+#if defined(RTE_Drivers_DAC)
+
 #if !(RTE_DAC0 || RTE_DAC1)
-#error "DAC is not enabled in the RTE_device.h"
-#endif
-
-#if (defined(RTE_Drivers_DAC0) && !RTE_DAC0)
-#error "DAC0 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_DAC1) && !RTE_DAC1)
-#error "DAC1 not configured in RTE_Device.h!"
+    #error "DAC is not enabled in the RTE_device.h"
 #endif
 
 #define ARM_DAC_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /*  Driver version */
@@ -471,3 +465,4 @@ ARM_DRIVER_DAC Driver_DAC1 =
 };
 
 #endif /* RTE_DAC1 */
+#endif /* RTE_Drivers_DAC */

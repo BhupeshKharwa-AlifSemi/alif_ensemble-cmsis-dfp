@@ -12,6 +12,8 @@
 #include "Driver_ADC_Private.h"
 #include "analog_config.h"
 
+#if defined(RTE_Drivers_ADC)
+
 #define ARM_ADC_DRV_VERISON ARM_DRIVER_VERSION_MAJOR_MINOR(1,0) /*DRIVER VERSION*/
 
 /* Driver Version */
@@ -1604,3 +1606,4 @@ ARM_DRIVER_ADC Driver_ADC24 ={
     ADC24_Control
 };
 #endif /* RTE_ADC24 */
+#endif /* RTE_Drivers_ADC */

@@ -21,12 +21,10 @@
 
 #include "Driver_OSPI_Private.h"
 
-#if !( (RTE_OSPI0) || (RTE_OSPI1) )
-#error "OSPI is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_OSPI)
 
-#if !defined(RTE_Drivers_OSPI)
-#error "OSPI is not enabled in the RTE_Components.h"
+#if !( (RTE_OSPI0) || (RTE_OSPI1) )
+    #error "OSPI is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_OSPI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* driver version */
@@ -1290,3 +1288,5 @@ ARM_DRIVER_OSPI Driver_OSPI1 = {
     ARM_OSPI1_GetStatus
 };
 #endif /* RTE_OSPI1 */
+
+#endif /* defined(RTE_Drivers_OSPI) */

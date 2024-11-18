@@ -24,13 +24,11 @@
 #include "gpio.h"
 #include "sys_ctrl_gpio.h"
 
+#if defined(RTE_Drivers_GPIO)
+
 #if !(RTE_GPIO0 || RTE_GPIO1 || RTE_GPIO2 || RTE_GPIO3 || RTE_GPIO4  || RTE_GPIO5 || RTE_GPIO6 || RTE_GPIO7 || \
       RTE_GPIO8 || RTE_GPIO9 || RTE_GPIO10 || RTE_GPIO11 || RTE_GPIO12  || RTE_GPI13 || RTE_GPI14 || RTE_LPGPIO)
-#error "GPIO is not enabled in the RTE_Device.h"
-#endif
-
-#if !defined(RTE_Drivers_GPIO)
-#error "GPIO is not enabled in the RTE_Components.h"
+    #error "GPIO is not enabled in the RTE_Device.h"
 #endif
 
 /**
@@ -1939,3 +1937,5 @@ extern ARM_DRIVER_GPIO __attribute__((alias("Driver_GPIOLP"))) Driver_GPIO15;
 #endif   /* RTE_LPGPIO */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+
+#endif /* defined(RTE_Drivers_GPIO) */

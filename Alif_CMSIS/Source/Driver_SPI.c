@@ -24,12 +24,10 @@
 #include "sys_ctrl_spi.h"
 #include "spi.h"
 
-#if !((RTE_SPI0) || (RTE_SPI1) || (RTE_SPI2) || (RTE_SPI3) || (RTE_LPSPI))
-#error "SPI is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_SPI)
 
-#if !defined(RTE_Drivers_SPI)
-#error "SPI is not enabled in the RTE_Components.h"
+#if !((RTE_SPI0) || (RTE_SPI1) || (RTE_SPI2) || (RTE_SPI3) || (RTE_LPSPI))
+    #error "SPI is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_SPI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* driver version */
@@ -2468,3 +2466,5 @@ ARM_DRIVER_SPI Driver_SPILP = {
     ARM_LPSPI_GetStatus
 };
 #endif /* RTE_LPSPI */
+
+#endif /* defined(RTE_Drivers_SPI) */

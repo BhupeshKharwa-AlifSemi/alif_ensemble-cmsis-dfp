@@ -21,15 +21,13 @@
 #include "rtc.h"
 #include "sys_ctrl_rtc.h"
 
-#define ARM_RTC_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /* driver version */
+#if defined(RTE_Drivers_RTC)
 
 #if !(RTE_RTC0)
-#error "RTC0 is not enabled in the RTE_Device.h"
+    #error "RTC0 is not enabled in the RTE_Device.h"
 #endif
 
-#if !defined(RTE_Drivers_RTC)
-#error "RTC0 is not enabled in the RTE_Components.h"
-#endif
+#define ARM_RTC_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /* driver version */
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -414,3 +412,5 @@ ARM_DRIVER_RTC Driver_RTC0 =
 #endif /* End of RTE_RTC0 */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+
+#endif /* defined(RTE_Drivers_RTC) */

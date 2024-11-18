@@ -18,12 +18,10 @@
 #include "i3c.h"
 #include "sys_ctrl_i3c.h"
 
-#if !(RTE_I3C)
-#error "I3C is not enabled in the RTE_Device.h"
-#endif
+#if defined(RTE_Drivers_I3C)
 
-#if (defined(RTE_Drivers_I3C) && !RTE_I3C)
-#error "I3C not configured in RTE_Device.h!"
+#if !(RTE_I3C)
+    #error "I3C is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 3) /* driver version */
@@ -2418,3 +2416,4 @@ ARM_DRIVER_I3C Driver_I3C =
 #endif /* RTE_I3C */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif /* defined(RTE_Drivers_I3C) */

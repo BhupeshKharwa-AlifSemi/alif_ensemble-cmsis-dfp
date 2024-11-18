@@ -12,16 +12,10 @@
 #include "crc.h"
 #include "Driver_CRC_Private.h"
 
+#if defined(RTE_Drivers_CRC)
+
 #if !(RTE_CRC0 || RTE_CRC1)
-#error "CRC is not enabled in the RTE_device.h"
-#endif
-
-#if (defined(RTE_Drivers_CRC0) && !RTE_CRC0)
-#error "CRC0 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_CRC1) && !RTE_CRC1)
-#error "CRC1 not configured in RTE_Device.h!"
+    #error "CRC is not enabled in the RTE_device.h"
 #endif
 
 #define ARM_CRC_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /*  Driver version */
@@ -1001,3 +995,4 @@ ARM_DRIVER_CRC Driver_CRC1 = {
 };
 
 #endif /* RTE_CRC1 */
+#endif /* RTE_Drivers_CRC */

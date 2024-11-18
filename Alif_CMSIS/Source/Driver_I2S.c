@@ -23,21 +23,18 @@
 #include "Driver_I2S_Private.h"
 #include "Driver_SAI_EX.h"
 
+#if defined(RTE_Drivers_SAI)
+
+#if !(RTE_I2S0 || RTE_I2S1 || RTE_I2S2 || RTE_I2S3)
+    #error "I2S is not enabled in the RTE_Device.h"
+#endif
+
 #define ARM_SAI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(3, 0) /*!< I2S Driver Version */
 
 static const ARM_DRIVER_VERSION DriverVersion = {
         ARM_SAI_API_VERSION,
         ARM_SAI_DRV_VERSION
 };
-
-
-#if !(RTE_I2S0 || RTE_I2S1 || RTE_I2S2 || RTE_I2S3)
-#error "I2S is not enabled in the RTE_Device.h"
-#endif
-
-#if !defined(RTE_Drivers_SAI)
-#error "I2S is not enabled in RTE_Components.h!"
-#endif
 
 /* Driver Capabilities */
 static const ARM_SAI_CAPABILITIES DriverCapabilities = {
@@ -2457,3 +2454,4 @@ ARM_DRIVER_SAI Driver_SAILP = {
     LPI2S_GetStatus
 };
 #endif //RTE_LPI2S
+#endif /* defined(RTE_Drivers_SAI) */

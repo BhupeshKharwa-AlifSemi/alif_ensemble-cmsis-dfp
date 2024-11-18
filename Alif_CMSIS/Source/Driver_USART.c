@@ -15,42 +15,11 @@
 #include "sys_ctrl_uart.h"
 #include "system_utils.h"
 
+#if defined(RTE_Drivers_USART)
+
 #if !(RTE_UART0 || RTE_UART1 || RTE_UART2 || RTE_UART3 || RTE_UART4 || RTE_UART5 || RTE_UART6 || RTE_UART7)
-#error "UART is not enabled in the RTE_Device.h"
+    #error "UART is not enabled in the RTE_Device.h"
 #endif
-
-#if (defined(RTE_Drivers_USART0) && !RTE_UART0)
-#error "UART0 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART1) && !RTE_UART1)
-#error "UART1 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART2) && !RTE_UART2)
-#error "UART2 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART3) && !RTE_UART3)
-#error "UART3 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART4) && !RTE_UART4)
-#error "UART4 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART5) && !RTE_UART5)
-#error "UART5 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART6) && !RTE_UART6)
-#error "UART6 not configured in RTE_Device.h!"
-#endif
-
-#if (defined(RTE_Drivers_USART7) && !RTE_UART7)
-#error "UART7 not configured in RTE_Device.h!"
-#endif
-
 
 #define ARM_USART_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /* driver version */
 
@@ -3205,3 +3174,4 @@ ARM_DRIVER_USART Driver_USARTLP =
 #endif /* RTE_LPUART */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif /* defined(RTE_Drivers_USART) */
