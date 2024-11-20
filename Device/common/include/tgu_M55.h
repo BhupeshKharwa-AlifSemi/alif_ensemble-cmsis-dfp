@@ -24,9 +24,9 @@
 #include <stdint.h>
 #include <limits.h>
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
   #include "M55_HP_map.h"
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
   #include "M55_HE_map.h"
 #else
   #error device not specified!

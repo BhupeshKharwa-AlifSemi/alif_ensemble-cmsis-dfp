@@ -37,7 +37,7 @@
  * @Note	 None
  ******************************************************************************/
 
-#if defined (M55_HE)
+#if defined (RTSS_HE)
   #include "M55_HE.h"
 #else
   #error device not specified!

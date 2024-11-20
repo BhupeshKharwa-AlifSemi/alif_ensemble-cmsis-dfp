@@ -634,7 +634,7 @@ typedef struct {
 /**
  * Stop Mode Request
  * enable - any bit enables
- *           bit 1 - Set M55_HE VTOR to sentinel pattern
+ *           bit 1 - Set RTSS_HE VTOR to sentinel pattern
  *           bit 2 - Enable SE TCM retention
  *           bit 3 - force SE  WDOG expiration
  *           bit 4 - force SOC WDOG expiration

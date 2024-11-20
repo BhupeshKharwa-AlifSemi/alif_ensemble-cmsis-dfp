@@ -48,7 +48,7 @@ void Receiver (void);
 #define ERROR  -1
 #define SUCCESS 0
 
-#if defined (M55_HE)
+#if defined (RTSS_HE)
 #define I2S_DAC LP            /* DAC LPI2S Controller */
 #else
 /* Enable this to feed the predefined hello sample in the

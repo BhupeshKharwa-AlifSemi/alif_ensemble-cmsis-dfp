@@ -45,7 +45,7 @@
 
 #define DEBUG_PM                            0
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 /*******************************   RTC       **********************************/
 
 /* Project Includes */
@@ -178,7 +178,7 @@ static int rtc_init()
 }
 
 /*******************************   RTC       **********************************/
-#else /* M55_HP */
+#else /* RTSS_HP */
 /*******************************   LPTIMER   **********************************/
 
 /* Project Includes */
@@ -449,7 +449,7 @@ static void pm_usage_menu()
 */
 static void pm_display_wakeup_reason(void)
 {
-#if defined(M55_HP)
+#if defined(RTSS_HP)
     if(NVIC_GetPendingIRQ(LPTIMER0_IRQ_IRQn))
     {
         printf("\r\nWakeup Interrupt Reason : LPTIMER0\n");
@@ -511,7 +511,7 @@ int main(void)
      * almost everything.
      */
     runp.power_domains = PD_SYST_MASK | PD_SSE700_AON_MASK;
-#if defined(M55_HP)
+#if defined(RTSS_HP)
     runp.memory_blocks = SRAM2_MASK | SRAM3_MASK | MRAM_MASK;
 #else
     runp.memory_blocks = SRAM4_1_MASK | SRAM4_2_MASK
@@ -573,7 +573,7 @@ int main(void)
     /* If it is POR, UART will take some time to show up */
     if((PM_RESET_STATUS_POR_OR_SOC_OR_HOST_RESET == last_reset_reason)
             && (!
-#if defined(M55_HP)
+#if defined(RTSS_HP)
                     (NVIC_GetPendingIRQ(LPTIMER0_IRQ_IRQn)
 #else
                     (NVIC_GetPendingIRQ(LPRTC0_IRQ_IRQn)
@@ -581,7 +581,7 @@ int main(void)
                     || NVIC_GetPendingIRQ(LPGPIO_IRQ4_IRQn))))
 
     {
-#if defined(M55_HP)
+#if defined(RTSS_HP)
         /* Add Delay of 1sec so that uart can show up */
         delay_count = 1;
 #else
@@ -594,7 +594,7 @@ int main(void)
     }
 
     printf("\r\n=========================================================\r\n");
-#if defined(M55_HE)
+#if defined(RTSS_HE)
     printf("\r\n    RTSS_HE: PM Test Application\r\n");
 #else
     printf("\r\n    RTSS_HP: PM Test Application\r\n");
@@ -625,7 +625,7 @@ int main(void)
     /* Enable GPIO15, PIN4 as a wakeup source */
     lpgio_init();
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
     /* RTC Initialization */
     ret = rtc_init();
     if(ret != ARM_DRIVER_OK)
@@ -646,7 +646,7 @@ int main(void)
     while(1)
     {
         pm_usage_menu();
-#if defined(M55_HE)
+#if defined(RTSS_HE)
     printf("\r\nRTSS_HE: Enter Sleep mode option:  ");
 #else
     printf("\r\nRTSS_HP: Enter Sleep mode option:  ");
@@ -658,7 +658,7 @@ int main(void)
 
         case PM_SLEEP_TYPE_NORMAL_SLEEP:
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
             ret = set_rtc(sleepDuration);
             if( ret != ARM_DRIVER_OK)
                 return ret;
@@ -685,7 +685,7 @@ int main(void)
 
         case PM_SLEEP_TYPE_DEEP_SLEEP:
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
             ret = set_rtc(sleepDuration);
             if( ret != ARM_DRIVER_OK)
                 return ret;
@@ -739,7 +739,7 @@ int main(void)
 
             offp.aon_clk_src   = CLK_SRC_LFXO;
             offp.stby_clk_src  = CLK_SRC_HFXO;
-#if defined(M55_HP)
+#if defined(RTSS_HP)
             offp.ewic_cfg      = EWIC_VBAT_TIMER | EWIC_VBAT_GPIO;
             offp.wakeup_events = WE_LPTIMER0 | WE_LPGPIO4;
 #else
@@ -749,7 +749,7 @@ int main(void)
             offp.vtor_address  = SCB->VTOR;
             offp.memory_blocks = MRAM_MASK;
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
             /*
              * Enable the HE TCM retention only if the VTOR is present.
              * This is just for this test application.
@@ -789,7 +789,7 @@ int main(void)
                 while(1);
             }
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
             /* Enable RTC as a wakeup source */
             ret = set_rtc(sleepDuration);
             if( ret != ARM_DRIVER_OK)
@@ -800,7 +800,7 @@ int main(void)
                 return ret;
 #endif
             printf("\r\nCore : Enter Subsystem off, ...\r\n");
-#if defined(M55_HP)
+#if defined(RTSS_HP)
             printf("\r\nWakeup Source Set : LPTIMER0 & GPIO P15_4 \r\n");
 #else
             printf("\r\nWakeup Source Set : RTC & GPIO P15_4 \r\n");
@@ -840,7 +840,7 @@ int main(void)
         }
     }
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
     /* enable the HFOSC clock */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
                            /*clock_enable_t*/ CLKEN_HFOSC,

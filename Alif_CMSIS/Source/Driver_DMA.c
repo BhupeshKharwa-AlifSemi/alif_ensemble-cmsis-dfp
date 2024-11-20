@@ -43,7 +43,7 @@ static const ARM_DRIVER_VERSION DriverVersion = {
 
 
 /* ----------  Local DMA Driver Access Struct Alias & RTE alias  ---------- */
-#if defined(M55_HP)
+#if defined(RTSS_HP)
 #define Driver_DMALOCAL                    Driver_DMA1
 
 #define RTE_DMALOCAL_APB_INTERFACE         RTE_DMA1_APB_INTERFACE
@@ -51,7 +51,7 @@ static const ARM_DRIVER_VERSION DriverVersion = {
 #define RTE_DMALOCAL_BOOT_IRQ_NS_STATE     RTE_DMA1_BOOT_IRQ_NS_STATE
 #define RTE_DMALOCAL_BOOT_PERIPH_NS_STATE  RTE_DMA1_BOOT_PERIPH_NS_STATE
 
-#elif defined(M55_HE)
+#elif defined(RTSS_HE)
 #define Driver_DMALOCAL                    Driver_DMA2
 
 #define RTE_DMALOCAL_APB_INTERFACE         RTE_DMA2_APB_INTERFACE

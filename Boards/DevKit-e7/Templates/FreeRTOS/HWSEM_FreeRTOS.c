@@ -40,14 +40,14 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-#ifdef M55_HP
-const char * msg = "\nPrinting from M55_HP";
-const char * acq_msg = "\nM55_HP acquiring the semaphore, printing 10 messages\r\n";
-const char * rel_msg = "\nM55_HP releasing the semaphore\r\n\n";
+#if defined(RTSS_HP)
+const char * msg = "\nPrinting from RTSS_HP";
+const char * acq_msg = "\nRTSS_HP acquiring the semaphore, printing 10 messages\r\n";
+const char * rel_msg = "\nRTSS_HP releasing the semaphore\r\n\n";
 #else
-const char * msg = "\nPrinting from M55_HE";
-const char * acq_msg = "\nM55_HE acquiring the semaphore, printing 10 messages\r\n";
-const char * rel_msg = "\nM55_HE releasing the semaphore\r\n\n";
+const char * msg = "\nPrinting from RTSS_HE";
+const char * acq_msg = "\nRTSS_HE acquiring the semaphore, printing 10 messages\r\n";
+const char * rel_msg = "\nRTSS_HE releasing the semaphore\r\n\n";
 #endif
 
 /*Define for FreeRTOS*/

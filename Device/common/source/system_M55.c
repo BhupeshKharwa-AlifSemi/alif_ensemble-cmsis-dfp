@@ -37,10 +37,10 @@
  * @Note	 None
  ******************************************************************************/
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
   #include "M55_HP.h"
   #include "M55_HP_Config.h"
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
   #include "M55_HE.h"
   #include "M55_HE_Config.h"
 #else
@@ -48,9 +48,9 @@
 #endif
 
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
-  #if defined (M55_HP)
+  #if defined (RTSS_HP)
     #include "partition_M55_HP.h"
-  #elif defined (M55_HE)
+  #elif defined (RTSS_HE)
     #include "partition_M55_HE.h"
   #endif
 #endif
@@ -70,9 +70,9 @@
 #define  MHZ            ( 1000000UL)
 
 #ifndef SYSTEM_CLOCK
-#if defined (M55_HP)
+#if defined (RTSS_HP)
 #define  SYSTEM_CLOCK    (400U * MHZ)
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
 #define  SYSTEM_CLOCK    (160U * MHZ)
 #endif
 #endif
@@ -84,9 +84,9 @@
 #define WICCONTROL_WIC_Pos          (8U)
 #define WICCONTROL_WIC_Msk          (1U << WICCONTROL_WIC_Pos)
 
-#if defined(M55_HP)
+#if defined(RTSS_HP)
 #define WICCONTROL                  (AON->RTSS_HP_CTRL)
-#elif defined(M55_HE)
+#elif defined(RTSS_HE)
 #define WICCONTROL                  (AON->RTSS_HE_CTRL)
 #endif
 

@@ -41,7 +41,7 @@
 #include "Driver_I2C.h"
 #include "pinconf.h"
 
-#if !defined(M55_HE)
+#if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
 

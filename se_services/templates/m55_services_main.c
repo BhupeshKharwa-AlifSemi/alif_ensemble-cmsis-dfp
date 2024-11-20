@@ -27,10 +27,10 @@
  *  M A C R O   D E F I N E S
  ******************************************************************************/
 
-#if   defined(M55_HE)
+#if   defined(RTSS_HE)
 #define CPU_STRING "M55_HE"
 #include "M55_HE.h"
-#elif defined(M55_HP)
+#elif defined(RTSS_HP)
 #define CPU_STRING "M55_HP"
 #include "M55_HP.h"
 #else
@@ -220,4 +220,3 @@ int main(void)
 
   return 0;
 }
-

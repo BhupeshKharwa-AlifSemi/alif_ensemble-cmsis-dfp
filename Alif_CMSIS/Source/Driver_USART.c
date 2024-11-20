@@ -1601,7 +1601,7 @@ static void UART_DMATxCallback(uint32_t event, int8_t peri_num,
         case UART5_DMA_TX_PERIPH_REQ:
         case UART6_DMA_TX_PERIPH_REQ:
         case UART7_DMA_TX_PERIPH_REQ:
-#if defined (M55_HE)
+#if defined (RTE_LPUART)
         case LPUART_DMA_TX_PERIPH_REQ:
 #endif
             /* clear the Tx flag. */

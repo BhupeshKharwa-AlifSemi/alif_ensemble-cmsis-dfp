@@ -463,7 +463,7 @@ extern "C" {
 #define GPIO8_DMA_GROUP                3
 #define GPIO8_DMA_HANDSHAKE_ENABLE     0
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
 /******************************************************************************/
 /*                         DMA1 peripheral map                              */
 /******************************************************************************/
@@ -599,7 +599,7 @@ extern "C" {
 #define GPIO9_DMA_GROUP                0
 #define GPIO9_DMA_HANDSHAKE_ENABLE     0
 
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
 /******************************************************************************/
 /*                         DMA2 peripheral map                              */
 /******************************************************************************/
@@ -737,7 +737,7 @@ extern "C" {
 #define LPGPIO_DMA_GROUP               0
 #define LPGPIO_DMA_HANDSHAKE_ENABLE    0
 
-#endif /* M55_HE */
+#endif /* RTSS_HE */
 
 #if RTE_GPIO3
 #define GPIO3_DMA_GLITCH_FILTER ((RTE_GPIO3_PIN0_DMA_GLITCH_FILTER_ENABLE << 0)|\

@@ -89,7 +89,7 @@ extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(CMP14_PORT);
 ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(CMP14_PORT);
 
 #if(CMP_INSTANCE == LPCMP)
-#if !defined(M55_HE)
+#if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
 extern ARM_DRIVER_CMP Driver_LPCMP;

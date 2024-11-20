@@ -22,10 +22,10 @@
 
 #include <stdbool.h>
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
   #include "M55_HP.h"
   #include "M55_HP_Config.h"
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
   #include "M55_HE.h"
   #include "M55_HE_Config.h"
 #else

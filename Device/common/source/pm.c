@@ -28,10 +28,10 @@
 #define PM_DRV_VERSION              VERSION(1, 0) /*!< PM Driver Version */
 
 /* WICCONTROL register : volatile static uint32_t *const WICCONTROL*/
-#if   defined(M55_HP)
+#if   defined(RTSS_HP)
 #define WICCONTROL                  (AON->RTSS_HP_CTRL)
 #define RESET_STATUS_REG            (AON->RTSS_HP_RESET)
-#elif defined(M55_HE)
+#elif defined(RTSS_HE)
 #define WICCONTROL                  (AON->RTSS_HE_CTRL)
 #define RESET_STATUS_REG            (AON->RTSS_HE_RESET)
 #else

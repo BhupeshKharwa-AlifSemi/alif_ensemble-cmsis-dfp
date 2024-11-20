@@ -22,9 +22,9 @@
 
 #include <stdint.h>
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
   #include "M55_HP_map.h"
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
   #include "M55_HE_map.h"
 #else
   #error device not specified!
@@ -676,12 +676,12 @@ typedef struct {                                /*!< (@ 0x400E2000) EVTRTR1 Stru
 #define AES1                        ((AES_Type *)              AES1_BASE)
 #define M55HE_CFG                   ((M55HE_CFG_Type*)         M55HE_CFG_BASE)
 #define EVTRTR0                     ((EVTRTR1_Type*)           EVTRTR0_BASE)
-#if defined(M55_HP)
+#if defined(RTSS_HP)
 #define M55HP_CFG                   ((M55HP_CFG_Type*)         M55HP_CFG_BASE)
 #define M55LOCAL_CFG                ((M55_CFG_Common_Type*)    M55HP_CFG_BASE)
 #define EVTRTRLOCAL                 ((EVTRTR1_Type*)           EVTRTR1_BASE)
 #endif
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 #define M55LOCAL_CFG                ((M55_CFG_Common_Type*)    M55HE_CFG_BASE)
 #define EVTRTRLOCAL                 ((EVTRTR1_Type*)           EVTRTR2_BASE)
 #endif

@@ -2272,7 +2272,7 @@
 
 // <e> LPSPI (Low Power Serial Peripheral Interface) [Driver_LPSPI]
 // <i> Configuration settings for Driver_LPSPI in component ::Drivers:SPI
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 
 #define RTE_LPSPI    1
 
@@ -2411,7 +2411,7 @@
 // <i> Default: DISABLE
 #define RTE_LPSPI_BLOCKING_MODE_ENABLE           0
 #endif  //RTE_LPSPI
-#endif //M55_HE
+#endif //RTSS_HE
 
 // </e> LPSPI (Low Power Serial Peripheral Interface) [Driver_LPSPI]
 // </h> SPI (Serial Peripheral Interface)
@@ -2998,7 +2998,7 @@
 
 // <e> LPI2S (Low Power Integrated Interchip Sound) [Driver_SAILP]
 // <i> Configuration settings for Driver_SAILP in component ::Drivers:SAI
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 
 #define RTE_LPI2S     1
 
@@ -3098,7 +3098,7 @@
 #define RTE_LPI2S_BLOCKING_MODE_ENABLE   0
 
 #endif //RTE_LPI2S
-#endif //defined(M55_HE)
+#endif //defined(RTSS_HE)
 
 // </e> LPI2S (Low Power Integrated Interchip Sound) [Driver_SAILP]
 // </h> I2S (Integrated Interchip Sound)
@@ -3650,7 +3650,7 @@
 
 // <e> LPUART (Low-Power Universal asynchronous receiver transmitter) [Driver_USARTLP]
 // <i> Configuration settings for Driver_USARTLP in component ::Drivers:USART
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 #define RTE_LPUART   1
 #endif
 
@@ -8198,7 +8198,7 @@
 #endif
 // </e> CMP3 (Analog Comparator) [Driver_CMP3]
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 // <e> LPCMP (Low Power Analog Comparator) [Driver_LPCMP]
 // <i> Configuration settings for Driver_LPCMP in component ::Drivers:LPCMP
 #define RTE_LPCMP      1
@@ -8247,7 +8247,7 @@
 
 #endif
 // </e> LPCMP (Low Power Analog Comparator) [Driver_LPCMP]
-#endif //defined(M55_HE)
+#endif //defined(RTSS_HE)
 // </h> CMP (Analog Comparator)
 
 // <h> I2C (Inter Integrated Circuit)
@@ -8402,7 +8402,7 @@
 
 // <e> LPI2C (Low Power Inter-Integrated Circuit) [Driver_LPI2C]
 // <i> Configuration settings for Driver_LPI2C in component ::Drivers:LPI2C
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 #define RTE_LPI2C   1
 #if RTE_LPI2C
 
@@ -8418,7 +8418,7 @@
 
 #endif
 // </e> LPI2C (Low Power Inter-Integrated Circuit) [Driver_LPI2C]
-#endif //defined(M55_HE)
+#endif //defined(RTSS_HE)
 // </h>
 
 // <e> DMA0 (Direct Memory Access Controller) [Driver_DMA0]
@@ -8447,7 +8447,7 @@
 // </e> DMA0 (Direct Memory Access Controller) [Driver_DMA0]
 
 // <e> DMA1 (Direct Memory Access Controller) [Driver_DMA1]
-#if defined(M55_HP)
+#if defined(RTSS_HP)
 
 // <i> Configuration settings for Driver_DMA1 in component ::Drivers:DMA
 #define RTE_DMA1      1
@@ -8477,7 +8477,7 @@
 
 // <e> DMA2 (Direct Memory Access Controller) [Driver_DMA2]
 // <i> Configuration settings for Driver_DMA2 in component ::Drivers:DMA
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 
 #define RTE_DMA2      1
 #if RTE_DMA2
@@ -9721,7 +9721,7 @@
 
 // </h> PDM (Pulse density modulation)
 
-#if defined(M55_HE)
+#if defined(RTSS_HE)
 // <h> LPPDM(Low Power Pulse Density Modulation)
 // <e> LPPDM (Low Power Pulse density modulation) [Driver_LPPDM]
 // <i> Configuration settings for Driver_LPPDM in component ::Drivers:LPPDM
@@ -9761,7 +9761,7 @@
 #endif
 #endif
 // </e> LPPDM (Low Power Pulse density modulation) [Driver_LPPDM]
-#endif //defined(M55_HE)
+#endif //defined(RTSS_HE)
 // </h> LPPDM (Low Power Pulse density modulation)
 
 // <h> CANFD (Controller Area Network - Fast Mode)
@@ -9877,4 +9877,3 @@
 // </h> Power Management (PM)
 
 #endif  /* __RTE_DEVICE_H */
-

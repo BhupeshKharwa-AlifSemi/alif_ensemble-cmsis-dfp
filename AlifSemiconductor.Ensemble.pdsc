@@ -113,8 +113,8 @@
         <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
         <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
 
-        <compile Pname="M55_HP" Pdefine="M55_HP"/>
-        <compile Pname="M55_HE" Pdefine="M55_HE"/>
+        <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00200000"/>
         <accessportV2 __apid="1" address="0x00300000"/>
@@ -183,15 +183,15 @@
         <feature type="VCC" n="1.71" m="4.2"/>
         <feature type="Temp" n="-40" m="75"/>
         <device Dname="AE722F80F55D5AS">
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE722F80F55D5AS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE722F80F55D5AS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="CSP" n="208" name="WLCSP Package"/>
         </device>
         <device Dname="AE722F80F55D5LS">
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE722F80F55D5LS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE722F80F55D5LS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -209,8 +209,8 @@
         <!-- On-chip NVM Region -->
         <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
-        <compile Pname="M55_HP" Pdefine="M55_HP"/>
-        <compile Pname="M55_HE" Pdefine="M55_HE"/>
+        <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00200000"/>
         <accessportV2 __apid="1" address="0x00300000"/>
@@ -293,8 +293,8 @@
           <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
           <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE512F80F55D5AS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE512F80F55D5AS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="CSP" n="208" name="WLCSP Package"/>
@@ -308,8 +308,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE512F80F5582AS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE512F80F5582AS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="CSP" n="208" name="WLCSP Package"/>
@@ -331,8 +331,8 @@
           <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
           <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE512F80F55D5LS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE512F80F55D5LS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -348,8 +348,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE512F80F5582LS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE512F80F5582LS_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -362,8 +362,8 @@
         <!-- Device processor attributes -->
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="400000000" Pname="M55_HP"/>
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
-        <compile Pname="M55_HP" Pdefine="M55_HP"/>
-        <compile Pname="M55_HE" Pdefine="M55_HE"/>
+        <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00200000"/>
         <accessportV2 __apid="1" address="0x00300000"/>
@@ -448,8 +448,8 @@
           <memory name="SRAM7" start="0x63000000" size="0x00080000" access="rwx" default="1"/>
           <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
           <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE302F80F55D5AE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F80F55D5AE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="CSP" n="208" name="WLCSP Package"/>
@@ -470,8 +470,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE302F80F5582AE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F80F5582AE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="CSP" n="208" name="WLCSP Package"/>
@@ -498,8 +498,8 @@
           <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
           <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE302F80F55D5LE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F80F55D5LE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -521,8 +521,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE302F80F5582LE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F80F5582LE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -543,8 +543,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-	  <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+	  <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE302F80C1557LE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F80C1557LE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -563,8 +563,8 @@
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
           <!-- processor & Compile headers-->
-	  <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="M55_HP"/>
-	  <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+	  <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
+	  <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
 	  <debug svd="Debug/SVD/AE302F40C1537LE_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
           <debug svd="Debug/SVD/AE302F40C1537LE_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
@@ -579,7 +579,7 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
          <!-- DebugConfig for E1 -->
         <debugconfig sdf="Debug/SDF/E1/Ensemble E1.sdf" dormant="true"/>
-        <compile Pname="M55_HE" Pdefine="M55_HE"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00300000"/>
         <!-- Documents -->
@@ -645,7 +645,7 @@
           <memory name="SRAM3" start="0x50800000" size="0x00100000" access="rwx" default="1"/>
           <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
           <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
-          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="M55_HE"/>
+          <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE101F4071542LH_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
           <feature type="BGA" n="194" name="FBGA Package"/>
           <feature type="CoreOther" n="1" name="Neural Processing Unit (NPU) Ethos-U55 HE"/>

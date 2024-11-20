@@ -38,8 +38,8 @@
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 
-#if !defined(M55_HE)
-#error "This Demo application works only on M55_HE"
+#if !defined(RTSS_HE)
+#error "This Demo application works only on RTSS_HE"
 #endif
 
 /* Use below macro to specify transfer type
@@ -436,4 +436,3 @@ int main( void )
     vTaskStartScheduler();
 
 }
-

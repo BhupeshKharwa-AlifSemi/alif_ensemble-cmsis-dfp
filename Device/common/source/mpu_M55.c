@@ -22,9 +22,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#if defined (M55_HP)
+#if defined (RTSS_HP)
   #include "M55_HP.h"
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
   #include "M55_HE.h"
 #else
   #error device not specified!
@@ -70,7 +70,7 @@ void MPU_Load_Regions(void)
             .RBAR = ARM_MPU_RBAR(0x1A000000, ARM_MPU_SH_NON, 0, 1, 1),
             .RLAR = ARM_MPU_RLAR(0x1AFFFFFF, MEMATTRIDX_DEVICE_nGnRE)
         },
-#if defined (M55_HP)
+#if defined (RTSS_HP)
         {   /* RTSS HE ITCM - 256K(SRAM4) : RO-0, NP-1, XN-0  */
             .RBAR = ARM_MPU_RBAR(0x58000000, ARM_MPU_SH_OUTER, 0, 1, 0),
             .RLAR = ARM_MPU_RLAR(0x5803FFFF, MEMATTRIDX_NORMAL_WB_RA_WA)
@@ -79,7 +79,7 @@ void MPU_Load_Regions(void)
             .RBAR = ARM_MPU_RBAR(0x58800000, ARM_MPU_SH_OUTER, 0, 1, 0),
             .RLAR = ARM_MPU_RLAR(0x5883FFFF, MEMATTRIDX_NORMAL_WB_RA_WA)
         },
-#elif defined (M55_HE)
+#elif defined (RTSS_HE)
         {   /* RTSS HP ITCM - 256K(SRAM2) : RO-0, NP-1, XN-0  */
             .RBAR = ARM_MPU_RBAR(0x50000000, ARM_MPU_SH_OUTER, 0, 1, 0),
             .RLAR = ARM_MPU_RLAR(0x5003FFFF, MEMATTRIDX_NORMAL_WB_RA_WA)

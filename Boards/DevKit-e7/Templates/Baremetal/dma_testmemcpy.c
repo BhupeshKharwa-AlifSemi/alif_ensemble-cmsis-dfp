@@ -31,10 +31,10 @@
 
 /* Enable the DMA controller to test */
 //#define TEST_DMA0
-#if defined (M55_HP)
+#if defined (RTSS_HP)
 #define TEST_DMA1
 #endif
-#if defined (M55_HE)
+#if defined (RTSS_HE)
 #define TEST_DMA2
 #endif
 
@@ -48,7 +48,7 @@
 #define DMA_XFER_LEN 1000
 
 
-#if defined (M55_HE)
+#if defined (RTSS_HE)
 /* TCM size is less in RTSS_HE */
 #define MAX_TRANSFER_LEN (1024)               /* Total Number of bytes */
 #else

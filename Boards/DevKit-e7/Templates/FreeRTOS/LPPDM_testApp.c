@@ -54,7 +54,7 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-#if !defined(M55_HE)
+#if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
 
