@@ -42,8 +42,6 @@
 #ifndef M55_HP_H
 #define M55_HP_H
 
-#include <irqs.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -166,6 +164,7 @@ extern "C" {
 #define __ICACHE_PRESENT          1U        /* Instruction Cache present */
 #define __DCACHE_PRESENT          1U        /* Data Cache present */
 
+#include <irqs.h>                           /* IRQ numbers */
 #include "core_cm55.h"                      /* Processor and core peripherals */
 #include "system_M55.h"                     /* System Header */
 #include "M55_HP_map.h"                     /* Memory Map */
