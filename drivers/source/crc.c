@@ -93,7 +93,7 @@ void crc_calculate_8bit(CRC_Type *crc, const void *data_in,
     for (uint32_t count = 0; count < len; count ++)
     {
         /* User input 8 bit data is storing into the DATA_IN_8 bit register */
-        crc->CRC_DATA_IN_8_0 = ((const uint8_t *)data_in)[count];
+        crc->CRC_DATA_IN_8_[0] = ((const uint8_t *)data_in)[count];
     }
 
     /* data_out pointer to store the CRC output */
@@ -116,7 +116,7 @@ void crc_calculate_8bit(CRC_Type *crc, const void *data_in,
     for (uint32_t count = 0; count < len; count ++)
     {
         /* User input 8 bit data is storing into the DATA_IN_8 bit register */
-        crc->CRC_DATA_IN_8_0 = ((const uint8_t *)data_in)[count];
+        crc->CRC_DATA_IN_8_[0] = ((const uint8_t *)data_in)[count];
     }
 
     /* data_out pointer to store the CRC output */
@@ -151,7 +151,7 @@ void crc_calculate_32bit(CRC_Type *crc, const void *data_in,
         value = *(data32++);
 
         /* User input 32 bit data is storing into the DATA_IN_32 bit register */
-        crc->CRC_DATA_IN_32_0 = value;
+        crc->CRC_DATA_IN_32_[0] = value;
     }
 
     /* Store the CRC aligned output */
