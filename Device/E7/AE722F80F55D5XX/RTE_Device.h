@@ -710,6 +710,94 @@
 #endif
 // </e> AR0145 [Driver_AR0145]
 
+// <e> AR0246 [Driver_AR0246]
+// <o> Enable/Disable AR0246 camera sensor
+//     <0=> disable
+//     <1=> enable
+// <i> define if to enable or disable AR0246 camera sensor
+// <i> default: enable
+#define RTE_AR0246_CAMERA_SENSOR_CSI_ENABLE     1
+
+#if (RTE_AR0246_CAMERA_SENSOR_CSI_ENABLE)
+
+// <o> Select camera AR0246 frequency
+// <i> Defines camera AR0246 frequency
+// <i> Default: 442000000
+#define RTE_AR0246_CAMERA_SENSOR_CSI_FREQ                    442000000
+
+// <o> select AR0246 CSI2 Data type
+// <i> defines select CSI2 Data type
+// <i> default: 0x2C(RAW12)
+#define RTE_AR0246_CAMERA_SENSOR_CSI_DATA_TYPE               0x2C
+
+// <o> select AR0246 number of lanes in DPHY
+// <i> defines select AR0246 number of lanes in DPHY.
+// <i> default: 2 two lane
+#define RTE_AR0246_CAMERA_SENSOR_CSI_N_LANES                 2
+
+// <o> select AR0246 virtual channel ID
+// <i> defines select AR0246 virtual channel ID.
+// <i> default: 0
+#define RTE_AR0246_CAMERA_SENSOR_CSI_VC_ID                   0
+
+// <o> select AR0246 override CPI color mode
+// <i> defines select AR0246 override CPI color mode.
+// <i> default: 1 (Enable)
+#define RTE_AR0246_CAMERA_SENSOR_OVERRIDE_CPI_COLOR_MODE     1
+
+// <o> select AR0246 CPI color mode
+// <i> defines select AR0246 CPI color mode.
+// <i> default: 2  (IPI-16 RAW 8)
+#define RTE_AR0246_CAMERA_SENSOR_CPI_COLOR_MODE              2
+
+// <o> select AR0246 frame height
+// <i> defines select AR0246 frame height.
+// <i> default: 472
+#define RTE_AR0246_CAMERA_SENSOR_FRAME_HEIGHT                472
+
+// <o> select AR0246 frame width
+// <i> defines select AR0246 frame width.
+// <i> default: 684
+#define RTE_AR0246_CAMERA_SENSOR_FRAME_WIDTH                 684
+
+// <o> Select camera sensor AR0246 CSI clock source division [Divisor] <2-511>
+// <i> Defines camera sensor AR0246 CSI clock source division
+// <i> Default: 15
+#define RTE_AR0246_CAMERA_SENSOR_CSI_CLK_SCR_DIV             15
+
+// <o> Select camera sensor AR0246 reset pin number
+// <i> Defines camera sensor AR0246 reset pin number
+// <i> Default: 1
+#define RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO                 1
+
+// <o> Select camera sensor AR0246 reset GPIO port
+// <i> Defines camera sensor AR0246 reset GPIO port
+// <i> Default: 9
+#define RTE_AR0246_CAMERA_SENSOR_RESET_GPIO_PORT              9
+
+// <o> Select camera sensor AR0246 power pin number
+// <i> Defines camera sensor AR0246 power pin number
+// <i> Default: 5
+#define RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO                 5
+
+// <o> Select camera sensor AR0246 power GPIO port
+// <i> Defines camera sensor AR0246 power GPIO port
+// <i> Default: 7
+#define RTE_AR0246_CAMERA_SENSOR_POWER_GPIO_PORT              7
+
+// <o> RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE
+// <i> Defines camera sensor AR0246 i2c instance
+//     <0=>   I2C0
+//     <1=>   I2C1
+//     <2=>   I2C2
+//     <3=>   I2C3
+//     <4=>   I2C OVER I3C
+// <i> Default: 1
+#define RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE                 1
+
+#endif
+// </e> AR0246 [Driver_AR0246]
+
 // <e> MT9M114_MIPI [Driver_MT9M114_MIPI]
 // <o> Enable/Disable MT9M114 MIPI camera sensor
 //     <0=> disable
