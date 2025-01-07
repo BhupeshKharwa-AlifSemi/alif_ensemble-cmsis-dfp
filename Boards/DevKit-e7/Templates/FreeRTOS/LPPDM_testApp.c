@@ -81,6 +81,9 @@ StaticTask_t TimerTcb;
 #define CHANNEL_0  0
 #define CHANNEL_1  1
 
+#define ERROR    -1
+#define SUCCESS   0
+
 /* PDM Channel 0 configurations */
 #define CH0_PHASE             0x00000003
 #define CH0_GAIN              0x00000013
@@ -173,6 +176,58 @@ static void PDM_fifo_callback(uint32_t event)
 }
 
 /**
+ * @fn          void lppdm_pinmux(void)
+ * @brief       Initialize the pinmux for LPPDM
+ * @return      status
+*/
+static int32_t lppdm_pinmux(void)
+{
+    int32_t status;
+
+    /* channel 0_1 data line */
+    status = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    if (status)
+        return ERROR;
+
+    /* channel 2_3 data line */
+    status = pinconf_set(PORT_3, PIN_7, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    if (status)
+        return ERROR;
+
+    /* channel 4_5 data line */
+    status = pinconf_set(PORT_11, PIN_6, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    if (status)
+        return ERROR;
+
+    /* channel 6_7 data line */
+    status = pinconf_set(PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    if (status)
+        return ERROR;
+
+    /* Channel 0_1 clock line */
+    status = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status)
+        return ERROR;
+
+    /* Channel 2_3 clock line */
+    status = pinconf_set(PORT_3, PIN_6, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status)
+        return ERROR;
+
+    /* Channel 4_5 clock line */
+    status = pinconf_set(PORT_11, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status)
+        return ERROR;
+
+    /* Channel 6_7 clock line */
+    status = pinconf_set(PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status)
+        return ERROR;
+
+    return SUCCESS;
+}
+
+/**
  * @fn         : void pdm_demo_thread_entry(void *pvParameters)
  * @brief      : PDM fifo callback
  *               -> Initialize the PDM module.
@@ -208,15 +263,11 @@ void pdm_demo_thread_entry(void *pvParameters)
     version = PDMdrv->GetVersion();
     printf("\r\n PDM version api:%X driver:%X...\r\n", version.api, version.drv);
 
-    /* Data line for Channel 0 and 1 (LPPDM_D0_B -> pin P3_5) */
-    retval = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
-    if (retval)
-        printf("pinconf_set failed\n");
-
-    /* Clock line for Channel 0 and 1 (LPPDM_C0_B -> pin P3_4) */
-    retval = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, 0x0);
-    if (retval)
-        printf("pinconf_set failed\n");
+    /* configure LPPDM data and clock lines */
+    if(lppdm_pinmux())
+    {
+        printf("LPPDM pinmux failed\n");
+    }
 
     /* Initialize PDM driver */
     ret = PDMdrv->Initialize(PDM_fifo_callback);

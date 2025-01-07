@@ -213,4 +213,26 @@ static void lpcmp_clear_config(void)
     ANA_REG->VBAT_ANA_REG2 &= ~LPCMP_MSK_CTRL_VAL;
 }
 
+/**
+ * @fn          uint8_t cmp_int_mask(void)
+ * @brief       HSCMP device specific interrupt status
+ * @param[in]   None
+ * @return      HSCMP device specific interrupt status macro
+ */
+static inline uint8_t cmp_int_mask(void)
+{
+	return DEVICE_FEATURE_HSCMP_INT_STATUS_MASK;
+}
+
+/**
+ * @fn          uint8_t cmp_window_enable_value(void)
+ * @brief       HSCMP device specific window function
+ * @param[in]   None
+ * @return      HSCMP device specific window function macro
+ */
+static inline uint8_t cmp_window_enable_value(void)
+{
+	return DEVICE_FEATURE_HSCMP_WINDOW_FUNCTION_ENABLE;
+}
+
 #endif /* SYS_CTRL_CMP_H_ */

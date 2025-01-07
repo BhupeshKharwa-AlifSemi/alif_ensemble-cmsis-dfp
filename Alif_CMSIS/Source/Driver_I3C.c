@@ -21,7 +21,7 @@
 #if defined(RTE_Drivers_I3C)
 
 #if !(RTE_I3C)
-    #error "I3C is not enabled in the RTE_Device.h"
+#error "I3C is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 3) /* driver version */
@@ -113,17 +113,14 @@ __STATIC_INLINE int32_t I3C_DMA_Allocate(DMA_PERIPHERAL_CONFIG *dma_periph)
     }
 
     /* Enable the channel in the Event Router */
-    if(dma_periph->evtrtr_cfg.instance == 0)
-    {
-        evtrtr0_enable_dma_channel(dma_periph->evtrtr_cfg.channel,
-        						   dma_periph->evtrtr_cfg.group,
-                                   DMA_ACK_COMPLETION_PERIPHERAL);
-    }
-    else
-    {
-        evtrtrlocal_enable_dma_channel(dma_periph->evtrtr_cfg.channel,
-                                       DMA_ACK_COMPLETION_PERIPHERAL);
-    }
+    evtrtr_enable_dma_channel(dma_periph->evtrtr_cfg.instance,
+                              dma_periph->evtrtr_cfg.channel,
+                              dma_periph->evtrtr_cfg.group,
+                              DMA_ACK_COMPLETION_PERIPHERAL);
+
+    evtrtr_enable_dma_handshake(dma_periph->evtrtr_cfg.instance,
+                                dma_periph->evtrtr_cfg.channel,
+                                dma_periph->evtrtr_cfg.group);
 
     return ARM_DRIVER_OK;
 }
@@ -147,16 +144,12 @@ __STATIC_INLINE int32_t I3C_DMA_DeAllocate(DMA_PERIPHERAL_CONFIG *dma_periph)
     }
 
     /* Disable the channel in the Event Router */
-    if(dma_periph->evtrtr_cfg.instance == 0)
-    {
-        evtrtr0_disable_dma_channel(dma_periph->evtrtr_cfg.channel);
-        evtrtr0_disable_dma_handshake(dma_periph->evtrtr_cfg.channel,
-                                      dma_periph->evtrtr_cfg.group);
-    }
-    else
-    {
-        evtrtrlocal_disable_dma_channel(dma_periph->evtrtr_cfg.channel);
-    }
+    evtrtr_disable_dma_channel(dma_periph->evtrtr_cfg.instance,
+                               dma_periph->evtrtr_cfg.channel);
+
+    evtrtr_disable_dma_handshake(dma_periph->evtrtr_cfg.instance,
+                                 dma_periph->evtrtr_cfg.channel,
+                                 dma_periph->evtrtr_cfg.group);
 
     return ARM_DRIVER_OK;
 }
@@ -244,11 +237,7 @@ static int32_t I3C_DMA_Start_TX(I3C_RESOURCES *i3c,
 
     /* i3c TX/RX FIFO is 4-byte(word) aligned */
     dma_params.burst_size = BS_BYTE_4;
-    dma_params.burst_len  = i3c_get_tx_empty_buf_thld(i3c->regs);
-    if( dma_params.burst_len > 16)
-    {
-        dma_params.burst_len = 16;
-    }
+    dma_params.burst_len = 1;
 
     /* Start DMA transfer */
     status = I3C_DMA_Start(&i3c->dma_cfg->dma_tx, &dma_params);
@@ -298,11 +287,7 @@ static int32_t I3C_DMA_Start_RX(I3C_RESOURCES *i3c,
 
     /* i3c TX/RX FIFO is 4-byte(word) aligned */
     dma_params.burst_size = BS_BYTE_4;
-    dma_params.burst_len  = i3c_get_rx_buf_thld(i3c->regs);
-    if( dma_params.burst_len > 16)
-    {
-        dma_params.burst_len = 16;
-    }
+    dma_params.burst_len = 1;
 
     /* Start DMA transfer */
     status = I3C_DMA_Start(&i3c->dma_cfg->dma_rx, &dma_params);
@@ -450,7 +435,7 @@ static int I3Cx_GetSlvsInfo(I3C_RESOURCES *i3c,
     }
     else
     {
-        /* Performs the following if it's a master */
+        /* Performs the following if it's a secondary master */
 
         /* Considering value as the count of slaves.
          * Returns error if the slave count is more than
@@ -652,7 +637,7 @@ static ARM_I3C_STATUS I3Cx_GetStatus(I3C_RESOURCES *i3c)
 {
     /* Returns Current I3C driver status */
     i3c->status.mode         = i3c->state.is_master;
-    i3c->status.ibi_slv_addr = i3c->xfer.addr;
+    i3c->status.ibi_slv_addr = i3c->xfer.addr_len;
 
     /* Fetch the last error found */
     switch(i3c->xfer.error)
@@ -789,6 +774,7 @@ static int I3Cx_MasterSendCommand(I3C_RESOURCES *i3c, ARM_I3C_CMD *ccc)
         i3c->xfer.tx_len              = 0U;
         i3c->xfer.rx_buf              = ccc->data;
         i3c->xfer.rx_len              = ccc->len;
+        i3c->xfer.rx_cur_cnt          = 0U;
         i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_CCC_GET;
         i3c->xfer.xfer_cmd.cmd_id     = ccc->cmd_id;
         i3c->xfer.xfer_cmd.addr_index = index;
@@ -813,8 +799,8 @@ static int I3Cx_MasterSendCommand(I3C_RESOURCES *i3c, ARM_I3C_CMD *ccc)
         else
 #endif
         {
-            /* Invoke xfer cmd api */
-            i3c_send_xfer_cmd(i3c->regs, &(i3c->xfer));
+            /* Invoke cmd setup api */
+            i3c_master_setup_cmd(i3c->regs, i3c->xfer);
         }
     }    /* command read  */
     else /* command write */
@@ -837,6 +823,7 @@ static int I3Cx_MasterSendCommand(I3C_RESOURCES *i3c, ARM_I3C_CMD *ccc)
             i3c->xfer.rx_len              = 0U;
             i3c->xfer.tx_buf              = ccc->data;
             i3c->xfer.tx_len              = ccc->len;
+            i3c->xfer.tx_cur_cnt          = 0U;
             i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_CCC_SET;
             i3c->xfer.xfer_cmd.cmd_id     = ccc->cmd_id;
             i3c->xfer.xfer_cmd.addr_index = index;
@@ -873,8 +860,8 @@ static int I3Cx_MasterSendCommand(I3C_RESOURCES *i3c, ARM_I3C_CMD *ccc)
             else
 #endif
             {
-                /* Invoke xfer cmd api */
-                i3c_send_xfer_cmd(i3c->regs, &i3c->xfer);
+                /* Invoke cmd setup api */
+                i3c_master_setup_cmd(i3c->regs, i3c->xfer);
             }
         }
     }
@@ -924,9 +911,6 @@ static int I3Cx_MasterTransmit(I3C_RESOURCES *i3c,  uint8_t  addr,
     if (!data || !len)
         return ARM_DRIVER_ERROR_PARAMETER;
 
-    if(len > I3C_MAX_DATA_BUF_SIZE)
-        return ARM_DRIVER_ERROR_PARAMETER;
-
     if (i3c->status.busy)
         return ARM_DRIVER_ERROR_BUSY;
 
@@ -936,17 +920,19 @@ static int I3Cx_MasterTransmit(I3C_RESOURCES *i3c,  uint8_t  addr,
 
     i3c->status.busy              = 1;
     i3c->xfer.error               = 0U;
+    i3c->xfer.tx_len              = len;
     i3c->xfer.rx_buf              = NULL;
     i3c->xfer.rx_len              = 0U;
     i3c->xfer.xfer_cmd.addr_index = index;
     i3c->xfer.xfer_cmd.data_len   = len;
+    i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE) /* update only if DMA disable */
+#if (!I3C_DMA_ENABLE)
     i3c->xfer.tx_buf              = data;
-    i3c->xfer.tx_len              = len;
+    i3c->xfer.tx_cur_cnt          = 0U;
 #else
     i3c->xfer.tx_buf              = NULL;
-    i3c->xfer.tx_len              = 0U;
+    i3c->xfer.tx_cur_cnt          = len;
 #endif
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
@@ -968,18 +954,18 @@ static int I3Cx_MasterTransmit(I3C_RESOURCES *i3c,  uint8_t  addr,
     else
 #endif
     {
-        /* Invoke master send api */
-        i3c_master_tx(i3c->regs, &i3c->xfer);
-    }
-
 #if I3C_DMA_ENABLE
-    ret = I3C_DMA_Start_TX(i3c, data, len);
-    if(ret)
-    {
-        return ARM_DRIVER_ERROR;
-    }
+        i3c_setup_tx(i3c->regs, 0);
+        ret = I3C_DMA_Start_TX(i3c, data, len);
+        if(ret)
+        {
+            return ARM_DRIVER_ERROR;
+        }
+#else
+        /* Invoke master send api */
+        i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
 #endif
-
+    }
     return ARM_DRIVER_OK;
 }
 
@@ -1014,9 +1000,6 @@ static int I3Cx_MasterReceive(I3C_RESOURCES *i3c,  uint8_t  addr,
     if (!data || !len)
         return ARM_DRIVER_ERROR_PARAMETER;
 
-    if(len > I3C_MAX_DATA_BUF_SIZE)
-        return ARM_DRIVER_ERROR_PARAMETER;
-
     if (i3c->status.busy)
         return ARM_DRIVER_ERROR_BUSY;
 
@@ -1032,10 +1015,14 @@ static int I3Cx_MasterReceive(I3C_RESOURCES *i3c,  uint8_t  addr,
     i3c->xfer.xfer_cmd.data_len   = len;
     i3c->xfer.rx_len              = len;
 
-#if (!I3C_DMA_ENABLE) /* update only if DMA disable */
+    i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
+
+#if (!I3C_DMA_ENABLE)
     i3c->xfer.rx_buf              = data;
+    i3c->xfer.rx_cur_cnt          = 0U;
 #else
     i3c->xfer.rx_buf              = NULL;
+    i3c->xfer.rx_cur_cnt          = len;
 #endif
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
@@ -1057,18 +1044,18 @@ static int I3Cx_MasterReceive(I3C_RESOURCES *i3c,  uint8_t  addr,
     else
 #endif
     {
-        /* Invoke master receive api */
-        i3c_master_rx(i3c->regs, &i3c->xfer);
-    }
-
 #if I3C_DMA_ENABLE
-    ret = I3C_DMA_Start_RX(i3c, data, len);
-    if(ret)
-    {
-        return ARM_DRIVER_ERROR;
-    }
+        i3c_setup_rx(i3c->regs, 0);
+        ret = I3C_DMA_Start_RX(i3c, data, len);
+        if(ret)
+        {
+            return ARM_DRIVER_ERROR;
+        }
+#else
+        /* Invoke master send api */
+        i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
 #endif
-
+    }
     return ARM_DRIVER_OK;
 }
 
@@ -1104,14 +1091,6 @@ static int I3Cx_SlaveTransmit(I3C_RESOURCES *i3c,
     if (!data || !len)
         return ARM_DRIVER_ERROR_PARAMETER;
 
-    if((len > i3c_slave_get_max_write_len(i3c->regs)) ||
-       (len > I3C_MAX_DATA_BUF_SIZE))
-    {
-        /* Return error if required legth is greater than
-         * Master Set Max Write Length or I3C_MAX_DATA_BUF_SIZE */
-        return ARM_DRIVER_ERROR_PARAMETER;
-    }
-
     if (i3c->status.busy)
         return ARM_DRIVER_ERROR_BUSY;
 
@@ -1121,11 +1100,14 @@ static int I3Cx_SlaveTransmit(I3C_RESOURCES *i3c,
     i3c->xfer.rx_len            = 0U;
     i3c->xfer.xfer_cmd.data_len = len;
     i3c->xfer.tx_len            = len;
+    i3c->xfer.xfer_cmd.cmd_type = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE) /* update only if DMA disable */
+#if (!I3C_DMA_ENABLE)
     i3c->xfer.tx_buf            = data;
+    i3c->xfer.tx_cur_cnt        = 0U;
 #else
     i3c->xfer.tx_buf            = NULL;
+    i3c->xfer.tx_cur_cnt        = len;
 #endif
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
@@ -1145,17 +1127,18 @@ static int I3Cx_SlaveTransmit(I3C_RESOURCES *i3c,
     else
 #endif
     {
-        /* Invoke slave transmit api */
-        i3c_slave_tx(i3c->regs, &i3c->xfer);
-    }
-
 #if I3C_DMA_ENABLE
-    ret = I3C_DMA_Start_TX(i3c, data, len);
-    if(ret)
-    {
-        return ARM_DRIVER_ERROR;
-    }
+        i3c_setup_tx(i3c->regs, 0);
+        ret = I3C_DMA_Start_TX(i3c, data, len);
+        if(ret)
+        {
+            return ARM_DRIVER_ERROR;
+        }
+#else
+        /* Invoke slave transmit api */
+        i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
 #endif
+    }
 
     return ARM_DRIVER_OK;
 }
@@ -1192,28 +1175,22 @@ static int I3Cx_SlaveReceive(I3C_RESOURCES *i3c,
     if (!data || !len)
         return ARM_DRIVER_ERROR_PARAMETER;
 
-    if((len > i3c_slave_get_max_read_len(i3c->regs)) ||
-       (len > I3C_MAX_DATA_BUF_SIZE))
-    {
-        /* Return error if required legth is greater than
-         * Master Set Max Read Length or I3C_MAX_DATA_BUF_SIZE */
-        return ARM_DRIVER_ERROR_PARAMETER;
-    }
-
     if (i3c->status.busy)
         return ARM_DRIVER_ERROR_BUSY;
 
-    i3c->status.busy = 1;
-    i3c->xfer.error  = 0U;
-    i3c->xfer.tx_buf = NULL;
-    i3c->xfer.tx_len = 0;
-    i3c->xfer.rx_len = len;
+    i3c->status.busy              = 1;
+    i3c->xfer.error               = 0U;
+    i3c->xfer.tx_buf              = NULL;
+    i3c->xfer.tx_len              = 0;
+    i3c->xfer.rx_len              = len;
+    i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE) /* update only if DMA disable */
-    /* Buffer initialization for TX/RX */
-    i3c->xfer.rx_buf = data;
+#if (!I3C_DMA_ENABLE)
+    i3c->xfer.rx_buf     = data;
+    i3c->xfer.rx_cur_cnt = 0U;
 #else
-    i3c->xfer.rx_buf = NULL;
+    i3c->xfer.rx_buf     = NULL;
+    i3c->xfer.rx_cur_cnt = len;
 #endif
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
@@ -1233,17 +1210,18 @@ static int I3Cx_SlaveReceive(I3C_RESOURCES *i3c,
     else
 #endif
     {
-        /* Invoke slave receive api */
-        i3c_slave_rx(i3c->regs, &i3c->xfer);
-    }
-
 #if I3C_DMA_ENABLE
-    ret = I3C_DMA_Start_RX(i3c, data, len);
-    if(ret)
-    {
-        return ARM_DRIVER_ERROR;
-    }
+        i3c_setup_rx(i3c->regs, 0);
+        ret = I3C_DMA_Start_RX(i3c, data, len);
+        if(ret)
+        {
+            return ARM_DRIVER_ERROR;
+        }
+#else
+        /* Invoke slave reception api */
+        i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
 #endif
+    }
 
     return ARM_DRIVER_OK;
 }
@@ -1401,8 +1379,8 @@ static int I3Cx_MasterAssignDA(I3C_RESOURCES *i3c,
 
     i3c->status.busy              = 1U;
     i3c->xfer.error               = 0U;
-
     i3c->xfer.rx_len              = 0U;
+    i3c->xfer.rx_cur_cnt          = 0U;
     i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_ADDR_ASSIGN;
     i3c->xfer.xfer_cmd.def_byte   = addr_cmd->def_byte;
     i3c->xfer.xfer_cmd.data_len   = 0U;
@@ -1427,7 +1405,7 @@ static int I3Cx_MasterAssignDA(I3C_RESOURCES *i3c,
     else
 #endif
     {
-        i3c_send_xfer_cmd(i3c->regs, &i3c->xfer);
+        i3c_master_setup_cmd(i3c->regs, i3c->xfer);
     }
 
     return ARM_DRIVER_OK;
@@ -1814,6 +1792,8 @@ static int32_t I3Cx_Initialize(I3C_RESOURCES         *i3c,
 #endif
 
     i3c->core_clk = GetSystemAPBClock();
+
+    i3c->xfer.xfer_cmd.speed      = I3C_SPEED_SDR0;
     /* set the state as initialized. */
     i3c->state.initialized = 1;
     return ARM_DRIVER_OK;
@@ -2036,6 +2016,227 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num,
 }
 #endif /* RTE_I3C_DMA_ENABLE */
 
+/**
+  \fn           static void I3Cx_HandleSuccess(I3C_RESOURCES *i3c,
+  \                                            i3c_xfer_t *xfer,
+  \                                            uint32_t *event)
+  \brief        Handles success case of interrupts
+  \param[in]    i3c      : Pointer to i3c resources structure
+  \param[in]    xfer     : Pointer to i3c transfer structure
+  \param[in]    event    : Event type
+  \return       None
+*/
+static void I3Cx_HandleSuccess(I3C_RESOURCES *i3c,
+                               i3c_xfer_t *xfer,
+                               uint32_t *event)
+{
+    /* mark event as Transfer done. */
+    *event = ARM_I3C_EVENT_TRANSFER_DONE;
+
+    if(xfer->status & I3C_XFER_STATUS_SLV_HOT_JOIN_REQ)
+    {
+        /* mark event as Hot Join request */
+        *event = ARM_I3C_EVENT_IBI_HOT_JOIN_REQ;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_IBI_SLV_INTR_REQ)
+    {
+        /* mark event as SIR request */
+        *event = ARM_I3C_EVENT_IBI_SLV_INTR_REQ;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_DEFSLV_LIST)
+    {
+        i3c->status.defslv_cnt = xfer->addr_len;
+        /* mark event as slave list received */
+        *event = ARM_I3C_EVENT_SLAVE_LIST;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_IBI_MASTERSHIP_REQ)
+    {
+        if(I3cMasterGetAddrPos(i3c, xfer->addr_len) != ARM_DRIVER_ERROR)
+        {
+            /* mark event as Mastership request */
+            *event = ARM_I3C_EVENT_IBI_MASTERSHIP_REQ;
+        }
+        else
+        {
+            /* clear transfer status. */
+            xfer->status            = I3C_XFER_STATUS_NONE;
+
+            /* clear busy flag. */
+            i3c->status.busy         = 0;
+
+            /* Sets the speed to SDR Maximum */
+            i3c->xfer.xfer_cmd.speed = I3C_SPEED_SDR0;
+
+            return;
+        }
+    }
+    else if(xfer->status & I3C_XFER_STATUS_BUSOWNER_UPDATED)
+    {
+        if(i3c_is_master(i3c->regs))
+        {
+            i3c->state.is_master = 1U;
+        }
+        else
+        {
+            i3c->state.is_master = 0U;
+            memset(&i3c->slave_dat, 0, sizeof(I3C_SLAVE_DAT_TYPE));
+        }
+
+        /* Flushes all buffers and resumes */
+        i3c_flush_all_buffers(i3c->regs);
+        i3c_resume(i3c->regs);
+
+        /* mark event as Bus owner updated */
+        *event = ARM_I3C_EVENT_BUSOWNER_UPDATED;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_ADDR_ASSIGN_DONE)
+    {
+        i3c->slave_dat.last_asgd_addr_pos = 0U;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_CCC_SET_DONE)
+    {
+        if((i3c->xfer.xfer_cmd.cmd_id == I3C_CCC_RSTDAA(true))    ||
+           (i3c->xfer.xfer_cmd.cmd_id == I3C_CCC_RSTDAA(false))   ||
+           (i3c->xfer.xfer_cmd.cmd_id == I3C_CCC_SETNEWDA))
+        {
+            I3C_DetachSlaves(i3c,
+                             i3c->xfer.tx_len,
+                             i3c->xfer.xfer_cmd.cmd_id);
+        }
+    }
+    else if(xfer->status & I3C_XFER_STATUS_SLV_CCC_UPDATED)
+    {
+        /* mark event as Slave CCC updated */
+        *event = ARM_I3C_EVENT_SLAVE_CCC_UPDATED;
+    }
+    /* check status: Slave dynamic address assign? (only for Slave mode) */
+    else if(xfer->status & I3C_XFER_STATUS_SLV_DYN_ADDR_ASSGN)
+    {
+        /* mark event as Slave dynamic address assignment done. */
+        *event = ARM_I3C_EVENT_SLV_DYN_ADDR_ASSGN;
+    }
+
+#if RTE_I3C_DMA_ENABLE
+    /* DMA TX,
+     *  Success/Error decision will be taken by
+     *   Interrupt Handler based on status of Response-Queue.
+     *
+     * DMA RX,
+     *   Success decision will be taken in DMA_RX callback.
+     *   Error decision will be taken by Interrupt Handler
+     *    based on status of Response-Queue.
+     */
+    if( (xfer->status & I3C_XFER_STATUS_MST_RX_DONE) ||
+        (xfer->status & I3C_XFER_STATUS_SLV_RX_DONE) )
+    {
+        /* for DMA RX Success, mark event as 0. */
+        *event = 0;
+
+        /* clear transfer status. */
+        xfer->status = I3C_XFER_STATUS_NONE;
+    }
+#endif /* RTE_I3C_DMA_ENABLE */
+}
+
+/**
+  \fn           static void I3Cx_HandleError(I3C_RESOURCES *i3c,
+  \                                         i3c_xfer_t *xfer,
+  \                                         uint32_t *event)
+  \brief        Handles error case of interrupts
+  \param[in]    i3c      : Pointer to i3c resources structure
+  \param[in]    xfer     : Pointer to i3c transfer structure
+  \param[in]    event    : Event type
+  \return       None
+*/
+static void I3Cx_HandleError(I3C_RESOURCES *i3c,
+                             i3c_xfer_t *xfer,
+                             uint32_t *event)
+{
+#if RTE_I3C_DMA_ENABLE
+    /* Stop DMA TX transfer */
+    if(xfer->status & I3C_XFER_STATUS_ERROR_TX)
+    {
+        I3C_DMA_Stop(&i3c->dma_cfg->dma_tx);
+    }
+
+    /* Stop DMA RX transfer */
+    if(xfer->status & I3C_XFER_STATUS_ERROR_RX)
+    {
+        I3C_DMA_Stop(&i3c->dma_cfg->dma_rx);
+    }
+#endif /* RTE_I3C_DMA_ENABLE */
+
+    /* mark event as Transfer Error. */
+    *event = ARM_I3C_EVENT_TRANSFER_ERROR;
+
+    if(xfer->status & I3C_XFER_STATUS_ERROR_ADDR_ASSIGN)
+    {
+        /* Error during address assignment,
+         * so remove slave from Device address table */
+        I3C_DetachSlaves(i3c, i3c->xfer.tx_len, i3c->xfer.xfer_cmd.cmd_id);
+        i3c->slave_dat.last_asgd_addr_pos = 0U;
+    }
+
+    if(xfer->status & I3C_XFER_STATUS_ERROR_XFER_ABORT)
+    {
+        /* mark event as Transfer Error. */
+        *event = ARM_I3C_EVENT_MESSAGE_TRANSFER_ABORT;
+    }
+    /* error: Resume i3c controller and
+     *        clear error status. */
+    i3c_resume(i3c->regs);
+    i3c_clear_xfer_error(i3c->regs);
+}
+
+/**
+  \fn           static void I3Cx_IRQHandler(I3C_RESOURCES  *i3c)
+  \brief        Handles interrupt
+  \param[in]    i3c      : Pointer to i3c resources structure
+  \return       None
+*/
+static void I3Cx_IRQHandler(I3C_RESOURCES *i3c)
+{
+    i3c_xfer_t *xfer = &(i3c->xfer);
+    uint32_t event   = 0;
+
+    /* Invokes master ISR if the mode is master, else invokes slave ISR */
+    if(i3c->state.is_master)
+    {
+        i3c_master_irq_handler(i3c->regs, xfer);
+    }
+    else
+    {
+        i3c_slave_irq_handler(i3c->regs, xfer);
+    }
+
+    /* check status: Transfer Error? */
+    if(xfer->status & I3C_XFER_STATUS_ERROR)
+    {
+        I3Cx_HandleError(i3c, xfer, &event);
+    }
+
+    /* check status: Transfer Success? */
+    else if(xfer->status & I3C_XFER_STATUS_DONE)
+    {
+        I3Cx_HandleSuccess(i3c, xfer, &event);
+    }
+
+    if(event)
+    {
+        /* clear transfer status. */
+        xfer->status = I3C_XFER_STATUS_NONE;
+
+        /* clear busy flag. */
+        i3c->status.busy = 0;
+
+        /* call the user callback */
+        if(i3c->cb_event)
+            i3c->cb_event(event);
+    }
+
+    /* Sets the speed to SDR Maximum */
+    i3c->xfer.xfer_cmd.speed      = I3C_SPEED_SDR0;
+}
 
 /* I3C Driver Instance */
 #if (RTE_I3C)
@@ -2085,7 +2286,7 @@ static I3C_RESOURCES i3c =
                           .rx_buf   = (void*)0,
                           .status   = I3C_XFER_STATUS_NONE,
                           .error    = 0,
-                          .addr     = 0
+                          .addr_len = 0
                          },
     .status            = {0},
     .state             = {0},
@@ -2119,185 +2320,7 @@ static void I3C_DMACallback(uint32_t event, int8_t peri_num)
 
 void I3C_IRQHandler(void)
 {
-    i3c_xfer_t *xfer = &(i3c.xfer);
-    uint32_t event   = 0;
-
-    /* Invokes master ISR if the mode is master, else invokes slave ISR */
-    if(i3c.state.is_master)
-    {
-        i3c_master_irq_handler(i3c.regs, xfer);
-    }
-    else
-    {
-        i3c_slave_irq_handler(i3c.regs, xfer);
-    }
-
-    /* check status: Transfer Error? */
-    if(xfer->status & I3C_XFER_STATUS_ERROR)
-    {
-#if RTE_I3C_DMA_ENABLE
-        /* Stop DMA TX transfer */
-        if(xfer->status & I3C_XFER_STATUS_ERROR_TX)
-        {
-            I3C_DMA_Stop(&i3c.dma_cfg->dma_tx);
-        }
-
-        /* Stop DMA RX transfer */
-        if(xfer->status & I3C_XFER_STATUS_ERROR_RX)
-        {
-            I3C_DMA_Stop(&i3c.dma_cfg->dma_rx);
-        }
-#endif /* RTE_I3C_DMA_ENABLE */
-
-        /* mark event as Transfer Error. */
-        event = ARM_I3C_EVENT_TRANSFER_ERROR;
-
-        if(xfer->status & I3C_XFER_STATUS_ERROR_ADDR_ASSIGN)
-        {
-            /* Error during address assignment,
-             * so remove slave from Device address table */
-            I3C_DetachSlaves(&i3c, i3c.xfer.tx_len, i3c.xfer.xfer_cmd.cmd_id);
-            i3c.slave_dat.last_asgd_addr_pos = 0U;
-        }
-
-        else if(xfer->status & I3C_XFER_STATUS_ERROR_XFER_ABORT)
-        {
-            /* mark event as Transfer Error. */
-            event = ARM_I3C_EVENT_MESSAGE_TRANSFER_ABORT;
-        }
-        /* error: Resume i3c controller and
-         *        clear error status. */
-        i3c_resume(i3c.regs);
-        i3c_clear_xfer_error(i3c.regs);
-
-    } /* if I3C_XFER_STATUS_ERROR */
-
-    /* check status: Transfer Success? */
-    else if(xfer->status & I3C_XFER_STATUS_DONE)
-    {
-        /* mark event as Transfer done. */
-        event = ARM_I3C_EVENT_TRANSFER_DONE;
-
-        if(xfer->status & I3C_XFER_STATUS_SLV_HOT_JOIN_REQ)
-        {
-            /* mark event as Hot Join request */
-            event = ARM_I3C_EVENT_IBI_HOT_JOIN_REQ;
-        }
-        else if(xfer->status & I3C_XFER_STATUS_IBI_SLV_INTR_REQ)
-        {
-            /* mark event as SIR request */
-            event = ARM_I3C_EVENT_IBI_SLV_INTR_REQ;
-        }
-        else if(xfer->status & I3C_XFER_STATUS_DEFSLV_LIST)
-        {
-            i3c.status.defslv_cnt = xfer->rx_len;
-            /* mark event as slave list received */
-            event = ARM_I3C_EVENT_SLAVE_LIST;
-        }
-        else if(xfer->status & I3C_XFER_STATUS_IBI_MASTERSHIP_REQ)
-        {
-            if(I3cMasterGetAddrPos(&i3c, xfer->addr) != ARM_DRIVER_ERROR)
-            {
-                /* mark event as Mastership request */
-                event = ARM_I3C_EVENT_IBI_MASTERSHIP_REQ;
-            }
-            else
-            {
-                /* clear transfer status. */
-                xfer->status            = I3C_XFER_STATUS_NONE;
-
-                /* clear busy flag. */
-                i3c.status.busy         = 0;
-
-                /* Sets the speed to SDR Maximum */
-                i3c.xfer.xfer_cmd.speed = I3C_SPEED_SDR0;
-
-                return;
-            }
-        }
-        else if(xfer->status & I3C_XFER_STATUS_BUSOWNER_UPDATED)
-        {
-            if(i3c_is_master(i3c.regs))
-            {
-                i3c.state.is_master = 1U;
-            }
-            else
-            {
-                i3c.state.is_master = 0U;
-                memset(&i3c.slave_dat, 0, sizeof(I3C_SLAVE_DAT_TYPE));
-            }
-
-            /* Flushes all buffers and resumes */
-            i3c_flush_all_buffers(i3c.regs);
-            i3c_resume(i3c.regs);
-
-            /* mark event as Bus owner updated */
-            event = ARM_I3C_EVENT_BUSOWNER_UPDATED;
-        }
-        else if(xfer->status & I3C_XFER_STATUS_ADDR_ASSIGN_DONE)
-        {
-            i3c.slave_dat.last_asgd_addr_pos = 0U;
-        }
-        else if(xfer->status & I3C_XFER_STATUS_CCC_SET_DONE)
-        {
-            if((i3c.xfer.xfer_cmd.cmd_id == I3C_CCC_RSTDAA(true))    ||
-               (i3c.xfer.xfer_cmd.cmd_id == I3C_CCC_RSTDAA(false))   ||
-               (i3c.xfer.xfer_cmd.cmd_id == I3C_CCC_SETNEWDA))
-            {
-                I3C_DetachSlaves(&i3c,
-                                 i3c.xfer.tx_len,
-                                 i3c.xfer.xfer_cmd.cmd_id);
-            }
-        }
-        else if(xfer->status & I3C_XFER_STATUS_SLV_CCC_UPDATED)
-        {
-            /* mark event as Slave CCC updated */
-            event = ARM_I3C_EVENT_SLAVE_CCC_UPDATED;
-        }
-        /* check status: Slave dynamic address assign? (only for Slave mode) */
-        else if(xfer->status & I3C_XFER_STATUS_SLV_DYN_ADDR_ASSGN)
-        {
-            /* mark event as Slave dynamic address assignment done. */
-            event = ARM_I3C_EVENT_SLV_DYN_ADDR_ASSGN;
-        }
-
-#if RTE_I3C_DMA_ENABLE
-        /* DMA TX,
-         *  Success/Error decision will be taken by
-         *   Interrupt Handler based on status of Response-Queue.
-         *
-         * DMA RX,
-         *   Success decision will be taken in DMA_RX callback.
-         *   Error decision will be taken by Interrupt Handler
-         *    based on status of Response-Queue.
-         */
-        if( (xfer->status & I3C_XFER_STATUS_MST_RX_DONE) ||
-            (xfer->status & I3C_XFER_STATUS_SLV_RX_DONE) )
-        {
-            /* for DMA RX Success, mark event as 0. */
-            event = 0;
-
-            /* clear transfer status. */
-            xfer->status = I3C_XFER_STATUS_NONE;
-        }
-#endif /* RTE_I3C_DMA_ENABLE */
-    }/* else if I3C_XFER_STATUS_DONE*/
-
-    if(event)
-    {
-        /* clear transfer status. */
-        xfer->status = I3C_XFER_STATUS_NONE;
-
-        /* clear busy flag. */
-        i3c.status.busy = 0;
-
-        /* call the user callback */
-        if(i3c.cb_event)
-            i3c.cb_event(event);
-    }
-
-    /* Sets the speed to SDR Maximum */
-    i3c.xfer.xfer_cmd.speed      = I3C_SPEED_SDR0;
+    I3Cx_IRQHandler(&i3c);
 }
 
 /* wrapper functions for I3C */

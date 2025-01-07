@@ -60,6 +60,8 @@ extern "C" {
 #define MASK64(h,l)         (((~(0UL)) << (l)) &  (~(0UL) >> (32 - 1 - (h))))
 #endif
 
+#define DIV_ROUND_UP(n, d)                  (((n) + (d) - 1) / (d))
+
 #define BIT(nr)                             (1UL << (nr))
 #define SET_BIT(REG, BIT_Msk)               ((REG) |= (BIT_Msk))
 #define CLEAR_BIT(REG, BIT_Msk)             ((REG) &= ~(BIT_Msk))

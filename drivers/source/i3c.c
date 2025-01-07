@@ -83,6 +83,142 @@ static void i3c_read_rx_fifo(I3C_Type *i3c,
 }
 
 /**
+  \fn           static void i3c_set_tx_buf_thld(I3C_Type *i3c,
+  \                                             const uint16_t len)
+  \brief        Set Tx buffer threshold
+  \param[in]    xfer : Transfer data structure
+  \param[in]    len  : Data length
+  \return       none
+*/
+static void i3c_set_tx_buf_thld(I3C_Type *i3c, const uint16_t len)
+{
+    uint16_t loc_len = (len / 4);
+    uint8_t  rem     = (len % 4);
+    uint32_t temp    = (i3c->I3C_DATA_BUFFER_THLD_CTRL &
+                       (~I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Msk));
+
+    /* If data length is more than 4 bytes then perform the following,
+     * else set 0*/
+    if(len > 4)
+    {
+        if(rem)
+        {
+            /* Set 1 extra location */
+            temp |= (((loc_len + 1) <<
+                      I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Pos) &
+                      I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Msk);
+        }
+        else
+        {
+            /* Set actual number of locations */
+            temp |= ((loc_len <<
+                      I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Pos) &
+                      I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Msk);
+        }
+    }
+
+    i3c->I3C_DATA_BUFFER_THLD_CTRL = temp;
+}
+
+/**
+  \fn           static void i3c_set_rx_buf_thld(I3C_Type *i3c,
+  \                                             const uint16_t len)
+  \brief        Set Rx buffer threshold
+  \param[in]    xfer : Transfer data structure
+  \param[in]    len  : Data length
+  \return       none
+*/
+static void i3c_set_rx_buf_thld(I3C_Type *i3c, const uint16_t len)
+{
+    uint16_t loc_len = (len / 4);
+    uint8_t  rem     = (len % 4);
+    uint32_t temp    = (i3c->I3C_DATA_BUFFER_THLD_CTRL &
+                       (~I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Msk));
+
+    /* If data length is more than 4 bytes then perform the following,
+     * else set 0*/
+    if(len > 4)
+    {
+        if(rem)
+        {
+            temp |= (((loc_len + 1) <<
+                    I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Pos) &
+                    I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Msk);
+        }
+        else
+        {
+            temp |= ((loc_len <<
+                    I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Pos) &
+                    I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Msk);
+        }
+    }
+
+    i3c->I3C_DATA_BUFFER_THLD_CTRL = temp;
+}
+
+/**
+  \fn           static void i3c_set_port(I3C_Type *i3c, i3c_xfer_t *xfer)
+  \brief        Sets i3c message port
+  \param[in]    i3c      : Pointer to i3c register set structure
+  \param[in]    xfer     : Pointer to i3c transfer structure
+  \return       none
+*/
+static void i3c_set_port(I3C_Type *i3c, i3c_xfer_t *xfer)
+{
+    bool is_master = true;
+
+    switch(xfer->xfer_cmd.cmd_type)
+    {
+        case I3C_XFER_TYPE_DATA:
+            xfer->xfer_cmd.cmd_id = 0U;
+
+            /* Checks about instance mastership */
+            if((i3c->I3C_DEVICE_CTRL_EXTENDED &
+                I3C_DEVICE_CTRL_EXTENDED_DEV_OPERATION_MODE_Msk) ==
+                I3C_DEVICE_CTRL_EXTENDED_DEV_OP_MODE_SLV)
+            {
+                is_master = false;
+            }
+
+            if(is_master)
+            {
+                if(xfer->rx_len)
+                {
+                    xfer->xfer_cmd.port_id = I3C_MST_RX_TID;
+                }
+                else
+                {
+                    xfer->xfer_cmd.port_id = I3C_MST_TX_TID;
+                }
+            }
+            else
+            {
+                if(xfer->rx_len)
+                {
+                    xfer->xfer_cmd.port_id = I3C_SLV_RX_TID;
+                }
+                else
+                {
+                    xfer->xfer_cmd.port_id = I3C_SLV_TX_TID;
+                }
+            }
+            break;
+        case I3C_XFER_CCC_SET:
+            xfer->xfer_cmd.port_id = I3C_CCC_SET_TID;
+            break;
+        case I3C_XFER_CCC_GET:
+            xfer->xfer_cmd.port_id = I3C_CCC_GET_TID;
+            break;
+        case I3C_XFER_TYPE_ADDR_ASSIGN:
+            xfer->xfer_cmd.port_id = I3C_ADDR_ASSIGN_TID;
+            break;
+        default:
+            xfer->xfer_cmd.port_id = I3C_INVALID_TID;
+            break;
+    }
+}
+
+/**
   \fn           static void i3c_fetch_error_type(i3c_xfer_t *xfer)
   \brief        Fetches the error type
   \param[in]    xfer : Transfer data structure
@@ -125,39 +261,51 @@ static void i3c_fetch_error_type(i3c_xfer_t *xfer)
 }
 
 /**
-  \fn           static void i3c_enqueue_xfer(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        Add commands to i3c Command Queue
-  \param[in]    i3c  : Pointer to i3c resources structure
-  \param[in]    xfer : Pointer to i3c transfer structure
-  \return       none
+  \fn           static bool i3c_check_response(I3C_Type *i3c,
+  \                                            i3c_xfer_t *xfer,
+  \                                            uint32_t *resp)
+  \brief        Fetches the transfer response
+  \param[in]    i3c      : Pointer to i3c register set structure
+  \param[in]    xfer     : Pointer to i3c transfer structure
+  \param[in]    resp     : Received response
+  \return       Response received status
 */
-static void i3c_enqueue_xfer(I3C_Type *i3c, i3c_xfer_t *xfer)
+static bool i3c_check_response(I3C_Type *i3c, i3c_xfer_t *xfer, uint32_t *resp)
 {
-    uint32_t thld_ctrl;
-
-    /* write data to tx port (if any) */
-    if (xfer->tx_buf)
+    if(i3c_resp_rcvd(i3c))
     {
-        i3c_wr_tx_fifo(i3c, xfer->tx_buf, xfer->tx_len);
+        *resp        = i3c->I3C_RESPONSE_QUEUE_PORT;
+        xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(*resp);
+        return true;
     }
 
-    thld_ctrl = i3c->I3C_QUEUE_THLD_CTRL;
+    return false;
+}
 
-    thld_ctrl &= ~I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD_Msk;
-    /* set up for an interrupt after one response */
-    thld_ctrl |= I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD(1);
-
-    i3c->I3C_QUEUE_THLD_CTRL = thld_ctrl;
-
-    if(xfer->xfer_cmd.cmd_hi)
+/**
+  \fn           static bool i3c_fetch_xfer_error(i3c_xfer_t *xfer,
+  \                                              uint32_t *resp,
+  \                                              uint16_t len)
+  \brief        Fetches the tx transfer errors
+  \param[in]    xfer     : Pointer to i3c transfer structure
+  \param[in]    resp     : Received response
+  \param[in]    len      : Data len
+  \return       Error status
+*/
+static bool i3c_fetch_xfer_error(i3c_xfer_t *xfer,
+                                 uint32_t *resp,
+                                 const uint16_t len)
+{
+    if((xfer->error)                                        ||
+       (I3C_RESPONSE_QUEUE_PORT_DATA_LEN(*resp) != len)     ||
+       (I3C_RESPONSE_QUEUE_PORT_TID(*resp) != xfer->xfer_cmd.port_id))
     {
-        i3c->I3C_COMMAND_QUEUE_PORT = xfer->xfer_cmd.cmd_hi;
+        /* Fetches error type */
+        i3c_fetch_error_type(xfer);
+        return true;
     }
 
-    if(xfer->xfer_cmd.cmd_lo)
-    {
-        i3c->I3C_COMMAND_QUEUE_PORT = xfer->xfer_cmd.cmd_lo;
-    }
+    return false;
 }
 
 /**
@@ -221,8 +369,231 @@ static void i3c_dispatch_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer)
             xfer->xfer_cmd.cmd_lo     |= I3C_COMMAND_QUEUE_PORT_READ_TRANSFER;
         }
 
-        /* Add commands and data to i3c Queues */
-        i3c_enqueue_xfer(i3c, xfer);
+        /* Issue transfer arguments */
+        if(xfer->xfer_cmd.cmd_hi)
+        {
+            i3c->I3C_COMMAND_QUEUE_PORT = xfer->xfer_cmd.cmd_hi;
+        }
+
+        /* Issue transfer command */
+        if(xfer->xfer_cmd.cmd_lo)
+        {
+            i3c->I3C_COMMAND_QUEUE_PORT = xfer->xfer_cmd.cmd_lo;
+        }
+    }
+}
+
+/**
+  \fn           static void i3c_send(I3C_Type *i3c,
+  \                                  i3c_xfer_t *xfer,
+  \                                  const uint16_t sts_len)
+  \brief        Send I3C data to data buffer
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \param[in]    sts_len : Data Tx buffer status len
+  \return       none
+*/
+static void i3c_send(I3C_Type *i3c, i3c_xfer_t *xfer, const uint16_t sts_len)
+{
+    /* If available tx slots are lesser than required slots then,
+     * send data of available slots */
+    if((xfer->tx_len - xfer->tx_cur_cnt) >= sts_len)
+    {
+        i3c_wr_tx_fifo(i3c, &xfer->tx_buf[xfer->tx_cur_cnt], sts_len);
+        xfer->tx_cur_cnt += sts_len;
+    }
+    else
+    {
+        /* Send required bytes of data */
+        i3c_wr_tx_fifo(i3c, &xfer->tx_buf[xfer->tx_cur_cnt],
+                      ((xfer->tx_len - xfer->tx_cur_cnt)));
+        xfer->tx_cur_cnt += (xfer->tx_len - xfer->tx_cur_cnt);
+    }
+}
+
+/**
+  \fn           static bool i3c_send_blocking(I3C_Type *i3c,
+  \                                           i3c_xfer_t *xfer)
+  \brief        Send I3C data in blocking mode
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \return       Data Send status
+*/
+static bool i3c_send_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
+{
+    uint16_t dbuf_len = 0U;
+    uint32_t nresp    = 0U;
+
+    if(i3c_check_response(i3c, xfer, &nresp))
+    {
+        /* Check for error and perform below */
+        if(i3c_fetch_xfer_error(xfer, &nresp, 0))
+        {
+            /* Mark as Tx Error */
+            xfer->status = I3C_XFER_STATUS_ERROR_TX;
+            return false;
+        }
+    }
+
+   /* Fetch for available tx slots and send data if
+    * available */
+    dbuf_len = i3c_get_empty_tx_buf_len(i3c);
+
+    if(dbuf_len)
+    {
+        i3c_send(i3c, xfer, dbuf_len);
+    }
+
+    return true;
+}
+
+/**
+  \fn           static void i3c_receive(I3C_Type *i3c,
+  \                                     i3c_xfer_t *xfer,
+  \                                     const uint16_t sts_len)
+  \brief        Receive data from Rx buffer
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \param[in]    sts_len : Data Rx buffer status len
+  \return       none
+*/
+static void i3c_receive(I3C_Type *i3c, i3c_xfer_t *xfer, const uint16_t sts_len)
+{
+    /* If available rx data is lesser than required number of bytes then,
+     * receive currently available data */
+    if((xfer->rx_len - xfer->rx_cur_cnt) >= sts_len)
+    {
+        i3c_read_rx_fifo(i3c, &xfer->rx_buf[xfer->rx_cur_cnt], sts_len);
+        xfer->rx_cur_cnt += sts_len;
+    }
+    else
+    {
+        /* Read required bytes of data */
+        i3c_read_rx_fifo(i3c, &xfer->rx_buf[xfer->rx_cur_cnt],
+                        ((xfer->rx_len - xfer->rx_cur_cnt)));
+        xfer->rx_cur_cnt += (xfer->rx_len - xfer->rx_cur_cnt);
+    }
+}
+
+/**
+  \fn           static bool i3c_receive_blocking(I3C_Type *i3c,
+  \                                              i3c_xfer_t *xfer,
+  \                                              uint32_t *resp)
+  \brief        Receive I3C data in blocking mode
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \param[in]    resp    : Pointer to i3c transfer response
+  \return       Data Read status
+*/
+static bool i3c_receive_blocking(I3C_Type *i3c,
+                                 i3c_xfer_t *xfer,
+                                 uint32_t *resp)
+{
+    uint16_t dbuf_len = 0U;
+
+    if(i3c_check_response(i3c, xfer, resp))
+    {
+        /* Check for error and perform below */
+        if(i3c_fetch_xfer_error(xfer, resp, xfer->rx_len))
+        {
+            /* Mark as Rx Error */
+            xfer->status = I3C_XFER_STATUS_ERROR_RX;
+            return false;
+        }
+    }
+
+    /* Fetch for available rx data and read if available */
+    dbuf_len = i3c_get_avail_rx_buf_len(i3c);
+
+    if(dbuf_len)
+    {
+        i3c_receive(i3c, xfer, dbuf_len);
+    }
+
+    return true;
+}
+
+/**
+  \fn           static void i3c_wait_validate_tx_resp_blocking(I3C_Type *i3c,
+  \                                                            i3c_xfer_t *xfer)
+  \brief        Wait for Tx response and verify in blocking mode
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \return       none
+*/
+static void i3c_wait_validate_tx_resp_blocking(I3C_Type *i3c,
+                                               i3c_xfer_t *xfer)
+{
+    uint32_t nresp = 0U;
+
+    /* Waits unless Tx buffer gets empty */
+    while(!i3c_tx_buf_empty(i3c));
+
+    /* Waits till some response received */
+    while(!i3c_check_response(i3c, xfer, &nresp));
+
+    if(i3c_fetch_xfer_error(xfer, &nresp, 0))
+    {
+        /* Mark as Tx error */
+        xfer->status = I3C_XFER_STATUS_ERROR_TX;
+    }
+    else
+    {
+        if(i3c_is_master(i3c))
+        {
+            /* Mark as Transfer DONE */
+            xfer->status = (I3C_XFER_STATUS_MST_TX_DONE |
+                            I3C_XFER_STATUS_DONE);
+        }
+        else
+        {
+            /* mark as Transfer DONE */
+            xfer->status = (I3C_XFER_STATUS_SLV_TX_DONE |
+                            I3C_XFER_STATUS_DONE);
+        }
+    }
+}
+
+/**
+  \fn           static void i3c_wait_validate_rx_resp_blocking(I3C_Type *i3c,
+  \                                                            i3c_xfer_t *xfer,
+  \                                                            uint32_t *resp)
+  \brief        Wait for response and verify in blocking mode
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Pointer to i3c transfer structure
+  \param[in]    resp    : Pointer to i3c xfer resp
+  \return       none
+*/
+static void i3c_wait_validate_rx_resp_blocking(I3C_Type *i3c,
+                                               i3c_xfer_t *xfer,
+                                               uint32_t *resp)
+{
+    /* Check if response is already not received */
+    if(!(*resp))
+    {
+        /* Waits till some response received */
+        while(!i3c_check_response(i3c, xfer, resp));
+    }
+
+    if(i3c_fetch_xfer_error(xfer, resp, xfer->rx_len))
+    {
+        /* Mark as Rx Error */
+        xfer->status = I3C_XFER_STATUS_ERROR_RX;
+    }
+    else
+    {
+        if(i3c_is_master(i3c))
+        {
+            /* Mark as Master Rx DONE */
+            xfer->status = (I3C_XFER_STATUS_MST_RX_DONE         |
+                            I3C_XFER_STATUS_DONE);
+        }
+        else
+        {
+            /* mark as Slave Rx DONE */
+            xfer->status = (I3C_XFER_STATUS_SLV_RX_DONE |
+                            I3C_XFER_STATUS_DONE);
+        }
     }
 }
 
@@ -248,8 +619,7 @@ static void i3c_error_handler(I3C_Type *i3c, i3c_xfer_t *xfer,
     if(status & I3C_INTR_STATUS_TRANSFER_ABORT_STS)
     {
         /* Message abort happened */
-        i3c->I3C_INTR_STATUS |= I3C_INTR_STATUS_TRANSFER_ABORT_STS;
-
+        i3c_clear_intr(i3c, I3C_INTR_STATUS_TRANSFER_ABORT_STS);
         xfer->status         |= I3C_XFER_STATUS_ERROR_XFER_ABORT;
     }
 
@@ -261,12 +631,14 @@ static void i3c_error_handler(I3C_Type *i3c, i3c_xfer_t *xfer,
             case I3C_MST_TX_TID:
             case I3C_SLV_TX_TID:
             case I3C_CCC_SET_TID:
+                i3c_disable_intr(i3c, I3C_INTR_STATUS_TX_THLD_STS);
                 xfer->status |= I3C_XFER_STATUS_ERROR_TX;
                 break;
 
             case I3C_MST_RX_TID:
             case I3C_SLV_RX_TID:
             case I3C_CCC_GET_TID:
+                i3c_disable_intr(i3c, I3C_INTR_STATUS_RX_THLD_STS);
                 xfer->status |= I3C_XFER_STATUS_ERROR_RX;
                 break;
 
@@ -305,20 +677,22 @@ static void i3c_ibi_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
         /* Checks if it is a IBI slave interrupt request */
         else if(I3C_IBI_QUEUE_STATUS_IBI_ID_RW(ibi_resp))
         {
-            /* IBI slave interrupt requested by new slave */
-            xfer->addr   = (ibi_resp >> I3C_IBI_QUEUE_STATUS_IBI_ID_RW_Pos);
+            /* IBI slave interrupt requested by new slave.
+             * Store it's address */
+            xfer->addr_len = (ibi_resp >> I3C_IBI_QUEUE_STATUS_IBI_ID_RW_Pos);
 
-            xfer->status = (I3C_XFER_STATUS_IBI_SLV_INTR_REQ    |
-                            I3C_XFER_STATUS_DONE);
+            xfer->status   = (I3C_XFER_STATUS_IBI_SLV_INTR_REQ    |
+                              I3C_XFER_STATUS_DONE);
         }
-        /* Checks if it is a Mastership request */
+        /* Checks if it is a Mastership request.
+         * If yes store the requester's address */
         else if(!(I3C_IBI_QUEUE_STATUS_IBI_ID_RW(ibi_resp)))
         {
-            xfer->addr   = (ibi_resp >> I3C_IBI_QUEUE_STATUS_IBI_ID_RW_Pos);
+            xfer->addr_len = (ibi_resp >> I3C_IBI_QUEUE_STATUS_IBI_ID_RW_Pos);
 
             /* Mastership is requested by new slave */
-            xfer->status = (I3C_XFER_STATUS_IBI_MASTERSHIP_REQ  |
-                            I3C_XFER_STATUS_DONE);
+            xfer->status   = (I3C_XFER_STATUS_IBI_MASTERSHIP_REQ  |
+                              I3C_XFER_STATUS_DONE);
         }
     }
     else
@@ -377,10 +751,8 @@ int32_t i3c_slave_req_bus_mastership(I3C_Type *i3c)
     i3c->I3C_DEVICE_CTRL_EXTENDED &= ~I3C_DEVICE_CTRL_EXTENDED_REQMST_ACK_CTRL;
 
     /* Enable updated ownership interrupt */
-    i3c->I3C_INTR_STATUS_EN |= (I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN |
-                                I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
-    i3c->I3C_INTR_SIGNAL_EN |= (I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN |
-                                I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
+    i3c_enable_intr(i3c, (I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN |
+                          I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN));
     /* Enable Master request */
     i3c->I3C_SLV_INTR_REQ   |= I3C_SLV_INTR_REQ_MR;
 
@@ -414,8 +786,7 @@ int32_t i3c_slave_tx_slv_intr_req(I3C_Type *i3c)
     }
 
     /* Enable updated ownership interrupt */
-    i3c->I3C_INTR_STATUS_EN |= I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN;
-    i3c->I3C_INTR_SIGNAL_EN |= I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN;
+    i3c_enable_intr(i3c, I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
 
     /* Enable Slave Interrupt request */
     i3c->I3C_SLV_INTR_REQ   &= I3C_SLV_INTR_REQ_SIR_CTRL;
@@ -546,257 +917,118 @@ void i3c_master_get_dct(I3C_Type *i3c,
 }
 
 /**
-  \fn           void i3c_master_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send master transmit command to i3c bus.
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_master_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-{
-    xfer->xfer_cmd.cmd_id     = 0U;
-    xfer->xfer_cmd.port_id    = I3C_MST_TX_TID;
-    xfer->xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
-
-    /* Dispatch commands and data to i3c Queues */
-    i3c_dispatch_xfer_cmd(i3c, xfer);
-}
-
-/**
-  \fn           void i3c_master_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send master receive command to i3c bus.
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_master_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-{
-    xfer->xfer_cmd.cmd_id     = 0U;
-    xfer->xfer_cmd.port_id    = I3C_MST_RX_TID;
-    xfer->xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
-
-    /* Dispatch commands to i3c Command Queue */
-    i3c_dispatch_xfer_cmd(i3c, xfer);
-}
-
-/**
   \fn           void i3c_master_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        perform data transfer in blocking mode.
+  \brief        Perform master data transmission in blocking mode.
   \param[in]    i3c      : Pointer to i3c register set structure
   \param[in]    xfer     : Pointer to i3c transfer structure
   \return       none
 */
 void i3c_master_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 {
-    uint32_t nresp = 0U;
-
     while(!(i3c->I3C_PRESENT_STATE & I3C_PRESENT_STATE_MASTER_IDLE));
 
     xfer->xfer_cmd.cmd_id     = 0U;
     xfer->xfer_cmd.port_id    = I3C_MST_TX_TID;
-    xfer->xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
     /* Dispatch commands to i3c Command Queue */
     i3c_dispatch_xfer_cmd(i3c, xfer);
 
-    /* Waits unless Tx buffer gets empty */
-    while((i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
-           I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk) !=
-           I3C_MAX_DATA_BUF_LOC);
-
-    /* Waits till some response received */
-    while(!(i3c->I3C_QUEUE_STATUS_LEVEL &
-            I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk));
-
-    nresp        = i3c->I3C_RESPONSE_QUEUE_PORT;
-
-    xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(nresp);
-
-    if((xfer->error) ||
-       (I3C_RESPONSE_QUEUE_PORT_TID(nresp) != xfer->xfer_cmd.port_id))
+    while(1)
     {
-        /* Fetches error type */
-        i3c_fetch_error_type(xfer);
-
-        /* sets as Tx Error when either an error is occurred or
-         * the received port id mismatches with current one */
-        xfer->status = I3C_XFER_STATUS_ERROR_TX;
-    }
-    else
-    {
-        /* marks as Transfer DONE */
-        xfer->status = (I3C_XFER_STATUS_MST_TX_DONE | I3C_XFER_STATUS_DONE);
+        if(i3c_send_blocking(i3c, xfer))
+        {
+            /* If all bytes are transmitted then perform the following */
+            if(xfer->tx_cur_cnt >= xfer->tx_len)
+            {
+                i3c_wait_validate_tx_resp_blocking(i3c, xfer);
+                break;
+            }
+        }
+        else
+        {
+            /* Error in Tx*/
+            break;
+        }
     }
 }
 
 /**
   \fn           void i3c_master_rx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        perform data reception in blocking mode.
+  \brief        Perform master data reception in blocking mode.
   \param[in]    i3c      : Pointer to i3c register set structure
   \param[in]    xfer     : Pointer to i3c transfer structure
   \return       none
 */
 void i3c_master_rx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 {
-    uint32_t nresp = 0U;
+    uint32_t nresp    = 0U;
 
     while(!(i3c->I3C_PRESENT_STATE & I3C_PRESENT_STATE_MASTER_IDLE));
 
     xfer->xfer_cmd.cmd_id     = 0U;
     xfer->xfer_cmd.port_id    = I3C_MST_RX_TID;
-    xfer->xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
     /* Dispatch commands to i3c Command Queue */
     i3c_dispatch_xfer_cmd(i3c, xfer);
 
     while(1U)
     {
-        /* Waits till some data is received */
-        while(!(i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
-                I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Msk));
-
-        /* Waits till some response received */
-        while(!(i3c->I3C_QUEUE_STATUS_LEVEL &
-                I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk));
-
-        nresp = i3c->I3C_RESPONSE_QUEUE_PORT;
-
-        xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(nresp);
-
-        if((xfer->error)                                                        ||
-           (I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp) != xfer->rx_len)            ||
-           (I3C_RESPONSE_QUEUE_PORT_TID(nresp)      != xfer->xfer_cmd.port_id))
+        if(i3c_receive_blocking(i3c, xfer, &nresp))
         {
-            /* Fetches error type */
-            i3c_fetch_error_type(xfer);
-
-            /* sets as Error when either an error is occurred or
-             * expected rx dat len mismatch or the
-             * received port id mismatches with current one */
-            xfer->status = I3C_XFER_STATUS_ERROR_RX;
-            break;
-        }
-        else
-        {
-            if (xfer->rx_buf)
+            /* If all bytes are received then perform the following */
+            if(xfer->rx_cur_cnt >= xfer->rx_len)
             {
-                /* Reads the received data */
-                i3c_read_rx_fifo(i3c, xfer->rx_buf, xfer->rx_len);
-
-                if((xfer->rx_len - I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp)) == 0U)
-                {
-                    /* mark as Transfer DONE */
-                    xfer->status = (I3C_XFER_STATUS_MST_RX_DONE         |
-                                    I3C_XFER_STATUS_DONE);
-                    break;
-                }
-            }
-            else
-            {
+                i3c_wait_validate_rx_resp_blocking(i3c, xfer, &nresp);
                 break;
             }
         }
+        else
+        {
+            /* Error in Rx*/
+            break;
+        }
     }
-}
-
-/**
-  \fn           void i3c_slave_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send slave transmit command to i3c bus.
-  \param[in]    i3c     : Pointer to i3c register set structure
-  \param[in]    xfer    : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_slave_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-{
-    /* As per mipi_i3c_databook Section 2.7.13
-     * no command required for transmit,
-     * only data length is required
-     */
-    xfer->xfer_cmd.cmd_hi = I3C_COMMAND_QUEUE_PORT_ARG_DATA_LEN(
-                            xfer->xfer_cmd.data_len) |
-                            I3C_COMMAND_QUEUE_PORT_SLV_PORT_TID(I3C_SLV_TX_TID);
-
-    xfer->xfer_cmd.cmd_lo = 0U;
-
-    /* Add commands to i3c Command Queue */
-    i3c_enqueue_xfer(i3c, xfer);
-}
-
-/**
-  \fn           void i3c_slave_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send slave receive command to i3c bus.
-  \param[in]    i3c     : Pointer to i3c register set structure
-  \param[in]    xfer    : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_slave_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-{
-    /* As per mipi_i3c_user Section 7
-     * no command is required for slave receive
-     */
-    xfer->xfer_cmd.cmd_hi = 0U;
-    xfer->xfer_cmd.cmd_lo = 0U;
-
-    /* Add commands to i3c Command Queue */
-    i3c_enqueue_xfer(i3c, xfer);
 }
 
 /**
   \fn           void i3c_slave_tx_blocking(I3C_Type *i3c,
-                                           I3C_XFER *xfer,
-                                           i3c_xfer_cmd_type *xfer_cmd)
+                                           i3c_xfer_t *xfer)
   \brief        Performs slave data transmission in blocking mode.
   \param[in]    i3c      : Pointer to i3c register set structure
   \param[in]    xfer     : Pointer to i3c transfer structure
-  \param[in]    xfer_cmd : xfer command
   \return       none
 */
 void i3c_slave_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 {
-    uint32_t nresp = 0U;
+    xfer->xfer_cmd.cmd_id     = 0U;
+    xfer->xfer_cmd.port_id    = I3C_SLV_TX_TID;
 
-    /* As per mipi_i3c_databook Section 2.7.13
-    * no command required for transmit,
-    * only data length is required
-    */
-    xfer->xfer_cmd.cmd_hi      = I3C_COMMAND_QUEUE_PORT_ARG_DATA_LEN(
-                                 xfer->xfer_cmd.data_len)  |
-                                 I3C_COMMAND_QUEUE_PORT_SLV_PORT_TID(I3C_SLV_TX_TID);
+    /* Add commands to i3c Command Queue.
+     * As per mipi_i3c_databook Section 2.7.13
+     * no command required for transmit,
+     * only data length is required
+     */
+    i3c->I3C_COMMAND_QUEUE_PORT = I3C_COMMAND_QUEUE_PORT_ARG_DATA_LEN
+                                  (xfer->xfer_cmd.data_len) |
+                                  I3C_COMMAND_QUEUE_PORT_SLV_PORT_TID
+                                  (I3C_SLV_TX_TID);
 
-    xfer->xfer_cmd.cmd_lo      = 0U;
-
-    xfer->xfer_cmd.port_id     = I3C_SLV_TX_TID;
-
-    /* Add commands to i3c Command Queue */
-    i3c_enqueue_xfer(i3c, xfer);
-
-    /* Waits unless Tx buffer gets empty */
-    while((i3c->I3C_DATA_BUFFER_STATUS_LEVEL              &
-           I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk) !=
-           I3C_MAX_DATA_BUF_LOC);
-
-    /* Waits till some response received */
-    while(!(i3c->I3C_QUEUE_STATUS_LEVEL                   &
-            I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk));
-
-    nresp        = i3c->I3C_RESPONSE_QUEUE_PORT;
-
-    xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(nresp);
-
-    if((xfer->error)                                        ||
-       (I3C_RESPONSE_QUEUE_PORT_TID(nresp) != xfer->xfer_cmd.port_id))
+    while(1)
     {
-        /* Fetches error type */
-        i3c_fetch_error_type(xfer);
-
-        /* sets as Tx Error when either an error is occurred or
-         * the received port id mismatches with current one */
-        xfer->status = I3C_XFER_STATUS_ERROR_TX;
-    }
-    else
-    {
-        /* mark as Transfer DONE */
-        xfer->status = (I3C_XFER_STATUS_SLV_TX_DONE | I3C_XFER_STATUS_DONE);
+        if(i3c_send_blocking(i3c, xfer))
+        {
+            /* If all bytes are transmitted then perform the following */
+            if(xfer->tx_cur_cnt >= xfer->tx_len)
+            {
+                i3c_wait_validate_tx_resp_blocking(i3c, xfer);
+                break;
+            }
+        }
+        else
+        {
+            /* Error in Tx*/
+            break;
+        }
     }
 }
 
@@ -805,97 +1037,32 @@ void i3c_slave_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
   \brief        Performs slave data reception in blocking mode.
   \param[in]    i3c      : Pointer to i3c register set structure
   \param[in]    xfer     : Pointer to i3c transfer structure
-  \param[in]    xfer_cmd : xfer command
   \return       none
 */
 void i3c_slave_rx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 {
-    uint32_t nresp = 0U;
+    uint32_t nresp    = 0U;
 
-    /* As per mipi_i3c_user Section 7
-     * no command is required for slave receive
-     */
-    xfer->xfer_cmd.cmd_hi      = 0U;
-    xfer->xfer_cmd.cmd_lo      = 0U;
-
-    xfer->xfer_cmd.port_id     = I3C_SLV_RX_TID;
-
-    /* Add commands to i3c Command Queue */
-    i3c_enqueue_xfer(i3c, xfer);
+    xfer->xfer_cmd.cmd_id     = 0U;
+    xfer->xfer_cmd.port_id    = I3C_SLV_RX_TID;
 
     while(1U)
     {
-        /* Waits till some data is received */
-        while(!(i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
-                I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Msk));
-
-        /* Waits till some response received */
-        while(!(i3c->I3C_QUEUE_STATUS_LEVEL &
-                I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk));
-
-        nresp        = i3c->I3C_RESPONSE_QUEUE_PORT;
-
-        xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(nresp);
-
-        if((xfer->error)                                                          ||
-           (I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp) != xfer->rx_len)              ||
-           (I3C_RESPONSE_QUEUE_PORT_TID(nresp)      != xfer->xfer_cmd.port_id))
+        if(i3c_receive_blocking(i3c, xfer, &nresp))
         {
-            /* Fetches error type */
-            i3c_fetch_error_type(xfer);
-
-            /* sets as Error when either an error is occurred or
-             * expected rx dat len mismatch or the
-             * received port id mismatches with current one */
-            xfer->status = I3C_XFER_STATUS_ERROR_RX;
-        }
-        else
-        {
-            if (xfer->rx_buf)
+            /* If all bytes are received then perform the following */
+            if(xfer->rx_cur_cnt >= xfer->rx_len)
             {
-                /* Reads the received data */
-                i3c_read_rx_fifo(i3c, xfer->rx_buf, xfer->rx_len);
-
-                if((xfer->rx_len - I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp)) == 0U)
-                {
-                    /* mark as Transfer DONE */
-                    xfer->status = (I3C_XFER_STATUS_SLV_RX_DONE         |
-                                    I3C_XFER_STATUS_DONE);
-                    break;
-                }
-            }
-            else
-            {
+                i3c_wait_validate_rx_resp_blocking(i3c, xfer, &nresp);
                 break;
             }
         }
+        else
+        {
+            /* Error in Rx*/
+            break;
+        }
     }
-}
-
-/**
-  \fn           void i3c_send_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        performs master command transfer
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_send_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer)
-{
-    if(xfer->xfer_cmd.cmd_type == I3C_XFER_CCC_SET)
-    {
-        xfer->xfer_cmd.port_id = I3C_CCC_SET_TID;
-    }
-    else if(xfer->xfer_cmd.cmd_type == I3C_XFER_CCC_GET)
-    {
-        xfer->xfer_cmd.port_id = I3C_CCC_GET_TID;
-    }
-    else if(xfer->xfer_cmd.cmd_type == I3C_XFER_TYPE_ADDR_ASSIGN)
-    {
-        xfer->xfer_cmd.port_id = I3C_ADDR_ASSIGN_TID;
-    }
-
-    /* Dispatch commands to i3c Command Queue */
-    i3c_dispatch_xfer_cmd(i3c, xfer);
 }
 
 /**
@@ -928,23 +1095,11 @@ void i3c_send_xfer_cmd_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
     i3c_dispatch_xfer_cmd(i3c, xfer);
 
     /* Waits till some response received */
-    while(!(i3c->I3C_QUEUE_STATUS_LEVEL  &
-            I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk));
+    while(!i3c_check_response(i3c, xfer, &nresp));
 
-    nresp        = i3c->I3C_RESPONSE_QUEUE_PORT;
-
-    xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(nresp);
-
-    if((xfer->error)                                                  ||
-       (I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp) != xfer->rx_len)      ||
-       (I3C_RESPONSE_QUEUE_PORT_TID(nresp)      != xfer->xfer_cmd.port_id))
+    if(i3c_fetch_xfer_error(xfer, &nresp, xfer->rx_len))
     {
-        /* Fetches error type */
-        i3c_fetch_error_type(xfer);
-
-        /* sets as Error when either an error is occurred or
-         * expected rx dat len mismatch or the
-         * received port id mismatches with current one */
+        /* Mark as Error */
         xfer->status = I3C_XFER_STATUS_ERROR;
 
         xfer->rx_len = I3C_RESPONSE_QUEUE_PORT_DATA_LEN(nresp);
@@ -967,7 +1122,7 @@ void i3c_send_xfer_cmd_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 
 /**
   \fn           void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
-                                          uint32_t  core_clk)
+  \                                       const uint32_t  core_clk)
   \brief        i3c slow bus clock configuration for i3c slave device
   \note         This function sets the clock timings as follows:
                 OD - 2MHz, PP - 2MHz, SDR1-SDR4 - null
@@ -976,7 +1131,7 @@ void i3c_send_xfer_cmd_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
   \return       none
 */
 void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
-                          uint32_t  core_clk)
+                          const uint32_t  core_clk)
 {
     unsigned long core_rate, core_period;
     uint32_t scl_timing;
@@ -1018,7 +1173,7 @@ void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
 
 /**
   \fn           void i3c_normal_bus_clk_cfg(I3C_Type *i3c,
-                                            uint32_t  core_clk)
+  \                                         const uint32_t  core_clk)
   \brief        i3c normal bus clock configuration for i3c slave device
   \note         This function sets the clock timings as per MIPI I3C std
   \param[in]    i3c       : Pointer to i3c register set structure
@@ -1026,7 +1181,7 @@ void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
   \return       none
 */
 void i3c_normal_bus_clk_cfg(I3C_Type *i3c,
-                            uint32_t  core_clk)
+                            const uint32_t  core_clk)
 {
     unsigned long core_rate, core_period;
     uint32_t scl_timing;
@@ -1252,6 +1407,142 @@ void i3c_slave_init(I3C_Type *i3c,
 }
 
 /**
+  \fn           void i3c_master_setup_cmd(I3C_Type *i3c,
+  \                                      const i3c_xfer_t xfer)
+  \brief        Set command queue intterupt
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Transfer command structure
+  \return       none
+*/
+void i3c_master_setup_cmd(I3C_Type *i3c, const i3c_xfer_t xfer)
+{
+    uint32_t temp            = (i3c->I3C_QUEUE_THLD_CTRL &
+                               (~(I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk |
+                                  I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD_Msk)));
+
+    /* Set response threshold to 1 */
+    i3c->I3C_QUEUE_THLD_CTRL = (temp | I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD(1));
+
+    temp = I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN;
+
+    switch(xfer.xfer_cmd.cmd_type)
+    {
+        case I3C_XFER_CCC_SET:
+            /* Set tx buffer threshold */
+            i3c_set_tx_buf_thld(i3c, xfer.tx_len);
+            if(xfer.tx_len)
+            {
+                /* Enable Tx Threshold status interrupt */
+                temp |= I3C_INTR_STATUS_EN_TX_THLD_STS_EN;
+            }
+            break;
+
+        case I3C_XFER_CCC_GET:
+            /* Set rx buffer threshold */
+            i3c_set_rx_buf_thld(i3c, xfer.rx_len);
+
+            /* Enable Rx Threshold status interrupt */
+            temp |= I3C_INTR_STATUS_EN_RX_THLD_STS_EN;
+            break;
+
+        case I3C_XFER_TYPE_ADDR_ASSIGN:
+            break;
+
+        default:
+            return;
+    }
+
+    /* Enable interrupt */
+    i3c_enable_intr(i3c, temp);
+}
+
+/**
+  \fn           void i3c_setup_tx(I3C_Type *i3c,
+  \                               const uint16_t len)
+  \brief        Setup Data Tx
+  \param[in]    i3c    : Pointer to i3c register set structure
+  \param[in]    len    : Data length in bytes
+  \return       none
+*/
+void i3c_setup_tx(I3C_Type *i3c, const uint16_t len)
+{
+    uint32_t temp    = (i3c->I3C_QUEUE_THLD_CTRL &
+                       (~(I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk |
+                          I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD_Msk)));
+
+    /* Set response threshold to 1 */
+    temp                    |= I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD(1);
+    i3c->I3C_QUEUE_THLD_CTRL = temp;
+
+    /* Set tx buffer threshold */
+    i3c_set_tx_buf_thld(i3c, len);
+
+    if(i3c_is_dma_enable(i3c))
+    {
+        /* Enable only command queue ready status interrupt if
+         * DMA is enabled */
+        temp = I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN;
+    }
+    else
+    {
+        /* Enable command queue ready status with
+         * Tx threshold status interrupt if DMA is not enabled */
+        temp = (I3C_INTR_STATUS_EN_TX_THLD_STS_EN   |
+                I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN);
+    }
+
+    /* Enable interrupt */
+    i3c_enable_intr(i3c, temp);
+}
+
+/**
+  \fn           void i3c_setup_rx(I3C_Type *i3c,
+  \                               const uint16_t len)
+  \brief        Setup Data Rx
+  \param[in]    i3c    : Pointer to i3c register set structure
+  \param[in]    len    : Data length in bytes
+  \return       none
+*/
+void i3c_setup_rx(I3C_Type *i3c, const uint16_t len)
+{
+    uint32_t temp    = (i3c->I3C_QUEUE_THLD_CTRL &
+                       (~(I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk |
+                          I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD_Msk)));
+
+    /* Set response threshold to 1 */
+    temp                    |= I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD(1);
+    i3c->I3C_QUEUE_THLD_CTRL = temp;
+
+    /* Set rx buffer threshold */
+    i3c_set_rx_buf_thld(i3c, len);
+
+    if(i3c_is_dma_enable(i3c))
+    {
+        /* Enable only command queue ready status interrupt if
+         * DMA is enabled */
+        temp = I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN;
+    }
+    else
+    {
+        if(i3c_is_master(i3c))
+        {
+            /* Enable command queue ready status with
+             * Rx threshold status interrupt if master */
+            temp = (I3C_INTR_STATUS_EN_RX_THLD_STS_EN   |
+                    I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN);
+        }
+        else
+        {
+            /* Enable Rx threshold status interrupt if slave */
+            temp = I3C_INTR_STATUS_EN_RX_THLD_STS_EN;
+        }
+    }
+
+    /* Enable interrupt */
+    i3c_enable_intr(i3c, temp);
+}
+
+/**
   \fn           void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
   \brief        i3c interrupt service routine for master
   \param[in]    i3c  : Pointer to i3c register set structure
@@ -1264,14 +1555,70 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
     uint32_t nresp  = 0U;
     uint32_t resp   = 0U;
     uint32_t tid    = 0U;
+    uint32_t rx_len = 0U;
 
     status = i3c->I3C_INTR_STATUS;
 
     if (!(status & i3c->I3C_INTR_STATUS_EN))
     {
         /* there are no interrupts that we are interested in */
-        i3c->I3C_INTR_STATUS = I3C_INTR_STATUS_ALL;
+        i3c_clear_intr(i3c, I3C_INTR_STATUS_ALL);
         return;
+    }
+
+    if(status & I3C_INTR_STATUS_RX_THLD_STS)
+    {
+        if((xfer->rx_buf) && (xfer->rx_cur_cnt < xfer->rx_len))
+        {
+            resp = i3c_get_avail_rx_buf_len(i3c);
+            i3c_receive(i3c, xfer, resp);
+
+            if(xfer->rx_cur_cnt >= xfer->rx_len)
+            {
+                i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_RX_THLD_STS_EN);
+            }
+        }
+    }
+    else if(status & I3C_INTR_STATUS_TX_THLD_STS)
+    {
+        /* write data to tx port (if any) */
+        if((xfer->tx_buf) && (xfer->tx_cur_cnt < xfer->tx_len))
+        {
+            resp = i3c_get_empty_tx_buf_len(i3c);
+            i3c_send(i3c, xfer, resp);
+
+            if(xfer->tx_cur_cnt >= xfer->tx_len)
+            {
+                i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_TX_THLD_STS_EN);
+            }
+        }
+    }
+
+    if(status & I3C_INTR_STATUS_CMD_QUEUE_READY_STS)
+    {
+        i3c->I3C_QUEUE_THLD_CTRL &= ~I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk;
+        i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN);
+        i3c_set_port(i3c, xfer);
+        if(xfer->xfer_cmd.port_id)
+        {
+            /* Dispatch commands to i3c Command Queue */
+            i3c_dispatch_xfer_cmd(i3c, xfer);
+        }
+        xfer->xfer_cmd.cmd_type = I3C_XFER_TYPE_NONE;
+    }
+
+    /* Checks for Busowner updated status */
+    if(status & I3C_INTR_STATUS_BUSOWNER_UPDATED_STS)
+    {
+        /* Disable Bus Ownership update interrupt */
+        i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN  |
+                              I3C_INTR_STATUS_EN_RX_THLD_STS_EN);
+
+        i3c_receive(i3c, xfer, xfer->rx_len);
+
+        xfer->status  = (I3C_XFER_STATUS_BUSOWNER_UPDATED |
+                         I3C_XFER_STATUS_DONE);
+        i3c_clear_intr(i3c, I3C_INTR_STATUS_BUSOWNER_UPDATED_STS);
     }
 
     /* we are only interested in a response interrupt,
@@ -1282,22 +1629,17 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
     {
         resp = i3c->I3C_RESPONSE_QUEUE_PORT;
 
-        xfer->rx_len = I3C_RESPONSE_QUEUE_PORT_DATA_LEN(resp);
+        rx_len       = I3C_RESPONSE_QUEUE_PORT_DATA_LEN(resp);
         xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(resp);
 
         tid          = I3C_RESPONSE_QUEUE_PORT_TID(resp);
     }
-    else
-    {
-        /* Checks for the availability of IBI */
-        if((I3C_QUEUE_STATUS_LEVEL_IBI_BUF_BLR(nresp)) &&
-           (status & I3C_INTR_STATUS_IBI_THLD_STS))
-        {
-            i3c_ibi_handler(i3c, xfer);
-        }
 
-        xfer->error  = 0U;
-        tid          = 0U;
+    /* Checks for the availability of IBI */
+    if((I3C_QUEUE_STATUS_LEVEL_IBI_BUF_BLR(nresp)) &&
+       (status & I3C_INTR_STATUS_IBI_THLD_STS))
+    {
+        i3c_ibi_handler(i3c, xfer);
     }
 
     if(xfer->error)
@@ -1319,7 +1661,7 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
                     xfer->status = I3C_XFER_STATUS_MST_TX_DONE;
                 }
 
-                if (tid == I3C_CCC_SET_TID)
+                else if (tid == I3C_CCC_SET_TID)
                 {
                     xfer->status = I3C_XFER_STATUS_CCC_SET_DONE;
                 }
@@ -1332,35 +1674,21 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
             case I3C_CCC_GET_TID:
                 if (xfer->rx_len)
                 {
-                    if (xfer->rx_buf)
+                    i3c_receive(i3c, xfer, rx_len);
+
+                    if(xfer->rx_cur_cnt >= xfer->rx_len)
                     {
-                        i3c_read_rx_fifo(i3c, xfer->rx_buf, xfer->rx_len);
+                        i3c_disable_intr(i3c, I3C_INTR_STATUS_RX_THLD_STS);
                     }
 
                     if (tid == I3C_MST_RX_TID)
                     {
-                        xfer->status = I3C_XFER_STATUS_MST_RX_DONE;
+                        xfer->status |= I3C_XFER_STATUS_MST_RX_DONE;
                     }
 
-                    if (tid == I3C_CCC_GET_TID)
+                    else if (tid == I3C_CCC_GET_TID)
                     {
-                        /* Checks for Busowner updated status */
-                        if(status & I3C_INTR_STATUS_BUSOWNER_UPDATED_STS)
-                        {
-                            /* Disable Bus Ownership update interrupt */
-                            i3c->I3C_INTR_STATUS_EN &=
-                                 (~I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN);
-                            i3c->I3C_INTR_SIGNAL_EN &=
-                                 (~I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN);
-
-                            xfer->status  = I3C_XFER_STATUS_BUSOWNER_UPDATED;
-                            i3c->I3C_INTR_STATUS |=
-                                 I3C_INTR_STATUS_BUSOWNER_UPDATED_STS;
-                        }
-                        else
-                        {
-                            xfer->status = I3C_XFER_STATUS_CCC_GET_DONE;
-                        }
+                        xfer->status |= I3C_XFER_STATUS_CCC_GET_DONE;
                     }
 
                     /* mark all success event also as Transfer DONE */
@@ -1370,7 +1698,7 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
 
             case I3C_ADDR_ASSIGN_TID:
                 /* mark all success event also as Transfer DONE */
-                xfer->status = (I3C_XFER_STATUS_ADDR_ASSIGN_DONE |
+                xfer->status |= (I3C_XFER_STATUS_ADDR_ASSIGN_DONE |
                                 I3C_XFER_STATUS_DONE);
                 break;
 
@@ -1393,61 +1721,104 @@ void i3c_slave_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
     uint32_t nresp  = 0U;
     uint32_t resp   = 0U;
     uint32_t tid    = 0U;
+    uint16_t rx_len = 0U;
 
     status = i3c->I3C_INTR_STATUS;
 
-    /* Checking for dynamic address valid */
-    if(status & I3C_INTR_STATUS_DYN_ADDR_ASSGN_STS)
-    {
-        i3c->I3C_INTR_STATUS |= I3C_INTR_STATUS_DYN_ADDR_ASSGN_STS;
-        xfer->status          = (I3C_XFER_STATUS_DONE  |
-                                 I3C_XFER_STATUS_SLV_DYN_ADDR_ASSGN);
-    }
-    else if(!(status & i3c->I3C_INTR_STATUS_EN))
+    if(!(status & i3c->I3C_INTR_STATUS_EN))
     {
         /* there are no interrupts that we are interested in */
-        i3c->I3C_INTR_STATUS = I3C_INTR_STATUS_ALL;
-    }
-
-    /* Checks for IBI updated status */
-    else if(status & I3C_INTR_STATUS_IBI_UPDATED_STS)
-    {
-        i3c_ibi_handler(i3c, xfer);
-        i3c->I3C_INTR_STATUS |= I3C_INTR_STATUS_IBI_UPDATED_STS;
-    }
-    /* Checks for Busowner updated status */
-    else if(status & I3C_INTR_STATUS_BUSOWNER_UPDATED_STS)
-    {
-        /* Disable updated ownership interrupt */
-        i3c->I3C_INTR_STATUS_EN &= ~(I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN |
-                                     I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
-        i3c->I3C_INTR_SIGNAL_EN &= ~(I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN |
-                                     I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
-
-        xfer->status             = (I3C_XFER_STATUS_DONE                        |
-                                    I3C_XFER_STATUS_BUSOWNER_UPDATED);
-        i3c->I3C_INTR_STATUS    |= I3C_INTR_STATUS_BUSOWNER_UPDATED_STS;
-    }
-    else if(status & I3C_INTR_STATUS_CCC_UPDATED_STS)
-    {
-        if(i3c->I3C_SLV_EVENT_STATUS & I3C_SLV_EVENT_STATUS_MWL_UPDATED)
-        {
-            i3c->I3C_SLV_EVENT_STATUS  |= I3C_SLV_EVENT_STATUS_MWL_UPDATED;
-        }
-        else if(i3c->I3C_SLV_EVENT_STATUS & I3C_SLV_EVENT_STATUS_MRL_UPDATED)
-        {
-            i3c->I3C_SLV_EVENT_STATUS  |= I3C_SLV_EVENT_STATUS_MRL_UPDATED;
-            /* Resume the device as it is halted for Rd len updated reason */
-            i3c_resume(i3c);
-        }
-
-        i3c->I3C_INTR_STATUS           |= I3C_INTR_STATUS_CCC_UPDATED_STS;
-
-        xfer->status                    = (I3C_XFER_STATUS_DONE                 |
-                                           I3C_XFER_STATUS_SLV_CCC_UPDATED);
+        i3c_clear_intr(i3c, I3C_INTR_STATUS_ALL);
     }
     else
     {
+        if(status & I3C_INTR_STATUS_RX_THLD_STS)
+        {
+            resp = i3c_get_avail_rx_buf_len(i3c);
+            i3c_receive(i3c, xfer, resp);
+
+            if(xfer->rx_cur_cnt >= xfer->rx_len)
+            {
+                i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_RX_THLD_STS_EN);
+            }
+        }
+
+        else if(status & I3C_INTR_STATUS_TX_THLD_STS)
+        {
+            /* write data to tx port (if any) */
+            if((xfer->tx_buf) && (xfer->tx_cur_cnt < xfer->tx_len))
+            {
+                resp = i3c_get_empty_tx_buf_len(i3c);
+                i3c_send(i3c, xfer, resp);
+
+                if(xfer->tx_cur_cnt >= xfer->tx_len)
+                {
+                    i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_TX_THLD_STS_EN);
+                }
+            }
+        }
+
+        if(status & I3C_INTR_STATUS_CMD_QUEUE_READY_STS)
+        {
+            i3c->I3C_QUEUE_THLD_CTRL &= ~I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk;
+            i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_CMD_QUEUE_READY_STS_EN);
+
+            i3c_set_port(i3c, xfer);
+            if(xfer->xfer_cmd.port_id == I3C_SLV_TX_TID)
+            {
+                /* As per mipi_i3c_databook Section 2.7.13
+                 * no command required for transmit,
+                 * only data length is required
+                 */
+                i3c->I3C_COMMAND_QUEUE_PORT = I3C_COMMAND_QUEUE_PORT_ARG_DATA_LEN
+                                              (xfer->xfer_cmd.data_len) |
+                                              I3C_COMMAND_QUEUE_PORT_SLV_PORT_TID
+                                              (xfer->xfer_cmd.port_id);
+            }
+            xfer->xfer_cmd.cmd_type = I3C_XFER_TYPE_NONE;
+        }
+
+        /* Checking for dynamic address valid */
+        if(status & I3C_INTR_STATUS_DYN_ADDR_ASSGN_STS)
+        {
+            i3c_clear_intr(i3c, I3C_INTR_STATUS_DYN_ADDR_ASSGN_STS);
+            xfer->status = (I3C_XFER_STATUS_DONE  |
+                            I3C_XFER_STATUS_SLV_DYN_ADDR_ASSGN);
+        }
+        /* Checks for IBI updated status */
+        else if(status & I3C_INTR_STATUS_IBI_UPDATED_STS)
+        {
+            i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_IBI_UPDATED_STS_EN);
+            i3c_ibi_handler(i3c, xfer);
+            i3c_clear_intr(i3c, I3C_INTR_STATUS_IBI_UPDATED_STS);
+        }
+        /* Checks for Busowner updated status */
+        else if(status & I3C_INTR_STATUS_BUSOWNER_UPDATED_STS)
+        {
+            /* Disable updated ownership interrupt */
+            i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_BUSOWNER_UPDATED_STS_EN);
+            xfer->status             = (I3C_XFER_STATUS_DONE                        |
+                                        I3C_XFER_STATUS_BUSOWNER_UPDATED);
+            i3c_clear_intr(i3c, I3C_INTR_STATUS_BUSOWNER_UPDATED_STS);
+        }
+        else if(status & I3C_INTR_STATUS_CCC_UPDATED_STS)
+        {
+            if(i3c->I3C_SLV_EVENT_STATUS & I3C_SLV_EVENT_STATUS_MWL_UPDATED)
+            {
+                i3c->I3C_SLV_EVENT_STATUS  |= I3C_SLV_EVENT_STATUS_MWL_UPDATED;
+            }
+            else if(i3c->I3C_SLV_EVENT_STATUS & I3C_SLV_EVENT_STATUS_MRL_UPDATED)
+            {
+                i3c->I3C_SLV_EVENT_STATUS  |= I3C_SLV_EVENT_STATUS_MRL_UPDATED;
+                /* Resume the device as it is halted for Rd len updated reason */
+                i3c_resume(i3c);
+            }
+
+            i3c_clear_intr(i3c, I3C_INTR_STATUS_CCC_UPDATED_STS);
+
+            xfer->status                    = (I3C_XFER_STATUS_DONE                 |
+                                               I3C_XFER_STATUS_SLV_CCC_UPDATED);
+        }
         /* we are only interested in a response interrupt,
          *  make sure we have a response */
         nresp = i3c->I3C_QUEUE_STATUS_LEVEL;
@@ -1456,9 +1827,9 @@ void i3c_slave_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
         if (!nresp)
             return;
 
-        resp = i3c->I3C_RESPONSE_QUEUE_PORT;
+        resp         = i3c->I3C_RESPONSE_QUEUE_PORT;
 
-        xfer->rx_len = I3C_RESPONSE_QUEUE_PORT_DATA_LEN(resp);
+        rx_len       = I3C_RESPONSE_QUEUE_PORT_DATA_LEN(resp);
         xfer->error  = I3C_RESPONSE_QUEUE_PORT_ERR_STATUS(resp);
 
         if(xfer->error)
@@ -1477,31 +1848,36 @@ void i3c_slave_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
             {
                 case I3C_SLV_TX_TID:
                     /* mark all success event also as Transfer DONE */
-                    xfer->status = (I3C_XFER_STATUS_DONE     |
+                    xfer->status |= (I3C_XFER_STATUS_DONE     |
                                     I3C_XFER_STATUS_SLV_TX_DONE);
                     break;
 
                 case I3C_SLV_RX_TID:
                     if (xfer->rx_len)
                     {
-                        if (xfer->rx_buf)
+                        i3c_receive(i3c, xfer, rx_len);
+
+                        if(xfer->rx_cur_cnt >= xfer->rx_len)
                         {
-                            i3c_read_rx_fifo(i3c, xfer->rx_buf, xfer->rx_len);
+                            i3c_disable_intr(i3c, I3C_INTR_STATUS_RX_THLD_STS);
                         }
 
                         /* mark all success event also as Transfer DONE */
-                        xfer->status = (I3C_XFER_STATUS_DONE |
+                        xfer->status |= (I3C_XFER_STATUS_DONE |
                                         I3C_XFER_STATUS_SLV_RX_DONE);
                     }
                     break;
                 case I3C_SLV_DEFSLVS_TID:
-                    if (xfer->rx_len)
+                    if (rx_len)
                     {
                         /* mark all success event also as Transfer DONE */
-                        xfer->status = (I3C_XFER_STATUS_DONE |
+                        xfer->status |= (I3C_XFER_STATUS_DONE |
                                         I3C_XFER_STATUS_DEFSLV_LIST);
 
-                        i3c->I3C_INTR_STATUS    |= I3C_INTR_STATUS_DEFSLV_STS;
+                        i3c_clear_intr(i3c, I3C_INTR_STATUS_DEFSLV_STS);
+
+                        /* Store number of slaves' DEFSLVS data rcvd */
+                        xfer->addr_len = rx_len;
                     }
                     break;
                 default:

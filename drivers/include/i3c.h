@@ -160,6 +160,7 @@ typedef struct {                                     /*!< (@ 0x49034000) I3C Str
 
 /* transaction ids for tx and rx, CCC set and get,
  *  and Dynamic Address Assignment. */
+#define I3C_INVALID_TID                   0x0
 #define I3C_CCC_SET_TID                   0x1
 #define I3C_CCC_GET_TID                   0x2
 #define I3C_MST_TX_TID                    0x3
@@ -257,9 +258,13 @@ typedef struct {                                     /*!< (@ 0x49034000) I3C Str
 #define I3C_QUEUE_THLD_CTRL_IBI_STATUS_THLD_Msk         GENMASK(31, 24)
 #define I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD_Msk           GENMASK(15, 8)
 #define I3C_QUEUE_THLD_CTRL_RESP_BUF_THLD(x)            (((x) - 1) << 8)
+#define I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Pos      0U
+#define I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Msk      GENMASK(7, I3C_QUEUE_THLD_CTRL_CMD_EMPTY_BUF_THLD_Pos)
 
-#define I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Msk       GENMASK(10, 8)
-#define I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Msk GENMASK(2, 0)
+#define I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Pos       8U
+#define I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Msk       GENMASK(10, I3C_DATA_BUFFER_THLD_CTRL_RX_BUF_THLD_Pos)
+#define I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Pos 0U
+#define I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Msk GENMASK(2, I3C_DATA_BUFFER_THLD_CTRL_TX_EMPTY_BUF_THLD_Pos)
 
 #define I3C_IBI_QUEUE_CTRL_NOTIFY_SIR_REJECTED          (1U << 3U)
 #define I3C_IBI_QUEUE_CTRL_NOTIFY_MR_REJECTED           (1U << 1U)
@@ -324,12 +329,12 @@ typedef struct {                                     /*!< (@ 0x49034000) I3C Str
 #define I3C_INTR_STATUS_EN_RX_THLD_STS_EN               BIT(1)
 #define I3C_INTR_STATUS_EN_TX_THLD_STS_EN               BIT(0)
 
-#define I3C_MASTER_INTR_EN_MASK                         (I3C_INTR_STATUS_EN_TRANSFER_ERR_STS_EN     |   \
+#define I3C_MASTER_DFLT_INTR_EN_MASK                   (I3C_INTR_STATUS_EN_TRANSFER_ERR_STS_EN      |   \
                                                         I3C_INTR_STATUS_EN_IBI_THLD_STS_EN          |   \
                                                         I3C_INTR_STATUS_EN_TRANSFER_ABORT_STS_EN    |   \
                                                         I3C_INTR_STATUS_EN_RESP_READY_STS_EN)
 
-#define I3C_SLAVE_INTR_EN_MASK                          (I3C_INTR_STATUS_EN_TRANSFER_ERR_STS_EN     |   \
+#define I3C_SLAVE_DFLT_INTR_EN_MASK                    (I3C_INTR_STATUS_EN_TRANSFER_ERR_STS_EN      |   \
                                                         I3C_INTR_STATUS_EN_DYN_ADDR_ASSGN_STS_EN    |   \
                                                         I3C_INTR_STATUS_EN_CCC_UPDATED_STS_EN       |   \
                                                         I3C_INTR_STATUS_EN_RESP_READY_STS_EN        |   \
@@ -339,8 +344,10 @@ typedef struct {                                     /*!< (@ 0x49034000) I3C Str
 #define I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR(x)          (((x) & GENMASK(15, 8)) >> 8)
 #define I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk         GENMASK(15, 8)
 
-#define I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Msk                   (GENMASK(23, 16))
-#define I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk             (GENMASK(7, 0))
+#define I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Pos     16U
+#define I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Msk                   (GENMASK(23, I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Pos))
+#define I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Pos             0U
+#define I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk             (GENMASK(7, I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Pos))
 
 #define I3C_PRESENT_STATE_MASTER_IDLE                                 (1U << 28U)
 #define I3C_PRESENT_STATE_CURRENT_MASTER                              (1U << 2U)
@@ -511,6 +518,7 @@ typedef enum _I3C_XFER_STATUS
 /* brief I3C Transfer types */
 typedef enum _I3C_XFER_TYPE
 {
+    I3C_XFER_TYPE_NONE                = 0x0U,
     I3C_XFER_TYPE_ADDR_ASSIGN         = 0x1U,
     I3C_XFER_CCC_SET                  = 0x2U,
     I3C_XFER_CCC_GET                  = 0x3U,
@@ -579,19 +587,21 @@ typedef struct _i3c_xfer_t
 {
   i3c_xfer_cmd_t            xfer_cmd;   /* Transfer command information to low level  */
   uint16_t                  tx_len;     /* len of data to be programmed into TX_PORT  */
+  uint16_t                  tx_cur_cnt; /* Current tx data coount                     */
   uint16_t                  rx_len;     /* len of received data                       */
+  uint16_t                  rx_cur_cnt; /* Current rx data coount                     */
   const void               *tx_buf;     /* buf address where tx data resides          */
   void                     *rx_buf;     /* pointer where rx data needs to be kept     */
   volatile I3C_XFER_STATUS  status;     /* transfer status                            */
   volatile uint8_t          error;      /* error if any for this transfer             */
-  volatile uint8_t          addr;       /* Address of the slave                       */
+  volatile uint8_t          addr_len;   /* Dual usage: Address of slave or length     */
 }i3c_xfer_t;
 
 /**
   \fn          static inline bool i3c_is_master(I3C_Type *i3c)
   \brief       Checks whether current instance is a master
   \param[in]   i3c   Pointer to i3c register map
-  \return      none
+  \return      Present state (Master or not)
 */
 static inline bool i3c_is_master(I3C_Type *i3c)
 {
@@ -779,6 +789,57 @@ static inline uint16_t i3c_slave_get_max_write_len(I3C_Type *i3c)
 }
 
 /**
+  \fn          static inline bool i3c_tx_buf_empty(I3C_Type *i3c)
+  \brief       Returns Tx data buffer empty status
+  \param[in]   i3c   Pointer to i3c register map
+  \return      Tx buffer empty status
+*/
+static inline bool i3c_tx_buf_empty(I3C_Type *i3c)
+{
+    return ((i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
+            I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk) ==
+            I3C_MAX_DATA_BUF_LOC);
+}
+
+/**
+  \fn          static inline uint16_t i3c_get_empty_tx_buf_len(I3C_Type *i3c)
+  \brief       Gets freely available tx buffer length
+  \param[in]   i3c   Pointer to i3c register map
+  \return      Empty Tx buffer length
+*/
+static inline uint16_t i3c_get_empty_tx_buf_len(I3C_Type *i3c)
+{
+    return (((i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
+            I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Msk) >>
+            I3C_DATA_BUFFER_STATUS_LEVEL_TX_BUF_EMPTY_LOC_Pos) * 4);
+}
+
+/**
+  \fn          static inline uint16_t i3c_get_avail_rx_buf_len(I3C_Type *i3c)
+  \brief       Gets available rx buffer length
+  \param[in]   i3c   Pointer to i3c register map
+  \return      Available rx buffer length
+*/
+static inline uint16_t i3c_get_avail_rx_buf_len(I3C_Type *i3c)
+{
+    return (((i3c->I3C_DATA_BUFFER_STATUS_LEVEL &
+            I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Msk) >>
+            I3C_DATA_BUFFER_STATUS_LEVEL_RX_BUF_BLR_Pos) * 4);
+}
+
+/**
+  \fn          static inline bool i3c_resp_rcvd(I3C_Type *i3c)
+  \brief       Returns response received status
+  \param[in]   i3c   Pointer to i3c register map
+  \return      Response received status
+*/
+static inline bool i3c_resp_rcvd(I3C_Type *i3c)
+{
+    return ((i3c->I3C_QUEUE_STATUS_LEVEL &
+            I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_Msk) != 0);
+}
+
+/**
   \fn          void i3c_dma_enable(I3C_Type *i3c)
   \brief       enable i3c dma
   \param[in]   i3c   Pointer to i3c register map
@@ -798,6 +859,17 @@ static inline void i3c_dma_enable(I3C_Type *i3c)
 static inline void i3c_dma_disable(I3C_Type *i3c)
 {
     i3c->I3C_DEVICE_CTRL &= (~I3C_DEVICE_CTRL_DMA_ENABLE);
+}
+
+/**
+  \fn          static inline void i3c_is_dma_enable(I3C_Type *i3c)
+  \brief       Returns DMA enable status
+  \param[in]   i3c   Pointer to i3c register map
+  \return      DMA enable status
+*/
+static inline bool i3c_is_dma_enable(I3C_Type *i3c)
+{
+    return ((i3c->I3C_DEVICE_CTRL & I3C_DEVICE_CTRL_DMA_ENABLE) != 0);
 }
 
 /**
@@ -1128,28 +1200,69 @@ static inline void i3c_set_slave_nack_retry_cnt(I3C_Type *i3c,
 
 /**
   \fn           void i3c_master_enable_interrupts(I3C_Type *i3c)
-  \brief        enables master interrupts
+  \brief        enables master's lifetime interrupts
   \param[in]    i3c     : Pointer to i3c register set structure
   \return       none
 */
 static inline void i3c_master_enable_interrupts(I3C_Type *i3c)
 {
     i3c->I3C_INTR_STATUS    = I3C_INTR_STATUS_ALL;
-    i3c->I3C_INTR_STATUS_EN = I3C_MASTER_INTR_EN_MASK;
-    i3c->I3C_INTR_SIGNAL_EN = I3C_MASTER_INTR_EN_MASK;
+    i3c->I3C_INTR_STATUS_EN = I3C_MASTER_DFLT_INTR_EN_MASK;
+    i3c->I3C_INTR_SIGNAL_EN = I3C_MASTER_DFLT_INTR_EN_MASK;
 }
 
 /**
   \fn           static inline void i3c_slave_enable_interrupts(I3C_Type *i3c)
-  \brief        enables slave interrupts
+  \brief        enables slave's lifetime interrupts
   \param[in]    i3c     : Pointer to i3c register set structure
   \return       none
 */
 static inline void i3c_slave_enable_interrupts(I3C_Type *i3c)
 {
     i3c->I3C_INTR_STATUS    = I3C_INTR_STATUS_ALL;
-    i3c->I3C_INTR_STATUS_EN = I3C_SLAVE_INTR_EN_MASK;
-    i3c->I3C_INTR_SIGNAL_EN = I3C_SLAVE_INTR_EN_MASK;
+    i3c->I3C_INTR_STATUS_EN = I3C_SLAVE_DFLT_INTR_EN_MASK;
+    i3c->I3C_INTR_SIGNAL_EN = I3C_SLAVE_DFLT_INTR_EN_MASK;
+}
+
+/**
+  \fn           static inline void i3c_enable_intr(I3C_Type *i3c,
+  \                                                const uint32_t mask)
+  \brief        Enables interrupts as per mask
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    mask    : Interrupt mask
+  \return       none
+*/
+static inline void i3c_enable_intr(I3C_Type *i3c, const uint32_t mask)
+{
+    i3c->I3C_INTR_STATUS_EN |= mask;
+    i3c->I3C_INTR_SIGNAL_EN |= mask;
+}
+
+/**
+  \fn           static inline void i3c_disable_intr(I3C_Type *i3c,
+  \                                                 const uint32_t mask)
+  \brief        Disables interrupts as per mask
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    mask    : Interrupt mask
+  \return       none
+*/
+static inline void i3c_disable_intr(I3C_Type *i3c, const uint32_t mask)
+{
+    i3c->I3C_INTR_STATUS_EN &= ~mask;
+    i3c->I3C_INTR_SIGNAL_EN &= ~mask;
+}
+
+/**
+  \fn           static inline void i3c_clear_intr(I3C_Type *i3c,
+  \                                               const uint32_t mask)
+  \brief        Clears interrupts as per mask
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    mask    : Interrupt mask
+  \return       none
+*/
+static inline void i3c_clear_intr(I3C_Type *i3c, const uint32_t mask)
+{
+    i3c->I3C_INTR_STATUS    |= mask;
 }
 
 /**
@@ -1321,25 +1434,6 @@ void i3c_master_get_dct(I3C_Type *i3c,
                         const uint8_t addr);
 
 /**
-  \fn           void i3c_master_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send master transmit command to i3c bus.
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_master_tx(I3C_Type *i3c, i3c_xfer_t *xfer);
-
-/**
-  \fn           void i3c_master_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        receive master receive command to i3c bus.
-  \param[in]    i3c       : Pointer to i3c register set structure
-  \param[in]    xfer      : Pointer to i3c transfer structure
-  \return       none
-*/
-
-void i3c_master_rx(I3C_Type *i3c, i3c_xfer_t *xfer);
-
-/**
   \fn           void i3c_master_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
   \brief        perform data transmission in blocking mode.
   \param[in]    i3c      : Pointer to i3c register set structure
@@ -1356,24 +1450,6 @@ void i3c_master_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer);
   \return       none
 */
 void i3c_master_rx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer);
-
-/**
-  \fn           void i3c_slave_tx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send slave transmit command to i3c bus.
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_slave_tx(I3C_Type *i3c, i3c_xfer_t *xfer);
-
-/**
-  \fn           void i3c_slave_rx(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        send slave receive command to i3c bus.
-  \param[in]    i3c     : Pointer to i3c register set structure
-  \param[in]    xfer    : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_slave_rx(I3C_Type *i3c, i3c_xfer_t *xfer);
 
 /**
   \fn           void i3c_slave_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
@@ -1394,15 +1470,6 @@ void i3c_slave_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer);
 void i3c_slave_rx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer);
 
 /**
-  \fn           void i3c_send_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer)
-  \brief        performs master command transfer
-  \param[in]    i3c      : Pointer to i3c register set structure
-  \param[in]    xfer     : Pointer to i3c transfer structure
-  \return       none
-*/
-void i3c_send_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer);
-
-/**
   \fn           void i3c_send_xfer_cmd_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
   \brief        performs command transfer in blocking mode
   \param[in]    i3c      : Pointer to i3c register set structure
@@ -1413,25 +1480,25 @@ void i3c_send_xfer_cmd_blocking(I3C_Type *i3c, i3c_xfer_t *xfer);
 
 /**
   \fn           void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
-                                          uint32_t  core_clk)
+                                          const uint32_t core_clk)
   \brief        i3c slow bus clock configuration for i3c slave device
   \param[in]    i3c       : Pointer to i3c register set structure
   \param[in]    core_clk  : core clock
   \return       none
 */
 void i3c_slow_bus_clk_cfg(I3C_Type *i3c,
-                          uint32_t  core_clk);
+                          const uint32_t core_clk);
 
 /**
   \fn           void i3c_normal_bus_clk_cfg(I3C_Type *i3c,
-                                            uint32_t  core_clk)
+                                            const uint32_t core_clk)
   \brief        i3c normal bus clock configuration for i3c slave device
   \param[in]    i3c       : Pointer to i3c register set structure
   \param[in]    core_clk  : core clock
   \return       none
 */
 void i3c_normal_bus_clk_cfg(I3C_Type *i3c,
-                            uint32_t  core_clk);
+                            const uint32_t core_clk);
 
 /**
   \fn           void i2c_clk_cfg(I3C_Type           *i3c,
@@ -1497,6 +1564,36 @@ int32_t i3c_slave_req_bus_mastership(I3C_Type *i3c);
   \return       exec status
 */
 int32_t i3c_slave_tx_slv_intr_req(I3C_Type *i3c);
+
+/**
+  \fn           void i3c_master_setup_cmd(I3C_Type *i3c,
+  \                                       const i3c_xfer_t xfer)
+  \brief        Setup Master command
+  \param[in]    i3c     : Pointer to i3c register set structure
+  \param[in]    xfer    : Transfer command structure
+  \return       none
+*/
+void i3c_master_setup_cmd(I3C_Type *i3c, const i3c_xfer_t xfer);
+
+/**
+  \fn           void i3c_setup_tx(I3C_Type *i3c,
+  \                               const uint16_t len)
+  \brief        Setup Data Tx
+  \param[in]    i3c    : Pointer to i3c register set structure
+  \param[in]    len    : Data length
+  \return       none
+*/
+void i3c_setup_tx(I3C_Type *i3c, const uint16_t len);
+
+/**
+  \fn           void i3c_setup_rx(I3C_Type *i3c,
+  \                               const uint16_t len)
+  \brief        Setup Data Rx
+  \param[in]    i3c    : Pointer to i3c register set structure
+  \param[in]    len    : Data length
+  \return       none
+*/
+void i3c_setup_rx(I3C_Type *i3c, const uint16_t len);
 
 /**
   \fn           void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)

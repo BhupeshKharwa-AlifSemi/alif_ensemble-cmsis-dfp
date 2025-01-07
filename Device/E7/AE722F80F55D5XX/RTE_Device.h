@@ -1577,13 +1577,18 @@
 
 // <e> I3C (Improved Inter-Integrated Circuit) [Driver_I3C]
 // <i> Configuration settings for Driver_I3C in component ::Drivers:I3C
-#define RTE_I3C   1
+#define RTE_I3C                             1
+
 #if RTE_I3C
-#define RTE_I3C_IRQ_PRI       0
+
+// <o> I3C IRQ priority <0-255>
+// <i> Defines I3C  Interrupt priority
+// <i> Default: 0
+#define RTE_I3C_IRQ_PRI                     0
 
 // <e> I2C (Inter Integrated Circuit) [Driver_I2CI3C]
 // <i> Configuration settings for Driver_I2CI3C in component ::Drivers:I2CI3C
-#define RTE_I2CI3C            1
+#define RTE_I2CI3C                          1
 // </e> I2C (Inter Integrated Circuit) [Driver_I2CI3C]
 
 // <o> I3C DMA ENABLE
@@ -1591,26 +1596,26 @@
 //    <1=> ENABLE
 // <i> Defines DMA feature for I3C
 // <i> Default: DISABLE
-#define RTE_I3C_DMA_ENABLE   0
+#define RTE_I3C_DMA_ENABLE                  0
 
 // <o> I3C DMA Selection
 //    <0=> DMA2(M55-HE)
 //    <1=> DMA0
 // <i> Defines Select DMA0 for I3C. By default DMA0 will be considered
 // <i> Default: DMA0
-#define RTE_I3C_SELECT_DMA0  1
+#define RTE_I3C_SELECT_DMA0                 1
 
 // <o> I3C DMA IRQ priority <0-255>
 // <i> Defines I3C DMA Interrupt priority
 // <i> Default: 0
-#define RTE_I3C_DMA_IRQ_PRI  0
+#define RTE_I3C_DMA_IRQ_PRI                 0
 
 // <o> I3C blocking mode enable
 //    <0=> DISABLE
 //    <1=> ENABLE
 // <i> Defines Blocking mode support for I3C
 // <i> Default: DISABLE
-#define RTE_I3C_BLOCKING_MODE_ENABLE    0
+#define RTE_I3C_BLOCKING_MODE_ENABLE        0
 
 // <o> I3C Slave I2C/I3C Adaptive mode Enable
 //    <0=> DISABLE
@@ -1623,6 +1628,32 @@
 #endif
 // </e> I3C (Improved Inter-Integrated Circuit) [Driver_I3C]
 
+// <e> IMU (Initial Measurement Unit) [Driver_IMU]
+// <i> Configuration settings for Driver_IMU in component ::Drivers:IMU
+#define RTE_IMU                             1
+
+#if RTE_IMU
+
+// <e> BMI323 (Initial Measurement Unit) [Driver_BMI323]
+// <i> Configuration settings for Driver_BMI323 in component ::Drivers:IMU
+#define RTE_BMI323                          1
+
+#if RTE_BMI323
+
+// <o> BMI323 IMU INT pin GPIO port number range <0-15>
+// <i> Defines BMI323 IMU INT pin GPIO port number.
+// <i> Default: 8
+#define RTE_BMI323_INT_GPIO_PORT            8
+
+// <o> BMI323 IMU INT pin number range <0-7>
+// <i> Defines BMI323 IMU INT pin number.
+// <i> Default: 4
+#define RTE_BMI323_INT_PIN_NO               4
+
+#endif
+//</e> BMI323 (Initial Measurement Unit) [Driver_BMI323]
+#endif
+// </e> IMU (Initial Measurement Unit) [Driver_IMU]
 
 // <h> SPI (Serial Peripheral Interface)
 // <e> SPI0 (Serial Peripheral Interface 0) [Driver_SPI0]
@@ -8151,6 +8182,21 @@
 // <i> Defines RX FIFO threshold for I2C0.
 // <i> Default: 16
 #define RTE_I2C0_RX_FIFO_THRESHOLD   16
+
+// <o> I2C0 DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for I2C0
+// <i> Default: DISABLE
+#define RTE_I2C0_DMA_ENABLE          0
+#if RTE_I2C0_DMA_ENABLE
+
+// <o> I2C0 DMA IRQ priority <0-255>
+// <i> Defines I2C0 DMA Interrupt priority
+// <i> Default: 0
+#define RTE_I2C0_DMA_IRQ_PRI         0
+#endif
+
 #endif
 // </e> I2C (Inter Integrated Circuit) [Driver_I2C0]
 
@@ -8173,6 +8219,21 @@
 // <i> Defines RX FIFO threshold for I2C1.
 // <i> Default: 16
 #define RTE_I2C1_RX_FIFO_THRESHOLD   16
+
+// <o> I2C1 DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for I2C1
+// <i> Default: DISABLE
+#define RTE_I2C1_DMA_ENABLE          0
+#if RTE_I2C1_DMA_ENABLE
+
+// <o> I2C1 DMA IRQ priority <0-255>
+// <i> Defines I2C1 DMA Interrupt priority
+// <i> Default: 0
+#define RTE_I2C1_DMA_IRQ_PRI         0
+#endif
+
 #endif
 // </e> I2C (Inter Integrated Circuit) [Driver_I2C1]
 
@@ -8195,6 +8256,21 @@
 // <i> Defines RX FIFO threshold for I2C2.
 // <i> Default: 16
 #define RTE_I2C2_RX_FIFO_THRESHOLD   16
+
+// <o> I2C2 DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for I2C2
+// <i> Default: DISABLE
+#define RTE_I2C2_DMA_ENABLE          0
+#if RTE_I2C2_DMA_ENABLE
+
+// <o> I2C2 DMA IRQ priority <0-255>
+// <i> Defines I2C2 DMA Interrupt priority
+// <i> Default: 0
+#define RTE_I2C2_DMA_IRQ_PRI         0
+#endif
+
 #endif
 // </e> I2C (Inter Integrated Circuit) [Driver_I2C2]
 
@@ -8218,6 +8294,21 @@
 // <i> Defines RX FIFO threshold for I2C3.
 // <i> Default: 16
 #define RTE_I2C3_RX_FIFO_THRESHOLD   16
+
+// <o> I2C3 DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for I2C3
+// <i> Default: DISABLE
+#define RTE_I2C3_DMA_ENABLE          0
+#if RTE_I2C3_DMA_ENABLE
+
+// <o> I2C3 DMA IRQ priority <0-255>
+// <i> Defines I2C3 DMA Interrupt priority
+// <i> Default: 0
+#define RTE_I2C3_DMA_IRQ_PRI         0
+#endif
+
 #endif
 // </e> I2C (Inter Integrated Circuit) [Driver_I2C3]
 
@@ -8231,6 +8322,12 @@
 // <i> defines LPI2C interrupt priority
 // <i> default: 0
 #define RTE_LPI2C_IRQ_PRIORITY       0
+
+// <o> LPI2C Bus-Speed <1-400000>
+// <i> defines LPI2C Bus-Speed - It is used for Bit-time calculation in driver
+// <i> default: 400KHz
+#define RTE_LPI2C_BUS_SPEED          400000
+
 #endif
 // </e> LPI2C (Low Power Inter-Integrated Circuit) [Driver_LPI2C]
 #endif //defined(M55_HE)
@@ -9580,40 +9677,40 @@
 // </h> LPPDM (Low Power Pulse density modulation)
 
 // <h> CANFD (Controller Area Network - Fast Mode)
-// <e> CANFD (Controller Area Network - Fast Mode Interface) [Driver_CANFD]
-// <i> Configuration settings for Driver_CANFD in component ::Drivers:CANFD
-#define RTE_CANFD 1
+// <e> CANFD0 (Controller Area Network - Fast Mode Interface) [Driver_CANFD0]
+// <i> Configuration settings for Driver_CANFD0 in component ::Drivers:CANFD
+#define RTE_CANFD0                           1
 
-#ifdef RTE_CANFD
+#if RTE_CANFD0
 
-// <o> CANFD IRQ priority <0-255>
-// <i> Defines Interrupt priority for CANFD.
+// <o> CANFD0 IRQ priority <0-255>
+// <i> Defines Interrupt priority for CANFD0.
 // <i> Default: 0
-#define RTE_CANFD_IRQ_PRIORITY              0
+#define RTE_CANFD0_IRQ_PRIORITY              0
 
-// <o> CANFD Clock Source
+// <o> CANFD0 Clock Source
 //    <0=> 38.4 MHz Clock
 //    <1=> 160 MHz Clock
-// <i> Defines Clock Source for CANFD.
+// <i> Defines Clock Source for CANFD0.
 // <i> Default: 160 MHz
-#define RTE_CANFD_CLK_SOURCE                1
+#define RTE_CANFD0_CLK_SOURCE                1
 
-// <o> CANFD Clock Speed (Hz) <160000-80000000>
-// <i> Defines Clock Speed for CANFD.
+// <o> CANFD0 Clock Speed (Hz) <160000-80000000>
+// <i> Defines Clock Speed for CANFD0.
 // <i> Maximum Clock speed is 80MHz
 // <i> Recommended speeds with 160MHz clock source: 20MHz, 40MHz, 80MHz
 // <i> Default: 20MHz
-#define RTE_CANFD_CLK_SPEED                 20000000
+#define RTE_CANFD0_CLK_SPEED                 20000000
 
-// <o> CANFD blocking mode enable
+// <o> CANFD0 blocking mode enable
 //    <0=> DISABLE
 //    <1=> ENABLE
-// <i> Defines Blocking mode support for CANFD
+// <i> Defines Blocking mode support for CANFD0
 // <i> Default: DISABLE
-#define RTE_CANFD_BLOCKING_MODE_ENABLE      0
+#define RTE_CANFD0_BLOCKING_MODE_ENABLE      0
 
 #endif
-// </e> CANFD (Controller Area Network - Fast Mode Interface) [Driver_CANFD]
+// </e> CANFD0 (Controller Area Network - Fast Mode Interface) [Driver_CANFD0]
 // </h> CANFD (Controller Area Network - Fast Mode)
 
 // <h> SDC (Secure Digital Controller)

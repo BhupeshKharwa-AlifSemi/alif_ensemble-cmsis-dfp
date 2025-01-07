@@ -28,8 +28,9 @@
 
 #if !(RTE_GPIO0 || RTE_GPIO1 || RTE_GPIO2 || RTE_GPIO3 || RTE_GPIO4  || RTE_GPIO5 || RTE_GPIO6 || RTE_GPIO7 || \
       RTE_GPIO8 || RTE_GPIO9 || RTE_GPIO10 || RTE_GPIO11 || RTE_GPIO12  || RTE_GPI13 || RTE_GPI14 || RTE_LPGPIO)
-    #error "GPIO is not enabled in the RTE_Device.h"
+#error "GPIO is not enabled in the RTE_Device.h"
 #endif
+
 
 /**
   \fn      int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t pin_no)
@@ -41,13 +42,10 @@
 */
 static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t pin_no)
 {
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
-
-    /* mask the interrupt */
-    gpio_mask_interrupt (GPIO->reg_base, pin_no);
 
     GPIO->cb_event[pin_no] = cb_event;
 
@@ -67,7 +65,7 @@ static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_
  */
 static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWER_STATE state)
 {
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -81,6 +79,10 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
                 return ARM_DRIVER_OK;
             }
 
+#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+            disable_gpio_clk(GPIO->gpio_id);
+#endif
+
             GPIO->state.powered = 0;
             break;
         }
@@ -90,6 +92,13 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             {
                 return ARM_DRIVER_ERROR;
             }
+
+#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+            enable_gpio_clk(GPIO->gpio_id);
+#endif
+
+            /* mask the interrupt */
+            gpio_mask_interrupt (GPIO->reg_base, pin_no);
 
             GPIO->state.powered = 1;
             break;
@@ -118,7 +127,7 @@ static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN
     {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -160,7 +169,7 @@ static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t
     {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -196,7 +205,7 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
     {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -244,7 +253,7 @@ static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *va
     {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -277,7 +286,7 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
     {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -402,27 +411,11 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
         }
         case ARM_GPIO_CONFIG_FLEXIO :
         {
-            if (!((GPIO->gpio_id == GPIO7_INSTANCE) || (GPIO->gpio_id == LPGPIO_INSTANCE)))
-            {
-                return ARM_DRIVER_ERROR_UNSUPPORTED;
-            }
-
-            if (GPIO->gpio_id == LPGPIO_INSTANCE)
-            {
-                if (!(lpgpio_is_flexio (pin_no)))
-                {
-                    return ARM_DRIVER_ERROR_UNSUPPORTED;
-                }
-            }
-            else
-            {
-                if (!(gpio_is_flexio (pin_no)))
-                {
-                    return ARM_DRIVER_ERROR_UNSUPPORTED;
-                }
-            }
-
             if (!arg)
+            {
+                return ARM_DRIVER_ERROR_PARAMETER;
+            }
+            if (!(pin_is_flexio(GPIO->gpio_id, pin_no)))
             {
                 return ARM_DRIVER_ERROR_PARAMETER;
             }
@@ -477,7 +470,7 @@ static int32_t GPIO_Uninitialize (GPIO_RESOURCES *GPIO, uint8_t pin_no)
     {
         return ARM_DRIVER_OK;
     }
-    if (pin_no >= GPIO_PORT_MAX_PIN_NUMBER)
+    if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -515,6 +508,7 @@ static GPIO_RESOURCES GPIO0_RES = {
     .IRQ_base_num = GPIO0_IRQ0_IRQn,
     .gpio_id = GPIO0_INSTANCE,
     .db_clkdiv = RTE_GPIO0_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
         RTE_GPIO0_PIN0_IRQ_PRIORITY,
         RTE_GPIO0_PIN1_IRQ_PRIORITY,
@@ -605,6 +599,7 @@ static GPIO_RESOURCES GPIO1_RES = {
     .IRQ_base_num = GPIO1_IRQ0_IRQn,
     .gpio_id = GPIO1_INSTANCE,
     .db_clkdiv = RTE_GPIO1_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
         RTE_GPIO1_PIN0_IRQ_PRIORITY,
         RTE_GPIO1_PIN1_IRQ_PRIORITY,
@@ -694,6 +689,7 @@ static GPIO_RESOURCES GPIO2_RES = {
     .IRQ_base_num = GPIO2_IRQ0_IRQn,
     .gpio_id = GPIO2_INSTANCE,
     .db_clkdiv = RTE_GPIO2_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
         RTE_GPIO2_PIN0_IRQ_PRIORITY,
         RTE_GPIO2_PIN1_IRQ_PRIORITY,
@@ -783,6 +779,7 @@ static GPIO_RESOURCES GPIO3_RES = {
     .IRQ_base_num = GPIO3_IRQ0_IRQn,
     .gpio_id = GPIO3_INSTANCE,
     .db_clkdiv = RTE_GPIO3_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
         RTE_GPIO3_PIN0_IRQ_PRIORITY,
         RTE_GPIO3_PIN1_IRQ_PRIORITY,
@@ -872,6 +869,7 @@ static GPIO_RESOURCES GPIO4_RES = {
     .IRQ_base_num = GPIO4_IRQ0_IRQn,
     .gpio_id = GPIO4_INSTANCE,
     .db_clkdiv = RTE_GPIO4_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO4_PIN0_IRQ_PRIORITY,
             RTE_GPIO4_PIN1_IRQ_PRIORITY,
@@ -962,6 +960,7 @@ static GPIO_RESOURCES GPIO5_RES = {
     .IRQ_base_num = GPIO5_IRQ0_IRQn,
     .gpio_id = GPIO5_INSTANCE,
     .db_clkdiv = RTE_GPIO5_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO5_PIN0_IRQ_PRIORITY,
             RTE_GPIO5_PIN1_IRQ_PRIORITY,
@@ -1052,6 +1051,7 @@ static GPIO_RESOURCES GPIO6_RES = {
     .IRQ_base_num = GPIO6_IRQ0_IRQn,
     .gpio_id = GPIO6_INSTANCE,
     .db_clkdiv = RTE_GPIO6_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO6_PIN0_IRQ_PRIORITY,
             RTE_GPIO6_PIN1_IRQ_PRIORITY,
@@ -1142,6 +1142,7 @@ static GPIO_RESOURCES GPIO7_RES = {
     .IRQ_base_num = GPIO7_IRQ0_IRQn,
     .gpio_id = GPIO7_INSTANCE,
     .db_clkdiv = RTE_GPIO7_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO7_PIN0_IRQ_PRIORITY,
             RTE_GPIO7_PIN1_IRQ_PRIORITY,
@@ -1231,6 +1232,7 @@ static GPIO_RESOURCES GPIO8_RES = {
     .IRQ_base_num = GPIO8_IRQ0_IRQn,
     .gpio_id = GPIO8_INSTANCE,
     .db_clkdiv = RTE_GPIO8_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO8_PIN0_IRQ_PRIORITY,
             RTE_GPIO8_PIN1_IRQ_PRIORITY,
@@ -1320,6 +1322,7 @@ static GPIO_RESOURCES GPIO9_RES = {
     .IRQ_base_num = GPIO9_IRQ0_IRQn,
     .gpio_id = GPIO9_INSTANCE,
     .db_clkdiv = RTE_GPIO9_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO9_PIN0_IRQ_PRIORITY,
             RTE_GPIO9_PIN1_IRQ_PRIORITY,
@@ -1409,6 +1412,7 @@ static GPIO_RESOURCES GPIO10_RES = {
     .IRQ_base_num = GPIO10_IRQ0_IRQn,
     .gpio_id = GPIO10_INSTANCE,
     .db_clkdiv = RTE_GPIO10_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO10_PIN0_IRQ_PRIORITY,
             RTE_GPIO10_PIN1_IRQ_PRIORITY,
@@ -1498,6 +1502,7 @@ static GPIO_RESOURCES GPIO11_RES = {
     .IRQ_base_num = GPIO11_IRQ0_IRQn,
     .gpio_id = GPIO11_INSTANCE,
     .db_clkdiv = RTE_GPIO11_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO11_PIN0_IRQ_PRIORITY,
             RTE_GPIO11_PIN1_IRQ_PRIORITY,
@@ -1587,6 +1592,7 @@ static GPIO_RESOURCES GPIO12_RES = {
     .IRQ_base_num = GPIO12_IRQ0_IRQn,
     .gpio_id = GPIO12_INSTANCE,
     .db_clkdiv = RTE_GPIO12_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO12_PIN0_IRQ_PRIORITY,
             RTE_GPIO12_PIN1_IRQ_PRIORITY,
@@ -1676,6 +1682,7 @@ static GPIO_RESOURCES GPIO13_RES = {
     .IRQ_base_num = GPIO13_IRQ0_IRQn,
     .gpio_id = GPIO13_INSTANCE,
     .db_clkdiv = RTE_GPIO13_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO13_PIN0_IRQ_PRIORITY,
             RTE_GPIO13_PIN1_IRQ_PRIORITY,
@@ -1765,6 +1772,7 @@ static GPIO_RESOURCES GPIO14_RES = {
     .IRQ_base_num = GPIO14_IRQ0_IRQn,
     .gpio_id = GPIO14_INSTANCE,
     .db_clkdiv = RTE_GPIO14_DB_CLK_DIV,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
     .IRQ_priority = {
             RTE_GPIO14_PIN0_IRQ_PRIORITY,
             RTE_GPIO14_PIN1_IRQ_PRIORITY,
@@ -1853,21 +1861,25 @@ static GPIO_RESOURCES LPGPIO_RES = {
     .reg_base = (GPIO_Type*) LPGPIO_BASE,
     .gpio_id = LPGPIO_INSTANCE,
     .IRQ_base_num = LPGPIO_IRQ0_IRQn,
+    .max_pin = DEVICE_FEATURE_LPGPIO_MAX_PINS,
     .IRQ_priority = {
             RTE_LPGPIO_PIN0_IRQ_PRIORITY,
             RTE_LPGPIO_PIN1_IRQ_PRIORITY,
+#if (DEVICE_FEATURE_LPGPIO_MAX_PINS > 2)
             RTE_LPGPIO_PIN2_IRQ_PRIORITY,
             RTE_LPGPIO_PIN3_IRQ_PRIORITY,
             RTE_LPGPIO_PIN4_IRQ_PRIORITY,
             RTE_LPGPIO_PIN5_IRQ_PRIORITY,
             RTE_LPGPIO_PIN6_IRQ_PRIORITY,
             RTE_LPGPIO_PIN7_IRQ_PRIORITY,
+#endif
     }
 };
 void LPGPIO_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 0);    }
 
 void LPGPIO_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 1);    }
 
+#if (DEVICE_FEATURE_LPGPIO_MAX_PINS > 2)
 void LPGPIO_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 2);    }
 
 void LPGPIO_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 3);    }
@@ -1879,6 +1891,7 @@ void LPGPIO_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 5);    }
 void LPGPIO_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 6);    }
 
 void LPGPIO_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 7);    }
+#endif
 
 static int32_t ARM_LPGPIO_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
 {
@@ -1936,6 +1949,6 @@ ARM_DRIVER_GPIO Driver_GPIOLP = {
 extern ARM_DRIVER_GPIO __attribute__((alias("Driver_GPIOLP"))) Driver_GPIO15;
 #endif   /* RTE_LPGPIO */
 
-/************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
-
 #endif /* defined(RTE_Drivers_GPIO) */
+
+/************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

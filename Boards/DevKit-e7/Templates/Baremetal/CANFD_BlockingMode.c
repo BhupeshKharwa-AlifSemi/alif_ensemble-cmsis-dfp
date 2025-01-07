@@ -82,8 +82,8 @@ typedef enum _CANFD_FRAME
 }CANFD_FRAME;
 
 /* CANFD instance object */
-extern ARM_DRIVER_CAN  Driver_CANFD;
-static ARM_DRIVER_CAN* CANFD_instance           = &Driver_CANFD;
+extern ARM_DRIVER_CAN  Driver_CANFD0;
+static ARM_DRIVER_CAN* CANFD_instance           = &Driver_CANFD0;
 
 /* File Global variables */
 static bool          stop_execution             = false;
@@ -326,7 +326,7 @@ static void canfd_blocking_mode_demo(void)
        goto power_off_canfd;
     }
 
-    /* Setting CANFD to Normal mode */
+    /* Setting CANFD to External Loopback mode */
     ret_val = CANFD_instance->SetMode(ARM_CAN_MODE_LOOPBACK_EXTERNAL);
     if(ret_val != ARM_DRIVER_OK)
     {
@@ -407,7 +407,7 @@ int main()
     }
 #endif
 
-#if RTE_CANFD_BLOCKING_MODE_ENABLE
+#if RTE_CANFD0_BLOCKING_MODE_ENABLE
     canfd_blocking_mode_demo();
 #else
     #error "CANFD Blocking mode is not enabled in RTE_Device.h"

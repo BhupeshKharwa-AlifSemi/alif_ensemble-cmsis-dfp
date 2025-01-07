@@ -236,6 +236,7 @@ static int32_t CMP_PowerControl(ARM_POWER_STATE state,CMP_RESOURCES *CMP )
 static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 {
     int32_t ret = ARM_DRIVER_OK;
+    const uint8_t window_ctrl_enable = cmp_window_enable_value();
 
     if(CMP->state.initialized == 0)
         return ARM_DRIVER_ERROR;
@@ -281,7 +282,7 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Set comparator window control */
-        cmp_set_window_ctrl(CMP->regs, arg);
+        cmp_set_window_ctrl(CMP->regs, arg, window_ctrl_enable);
 
         break;
 
@@ -291,7 +292,7 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Clear comparator window control */
-        cmp_clear_window_ctrl(CMP->regs, arg);
+        cmp_clear_window_ctrl(CMP->regs, arg, window_ctrl_enable);
 
         break;
 
@@ -368,9 +369,11 @@ static int32_t CMP_Stop(CMP_RESOURCES *CMP)
  */
 static void CMP_IRQ_handler(CMP_RESOURCES *CMP)
 {
+    const uint8_t int_mask = cmp_int_mask();
+
     if(CMP->drv_instance != CMP_INSTANCE_LP)
     {
-        cmp_irq_handler(CMP->regs);
+        cmp_irq_handler(CMP->regs, int_mask);
     }
 
     /* Clear Any Pending IRQ */

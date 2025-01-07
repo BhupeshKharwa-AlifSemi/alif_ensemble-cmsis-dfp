@@ -72,7 +72,7 @@ DSTATUS disk_initialize(BYTE drivenum)//FATFS *p_sd_card, char *MEDIA_NAME, void
     memset((void *)dma_buff, '\0', sizeof(media_memory));
     p_SD_Driver->disk_read(0, 1, dma_buff);
 
-    sys_busy_loop_us(1000);
+    sys_busy_loop_us(2000);
 
     return RES_OK;
 }

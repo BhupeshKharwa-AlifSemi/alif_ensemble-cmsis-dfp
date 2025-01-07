@@ -455,7 +455,7 @@ static void pm_display_wakeup_reason(void)
         printf("\r\nWakeup Interrupt Reason : LPTIMER0\n");
     }
 #else
-    if(NVIC_GetPendingIRQ(LPRTC_IRQ_IRQn))
+    if(NVIC_GetPendingIRQ(LPRTC0_IRQ_IRQn))
     {
         printf("\r\nWakeup Interrupt Reason : RTC\n");
     }
@@ -575,7 +575,7 @@ int main(void)
 #if defined(M55_HP)
                     (NVIC_GetPendingIRQ(LPTIMER0_IRQ_IRQn)
 #else
-                    (NVIC_GetPendingIRQ(LPRTC_IRQ_IRQn)
+                    (NVIC_GetPendingIRQ(LPRTC0_IRQ_IRQn)
 #endif
                     || NVIC_GetPendingIRQ(LPGPIO_IRQ4_IRQn))))
 
