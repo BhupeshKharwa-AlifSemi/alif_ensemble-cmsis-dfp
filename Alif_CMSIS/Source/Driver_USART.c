@@ -10,6 +10,7 @@
 
 /* Project Includes */
 #include "Driver_USART.h"
+#include "Driver_USART_EX.h"
 #include "Driver_USART_Private.h"
 #include "uart.h"
 #include "sys_ctrl_uart.h"
@@ -275,6 +276,32 @@ __STATIC_INLINE int32_t UART_DMA_Stop(DMA_PERIPHERAL_CONFIG *dma_periph)
 
     /* Stop transfer */
     status = dma_drv->Stop(&dma_periph->dma_handle);
+    if(status)
+    {
+        return ARM_DRIVER_ERROR;
+    }
+
+    return ARM_DRIVER_OK;
+}
+
+/**
+  \fn          int32_t USART_DMA_Usermcode(DMA_PERIPHERAL_CONFIG *dma_periph,
+                                         uint32_t dma_mcode)
+  \brief       Use Custom Microcode for USART
+  \param[in]   dma_periph  Pointer to DMA resources
+  \param[in]   dma_mcode   Pointer to DMA microcode
+  \return      \ref        execution_status
+*/
+static inline int32_t USART_DMA_Usermcode(DMA_PERIPHERAL_CONFIG *dma_periph,
+                                        uint32_t dma_mcode)
+{
+    int32_t        status;
+    ARM_DRIVER_DMA *dma_drv = dma_periph->dma_drv;
+
+    /* Use User provided custom microcode */
+    status = dma_drv->Control(&dma_periph->dma_handle,
+                              ARM_DMA_USER_PROVIDED_MCODE,
+                              dma_mcode);
     if(status)
     {
         return ARM_DRIVER_ERROR;
@@ -1333,6 +1360,44 @@ static int32_t ARM_USART_Control (uint32_t         control,
             uart->transfer.rx_total_num = 0U;
 
             break;
+
+#if UART_DMA_ENABLE
+        case ARM_USART_USE_CUSTOM_DMA_MCODE_TX:
+        {
+            if(!arg)
+            {
+                return ARM_DRIVER_ERROR_PARAMETER;
+            }
+
+            /* Use User Defined microcode for DMA */
+            if(USART_DMA_Usermcode(&uart->dma_cfg->dma_tx, arg))
+            {
+                return ARM_DRIVER_ERROR;
+            }
+            else
+            {
+                return ARM_DRIVER_OK;
+            }
+        }
+
+        case ARM_USART_USE_CUSTOM_DMA_MCODE_RX:
+        {
+            if(!arg)
+            {
+                return ARM_DRIVER_ERROR_PARAMETER;
+            }
+
+            /* Use User Defined microcode for DMA */
+            if(USART_DMA_Usermcode(&uart->dma_cfg->dma_rx, arg))
+            {
+                return ARM_DRIVER_ERROR;
+            }
+            else
+            {
+                return ARM_DRIVER_OK;
+            }
+        }
+#endif
 
         case ARM_USART_CONTROL_BREAK:
             /* set/clear break */

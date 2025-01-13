@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #include "Driver_SPI.h"
+#include "Driver_SPI_EX.h"
 #include "Driver_SPI_Private.h"
 #include "sys_ctrl_spi.h"
 #include "spi.h"
@@ -212,6 +213,32 @@ static inline int32_t SPI_DMA_Stop(DMA_PERIPHERAL_CONFIG *dma_periph)
     /* Stop transfer */
     status = dma_drv->Stop(&dma_periph->dma_handle);
     if (status)
+    {
+        return ARM_DRIVER_ERROR;
+    }
+
+    return ARM_DRIVER_OK;
+}
+
+/**
+  \fn          int32_t SPI_DMA_Usermcode(DMA_PERIPHERAL_CONFIG *dma_periph,
+                                         uint32_t dma_mcode)
+  \brief       Use Custom Microcode for SPI
+  \param[in]   dma_periph  Pointer to DMA resources
+  \param[in]   dma_mcode   Pointer to DMA microcode
+  \return      \ref        execution_status
+*/
+static inline int32_t SPI_DMA_Usermcode(DMA_PERIPHERAL_CONFIG *dma_periph,
+                                        uint32_t dma_mcode)
+{
+    int32_t        status;
+    ARM_DRIVER_DMA *dma_drv = dma_periph->dma_drv;
+
+    /* Use User provided custom microcode */
+    status = dma_drv->Control(&dma_periph->dma_handle,
+                              ARM_DMA_USER_PROVIDED_MCODE,
+                              dma_mcode);
+    if(status)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -1359,6 +1386,44 @@ static int32_t ARM_SPI_Control(SPI_RESOURCES *SPI, uint32_t control, uint32_t ar
             spi_enable(SPI->regs);
             break;
         }
+
+#if SPI_DMA_ENABLE
+    case ARM_SPI_USE_CUSTOM_DMA_MCODE_TX:
+    {
+        if(!arg)
+        {
+            return ARM_DRIVER_ERROR_PARAMETER;
+        }
+
+        /* Use User Defined microcode for DMA */
+        if(SPI_DMA_Usermcode(&SPI->dma_cfg->dma_tx, arg))
+        {
+            return ARM_DRIVER_ERROR;
+        }
+        else
+        {
+            return ARM_DRIVER_OK;
+        }
+    }
+
+    case ARM_SPI_USE_CUSTOM_DMA_MCODE_RX:
+    {
+        if(!arg)
+        {
+            return ARM_DRIVER_ERROR_PARAMETER;
+        }
+
+        /* Use User Defined microcode for DMA */
+        if(SPI_DMA_Usermcode(&SPI->dma_cfg->dma_rx, arg))
+        {
+            return ARM_DRIVER_ERROR;
+        }
+        else
+        {
+            return ARM_DRIVER_OK;
+        }
+    }
+#endif
 
         default:
         {
