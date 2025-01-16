@@ -429,8 +429,8 @@ static int32_t ARM_LPTIMER0_Uninitialize (uint8_t channel)
 }
 
 /*LPTIMER Resources Control Block */
-extern ARM_DRIVER_LPTIMER DRIVER_LPTIMER0;
-ARM_DRIVER_LPTIMER  DRIVER_LPTIMER0 = {
+extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
+ARM_DRIVER_LPTIMER  Driver_LPTIMER0 = {
     ARM_LPTIMER0_Initialize,
     ARM_LPTIMER0_PowerControl,
     ARM_LPTIMER0_Control,

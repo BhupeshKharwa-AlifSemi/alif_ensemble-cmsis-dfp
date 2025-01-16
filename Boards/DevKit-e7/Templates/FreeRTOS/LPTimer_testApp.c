@@ -101,8 +101,8 @@ void lptimer_cb_fun (uint8_t event)
 
 void lptimer_Thread (void *pvParameters)
 {
-    extern ARM_DRIVER_LPTIMER DRIVER_LPTIMER0;
-    ARM_DRIVER_LPTIMER *ptrDrv = &DRIVER_LPTIMER0;
+    extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
+    ARM_DRIVER_LPTIMER *ptrDrv = &Driver_LPTIMER0;
 
     /* Configuring the lptimer channel 0 for 5 seconds
      *Clock Source is depends on RTE_LPTIMER_CHANNEL_CLK_SRC in RTE_Device.h

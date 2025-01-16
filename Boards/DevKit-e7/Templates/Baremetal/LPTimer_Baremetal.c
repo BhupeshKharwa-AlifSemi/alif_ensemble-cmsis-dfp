@@ -31,8 +31,8 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_Compiler_IO_STDOUT */
 
-extern ARM_DRIVER_LPTIMER DRIVER_LPTIMER0;
-ARM_DRIVER_LPTIMER *ptrDrv = &DRIVER_LPTIMER0;
+extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
+ARM_DRIVER_LPTIMER *ptrDrv = &Driver_LPTIMER0;
 
 #define LPTIMER_CHANNEL_0    0
 
