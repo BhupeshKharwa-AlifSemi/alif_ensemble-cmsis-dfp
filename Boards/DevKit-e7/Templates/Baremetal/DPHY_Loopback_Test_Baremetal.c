@@ -27,9 +27,9 @@
 
 /* Log Retargetting */
 #include "RTE_Components.h"
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 #include "Driver_Common.h"
 
 
@@ -45,7 +45,8 @@ int main()
 {
     int ret = 0;
 
-    #if defined(RTE_Compiler_IO_STDOUT_User)
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)
     {

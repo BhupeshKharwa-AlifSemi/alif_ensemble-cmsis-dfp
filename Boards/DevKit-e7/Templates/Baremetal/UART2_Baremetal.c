@@ -33,9 +33,9 @@
 /* PINMUX Driver */
 #include "pinconf.h"
 #include "RTE_Components.h"
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 #include "RTE_Device.h"
 /*
@@ -338,7 +338,8 @@ error_uninitialize:
 /* Define main entry point */
 int main()
 {
-    #if defined(RTE_Compiler_IO_STDOUT_User)
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)

@@ -25,9 +25,9 @@
 #include "Driver_GPIO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 
 #define FLASH_NUM 1
@@ -161,7 +161,8 @@ int main ()
     ARM_DRIVER_VERSION version;
     ARM_FLASH_INFO *flash_info;
 
-    #if defined(RTE_Compiler_IO_STDOUT_User)
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)
     {

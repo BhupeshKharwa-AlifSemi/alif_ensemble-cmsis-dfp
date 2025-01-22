@@ -50,9 +50,9 @@
 
 #include "se_services_port.h"
 #include "RTE_Components.h"
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER DRIVER_UTIMER0;
@@ -466,7 +466,8 @@ error_uninitialize:
  *---------------------------------------------------------------------------*/
 int main(void)
 {
-#if defined(RTE_Compiler_IO_STDOUT_User)
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)

@@ -33,13 +33,13 @@
 #include "se_services_port.h"
 #include "clock_runtime.h"
 
-#if defined(RTE_Compiler_IO_STDIN)
+#if defined(RTE_CMSIS_Compiler_STDIN)
 #include "retarget_stdin.h"
-#endif  /* RTE_Compiler_IO_STDIN */
+#endif  /* RTE_CMSIS_Compiler_STDIN */
 
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 #include "pinconf.h"
 
@@ -548,7 +548,7 @@ int main(void)
 
     /* Log Retargeting Initialization */
 
-#if defined(RTE_Compiler_IO_STDIN_User)
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
     ret = stdin_init();
     if(ret != ARM_DRIVER_OK)
     {
@@ -558,7 +558,8 @@ int main(void)
     }
 #endif
 
-#if defined(RTE_Compiler_IO_STDOUT_User)
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)
     {

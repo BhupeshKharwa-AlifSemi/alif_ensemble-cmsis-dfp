@@ -31,9 +31,9 @@
 #include <pinconf.h>
 #include "RTE_Components.h"
 
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 /*RTOS Includes */
 #include "FreeRTOS.h"
@@ -564,10 +564,11 @@ error_initialize:
 int main( void )
 {
     extern void SystemCoreClockUpdate ( void );
+    extern int stdout_init (void);
 
     BaseType_t xStatus;
 
-    #if( defined( RTE_Compiler_IO_STDOUT_User ) )
+    #if( defined( RTE_CMSIS_Compiler_STDOUT_Custom ) )
     {
         int32_t lRet;
         lRet = stdout_init();
