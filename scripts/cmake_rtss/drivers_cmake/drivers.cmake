@@ -12,6 +12,12 @@ file (GLOB_RECURSE  ALIF_CMSIS_SRC  "${ALIF_CMSIS_SRC_DIR}/*.c"     "${ENSEMBLE_
 # Setting variables for Drivers
 set (DRIVERS_DIR        "${ENSEMBLE_PACK_DIR}/drivers")
 file (GLOB DRIVER_SRC   "${DRIVERS_DIR}/source/*.c")
+
+if (RTSS STREQUAL HP)
+    get_filename_component (tmp "${ALIF_CMSIS_SRC_DIR}/Driver_LPI2C.c" ABSOLUTE)
+    list (REMOVE_ITEM ALIF_CMSIS_SRC "${tmp}")
+endif()
+
 include_directories (${DRIVERS_DIR}/include)
 
 # Setting variables for OSPI drivers

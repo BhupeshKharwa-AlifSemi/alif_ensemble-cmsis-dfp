@@ -1,7 +1,3 @@
-# Header inclusion based on Device type
-set (DEF_M55_HP     "#define CMSIS_device_header \"M55_HP.h\"")
-set (DEF_M55_HE     "#define CMSIS_device_header \"M55_HE.h\"")
-
 # Basic Input check Starts -------------------------------
 if (DEV_FAMILY STREQUAL "E")
     set (RTE_COMP_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/../Include_RTE_Comp/ensemble")
@@ -36,27 +32,6 @@ if(BOOT STREQUAL TCM)
     set (SCRIPT_NAME            "${PROC}_TCM")
 endif()
 
-# Based on the Device name, paths and device files
-if (PROC STREQUAL M55_HP)
-    # checking if the header name is M55_HP or not. If not, changing the name to M55_HP
-    CHECK_DEF ("${DEF_M55_HP}" "${RTE_COMPONENTS_FILE}" ret)
-    if (NOT ret)
-        CHANGE_MACRO_VAL ("${DEF_M55_HE}" "${RTE_COMPONENTS_FILE}" "${DEF_M55_HP}"  ret     ON)
-    endif ()
-
-# If Device name is M55_HE
-elseif (PROC STREQUAL M55_HE)
-
-    # checking if the header name is M55_HE or not. If not, changing the name to M55_HE
-    CHECK_DEF ("${DEF_M55_HE}" "${RTE_COMPONENTS_FILE}" ret)
-    if (NOT ret)
-        CHANGE_MACRO_VAL ("${DEF_M55_HP}" "${RTE_COMPONENTS_FILE}" "${DEF_M55_HE}"  ret     ON)
-    endif ()
-
-else ()
-    message (FATAL_ERROR "${Red}DEFINE PROPER CPU NAME (${CPU}) (Please run ./run.sh to see options)${ColourReset}")
-endif ()
-
 # Binary Directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY          ${CMAKE_BINARY_DIR}/exec)
 
@@ -85,8 +60,10 @@ include_directories (${DEVICE_CORE_CONFIG_DIR})
 include_directories ("${DEVICE_PATH}/soc/e7/AE722F80F55D5/include")
 if (PROC STREQUAL M55_HP)
     include_directories ("${DEVICE_PATH}/core/rtss_hp/include")
+    include_directories ("${DEVICE_PATH}/core/rtss_hp/include/m55")
 else ()
     include_directories ("${DEVICE_PATH}/core/rtss_he/include")
+    include_directories ("${DEVICE_PATH}/core/rtss_he/include/m55")
 endif ()
 include_directories (${DEVICE_CORE_INC_DIR})
 include_directories (${DEVICE_COMMON_CFG})

@@ -10,7 +10,7 @@
 /*
  * Define the Device Header File:
 */
-#define CMSIS_device_header "M55_HE.h"
+#define CMSIS_device_header "core.h"
 
 /* AlifSemiconductor::Netxduo support */
 //#define RTE_AZURE_RTOS_NETXDUO                      0           /* Include or Exclude Netxduo for the build */
