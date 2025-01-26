@@ -4,7 +4,7 @@
 export CMSIS_VERSION=5.9.0
 
 # Configure: CMSIS Compiler Version
-export CMSIS_COMPILER_VERSION=1.0.0
+export CMSIS_COMPILER_VERSION=2.0.0
 
 # Configure: CMSIS FreeRTOS Version
 export CMSIS_FREERTOS_VERSION=10.5.1
@@ -20,7 +20,7 @@ export COMPILER_BIN_PATH="$HOME/ArmCompilerforEmbedded6.18/bin/"
 
 export CMSIS_PACK_PATH="/mnt/e/armds2021_ws/cmsis_root_pack/ARM/CMSIS/5.9.0"
 
-export CMSIS_COMPILER_PATH="/mnt/e/armds2021_ws/cmsis_root_pack/ARM/CMSIS-Compiler/1.0.0"
+export CMSIS_COMPILER_PATH="/mnt/e/armds2021_ws/cmsis_root_pack/ARM/CMSIS-Compiler/2.0.0"
 
 export CMSIS_FREERTOS_PATH="/mnt/e/armds2021_ws/cmsis_root_pack/ARM/CMSIS-FreeRTOS/10.5.1"
 

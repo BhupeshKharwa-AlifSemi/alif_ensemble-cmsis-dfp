@@ -96,40 +96,34 @@
 /* AlifSemiconductor::CMSIS Driver.CMP */
 #define RTE_Drivers_CMP                               1
 
-#define RTE_Compiler_IO_STDIN                                 /* Enable STDIN  Control                    */
-#ifdef  RTE_Compiler_IO_STDIN
-    //#define STDIN_ECHO                              1         /* Enable Local ECHO after entering input   */
-    //#define RTE_Compiler_IO_STDIN_BKPT                        /* All STDIN call will be redirected to BKPT*/
-    //#define RTE_Compiler_IO_STDIN_EVR                         /* All STDIN call will be redirected to EVR */
-    //#define RTE_Compiler_IO_STDIN_ITM                         /* All STDIN call will be redirected to ITM */
-    #define RTE_Compiler_IO_STDIN_User                          /* All STDIN call will be redirected to user*/
-    #define RTE_CMSIS_Compiler_STDIN_Custom                          /* All STDIN call will be redirected to user*/
-#endif  /* RTE_Compiler_IO_STDIN */
+#define RTE_CMSIS_Compiler_STDIN                                  /* Enable STDIN  Control                    */
+#if defined (RTE_CMSIS_Compiler_STDIN)
+    //#define STDIN_ECHO                              1           /* Enable Local ECHO after entering input   */
+    //#define RTE_CMSIS_Compiler_STDIN_Breakpoint                 /* All STDIN call will be redirected to BKPT*/
+    //#define RTE_CMSIS_Compiler_STDIN_ITM                        /* All STDIN call will be redirected to ITM */
+    #define RTE_CMSIS_Compiler_STDIN_Custom                       /* All STDIN call will be redirected to custom functions */
+#endif  /* RTE_CMSIS_Compiler_STDIN */
 
 #if (STDIN_ECHO == 1)
-    #define RTE_Compiler_IO_STDOUT                              /* Enable STDOUT                            */
+    #define RTE_CMSIS_Compiler_STDOUT                             /* Enable STDOUT                            */
 #endif  /*STDIN_ECHO */
 
-#define RTE_Compiler_IO_STDOUT                                  /* Enable STDOUT  Control                   */
-#ifdef RTE_Compiler_IO_STDOUT
-    //#define STDOUT_CR_LF                                      /* Append CR at end on STDOUT               */
-    //#define RTE_Compiler_IO_STDOUT_BKPT                       /* All STDIN call will be redirected to BKPT*/
-    //#define RTE_Compiler_IO_STDOUT_EVR                        /* All STDIN call will be redirected to EVR */
-    //#define RTE_Compiler_IO_STDOUT_ITM                        /* All STDIN call will be redirected to ITM */
-    #define RTE_Compiler_IO_STDOUT_User                         /* All STDIN call will be redirected to user*/
-    #define RTE_CMSIS_Compiler_STDOUT_Custom                         /* All STDIN call will be redirected to user*/
-#endif  /* RTE_Compiler_IO_STDOUT */
+#define RTE_CMSIS_Compiler_STDOUT                                 /* Enable STDOUT  Control                   */
+#if defined(RTE_CMSIS_Compiler_STDOUT)
+    //#define STDOUT_CR_LF                                        /* Append CR at end on STDOUT               */
+    //#define RTE_CMSIS_Compiler_STDOUT_Breakpoint                /* All STDOUT call will be redirected to BKPT*/
+    //#define RTE_CMSIS_Compiler_STDOUT_Event_Recorder            /* All STDOUT call will be redirected to EVR */
+    //#define RTE_CMSIS_Compiler_STDOUT_ITM                       /* All STDOUT call will be redirected to ITM */
+    #define RTE_CMSIS_Compiler_STDOUT_Custom                      /* All STDOUT call will be redirected to Custom */
+#endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-#define RTE_Compiler_IO_STDERR                                /* Enable STDERR  Control                   */
-#ifdef  RTE_Compiler_IO_STDERR
-    //#define STDERR_CR_LF                                      /* Append CR at end on STDOUT               */
-    //#define RTE_Compiler_IO_STDERR_BKPT                       /* All STDIN call will be redirected to BKPT*/
-    //#define RTE_Compiler_IO_STDERR_EVR                        /* All STDIN call will be redirected to EVR */
-    //#define RTE_Compiler_IO_STDERR_ITM                        /* All STDIN call will be redirected to ITM */
-    #define RTE_Compiler_IO_STDERR_User                         /* All STDIN call will be redirected to user*/
-    #define RTE_CMSIS_Compiler_STDERR_Custom                         /* All STDIN call will be redirected to user*/
-#endif /* RTE_Compiler_IO_STDERR */
-
-//define RTE_Compiler_IO_TTY
+#define RTE_CMSIS_Compiler_STDERR                                 /* Enable STDERR  Control                   */
+#if defined (RTE_CMSIS_Compiler_STDERR)
+    //#define STDERR_CR_LF                                        /* Append CR-LF at end on STDERR               */
+    //#define RTE_CMSIS_Compiler_STDERR_Breakpoint                /* All STDERR call will be redirected to BKPT*/
+    //#define RTE_CMSIS_Compiler_STDERR_Event_Recorder            /* All STDERR call will be redirected to EVR */
+    //#define RTE_CMSIS_Compiler_STDERR_ITM                       /* All STDERR call will be redirected to ITM */
+    #define RTE_CMSIS_Compiler_STDERR_Custom                      /* All STDERR call will be redirected to user*/
+#endif /* RTE_CMSIS_Compiler_STDERR_Custom */
 
 #endif /* RTE_COMPONENTS_H */

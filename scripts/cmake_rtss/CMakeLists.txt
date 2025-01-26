@@ -55,9 +55,6 @@ endif()
 
 set(CMAKE_TOOLCHAIN_FILE    "${TOOLCHAIN_DIRECTORY}/toolchain.cmake")
 
-# Setting the Paths for Device and Chip
-set (ENSEMBLE_CMAKE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/ensemble_cmake")
-
 # Setting Paths for OS selection cmake files
 set (OS_CMAKE_DIR           "${CMAKE_CURRENT_SOURCE_DIR}/os_cmake")
 
@@ -204,9 +201,9 @@ include (${DRIVERS_CMAKE_FILE})
 # Including Host Services cmake
 include (${HOST_SERVICES_CMAKE_DIR}/se_host_services.cmake)
 
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_Compiler_IO_STDIN      stdin_def_cnt)
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_Compiler_IO_STDOUT     stdout_def_cnt)
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_Compiler_IO_STDERR     stderr_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN_Custom      stdin_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT_Custom     stdout_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR_Custom     stderr_def_cnt)
 IS_MACRO_DEF("${RTEcomponentFile}"   STDIN_ECHO                 stdin_echo_def_cnt)
 if( stdin_def_cnt OR (stdout_def_cnt GREATER_EQUAL 2) OR stderr_def_cnt OR stdin_echo_def_cnt)
     set(RETARGET_EN_NO_SEMIHOSTING        ON)
