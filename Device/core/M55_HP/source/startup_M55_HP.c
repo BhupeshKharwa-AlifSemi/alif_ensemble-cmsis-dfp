@@ -38,7 +38,7 @@
  ******************************************************************************/
 
 #if defined (RTSS_HP)
-  #include "M55_HP.h"
+  #include "core.h"
 #else
   #error device not specified!
 #endif

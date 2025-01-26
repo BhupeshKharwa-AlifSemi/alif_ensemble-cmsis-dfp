@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -7,40 +7,9 @@
  * contact@alifsemi.com, or visit: https://alifsemi.com/license
  *
  */
-/*
- * Copyright (c) 2020 Arm Limited. All rights reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-/******************************************************************************
- * @file     M55_HP.h
- * @author   Rupesh Kumar
- * @email    rupesh@alifsemi.com
- * @brief    CMSIS Core Peripheral Access Layer Header File for
- *           M55_HP Device (configured for ARMCM55 with
- *           Integer and half and single precision,
- *           DSP extension, MVE, TrustZone)
- * @version  V1.0.0
- * @date     19. Feb 2021
- * @bug      None
- * @Note	 None
- ******************************************************************************/
-
-#ifndef M55_HP_H
-#define M55_HP_H
+#ifndef CORE_H
+#define CORE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -204,4 +173,4 @@ extern "C" {
 }
 #endif
 
-#endif  /* M55_HP_H */
+#endif  /* CORE_H */

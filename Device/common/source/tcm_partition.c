@@ -25,10 +25,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#if defined (RTSS_HP)
-  #include "M55_HP.h"
-#elif defined (RTSS_HE)
-  #include "M55_HE.h"
+#if defined (RTSS_HP) || defined (RTSS_HE)
+  #include "core.h"
 #else
   #error device not specified!
 #endif

@@ -14,7 +14,7 @@
 /*
  * Define the Device Header File: 
  */
-#define CMSIS_device_header "M55_HP.h"
+#define CMSIS_device_header "core.h"
 
 /* ARM::CMSIS-Compiler:I/O:STDOUT:User:1.0.0 */
 #define RTE_Compiler_IO_STDOUT          /* Compiler I/O: STDOUT */

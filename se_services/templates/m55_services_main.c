@@ -27,12 +27,12 @@
  *  M A C R O   D E F I N E S
  ******************************************************************************/
 
-#if   defined(RTSS_HE)
+#if defined(RTSS_HE)
 #define CPU_STRING "M55_HE"
-#include "M55_HE.h"
+#include "core.h"
 #elif defined(RTSS_HP)
 #define CPU_STRING "M55_HP"
-#include "M55_HP.h"
+#include "core.h"
 #else
 #define CPU_STRING "<unknown>"
 #endif

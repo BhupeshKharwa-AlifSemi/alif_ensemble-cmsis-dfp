@@ -23,10 +23,10 @@
 #include <stdbool.h>
 
 #if defined (RTSS_HP)
-  #include "M55_HP.h"
+  #include "core.h"
   #include "M55_HP_Config.h"
 #elif defined (RTSS_HE)
-  #include "M55_HE.h"
+  #include "core.h"
   #include "M55_HE_Config.h"
 #else
   #error device not specified!
