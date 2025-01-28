@@ -55,9 +55,10 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
-  .startup.at_mram : ALIGN(16)
+  .startup.at_mram : ALIGN(2048)
   {
     KEEP(*(.vectors))
+    KEEP(*(irqrtr_vectors))
 
     *startup_*(.text .rodata*)
     *system_*(.text .rodata*)

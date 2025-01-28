@@ -88,8 +88,12 @@
 #define TGU_BLOCK_SIZE  16384
 
 LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
-  M55_HP_ROM +0 __ROM_SIZE  {                 ; load address = execution address
-   *.o (RESET, +First)
+  ER_ROM_VECTORS  (AlignExpr(__ROM_BASE, 2048))  {   ; Vector Table
+    *vectors.o (RESET, +First)
+    *soc_vectors.o (irqrtr_vectors)
+  }
+
+  ER_ROM (AlignExpr(+0, 8)) {                 ; load address = execution address
    *(InRoot$$Sections)
    *.o (startup_ro_data)
 
