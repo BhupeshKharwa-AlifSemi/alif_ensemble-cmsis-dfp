@@ -51,9 +51,15 @@ set (DEVICE_CORE_SRC_DIR        "${DEVICE_CORE_PATH}/source")
 set (DEVICE_CORE_CONFIG_DIR     "${DEVICE_CORE_PATH}/config")
 set (DEVICE_CORE_INC_DIR        "${DEVICE_CORE_PATH}/include")
 set (OUTPUT_DIR                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE INTERNAL "")
-
+if (PROC STREQUAL M55_HP)
+    set (SUBSYSTEM_SRC_DIR        "${DEVICE_PATH}/core/rtss_hp/source")
+else ()
+    set (SUBSYSTEM_SRC_DIR        "${DEVICE_PATH}/core/rtss_he/source")
+endif ()
+set (SOC_SRC_DIR                "${DEVICE_PATH}/soc/e7/AE722F80F55D5/source")
 # Collecting Source files
-file (GLOB DEVICE_SRC   "${DEVICE_COMMON_SRC_DIR}/*.c" "${DEVICE_CORE_SRC_DIR}/*.c")
+file (GLOB DEVICE_SRC   "${DEVICE_COMMON_SRC_DIR}/*.c" "${DEVICE_CORE_SRC_DIR}/*.c"
+                        "${SUBSYSTEM_SRC_DIR}/*.c" "${SOC_SRC_DIR}/*.c")
 include_directories (${DEVICE_ROOT})
 include_directories (${DEVICE_COMMON_INC})
 include_directories (${DEVICE_CORE_CONFIG_DIR})
