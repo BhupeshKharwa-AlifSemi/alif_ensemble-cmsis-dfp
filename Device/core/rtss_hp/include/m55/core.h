@@ -143,6 +143,7 @@ extern "C" {
 #include "mpu_M55.h"                        /* MPU functions */
 #include "peripheral_types.h"               /* peripheral types*/
 #include "pm.h"                             /* Power Management functions */
+#include "config/core_config.h"             /* Core parameters */
 
 /* --------  End of section using anonymous unions and disabling warnings  -------- */
 #if   defined (__CC_ARM)
