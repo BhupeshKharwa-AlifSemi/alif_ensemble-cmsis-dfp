@@ -53,9 +53,9 @@ debug_print_function_t drv_debug_print_fn;
 /**
  * @brief Public interface for SERVICES delay function
  * @param wait_time_ms
- * @return
  * @note  User must supply this implementation for their platform. This is a
  *        bare metal use case
+ * @return
  */
 int32_t SERVICES_wait_ms(uint32_t wait_time_ms)
 {

@@ -182,7 +182,9 @@
         <!--Operation Range-->
         <feature type="VCC" n="1.71" m="4.2"/>
         <feature type="Temp" n="-40" m="75"/>
-        <device Dname="AE722F80F55D5AS">
+	   <device Dname="AE722F80F55D5AS">
+          <compile Pname="M55_HP" Pdefine="AE722F80F55D5XX"/>
+          <compile Pname="M55_HE" Pdefine="AE722F80F55D5XX"/>		
           <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
           <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE722F80F55D5AS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
@@ -190,6 +192,8 @@
           <feature type="CSP" n="208" name="WLCSP Package"/>
         </device>
         <device Dname="AE722F80F55D5LS">
+          <compile Pname="M55_HP" Pdefine="AE722F80F55D5XX"/>
+          <compile Pname="M55_HE" Pdefine="AE722F80F55D5XX"/>		
           <compile Pname="M55_HP" header="Device/core/M55_HP/include/M55_HP.h" define="RTSS_HP"/>
           <compile Pname="M55_HE" header="Device/core/M55_HE/include/M55_HE.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE722F80F55D5LS_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
@@ -1239,6 +1243,7 @@
 		<file category="header" name="drivers/include/uart.h"/>
 		<file category="header" name="drivers/include/sys_ctrl_uart.h"/>
 	    <file category="header" name="Alif_CMSIS/Source/Driver_USART_Private.h"/>
+	    <file category="header" name="Alif_CMSIS/Include/Driver_USART_EX.h"/>
       </files>
     </component>
 
@@ -1862,7 +1867,7 @@
       </files>
     </component>
 
-    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.101.0" condition="SE SERVICES MHU">
+    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.103.0" condition="SE SERVICES MHU">
       <description>Message Handling Unit driver for Alif Soc</description>
       <files>
         <file category="header" name="drivers/include/drivers_common.h"/>
@@ -1884,10 +1889,10 @@
       </files>
     </component> -->
 
-    <component Cclass="Device" Cgroup="SE runtime Services" Csub="core" Cvariant="Source" Cversion="1.101.0" condition="SE SERVICES SRC">
+    <component Cclass="Device" Cgroup="SE runtime Services" Csub="core" Cvariant="Source" Cversion="1.103.0" condition="SE SERVICES SRC">
       <description>SE runtime Services for RTSS cores</description>
       <files>
-        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.101.0.pdf"/>
+        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.103.0.pdf"/>
         <file category="include" name="se_services/include/"/>
         <file category="source" name="se_services/source/services_host_application.c"/>
         <file category="source" name="se_services/source/services_host_boot.c"/>
