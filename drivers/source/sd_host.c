@@ -29,10 +29,12 @@
 extern sd_handle_t Hsd;
 static adma2_desc_t adma_desc_tbl[32] __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
 
-static volatile uint16_t nis,eis,cc;
+static volatile uint16_t nis,eis,cc,xfer_done;
 
 #ifdef SDMMC_IRQ_MODE
 void SDMMC_IRQHandler(void){
+
+    cc = xfer_done = 0;
 
     /* get the current interrupt status */
     eis = Hsd.regs->SDMMC_ERROR_INT_STAT_R;
@@ -61,10 +63,12 @@ void SDMMC_IRQHandler(void){
         case SDMMC_INTR_TC_Msk:
         case (SDMMC_INTR_CC_Msk | SDMMC_INTR_TC_Msk):
             cc = 1;
-            if(Hsd.sd_param.app_callback)
-                Hsd.sd_param.app_callback(SDMMC_HC_STATUS_OK);
+            xfer_done = 1;
             break;
     }
+
+    if(Hsd.sd_param.app_callback)
+        Hsd.sd_param.app_callback(cc, xfer_done);
 
 }
 
@@ -1304,5 +1308,4 @@ SDMMC_HC_STATUS hc_io_rw_extended(sd_handle_t *pHsd, uint32_t rwFlag, uint32_t f
     exit:
         return status;
 }
-
 
