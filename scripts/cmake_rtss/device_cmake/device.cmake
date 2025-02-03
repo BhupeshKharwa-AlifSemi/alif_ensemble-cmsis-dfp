@@ -45,6 +45,7 @@ endif()
 
 # Setting paths for Device directories
 set (DEVICE_COMMON_SRC_DIR      "${DEVICE_PATH}/common/source")
+set (DEVICE_COMMON_SRC          "${DEVICE_PATH}/core/common/source")
 set (DEVICE_COMMON_INC          "${DEVICE_PATH}/common/include")
 set (DEVICE_COMMON_CFG          "${DEVICE_PATH}/common/config")
 set (DEVICE_CORE_SRC_DIR        "${DEVICE_CORE_PATH}/source")
@@ -58,7 +59,7 @@ else ()
 endif ()
 set (SOC_SRC_DIR                "${DEVICE_PATH}/soc/e7/AE722F80F55D5/source")
 # Collecting Source files
-file (GLOB DEVICE_SRC   "${DEVICE_COMMON_SRC_DIR}/*.c" "${DEVICE_CORE_SRC_DIR}/*.c"
+file (GLOB DEVICE_SRC   "${DEVICE_COMMON_SRC}/*.c" "${DEVICE_COMMON_SRC_DIR}/*.c" "${DEVICE_CORE_SRC_DIR}/*.c"
                         "${SUBSYSTEM_SRC_DIR}/*.c" "${SOC_SRC_DIR}/*.c")
 include_directories (${DEVICE_ROOT})
 include_directories (${DEVICE_COMMON_INC})
