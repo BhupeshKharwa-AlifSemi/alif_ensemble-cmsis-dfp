@@ -95,7 +95,7 @@ LR_ROM __RO_BASE __RO_SIZE  {                       ; load region size_region
    *.o (startup_ro_data)
 
    ; These should be part of primary load region
-   *startup_M55*.o (+RO)
+   *startup*.o (+RO)
    *clk*.o (+RO)
    *pm*.o (+RO)
    *tgu_*.o (+RO)
