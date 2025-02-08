@@ -44,11 +44,7 @@
 #endif
 
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
-  #if defined (RTSS_HP)
-    #include "partition_M55_HP.h"
-  #elif defined (RTSS_HE)
-    #include "partition_M55_HE.h"
-  #endif
+  #include "app_tz.h"
 #endif
 
 #include "tcm_partition.h"
