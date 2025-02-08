@@ -48,7 +48,7 @@
 #endif
 
 #include "tcm_partition.h"
-#include "tgu_M55.h"
+#include "tgu.h"
 
 
 #if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)

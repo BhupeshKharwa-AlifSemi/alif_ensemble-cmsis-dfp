@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,13 +8,8 @@
  *
  */
 
-#if defined (RTSS_HP) || defined (RTSS_HE)
-  #include "core.h"
-#else
-  #error device not specified!
-#endif
-
-#include "tgu_M55.h"
+#include "core.h"
+#include "tgu.h"
 #include "tcm_partition.h"
 
 /*

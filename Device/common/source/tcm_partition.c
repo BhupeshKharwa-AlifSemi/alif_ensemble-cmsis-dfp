@@ -32,7 +32,7 @@
 #endif
 
 #include "tcm_partition.h"
-#include "tgu_M55.h"
+#include "tgu.h"
 
 #if !(defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U))
 

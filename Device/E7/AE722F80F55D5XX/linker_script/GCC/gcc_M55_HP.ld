@@ -64,7 +64,7 @@ SECTIONS
     *system_*(.text .rodata*)
     *system_utils*(.text .rodata*)
     *pm*(.text .rodata*)
-    *tgu_*(.text .rodata*)
+    *tgu*(.text .rodata*)
     *mpu_*(.text .rodata*)
     *tcm_partition*(.text .rodata*)
 

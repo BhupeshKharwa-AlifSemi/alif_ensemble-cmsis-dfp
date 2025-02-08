@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     tgu_M55_HP.h
+ * @file     tgu.h
  * @author   Silesh C V
  * @email    silesh@alifsemi.com
  * @version  V1.0.0
@@ -19,20 +19,10 @@
  * @Note     None
  ******************************************************************************/
 
-#ifndef TGU_M55_H
-#define TGU_M55_H
+#ifndef TGU_H
+#define TGU_H
 #include <stdint.h>
 #include <limits.h>
-
-#if defined (RTSS_HP)
-  #include "M55_HP_map.h"
-#elif defined (RTSS_HE)
-  #include "M55_HE_map.h"
-#else
-  #error device not specified!
-#endif
-
-
 
 #define ITGU_BASE                 (0xE001E500UL)
 #define ITGU_CTRL                 (ITGU_BASE + 0x0)
@@ -65,4 +55,4 @@ struct mem_region {
  * the platform in ns_regions array.
  */
 void TGU_Setup(void);
-#endif /* TGU_M55_H */
+#endif /* TGU_H */

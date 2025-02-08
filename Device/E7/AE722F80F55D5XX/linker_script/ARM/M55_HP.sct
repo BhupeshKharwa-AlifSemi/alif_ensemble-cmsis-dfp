@@ -101,7 +101,7 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
    *startup*.o (+RO)
    *clk*.o (+RO)
    *pm*.o (+RO)
-   *tgu_*.o (+RO)
+   *tgu*.o (+RO)
    *mpu_*.o (+RO)
    *system_*.o (+RO)
    *tcm_partition*.o (+RO)
