@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -7,8 +7,8 @@
  * contact@alifsemi.com, or visit: https://alifsemi.com/license
  *
  */
-/**************************************************************************//**
- * @file     mpu_M55.h
+/*******************************************************************************
+ * @file     mpu.h
  * @author   Sudhir Sreedharan
  * @emial    sudhir@alifsemi.com
  * @version  V1.0.0
@@ -16,9 +16,8 @@
  * @brief    MPU header file
  ******************************************************************************/
 
-/* Include Guard */
-#ifndef MPU_M55_H
-#define MPU_M55_H
+#ifndef MPU_H
+#define MPU_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -66,5 +65,4 @@ void MPU_Setup(void);
  }
 #endif /* __cplusplus */
 
-#endif /* End Include Guard */
-/************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
+#endif

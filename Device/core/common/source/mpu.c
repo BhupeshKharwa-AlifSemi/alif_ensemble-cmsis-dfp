@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,27 +8,23 @@
  *
  */
 
-/**************************************************************************//**
- * @file     mpu_M55.c
+/*******************************************************************************
+ * @file     mpu.c
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @version  V1.0.0
  * @date     14-December-2021
  * @brief    MPU Configuration Source
  *
- *           This file load the MPU regions from the table and provides the function to enable it.
+ *           This file load the MPU regions from the table and provides the
+ *           function to enable it.
  * @bug      None.
  ******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 
-#if defined (RTSS_HP) || defined (RTSS_HE)
-  #include "core.h"
-#else
-  #error device not specified!
-#endif
-
 #include <stdint.h>
+#include "core.h"
 
 /* Public functions ----------------------------------------------------------*/
 /**

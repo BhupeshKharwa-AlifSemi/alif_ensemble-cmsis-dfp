@@ -52,7 +52,7 @@
 
 
 #if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
-  #include <mpu_M55.h>
+  #include <mpu.h>
 #endif
 
 #include "app_map.h"

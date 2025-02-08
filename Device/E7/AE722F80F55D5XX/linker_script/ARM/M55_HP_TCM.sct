@@ -99,7 +99,7 @@ LR_ROM __RO_BASE __RO_SIZE  {                       ; load region size_region
    *clk*.o (+RO)
    *pm*.o (+RO)
    *tgu*.o (+RO)
-   *mpu_*.o (+RO)
+   *mpu*.o (+RO)
    *system_*.o (+RO)
    *tcm_partition*.o (+RO)
 
