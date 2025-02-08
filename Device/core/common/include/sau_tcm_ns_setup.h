@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,19 +8,19 @@
  *
  */
 
-/**************************************************************************//**
- * @file     tcm_partition.h
+/*******************************************************************************
+ * @file     sau_tcm_ns_setup.h
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @version  V1.0.0
  * @date     6-August-2024
- * @brief    TCM Nonsecure Partition Information
+ * @brief    Set TCM Nonsecure Partitioning in SAU and TGU
  * @bug      None.
  * @Note     None
  ******************************************************************************/
 
-#ifndef TCM_PARTITION_H
-#define TCM_PARTITION_H
+#ifndef SAU_TCM_NS_SETUP_H
+#define SAU_TCM_NS_SETUP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,13 +41,13 @@ static const uint32_t ns_region_0_end __attribute__((weakref("__ns_region_0_end"
 #endif
 
 /*
- * setup_tcm_ns_partition()
+ * sau_tcm_ns_setup ()
  * Set up the TCM Nonsecure partitioning in SAU and TGU
  */
-void setup_tcm_ns_partition (void);
+void sau_tcm_ns_setup (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* SAU_TCM_NS_SETUP_H */

@@ -66,7 +66,7 @@ SECTIONS
     *pm*(.text .rodata*)
     *tgu*(.text .rodata*)
     *mpu*(.text .rodata*)
-    *tcm_partition*(.text .rodata*)
+    *sau_tcm_ns_setup*(.text .rodata*)
 
     *lv_*(.text .rodata*)
 

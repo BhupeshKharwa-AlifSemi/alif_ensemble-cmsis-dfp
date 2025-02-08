@@ -47,7 +47,7 @@
   #include "app_tz.h"
 #endif
 
-#include "tcm_partition.h"
+#include "sau_tcm_ns_setup.h"
 #include "tgu.h"
 
 
@@ -225,7 +225,7 @@ void SystemInit (void)
   TZ_SAU_Setup();
   TGU_Setup();
 #else
-  setup_tcm_ns_partition();
+  sau_tcm_ns_setup();
 #endif
 
   SystemCoreClock = SYSTEM_CLOCK;

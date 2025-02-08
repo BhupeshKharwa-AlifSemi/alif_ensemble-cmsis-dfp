@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,8 +8,8 @@
  *
  */
 
-/**************************************************************************//**
- * @file     tcm_partition.c
+/*******************************************************************************
+ * @file     sau_tcm_ns_setup.c
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @version  V1.0.0
@@ -19,19 +19,14 @@
  *           This routine will be used only for partitioning the TCM for the
  *           non-secure only when the CMSE feature is not enabled.
  *           If complete trustzone is going to be used, please do the
- *           modifications in the respective partition_* header file.
+ *           modifications in the respective tz.h header file.
  * @bug      None.
  ******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 
-#if defined (RTSS_HP) || defined (RTSS_HE)
-  #include "core.h"
-#else
-  #error device not specified!
-#endif
-
-#include "tcm_partition.h"
+#include "core.h"
+#include "sau_tcm_ns_setup.h"
 #include "tgu.h"
 
 #if !(defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U))
@@ -74,7 +69,7 @@ __STATIC_INLINE void SAU_TCM_NS_Setup (void)
     SAU->CTRL = ((1U << SAU_CTRL_ENABLE_Pos) & SAU_CTRL_ENABLE_Msk);
 }
 
-void setup_tcm_ns_partition (void)
+void sau_tcm_ns_setup (void)
 {
     int32_t ret = 0;
 

@@ -10,7 +10,7 @@
 
 #include "core.h"
 #include "tgu.h"
-#include "tcm_partition.h"
+#include "sau_tcm_ns_setup.h"
 
 /*
  * Array of NS memory regions. Add new regions to this list.
