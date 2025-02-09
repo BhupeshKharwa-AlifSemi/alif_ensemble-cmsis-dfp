@@ -38,10 +38,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY          ${CMAKE_BINARY_DIR}/exec)
 # Path for RTEDevice.h
 set (DEVICE_ROOT     "${DEVICE_PATH}/${DEVICE_SERIES}/${EXT_DEVICE_SERIES}")
 
-if (NOT (EXISTS "${DEVICE_ROOT}"))
-    message(FATAL_ERROR  "${Red}\n LINKER SCRIPT for ${DEVICE} ( ${DEVICE_ROOT} ) DOESN'T EXIST \n"
-         " (Please run \"setup_user_env.sh\" to see device options) ... !!!\n${ColourReset}")
-endif()
+#if (NOT (EXISTS "${DEVICE_ROOT}"))
+#    message(FATAL_ERROR  "${Red}\n LINKER SCRIPT for ${DEVICE} ( ${DEVICE_ROOT} ) DOESN'T EXIST \n"
+#         " (Please run \"setup_user_env.sh\" to see device options) ... !!!\n${ColourReset}")
+#endif()
 
 # Setting paths for Device directories
 set (DEVICE_COMMON_SRC_DIR      "${DEVICE_PATH}/common/source")
@@ -65,6 +65,7 @@ include_directories (${DEVICE_ROOT})
 include_directories (${DEVICE_COMMON_INC})
 include_directories (${DEVICE_CORE_CONFIG_DIR})
 include_directories ("${DEVICE_PATH}/soc/e7/AE722F80F55D5/include")
+include_directories ("${DEVICE_PATH}/soc/e7/include")
 include_directories ("${DEVICE_PATH}/core/common/config/")
 include_directories ("${DEVICE_PATH}/core/common/include/")
 if (PROC STREQUAL M55_HP)
