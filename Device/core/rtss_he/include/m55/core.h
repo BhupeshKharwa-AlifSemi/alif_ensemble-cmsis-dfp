@@ -12,7 +12,7 @@
 #define CORE_H
 
 #include <irqs.h>                           /* IRQ numbers */
-#include "config/core_config.h"             /* Core parameters */
+#include "core_config.h"                    /* Core parameters */
 
 #ifdef __cplusplus
 extern "C" {
