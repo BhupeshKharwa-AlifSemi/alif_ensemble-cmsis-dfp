@@ -28,8 +28,6 @@
  ******************************************************************************/
 #include "stdio.h"
 #include "Driver_MCI.h"
-#include "pinconf.h"
-#include "se_services_port.h"
 #include "sd.h"
 #include "fs_memory_card.h"
 #include "fs_mc.h"
@@ -92,11 +90,11 @@ void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
     uint32_t arm_mci_event = 0;
 
     if(xfer_status)
-        dma_done_irq = 1;
+        dma_done_irq = SDMMC_INTR_TC_Msk;
 
-    if(cmd_status & 1)
+    if(cmd_status & SDMMC_INTR_CC_Msk)
         arm_mci_event = ARM_MCI_EVENT_COMMAND_COMPLETE;
-    if(xfer_status & 1)
+    if(xfer_status & SDMMC_INTR_TC_Msk)
         arm_mci_event |= ARM_MCI_EVENT_TRANSFER_COMPLETE;
 
     fs_mc0_mci.Callback(arm_mci_event);
@@ -114,35 +112,7 @@ static ARM_MCI_CAPABILITIES ARM_MCI_GetCapabilities(void)
 
 static int32_t ARM_MCI_Initialize(ARM_MCI_SignalEvent_t cb_event)
 {
-    uint32_t error_code = SERVICES_REQ_SUCCESS;
-    uint32_t service_error_code;
     sd_param_t sd_param;
-
-    /* Initialize the SE services */
-    se_services_port_init();
-
-    /* Enable SDMMC Clocks */
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
-    if(error_code)
-    {
-        printf("SE: SDMMC 100MHz clock enable = %d\n", error_code);
-        return ARM_DRIVER_ERROR;
-    }
-
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, true, &service_error_code);
-    if(error_code)
-    {
-        printf("SE: SDMMC 20MHz clock enable = %d\n", error_code);
-        return ARM_DRIVER_ERROR;
-    }
-
-    /* pinmux for Alif Ensemble Devkit E* */
-    pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
-    pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
-    pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
 
     sd_param.dev_id         = SDMMC_DEV_ID;
     sd_param.clock_id       = RTE_SDC_CLOCK_SELECT;
@@ -367,3 +337,4 @@ ARM_DRIVER_MCI Driver_MCI0 = {
     ARM_MCI_Control,
     ARM_MCI_GetStatus
 };
+

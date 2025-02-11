@@ -27,6 +27,8 @@
 
 #include "cmsis_os2.h"
 #include "rl_fs.h"
+#include "pinconf.h"
+#include "se_services_port.h"
 
 /* Use current drive if drive is not specified */
 #ifndef FILE_DEMO_DRIVE
@@ -718,8 +720,37 @@ static void init_filesystem (void) {
 __NO_RETURN void app_main_thread (void *argument) {
     char *cmd;
     uint32_t i,j;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
 
     (void)argument;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+    /* Enable SDMMC Clocks */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
+    if(error_code)
+    {
+        printf("SE: SDMMC 100MHz clock enable = %d\n", error_code);
+        while(1);
+    }
+
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, true, &service_error_code);
+    if(error_code)
+    {
+        printf("SE: SDMMC 20MHz clock enable = %d\n", error_code);
+        while(1);
+    }
+
+    /* pinmux for Alif Ensemble Devkit E* */
+    pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
+    pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
+    pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
+    pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
+    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
+    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
+
 
     init_filesystem();
 
@@ -789,3 +820,4 @@ int main() {
     return 0;
 
 }
+
