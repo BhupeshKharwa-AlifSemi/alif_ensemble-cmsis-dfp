@@ -349,7 +349,7 @@ void mix_bus_i2c_i3c_Thread(void *pvParameters)
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: Master Init control failed.\r\n");
-        goto error_uninitialize;
+        goto error_poweroff;
     }
 
     /*  i3c Speed Mode Configuration for i2c comm:
@@ -370,7 +370,7 @@ void mix_bus_i2c_i3c_Thread(void *pvParameters)
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: Hot Join control failed.\r\n");
-        goto error_uninitialize;
+        goto error_poweroff;
     }
 
     /* Reject Master request */
@@ -378,7 +378,7 @@ void mix_bus_i2c_i3c_Thread(void *pvParameters)
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: Master Request control failed.\r\n");
-        goto error_uninitialize;
+        goto error_poweroff;
     }
 
     /* Reject Slave Interrupt request */
@@ -386,13 +386,33 @@ void mix_bus_i2c_i3c_Thread(void *pvParameters)
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: Slave Interrupt Request control failed.\r\n");
-        goto error_uninitialize;
+        goto error_poweroff;
     }
 
     /* Delay for n micro second.
      *  @Note: Minor delay is required if prints are disable.
      */
     sys_busy_loop_us(1000);
+
+    /* Reset all slaves' address */
+    i3c_cmd.rw            = 0U;
+    i3c_cmd.cmd_id        = I3C_CCC_RSTDAA(true);
+    i3c_cmd.len           = 0U;
+    i3c_cmd.addr          = 0;
+
+    ret = I3CDrv->MasterSendCommand(&i3c_cmd);
+    if(ret != ARM_DRIVER_OK)
+    {
+        goto error_poweroff;
+    }
+
+    /* Waiting for the callback */
+    xTaskNotifyWait(NULL,I3C_CB_EVENT_SUCCESS | I3C_CB_EVENT_ERROR,&actual_events, portMAX_DELAY);
+
+    if(actual_events == I3C_CB_EVENT_ERROR)
+    {
+        printf("\r\nError: I3C Slaves' Address Reset failed.\r\n");
+    }
 
     /* Attach all i3c slave using dynamic address */
 
@@ -407,6 +427,7 @@ void mix_bus_i2c_i3c_Thread(void *pvParameters)
     i3c_cmd.data          = NULL;
     i3c_cmd.def_byte      = 0U;
 
+    actual_events = 0;
     ret = I3CDrv->MasterAssignDA(&i3c_cmd);
     if(ret != ARM_DRIVER_OK)
     {
