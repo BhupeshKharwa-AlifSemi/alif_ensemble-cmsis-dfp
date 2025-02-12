@@ -1,13 +1,13 @@
 #! armclang -E --target=arm-arm-none-eabi -mcpu=cortex-m55 -xc
 ; command above MUST be in first line (no comment above!)
-#include "app_map.h"
+#include "app_mem_regions.h"
 /*
 ;-------- <<< Use Configuration Wizard in Context Menu >>> -------------------
 */
 
 /* MRAM code storage for M55-HP */
-#define __ROM_BASE      _APP_ADDRESS_HP
-#define __ROM_SIZE      _APP_MAX_SIZE_HP
+#define __ROM_BASE      APP_MRAM_HP_BASE
+#define __ROM_SIZE      APP_MRAM_HP_SIZE
 /* On chip RAM Regions */
 #define SRAM0_BASE                0x02000000
 #define SRAM0_SIZE                0x00400000    /* 4MB */
