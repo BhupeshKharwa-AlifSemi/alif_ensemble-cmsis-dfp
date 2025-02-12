@@ -73,6 +73,7 @@ extern "C" {
 #include "mpu.h"                            /* MPU functions */
 #include "peripheral_types.h"               /* peripheral types*/
 #include "pm.h"                             /* Power Management functions */
+#include "soc_strings.h"                    /* SoC strings */
 
 /* --------  End of section using anonymous unions and disabling warnings  -------- */
 #if   defined (__CC_ARM)
