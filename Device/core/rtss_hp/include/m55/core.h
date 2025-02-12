@@ -69,7 +69,7 @@ extern "C" {
 #include "system_utils.h"                   /* Utility functions */
 #include "cache.h"                          /* Cache utility functions */
 #include "clk.h"                            /* clock functions */
-#include "dma_mapping.h"                    /* DMA mapping */
+#include "soc_dma_map.h"                    /* DMA mapping */
 #include "mpu.h"                            /* MPU functions */
 #include "peripheral_types.h"               /* peripheral types*/
 #include "pm.h"                             /* Power Management functions */

@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef DMA_MAPPING_H
-#define DMA_MAPPING_H
+#ifndef SOC_DMA_MAP
+#define SOC_DMA_MAP
 
 #include "RTE_Device.h"
 
@@ -835,4 +835,4 @@ extern "C" {
 }
 #endif
 
-#endif /* DMA_MAPPING_H */
+#endif /* SOC_DMA_MAP */
