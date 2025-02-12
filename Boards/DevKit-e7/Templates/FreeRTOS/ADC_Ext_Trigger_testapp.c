@@ -36,7 +36,7 @@
 /* Include */
 #include <stdio.h>
 #include "string.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* Project include */
 #include "Driver_UTIMER.h"

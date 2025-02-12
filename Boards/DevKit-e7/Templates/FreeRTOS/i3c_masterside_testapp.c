@@ -36,7 +36,7 @@
 /* System Includes */
 #include <stdio.h>
 #include "string.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* Project Includes */
 #include "Driver_I3C.h"

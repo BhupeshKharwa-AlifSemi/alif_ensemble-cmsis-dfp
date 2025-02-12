@@ -36,7 +36,7 @@
 #error "Driver needs CMSIS-RTOS or CMSIS-RTOS2."
 #endif
 
-#include "system_utils.h"
+#include "sys_utils.h"
 
 #define RX_DESC_COUNT   8 /**< Rx DMA descriptor count */
 #define TX_DESC_COUNT   8 /**< Tx DMA descriptor count */

@@ -37,7 +37,7 @@
 
 /* Project Includes */
 #include "Driver_I3C.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* PINMUX Driver */
 #include "pinconf.h"

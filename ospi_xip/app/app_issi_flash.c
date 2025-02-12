@@ -32,7 +32,7 @@
 #include "ospi_xip_aes_key.h"
 #endif
 
-#include "system_utils.h"
+#include "sys_utils.h"
 
 #define OSPI_RESET_PORT 15
 #define OSPI_RESET_PIN  7
@@ -260,4 +260,3 @@ int main ()
 
     return 0;
 }
-

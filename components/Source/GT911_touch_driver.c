@@ -25,7 +25,7 @@
 #include <stdbool.h>
 
 #include "RTE_Components.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* GPIO Driver */
 #include "Driver_IO.h"

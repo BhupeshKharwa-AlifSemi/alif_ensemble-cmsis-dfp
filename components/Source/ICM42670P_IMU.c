@@ -19,7 +19,7 @@
  ******************************************************************************/
 
 #include "RTE_Components.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* IMU Driver */
 #include "Driver_IMU.h"

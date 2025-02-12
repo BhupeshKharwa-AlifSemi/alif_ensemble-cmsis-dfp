@@ -8,7 +8,7 @@
  *
  */
 #include "lpi2c.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /**
  * @func   : void lpi2c_send(LPI2C_TYPE *lpi2c,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,7 +8,7 @@
  *
  */
 /******************************************************************************
- * @file     system_utils.c
+ * @file     sys_utils.c
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @brief    System  Utility functions
@@ -17,7 +17,7 @@
  * @bug      None
  * @Note     None
  ******************************************************************************/
-#include <system_utils.h>
+#include <sys_utils.h>
 #include <peripheral_types.h>
 
 /**

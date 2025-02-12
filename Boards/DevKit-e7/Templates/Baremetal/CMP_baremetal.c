@@ -36,7 +36,7 @@
 /* System Includes */
 #include "Driver_IO.h"
 #include <stdio.h>
-#include "system_utils.h"
+#include "sys_utils.h"
 #include "pinconf.h"
 #include "Driver_UTIMER.h"
 

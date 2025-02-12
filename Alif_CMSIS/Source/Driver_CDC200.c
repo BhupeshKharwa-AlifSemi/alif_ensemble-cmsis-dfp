@@ -22,7 +22,7 @@
 #include "Driver_CDC200.h"
 #include "Driver_CDC_Private.h"
 #include "sys_ctrl_cdc.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 #include "RTE_Device.h"
 #include "display.h"
 

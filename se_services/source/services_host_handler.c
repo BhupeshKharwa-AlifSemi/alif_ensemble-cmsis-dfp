@@ -21,7 +21,7 @@
 #if defined(A32)
 #include "a32_device.h"
 #else
-#include "system_utils.h"
+#include "sys_utils.h"
 #endif
 
 #define SERVICES_REQ_TIMEOUT_MS  0x20

@@ -66,7 +66,7 @@ extern "C" {
 #include "core_cm55.h"                      /* Processor and core peripherals */
 #include "system_M55.h"                     /* System Header */
 #include "M55_HE_map.h"                     /* Memory Map */
-#include "system_utils.h"                   /* Utility functions */
+#include "sys_utils.h"                     /* Utility functions */
 #include "cache.h"                          /* Cache utility functions */
 #include "clk.h"                            /* clock functions */
 #include "soc_dma_map.h"                    /* DMA mapping */

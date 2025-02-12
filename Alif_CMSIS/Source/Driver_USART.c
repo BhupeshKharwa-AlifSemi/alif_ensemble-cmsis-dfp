@@ -14,7 +14,7 @@
 #include "Driver_USART_Private.h"
 #include "uart.h"
 #include "sys_ctrl_uart.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_USART)
 

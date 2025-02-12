@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,7 +8,7 @@
  *
  */
 /******************************************************************************
- * @file     system_utils.h
+ * @file     sys_utils.h
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @brief    System Header File for Utility functions
@@ -17,17 +17,11 @@
  * @bug      None
  * @Note     None
  ******************************************************************************/
-#ifndef SYSTEM_UTILS_H
-#define SYSTEM_UTILS_H
+#ifndef SYS_UTILS_H
+#define SYS_UTILS_H
 
 #include <stdbool.h>
-
-#if defined (RTSS_HP) || defined (RTSS_HE)
-  #include "core.h"
-#else
-  #error device not specified!
-#endif
-
+#include "core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -201,4 +195,4 @@ void* GlobalToLocal(uint32_t global_addr)
 }
 #endif
 
-#endif /* SYSTEM_UTILS_H */
+#endif /* SYS_UTILS_H */
