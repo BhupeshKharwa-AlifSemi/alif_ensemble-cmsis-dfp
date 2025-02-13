@@ -57,14 +57,29 @@
  *                P0_2 (+ve input ) and P0_6 (+ve input) channel 2
  *                P0_3 (+ve input ) and P0_7 (+ve input) channel 3
  *
- *              Single channel Scan (selective channel scan)
- *              - User can select the particular channel using
- *                 ARM_ADC_CHANNEL_#, where # denotes the channel number.
+ *             1. Single shot conversion (One-time scan):
+ *                The ADC performs a one-time conversion of the selected channel(s).
+ *              - Single Channel Scan (Only one specific channel):
+ *                - The user can select the desired channel using:
+ *                  ADCdrv->Control(ARM_ADC_CHANNEL_INIT_VAL, ARM_ADC_CHANNEL_#);
+ *                  use ARM_ADC_CHANNEL_#, where # denotes the channel number.
  *
- *              Continuous channel Scan (Multiple channel scan)
- *              - it rotate through all the ADC channels and
- *                 continuously stores the value in given memory buffer.
- *              - User can skip channels using ARM_ADC_MASK_CHANNEL_# macro.
+ *             2. Continuous Conversion (Repeated Scanning):
+ *                The ADC repeatedly scans channels based on the configuration.
+ *              - Single channel scan (Scans only one specific channel repeatedly)
+ *                - The user can select the desired channel using:
+ *                  ADCdrv->Control(ARM_ADC_CHANNEL_INIT_VAL, ARM_ADC_CHANNEL_#);
+ *                  use ARM_ADC_CHANNEL_#, where # denotes the channel number.
+ *
+ *              - Multiple channel scan
+ *                - Scans all available channels continuously (if no channels are masked).
+ *                - To mask specific channels, use the following API:
+ *                  ADCdrv->Control(ARM_ADC_SEQUENCER_MSK_CH_CTRL, MASK_CHANNEL);
+ *
+ *             - SEQUENCER_INIT:
+ *                - Specifies the input channel from which the ADC will start conversion.
+ *                - By default, all channels are unmasked, and the ADC is configured for
+ *                  single-shot conversion.
  *
  *              Comparator
  *              - comparing channels for both the scan for below threshold
