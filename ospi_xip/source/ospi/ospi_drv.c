@@ -15,12 +15,11 @@
  * @bug      None.
  * @Note     None
  ******************************************************************************/
-#include "clk.h"
-#include "ospi_drv.h"
-#include "ospi_xip_user.h"
-
 #include "RTE_Components.h"
 #include CMSIS_device_header
+
+#include "ospi_drv.h"
+#include "ospi_xip_user.h"
 
 #ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
 #include "sys_ctrl_ospi.h"

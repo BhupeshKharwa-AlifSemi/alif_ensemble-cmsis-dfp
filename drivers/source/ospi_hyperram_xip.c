@@ -24,7 +24,7 @@
 #include "ospi.h"
 #include "sys_ctrl_aes.h"
 #include "global_map.h"
-#include "clk.h"
+#include "sys_clocks.h"
 
 /**
   \fn          int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)

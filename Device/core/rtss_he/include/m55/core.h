@@ -68,7 +68,7 @@ extern "C" {
 #include "M55_HE_map.h"                     /* Memory Map */
 #include "sys_utils.h"                     /* Utility functions */
 #include "cache.h"                          /* Cache utility functions */
-#include "clk.h"                            /* clock functions */
+#include "sys_clocks.h"                     /* clock functions */
 #include "soc_dma_map.h"                    /* DMA mapping */
 #include "mpu.h"                            /* MPU functions */
 #include "peripheral_types.h"               /* peripheral types*/

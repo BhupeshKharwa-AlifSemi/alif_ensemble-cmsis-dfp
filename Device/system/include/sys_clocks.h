@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef CLK_H_
-#define CLK_H_
+#ifndef SYS_CLOCKS_H
+#define SYS_CLOCKS_H
 
 #include <peripheral_types.h>
 
@@ -169,4 +169,4 @@ uint32_t GetSystemREFClock(void);
  */
 uint32_t GetSystemHFOSClock(void);
 
-#endif /* CLK_H_ */
+#endif /* SYS_CLOCKS_H */

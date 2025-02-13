@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -8,14 +8,14 @@
  *
  */
 /*******************************************************************************
- * @file     clk.c
+ * @file     sys_clocks.c
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @version  V1.0.0
  * @date     29-Nov-2023
  * @brief    Clock information
  ******************************************************************************/
-#include <clk.h>
+#include <sys_clocks.h>
 
 #ifndef SYST_ACLK
 #define SYST_ACLK   400000000

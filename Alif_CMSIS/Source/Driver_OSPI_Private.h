@@ -31,7 +31,7 @@ extern "C"
 
 #include "Driver_OSPI.h"
 #include "ospi.h"
-#include "clk.h"
+#include "sys_clocks.h"
 #include "sys_ctrl_aes.h"
 
 #if (RTE_OSPI0_DMA_ENABLE || RTE_OSPI1_DMA_ENABLE)

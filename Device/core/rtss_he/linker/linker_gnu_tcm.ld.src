@@ -58,7 +58,7 @@ SECTIONS
 
     *startup*(.text .rodata*)
     *system_*(.text .rodata*)
-    *system_utils*(.text .rodata*)
+    *sys_*(.text .rodata*)
     *pm*(.text .rodata*)
     *tgu*(.text .rodata*)
     *mpu*(.text .rodata*)

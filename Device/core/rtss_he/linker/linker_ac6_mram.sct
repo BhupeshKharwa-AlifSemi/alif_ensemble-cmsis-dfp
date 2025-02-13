@@ -99,7 +99,7 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
 
    ; These should be part of primary load region
    *startup*.o (+RO)
-   *clk*.o (+RO)
+   *sys_*.o (+RO)
    *pm*.o (+RO)
    *tgu*.o (+RO)
    *mpu*.o (+RO)
