@@ -1,19 +1,11 @@
-/*
- * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
+/* Copyright (C) 2023 Alif Semiconductor - All Rights Reserved.
+ * Use, distribution and modification of this code is permitted under the
+ * terms stated in the Alif Semiconductor Software License Agreement
  *
- * SPDX-License-Identifier: Apache-2.0
+ * You should have received a copy of the Alif Semiconductor Software
+ * License Agreement with this file. If not, please write to:
+ * contact@alifsemi.com, or visit: https://alifsemi.com/license
  *
- * Licensed under the Apache License, Version 2.0 (the License); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an AS IS BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 /**************************************************************************//**
@@ -43,6 +35,8 @@ static const ARM_DRIVER_VERSION DriverVersion = {
 const diskio_t  *p_SD_Driver = &SD_Driver;
 extern sd_handle_t Hsd;
 volatile uint32_t dma_done_irq;
+static uint32_t g_block_count;
+static uint8_t *gp_buff;
 
 /* Driver Capabilities */
 static const ARM_MCI_CAPABILITIES DriverCapabilities = {
@@ -100,16 +94,32 @@ void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
     fs_mc0_mci.Callback(arm_mci_event);
 }
 
+/**
+ @fn       ARM_DRIVER_VERSION ARM_MCI_GetVersion(void)
+ @brief    ARM_MCI VERSION
+ @return   DriverVersion
+**/
 static ARM_DRIVER_VERSION ARM_MCI_GetVersion(void)
 {
   return DriverVersion;
 }
 
+/**
+ @fn       ARM_MCI_CAPABILITIES ARM_MCI_GetCapabilities(void)
+ @brief    ARM_MCI_GET CAPABILITIES
+ @return   DriverCapabilities
+**/
 static ARM_MCI_CAPABILITIES ARM_MCI_GetCapabilities(void)
 {
   return DriverCapabilities;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_Initialize(ARM_MCI_SignalEvent_t cb_event)
+ @brief        : Initialize the MCI Interface
+ @parameter[1] : cb_event : Pointer to \ref ARM_MCI_SignalEvent_t
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_Initialize(ARM_MCI_SignalEvent_t cb_event)
 {
     sd_param_t sd_param;
@@ -129,6 +139,12 @@ static int32_t ARM_MCI_Initialize(ARM_MCI_SignalEvent_t cb_event)
 
 }
 
+/**
+ @fn           : int32_t ARM_MCI_Uninitialize(void)
+ @brief        : Un-Initialize the MCI Interface
+ @parameter    : NONE
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_Uninitialize(void)
 {
     if( p_SD_Driver->disk_uninitialize(SDMMC_DEV_ID)) {
@@ -139,6 +155,12 @@ static int32_t ARM_MCI_Uninitialize(void)
     return ARM_DRIVER_OK;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_PowerControl(ARM_POWER_STATE status)
+ @brief        : Control MCI Interface power
+ @parameter    : NONE
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_PowerControl(ARM_POWER_STATE state)
 {
     switch (state)
@@ -156,6 +178,12 @@ static int32_t ARM_MCI_PowerControl(ARM_POWER_STATE state)
     return ARM_DRIVER_ERROR_UNSUPPORTED;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_CardPower(uint32_t volate)
+ @brief        : Control MCI Interface power
+ @parameter    : input voltage
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_CardPower(uint32_t voltage)
 {
     switch (voltage & ARM_MCI_POWER_VDD_Msk)
@@ -172,18 +200,34 @@ static int32_t ARM_MCI_CardPower(uint32_t voltage)
     return ARM_DRIVER_ERROR;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_ReadCD(void)
+ @brief        : Read Card detect
+ @parameter    : None
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_ReadCD(void)
 {
     return ARM_DRIVER_OK;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_ReadWP(void)
+ @brief        : Read Write Protect
+ @parameter    : None
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_ReadWP(void)
 {
     return ARM_DRIVER_OK;
 }
 
-static uint32_t g_block_count;
-static uint8_t *gp_buff;
+/**
+ @fn           : int32_t ARM_MCI_SendCommand(uint32_t cmd, uint32_t arg, uint32_t flags, uint32_t *response)
+ @brief        : Send Command to Card
+ @parameter    : cmd, argument, flags and pointer to store response.
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_SendCommand(uint32_t cmd, uint32_t arg, uint32_t flags, uint32_t *response)
 {
     sd_handle_t *pHsd = &Hsd;
@@ -220,6 +264,12 @@ static int32_t ARM_MCI_SendCommand(uint32_t cmd, uint32_t arg, uint32_t flags, u
     return ARM_DRIVER_OK;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_SetupTransfer(uint8_t  *data, uint32_t block_count, uint32_t block_size, uint32_t mode)
+ @brief        : Prepare DMA for transfer
+ @parameter    : read/write data buffer, block count, block size, and mode
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_SetupTransfer(uint8_t  *data, uint32_t block_count, uint32_t block_size, uint32_t mode)
 {
     sd_handle_t *pHsd = &Hsd;
@@ -233,11 +283,23 @@ static int32_t ARM_MCI_SetupTransfer(uint8_t  *data, uint32_t block_count, uint3
     return ARM_DRIVER_OK;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_AbortTransfer(void)
+ @brief        : Stop the on-going transfer
+ @parameter    : None
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_AbortTransfer(void)
 {
     return ARM_DRIVER_OK;
 }
 
+/**
+ @fn           : int32_t ARM_MCI_Control(uint32_t control, uint32_t arg)
+ @brief        : Control the MCI Features
+ @parameter    : Control and Value
+ @return       : execution_status
+**/
 static int32_t ARM_MCI_Control(uint32_t control, uint32_t arg)
 {
     switch (control)
@@ -302,6 +364,12 @@ static int32_t ARM_MCI_Control(uint32_t control, uint32_t arg)
     }
 }
 
+/**
+ @fn           : ARM_MCI_STATUS ARM_MCI_GetStatus(void)
+ @brief        : Gets the driver status
+ @parameter    : ARM_MCI_STATUS
+ @return       : execution_status
+**/
 static ARM_MCI_STATUS ARM_MCI_GetStatus(void)
 {
     ARM_MCI_STATUS mci_status;
@@ -313,6 +381,12 @@ static ARM_MCI_STATUS ARM_MCI_GetStatus(void)
     return mci_status;
 }
 
+/**
+ @fn           : ARM_MCI_SignalEvent(uint32_t event)
+ @brief        : Signal the events
+ @parameter    : event
+ @return       : None
+**/
 void ARM_MCI_SignalEvent(uint32_t event)
 {
 

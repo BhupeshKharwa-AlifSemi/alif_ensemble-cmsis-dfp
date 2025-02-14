@@ -751,7 +751,6 @@ __NO_RETURN void app_main_thread (void *argument) {
     pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
     pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
 
-
     init_filesystem();
 
     while (1) {
