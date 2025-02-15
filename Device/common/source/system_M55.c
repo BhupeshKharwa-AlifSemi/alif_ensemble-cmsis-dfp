@@ -37,11 +37,7 @@
  * @Note	 None
  ******************************************************************************/
 
-#if defined (RTSS_HP) || defined (RTSS_HE)
-  #include "core.h"
-#else
-  #error device not specified!
-#endif
+#include "core.h"
 
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
   #include "app_tz.h"
@@ -57,18 +53,7 @@
 
 #include "app_mem_regions.h"
 #include "sys_utils.h"
-/*----------------------------------------------------------------------------
-  Define clocks
- *----------------------------------------------------------------------------*/
-#define  MHZ            ( 1000000UL)
-
-#ifndef SYSTEM_CLOCK
-#if defined (RTSS_HP)
-#define  SYSTEM_CLOCK    (400U * MHZ)
-#elif defined (RTSS_HE)
-#define  SYSTEM_CLOCK    (160U * MHZ)
-#endif
-#endif
+#include "sys_clocks.h"
 
 /*----------------------------------------------------------------------------
   WICCONTROL register
@@ -92,7 +77,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[496];
 /*----------------------------------------------------------------------------
   System Core Clock Variable
  *----------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = SYSTEM_CLOCK;
+uint32_t SystemCoreClock = CORE_DEFAULT_CLK;
 
 
 /*----------------------------------------------------------------------------
@@ -100,7 +85,14 @@ uint32_t SystemCoreClock = SYSTEM_CLOCK;
  *----------------------------------------------------------------------------*/
 void SystemCoreClockUpdate (void)
 {
-  SystemCoreClock = SYSTEM_CLOCK;
+  /**
+    Instead of this function, user should call system_update_clock_values()
+    function to update the SystemCoreClock.
+
+    This function will always return the default core clock which may not be
+    true.
+   */
+  SystemCoreClock = CORE_DEFAULT_CLK;
 }
 
 /*----------------------------------------------------------------------------
@@ -229,14 +221,13 @@ void SystemInit (void)
   sau_tcm_ns_setup();
 #endif
 
-  SystemCoreClock = SYSTEM_CLOCK;
+  SystemCoreClock = CORE_DEFAULT_CLK;
 
   /* Add a feature to bypass the clock gating in the EXPMST0.
    *
    * Note: This will be removed in the future release
    */
-#define FORCE_ENABLE_SYSTEM_CLOCKS 1
-#if FORCE_ENABLE_SYSTEM_CLOCKS
+#if SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS
   /* Bypass clock gating */
   enable_force_peripheral_functional_clk();
 

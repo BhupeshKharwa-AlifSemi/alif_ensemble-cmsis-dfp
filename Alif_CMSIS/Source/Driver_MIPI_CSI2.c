@@ -35,6 +35,9 @@
 #include "Camera_Sensor.h"
 #include "sys_utils.h"
 
+#define PLL_CLK1    SOC_FEAT_PLL_CLK1_MAX_HZ
+#define PLL_CLK3    SOC_FEAT_PLL_CLK3_MAX_HZ
+
 #if defined(RTE_Drivers_MIPI_CSI2)
 
 #if !(RTE_MIPI_CSI2)

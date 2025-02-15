@@ -24,6 +24,7 @@
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 #include "sys_ctrl_ospi.h"
 #endif
+#include "sys_clocks.h"
 
 /**
   \fn        static void ospi_xip_disable(ospi_flash_cfg_t *ospi_cfg)

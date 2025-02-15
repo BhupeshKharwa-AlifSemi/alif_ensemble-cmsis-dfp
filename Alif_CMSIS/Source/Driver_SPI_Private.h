@@ -34,6 +34,7 @@ extern "C"
 #include "Driver_SPI.h"
 #include "sys_ctrl_spi.h"
 #include "spi.h"
+#include "sys_clocks.h"
 
 #if (RTE_SPI0_DMA_ENABLE || RTE_SPI1_DMA_ENABLE || RTE_SPI2_DMA_ENABLE || \
      RTE_SPI3_DMA_ENABLE || RTE_LPSPI_DMA_ENABLE)

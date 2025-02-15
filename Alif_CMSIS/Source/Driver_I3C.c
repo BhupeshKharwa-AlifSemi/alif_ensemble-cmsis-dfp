@@ -17,6 +17,7 @@
 #include "Driver_I3C_Private.h"
 #include "i3c.h"
 #include "sys_ctrl_i3c.h"
+#include "sys_clocks.h"
 
 #if defined(RTE_Drivers_I3C)
 

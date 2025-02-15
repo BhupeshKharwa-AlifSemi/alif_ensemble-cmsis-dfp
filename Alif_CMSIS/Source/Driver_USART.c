@@ -15,6 +15,7 @@
 #include "uart.h"
 #include "sys_ctrl_uart.h"
 #include "sys_utils.h"
+#include "sys_clocks.h"
 
 #if defined(RTE_Drivers_USART)
 

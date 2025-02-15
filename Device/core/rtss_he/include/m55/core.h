@@ -67,7 +67,6 @@ extern "C" {
 #include "system_M55.h"                     /* System Header */
 #include "M55_HE_map.h"                     /* Memory Map */
 #include "cache.h"                          /* Cache utility functions */
-#include "sys_clocks.h"                     /* clock functions */
 #include "soc_dma_map.h"                    /* DMA mapping */
 #include "mpu.h"                            /* MPU functions */
 #include "peripheral_types.h"               /* peripheral types*/
@@ -110,6 +109,12 @@ extern "C" {
 #define DTCM_SIZE         SOC_FEAT_HE_DTCM_SIZE
 #define ITCM_GLOBAL_BASE  SOC_FEAT_HE_ITCM_BASE
 #define DTCM_GLOBAL_BASE  SOC_FEAT_HE_DTCM_BASE
+
+#define CORE_ID              SOC_FEAT_M55_HE_CORE_ID
+#define CORE_NAME            "M55-HE"
+#define CORE_SUBSYSTEM_NAME  "RTSS-HE"
+
+#define CORE_DEFAULT_CLK  SOC_FEAT_M55_HE_MAX_HZ
 
 #ifdef __cplusplus
 }

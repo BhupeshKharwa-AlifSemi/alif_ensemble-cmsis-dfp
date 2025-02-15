@@ -17,46 +17,30 @@
  ******************************************************************************/
 #include <sys_clocks.h>
 
-#ifndef SYST_ACLK
-#define SYST_ACLK   400000000
-#endif
-
-#ifndef SYST_HCLK
-#define SYST_HCLK   200000000
-#endif
-
-#ifndef SYST_PCLK
-#define SYST_PCLK   100000000
-#endif
-
-#ifndef SYST_REFCLK
-#define SYST_REFCLK 100000000
-#endif
-
 /*----------------------------------------------------------------------------
   System AXI Clock Variable(SYST_ACLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAXIClock = SYST_ACLK;
+uint32_t SystemAXIClock = SOC_FEAT_ACLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System AHB Clock Variable(SYST_HCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAHBClock = SYST_HCLK;
+uint32_t SystemAHBClock = SOC_FEAT_HCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System APB Clock Variable(SYST_PCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAPBClock = SYST_PCLK;
+uint32_t SystemAPBClock = SOC_FEAT_PCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System REF Clock Variable(SYST_REFCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemREFClock = SYST_REFCLK;
+uint32_t SystemREFClock = SOC_FEAT_REFCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System HFOSC Clock Variable(HFOSC_CLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemHFOSCClock = HFOSC_CLK;
+uint32_t SystemHFOSCClock = SOC_FEAT_HFOSC_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   Get System AXI Clock function

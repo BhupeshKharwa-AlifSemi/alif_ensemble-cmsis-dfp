@@ -17,6 +17,7 @@
 #include "Driver_I2C.h"
 #include "Driver_I2C_Private.h"
 #include "i2c.h"
+#include "sys_clocks.h"
 
 /* Driver version */
 #define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 2)

@@ -27,6 +27,14 @@
 #define SOC_FEAT_M55_HP_MAX_HZ          (400000000)
 #define SOC_FEAT_A32_MAX_HZ             (800000000)
 
+#define SOC_FEAT_ACLK_MAX_HZ            (400000000)
+#define SOC_FEAT_HCLK_MAX_HZ            (200000000)
+#define SOC_FEAT_PCLK_MAX_HZ            (100000000)
+#define SOC_FEAT_REFCLK_MAX_HZ          (100000000)
+#define SOC_FEAT_HFOSC_MAX_HZ           (38400000)
+#define SOC_FEAT_PLL_CLK1_MAX_HZ        (800000000)
+#define SOC_FEAT_PLL_CLK3_MAX_HZ        (480000000)
+
 /* Memory Regions */
 #define SOC_FEAT_MRAM_SIZE              (0x00580000)
 #define SOC_FEAT_MRAM_BASE              (0x80000000)
@@ -96,5 +104,8 @@
 #define SOC_FEAT_GPIO1_FLEXIO_PIN_MASK  (0U)
 #define SOC_FEAT_GPIO7_FLEXIO_PIN_MASK  ((1U << 4) | (1U << 5) | (1U << 6) | (1U << 7))
 #define SOC_FEAT_LPGPIO_FLEXIO_PIN_MASK ((1U << 0) | (1U << 1) | (1U << 2) | (1U << 3))
+
+
+#define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS (1)
 
 #endif /* SOC_FEATURES_H */

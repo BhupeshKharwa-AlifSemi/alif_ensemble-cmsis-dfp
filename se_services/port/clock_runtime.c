@@ -21,6 +21,7 @@
 #include "se_services_port.h"
 #include <RTE_Components.h>
 #include CMSIS_device_header
+#include "sys_clocks.h"
 
 /**
   \fn          int32_t system_update_clock_values(void)

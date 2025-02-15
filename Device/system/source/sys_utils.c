@@ -18,6 +18,7 @@
  * @Note     None
  ******************************************************************************/
 #include <sys_utils.h>
+#include "sys_clocks.h"
 #include <peripheral_types.h>
 
 /**
