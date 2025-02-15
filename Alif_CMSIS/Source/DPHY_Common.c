@@ -25,6 +25,7 @@
 #include "dphy.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
+#include "sys_utils.h"
 
 /*hsfreqrange and osc_freq_target range*/
 const DPHY_FREQ_RANGE frequency_range[] =

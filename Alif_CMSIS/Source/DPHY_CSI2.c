@@ -30,6 +30,7 @@
 #include "DPHY_CSI2.h"
 #include "csi.h"
 #include "sys_ctrl_csi.h"
+#include "sys_utils.h"
 
 /*DPHY initialize status global variables*/
 static volatile uint32_t csi2_init_status = 0;

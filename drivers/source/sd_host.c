@@ -22,6 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sd_host.h"
 #include "sd.h"
+#include "sys_utils.h"
 
 #ifdef SDMMC_PRINTF_DEBUG
 #include "stdio.h"

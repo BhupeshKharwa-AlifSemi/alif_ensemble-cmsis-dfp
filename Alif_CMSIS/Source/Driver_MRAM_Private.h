@@ -36,7 +36,9 @@ extern "C" {
 /**
 \brief MRAM(On-Chip NVM) Total Size
 */
-#define MRAM_USER_SIZE            RTE_MRAM_SIZE
+#define MRAM_USER_SIZE       RTE_MRAM_SIZE
+#define MRAM_BASE            SOC_FEAT_MRAM_BASE
+#define MRAM_SIZE            SOC_FEAT_MRAM_SIZE
 
 /**
 \brief MRAM Driver states.

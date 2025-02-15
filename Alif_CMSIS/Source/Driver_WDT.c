@@ -23,6 +23,7 @@
 /* Project Includes */
 #include "Driver_WDT.h"
 #include "Driver_WDT_Private.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_WDT)
 

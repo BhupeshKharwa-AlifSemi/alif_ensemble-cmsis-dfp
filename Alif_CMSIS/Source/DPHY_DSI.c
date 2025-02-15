@@ -30,6 +30,7 @@
 #include "dsi.h"
 #include "sys_ctrl_dsi.h"
 #include "DPHY_DSI.h"
+#include "sys_utils.h"
 
 /*DPHY initialize status global variables*/
 static volatile uint32_t dsi_init_status = 0;

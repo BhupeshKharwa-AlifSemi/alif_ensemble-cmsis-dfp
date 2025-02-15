@@ -25,6 +25,7 @@
 #include "Driver_IO.h"
 #include "Driver_CPI.h"
 #include "sys_ctrl_cpi.h"
+#include "sys_utils.h"
 
 #if (RTE_HM0360_CAMERA_SENSOR_ENABLE)
 

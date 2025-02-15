@@ -15,18 +15,7 @@
 /******************************************************************************/
 /*                         Local memory map                              */
 /******************************************************************************/
-#define ITCM_BASE                   (0x00000000UL)
-#define ITCM_ALIAS_BIT              (0x01000000UL)
-#define ITCM_REGION_SIZE            (0x02000000UL)
-#define ITCM_SIZE                   (SRAM4_SIZE) /* 256K */
-#define ITCM_GLOBAL_BASE            (SRAM4_BASE)
-
-#define DTCM_BASE                   (0x20000000UL)
-#define DTCM_ALIAS_BIT              (0x01000000UL)
-#define DTCM_REGION_SIZE            (0x02000000UL)
-#define DTCM_SIZE                   (SRAM5_SIZE) /* 256K */
-#define DTCM_GLOBAL_BASE            (SRAM5_BASE)
-
+/* Local Peripherals */
 #define MHU_A32_M55HE_0_RX_BASE     0x40000000UL
 #define MHU_M55HE_A32_0_TX_BASE     0x40010000UL
 #define MHU_A32_M55HE_1_RX_BASE     0x40020000UL

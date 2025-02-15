@@ -16,6 +16,7 @@
 #include "Camera_Sensor_i2c.h"
 #include "Driver_IO.h"
 #include "Driver_CPI.h"
+#include "sys_utils.h"
 
 #if (RTE_OV5675_CAMERA_SENSOR_ENABLE)
 

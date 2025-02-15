@@ -24,6 +24,7 @@
 #include "RTE_Device.h"
 #include "DPHY_DSI.h"
 #include "display.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_MIPI_DSI)
 

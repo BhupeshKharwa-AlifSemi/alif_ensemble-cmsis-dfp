@@ -18,7 +18,7 @@
 #include "Driver_CPI.h"
 #include "sys_ctrl_cpi.h"
 #include <inttypes.h>
-
+#include "sys_utils.h"
 
 /* Proceed only if AR0144 Camera Sensor is enabled. */
 #if RTE_AR0144_CAMERA_SENSOR_CSI_ENABLE

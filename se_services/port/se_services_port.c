@@ -19,6 +19,7 @@
 
 #include <RTE_Components.h>
 #include CMSIS_device_header
+#include "sys_utils.h"
 
 #include "se_services_port.h"
 

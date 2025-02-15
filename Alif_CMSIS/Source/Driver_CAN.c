@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include "CANFD_Private.h"
+#include "sys_utils.h"
 
 #if defined (RTE_Drivers_CANFD)
 

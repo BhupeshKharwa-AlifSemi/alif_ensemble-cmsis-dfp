@@ -18,6 +18,7 @@
 #include "DSI_DCS.h"
 #include "Driver_IO.h"
 #include "display.h"
+#include "sys_utils.h"
 
 /* ILI9488 panel reset GPIO port */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_ILI9488_PANEL_RESET_GPIO_PORT);

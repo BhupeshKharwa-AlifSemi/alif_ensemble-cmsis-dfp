@@ -23,6 +23,7 @@
 #include <evtrtr.h>
 #include <dma_op.h>
 #include <string.h>
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_DMA)
 

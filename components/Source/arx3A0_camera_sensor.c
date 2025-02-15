@@ -26,6 +26,7 @@
 #include "Driver_IO.h"
 #include "Driver_CPI.h"
 #include "sys_ctrl_cpi.h"
+#include "sys_utils.h"
 
 /* Proceed only if ARX3A0 Camera Sensor is enabled. */
 #if RTE_ARX3A0_CAMERA_SENSOR_CSI_ENABLE

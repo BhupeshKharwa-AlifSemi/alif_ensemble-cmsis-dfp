@@ -21,6 +21,7 @@
 
 /* System Includes */
 #include "RTE_Device.h"
+#include "sys_utils.h"
 
 /* Project Includes */
 #include "Camera_Sensor.h"

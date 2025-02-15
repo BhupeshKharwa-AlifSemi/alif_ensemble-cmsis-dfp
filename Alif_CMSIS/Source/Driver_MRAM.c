@@ -25,6 +25,7 @@
 /* Project Includes */
 #include "Driver_MRAM_Private.h"
 #include "mram.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_MRAM)
 

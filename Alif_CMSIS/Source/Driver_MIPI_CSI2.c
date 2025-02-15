@@ -33,6 +33,7 @@
 #include "sys_ctrl_csi.h"
 #include "Driver_CSI_Private.h"
 #include "Camera_Sensor.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_MIPI_CSI2)
 

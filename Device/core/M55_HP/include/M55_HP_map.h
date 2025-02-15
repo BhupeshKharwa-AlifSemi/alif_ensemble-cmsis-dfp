@@ -15,22 +15,7 @@
 /******************************************************************************/
 /*                         Local memory map                              */
 /******************************************************************************/
-/* SRAM2 is mapped as ITCM */
-#define ITCM_BASE                   (0x00000000UL)
-#define ITCM_ALIAS_BIT              (0x01000000UL)
-#define ITCM_REGION_SIZE            (0x02000000UL)
-#define ITCM_SIZE                   (SRAM2_SIZE) /* 256K */
-#define ITCM_GLOBAL_BASE            (SRAM2_BASE)
-
-/* SRAM3 is mapped as DTCM */
-#define DTCM_BASE                   (0x20000000UL)
-#define DTCM_ALIAS_BIT              (0x01000000UL)
-#define DTCM_REGION_SIZE            (0x02000000UL)
-#define DTCM_SIZE                   (SRAM3_SIZE) /* 1MB */
-#define DTCM_GLOBAL_BASE            (SRAM3_BASE)
-
 /* Local Peripherals */
-
 #define MHU_A32_M55HP_0_RX_BASE     0x40000000UL
 #define MHU_M55HP_A32_0_TX_BASE     0x40010000UL
 #define MHU_A32_M55HP_1_RX_BASE     0x40020000UL

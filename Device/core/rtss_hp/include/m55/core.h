@@ -66,7 +66,6 @@ extern "C" {
 #include "core_cm55.h"                      /* Processor and core peripherals */
 #include "system_M55.h"                     /* System Header */
 #include "M55_HP_map.h"                     /* Memory Map */
-#include "sys_utils.h"                      /* Utility functions */
 #include "cache.h"                          /* Cache utility functions */
 #include "sys_clocks.h"                     /* clock functions */
 #include "soc_dma_map.h"                    /* DMA mapping */
@@ -74,6 +73,7 @@ extern "C" {
 #include "peripheral_types.h"               /* peripheral types*/
 #include "pm.h"                             /* Power Management functions */
 #include "soc_strings.h"                    /* SoC strings */
+#include "soc_features.h"                    /* SoC features */
 
 /* --------  End of section using anonymous unions and disabling warnings  -------- */
 #if   defined (__CC_ARM)
@@ -99,6 +99,17 @@ extern "C" {
 #endif
 
 #define HWSEM_MASTERID                           0x410FD221
+
+#define ITCM_ALIAS_BIT    (0x01000000UL)
+#define DTCM_ALIAS_BIT    (0x01000000UL)
+#define ITCM_BASE         (0x00000000UL)
+#define DTCM_BASE         (0x20000000UL)
+#define ITCM_REGION_SIZE  (0x02000000UL)
+#define DTCM_REGION_SIZE  (0x02000000UL)
+#define ITCM_SIZE         SOC_FEAT_HP_ITCM_SIZE
+#define DTCM_SIZE         SOC_FEAT_HP_DTCM_SIZE
+#define ITCM_GLOBAL_BASE  SOC_FEAT_HP_ITCM_BASE
+#define DTCM_GLOBAL_BASE  SOC_FEAT_HP_DTCM_BASE
 
 #ifdef __cplusplus
 }

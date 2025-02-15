@@ -10,6 +10,7 @@
 
 /* system includes */
 #include "Driver_LPI2C_Private.h"
+#include "sys_utils.h"
 
 #define ARM_I2C_DRV_VERISON ARM_DRIVER_VERSION_MAJOR_MINOR(0,1) /*DRIVER VERSION*/
 

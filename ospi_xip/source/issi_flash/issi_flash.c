@@ -15,13 +15,11 @@
  * @bug      None.
  * @Note     None
  ******************************************************************************/
-
+#include "RTE_Components.h"
+#include CMSIS_device_header
 #include "issi_flash_private.h"
 #include "ospi_drv.h"
 #include "ospi_xip_user.h"
-
-#include "RTE_Components.h"
-#include CMSIS_device_header
 
 static ospi_flash_cfg_t ospi_flash_config;
 

@@ -21,6 +21,7 @@
 /* Project Includes */
 #include "Driver_DAC_Private.h"
 #include "analog_config.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_DAC)
 

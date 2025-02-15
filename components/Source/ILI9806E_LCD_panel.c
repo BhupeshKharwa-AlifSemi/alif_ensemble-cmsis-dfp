@@ -29,6 +29,7 @@
 #include "DSI_DCS.h"
 #include "Driver_IO.h"
 #include "display.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_MIPI_DSI_ILI9806E_PANEL)
 

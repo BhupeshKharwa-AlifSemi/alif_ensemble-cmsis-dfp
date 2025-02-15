@@ -11,6 +11,7 @@
 #include "diskio.h"        /* Declarations of disk functions */
 #include "string.h"
 #include "stdio.h"
+#include "sys_utils.h"
 
 /* Definitions of physical drive number for each drive */
 #define DEV_MMC        0    /* Example: Map MMC/SD card to physical drive 1 */

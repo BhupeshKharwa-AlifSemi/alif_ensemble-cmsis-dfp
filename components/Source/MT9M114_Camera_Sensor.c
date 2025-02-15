@@ -25,6 +25,7 @@
 #include "Camera_Sensor_i2c.h"
 #include "Driver_Common.h"
 #include "Driver_CPI.h"
+#include "sys_utils.h"
 
 #if ((RTE_MT9M114_CAMERA_SENSOR_MIPI_ENABLE || RTE_MT9M114_CAMERA_SENSOR_CPI_ENABLE \
       || RTE_MT9M114_CAMERA_SENSOR_LPCPI_ENABLE) && !(RTE_MT9M114_CAMERA_SENSOR_MIPI_ENABLE \

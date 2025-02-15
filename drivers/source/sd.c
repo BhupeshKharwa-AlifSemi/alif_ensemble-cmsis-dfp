@@ -23,6 +23,7 @@
 #include "sd.h"
 #include "sys_ctrl_sd.h"
 #include "string.h"
+#include "sys_utils.h"
 
 /* Global SD Driver Callback definitions */
 const diskio_t SD_Driver =

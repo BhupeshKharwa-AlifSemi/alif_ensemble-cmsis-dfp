@@ -14,6 +14,7 @@
 #include "Driver_CMP_Private.h"
 #include "analog_config.h"
 #include "sys_ctrl_cmp.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_CMP)
 
