@@ -64,7 +64,7 @@ extern "C" {
 #define __DCACHE_PRESENT          1U        /* Data Cache present */
 
 #include "core_cm55.h"                      /* Processor and core peripherals */
-#include "system_M55.h"                     /* System Header */
+#include "system.h"                         /* System Header */
 #include "M55_HE_map.h"                     /* Memory Map */
 #include "cache.h"                          /* Cache utility functions */
 #include "soc_dma_map.h"                    /* DMA mapping */

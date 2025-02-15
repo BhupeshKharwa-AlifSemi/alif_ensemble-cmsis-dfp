@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -26,19 +26,18 @@
  */
 
 /******************************************************************************
- * @file     SYSTEM_M55.h
+ * @file     system.h
  * @author   Rupesh Kumar
  * @email    rupesh@alifsemi.com
- * @brief    CMSIS Device System Header File for
- *           M55_HE / M55_HP Device
+ * @brief    CMSIS Device System Header File
  * @version  V1.0.0
  * @date     23. Feb 2021
  * @bug      None
- * @Note	 None
+ * @Note	   None
  ******************************************************************************/
 
-#ifndef SYSTEM_M55_H
-#define SYSTEM_M55_H
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -119,4 +118,4 @@ __STATIC_FORCEINLINE __NO_RETURN void __clang_copy_zero_init(void)
 }
 #endif
 
-#endif /* SYSTEM_M55_H */
+#endif /* SYSTEM_H */

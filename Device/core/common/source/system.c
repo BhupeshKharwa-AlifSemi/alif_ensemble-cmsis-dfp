@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -26,7 +26,7 @@
  */
 
 /******************************************************************************
- * @file     system_M55.c
+ * @file     system.c
  * @author   Rupesh Kumar
  * @email    rupesh@alifsemi.com
  * @brief    CMSIS Device System Source File for
@@ -34,7 +34,7 @@
  * @version  V1.0.0
  * @date     23. Feb 2021
  * @bug      None
- * @Note	 None
+ * @Note	   None
  ******************************************************************************/
 
 #include "core.h"

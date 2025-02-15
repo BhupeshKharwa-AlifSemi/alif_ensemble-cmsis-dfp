@@ -62,7 +62,7 @@ SECTIONS
     KEEP(*(irqrtr_vectors))
 
     *startup*(.text .rodata*)
-    *system_*(.text .rodata*)
+    *system*(.text .rodata*)
     *sys_*(.text .rodata*)
     *pm*(.text .rodata*)
     *tgu*(.text .rodata*)
