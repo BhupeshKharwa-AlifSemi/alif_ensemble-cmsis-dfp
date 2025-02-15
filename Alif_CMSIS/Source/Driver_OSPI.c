@@ -23,7 +23,7 @@
 
 #if defined(RTE_Drivers_OSPI)
 
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 #include "sys_ctrl_ospi.h"
 #endif
 
@@ -447,7 +447,7 @@ static int32_t ARM_OSPI_PowerControl(OSPI_RESOURCES *OSPI, ARM_POWER_STATE state
                 }
             }
 #endif
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
             disable_ospi_clk();
 #endif
             OSPI->state.powered = 0;
@@ -460,7 +460,7 @@ static int32_t ARM_OSPI_PowerControl(OSPI_RESOURCES *OSPI, ARM_POWER_STATE state
             {
                 return ARM_DRIVER_OK;
             }
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
             enable_ospi_clk();
 #endif
             ospi_set_tx_threshold(OSPI->regs, OSPI->tx_fifo_threshold);

@@ -1237,7 +1237,7 @@ static int32_t ARM_SPI_Control(SPI_RESOURCES *SPI, uint32_t control, uint32_t ar
         {
             if (SPI->drv_instance == LPSPI_INSTANCE)
             {
-#ifndef DEVICE_FEATURE_LPSPI_MASTER_ONLY
+#if (SOC_FEAT_LPSPI_HAS_MASTER_SLAVE)
                 if (!RTE_LPSPI_CONFIG_MASTER_SLAVE)
                 {
                     lpspi_config_slave();
@@ -2432,7 +2432,7 @@ extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_LPSPI_SW_SPI_PORT);
 #endif
 
 static SPI_RESOURCES LPSPI_RES = {
-#if (!defined(DEVICE_FEATURE_LPSPI_MASTER_ONLY) && !RTE_LPSPI_CONFIG_MASTER_SLAVE)
+#if (SOC_FEAT_LPSPI_HAS_MASTER_SLAVE && !RTE_LPSPI_CONFIG_MASTER_SLAVE)
     .regs                   = (SPI_Type*) LPSPI1_BASE,
 #else
     .regs                   = (SPI_Type*) LPSPI0_BASE,

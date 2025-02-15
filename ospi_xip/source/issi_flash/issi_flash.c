@@ -95,7 +95,7 @@ static void issi_flash_set_configuration_register_SDR(ospi_flash_cfg_t *ospi_cfg
     issi_write_enable(ospi_cfg);
     ospi_setup_write_sdr(ospi_cfg, ADDR_LENGTH_24_BITS);
     ospi_push(ospi_cfg, cmd);
-#ifndef DEVICE_FEATURE_OSPI_ADDRESS_IN_SINGLE_FIFO_LOCATION
+#if (SOC_FEAT_OSPI_ADDR_IN_SINGLE_FIFO_LOCATION == 0)
     ospi_push(ospi_cfg, 0x00);
     ospi_push(ospi_cfg, 0x00);
 #endif

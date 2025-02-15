@@ -203,7 +203,7 @@ static int32_t ARM_LPTIMER_Control (LPTIMER_RESOURCES *LPTIMER_RES, uint8_t chan
     }
     case ARM_LPTIMER_SET_COUNT2:
     {
-#ifdef DEVICE_FEATURE_LPTIMER_PWM_ENABLED
+#if SOC_FEAT_LPTIMER_HAS_PWM
         /* enable pwm feature */
         lptimer_enable_pwm (LPTIMER_RES->regs, channel);
         /* load counter 2 value */
@@ -286,7 +286,7 @@ static int32_t ARM_LPTIMER_Stop (LPTIMER_RESOURCES *LPTIMER_RES, uint8_t channel
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-#ifdef DEVICE_FEATURE_LPTIMER_PWM_ENABLED
+#if SOC_FEAT_LPTIMER_HAS_PWM
     if (LPTIMER_RES->ch_info[channel].pwm_enabled) {
         /* disable pwm feature */
         lptimer_disable_pwm (LPTIMER_RES->regs, channel);
@@ -351,7 +351,7 @@ static int32_t LPTIMER_Irq_Handler (LPTIMER_RESOURCES *LPTIMER_RES, uint8_t chan
 
 static LPTIMER_RESOURCES LPTIMER0 = {
     .regs   = (LPTIMER_Type*) LPTIMER_BASE,
-    .max_channels = DEVICE_FEATURE_LPTIMER_MAX_CHANNELS,
+    .max_channels = LPTIMER_MAX_CHANNELS,
     .ch_info[LPTIMER_CHANNEL_0] = {
         .mode = RTE_LPTIMER_CHANNEL0_FREE_RUN_MODE,
         .clk_src = RTE_LPTIMER_CHANNEL0_CLK_SRC,
@@ -362,7 +362,7 @@ static LPTIMER_RESOURCES LPTIMER0 = {
         .clk_src = RTE_LPTIMER_CHANNEL1_CLK_SRC,
         .irq_priority = RTE_LPTIMER_CHANNEL1_IRQ_PRIORITY
     },
-#if (DEVICE_FEATURE_LPTIMER_MAX_CHANNELS > 2)
+#if (SOC_FEAT_HAS_LPTIMER2_3)
     .ch_info[LPTIMER_CHANNEL_2] = {
         .mode = RTE_LPTIMER_CHANNEL2_FREE_RUN_MODE,
         .clk_src = RTE_LPTIMER_CHANNEL2_CLK_SRC,
@@ -386,7 +386,7 @@ void LPTIMER1_IRQHandler (void)
     LPTIMER_Irq_Handler (&LPTIMER0, LPTIMER_CHANNEL_1);
 }
 
-#if (DEVICE_FEATURE_LPTIMER_MAX_CHANNELS > 2)
+#if (SOC_FEAT_HAS_LPTIMER2_3)
 void LPTIMER2_IRQHandler (void)
 {
     LPTIMER_Irq_Handler (&LPTIMER0, LPTIMER_CHANNEL_2);

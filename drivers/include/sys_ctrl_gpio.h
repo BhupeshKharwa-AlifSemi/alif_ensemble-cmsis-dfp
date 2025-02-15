@@ -27,7 +27,7 @@ extern "C"
 
 #include "peripheral_types.h"
 
-#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+#if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
 /**
   \fn          static void inline enable_gpio_clk (uint8_t instance)
   \brief       Enable GPIO clock from EXPMST0.

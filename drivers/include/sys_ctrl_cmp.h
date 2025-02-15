@@ -221,7 +221,7 @@ static void lpcmp_clear_config(void)
  */
 static inline uint8_t cmp_int_mask(void)
 {
-	return DEVICE_FEATURE_HSCMP_INT_STATUS_MASK;
+	return SOC_FEAT_HSCMP_INT_STATUS_MASK;
 }
 
 /**
@@ -232,7 +232,7 @@ static inline uint8_t cmp_int_mask(void)
  */
 static inline uint8_t cmp_window_enable_value(void)
 {
-	return DEVICE_FEATURE_HSCMP_WINDOW_FUNCTION_ENABLE;
+	return SOC_FEAT_HSCMP_WINDOW_ENABLE_VAL;
 }
 
 #endif /* SYS_CTRL_CMP_H_ */

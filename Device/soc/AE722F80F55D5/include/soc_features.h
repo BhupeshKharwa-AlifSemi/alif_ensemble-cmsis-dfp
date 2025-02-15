@@ -56,7 +56,15 @@
 
 #define SOC_FEAT_HAS_EVTRTR0            (1)
 
+#define SOC_FEAT_HAS_FLT_ENA_IN_DMA_SEL_REG (1)
+#define SOC_FEAT_DMA2_HAS_FLT_ENA0_REG      (0)
+#define SOC_FEAT_DMA2_HAS_FLT_ENA1_REG      (0)
+
+#define SOC_FEAT_HAS_UTIMER4_15         (1)
+#define SOC_FEAT_QEC_HAS_SEP_CHANNELS   (1)
+
 #define SOC_FEAT_HAS_LPTIMER2_3         (1)
+#define SOC_FEAT_LPTIMER_HAS_PWM        (0)
 
 #define SOC_FEAT_HAS_LPRTC1             (0)
 
@@ -64,5 +72,29 @@
 
 #define SOC_FEAT_USB_EP_TOTAL           (8)
 #define SOC_FEAT_USB_EP_IN_MAX          (4)
+
+#define SOC_FEAT_LPSPI_HAS_MASTER_SLAVE (0)
+
+#define SOC_FEAT_OSPI_HAS_XIP_SER       (1)
+#define SOC_FEAT_OSPI_HAS_CLK_ENABLE    (0)
+#define SOC_FEAT_OSPI_ADDR_IN_SINGLE_FIFO_LOCATION (0)
+
+#define SOC_FEAT_I2S0_MASTER_MODE       (1)
+#define SOC_FEAT_I2S1_MASTER_MODE       (1)
+#define SOC_FEAT_I2S2_MASTER_MODE       (1)
+#define SOC_FEAT_I2S3_MASTER_MODE       (1)
+#define SOC_FEAT_LPI2S_MASTER_MODE      (1)
+#define SOC_FEAT_I2S_HAS_EXT_AUDIO_CLK  (1)
+
+#define SOC_FEAT_HSCMP_INT_STATUS_MASK   (1U)
+#define SOC_FEAT_HSCMP_WINDOW_ENABLE_VAL (3)
+
+#define SOC_FEAT_CANFD0_CANFD1_CTRL     (0)
+
+#define SOC_FEAT_GPIO_HAS_CLOCK_ENABLE  (0)
+#define SOC_FEAT_LPGPIO_HAS_PIN2_7      (1)
+#define SOC_FEAT_GPIO1_FLEXIO_PIN_MASK  (0U)
+#define SOC_FEAT_GPIO7_FLEXIO_PIN_MASK  ((1U << 4) | (1U << 5) | (1U << 6) | (1U << 7))
+#define SOC_FEAT_LPGPIO_FLEXIO_PIN_MASK ((1U << 0) | (1U << 1) | (1U << 2) | (1U << 3))
 
 #endif /* SOC_FEATURES_H */

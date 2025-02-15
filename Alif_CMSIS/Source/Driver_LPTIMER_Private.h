@@ -35,6 +35,12 @@ extern "C"
 #include "lptimer.h"
 #include "sys_ctrl_lptimer.h"
 
+#if SOC_FEAT_HAS_LPTIMER2_3
+#define LPTIMER_MAX_CHANNELS                4
+#else
+#define LPTIMER_MAX_CHANNELS                2
+#endif
+
 #define LPTIMER_CHANNEL_0                                   0x0U
 #define LPTIMER_CHANNEL_1                                   0x1U
 #define LPTIMER_CHANNEL_2                                   0x2U
@@ -57,7 +63,7 @@ typedef volatile struct _LPTIMER_DRIVER_STATE {
 typedef struct _LPTIMER_CHANNEL_INFO {
     uint8_t                    irq_priority;             /**< channel IRQ priority information >*/
     bool                       mode;                     /**< channel mode user or free run >*/
-#ifdef DEVICE_FEATURE_LPTIMER_PWM_ENABLED
+#if SOC_FEAT_LPTIMER_HAS_PWM
     bool                       pwm_enabled;              /**< channel pwm status >*/
 #endif
     LPTIMER_CLK_SRC            clk_src;                  /**< channel clock source >*/
@@ -67,9 +73,9 @@ typedef struct _LPTIMER_CHANNEL_INFO {
 
 /** \brief Resources for a LPTIMER instance. */
 typedef struct _LPTIMER_RESOURCES {
-    LPTIMER_Type *regs;                                       /**< LPTIMER Register address >*/
-    uint8_t max_channels;                                     /**< number of channels >*/
-    LPTIMER_CHANNEL_INFO ch_info[DEVICE_FEATURE_LPTIMER_MAX_CHANNELS];   /**< Pointer to Info structure of LPTIMER>*/
+    LPTIMER_Type *regs;                                  /**< LPTIMER Register address >*/
+    uint8_t max_channels;                                /**< number of channels >*/
+    LPTIMER_CHANNEL_INFO ch_info[LPTIMER_MAX_CHANNELS];  /**< Pointer to Info structure of LPTIMER>*/
 } LPTIMER_RESOURCES;
 
 #ifdef  __cplusplus

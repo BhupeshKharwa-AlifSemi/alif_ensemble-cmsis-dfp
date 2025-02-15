@@ -34,6 +34,12 @@ extern "C"
 #include "Driver_UTIMER.h"
 #include "utimer.h"
 
+#if SOC_FEAT_HAS_UTIMER4_15
+#define UTIMER_MAX_CHANNELS                        16
+#else
+#define UTIMER_MAX_CHANNELS                        4
+#endif
+
 #define UTIMER_MODE_ENABLE                          1U
 #define QEC_MODE_ENABLE                             0U
 
@@ -64,7 +70,7 @@ extern "C"
 #define UTIMER_UNDERFLOW_IRQ(channel)               (UTIMER_UNDERFLOW_IRQ_BASE + (channel*8U))
 #define UTIMER_OVERFLOW_IRQ(channel)                (UTIMER_OVERFLOW_IRQ_BASE + (channel*8U))
 
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
 #define QEC_CAPTURE_A_IRQ_BASE                      (QEC0_CMPA_IRQ_IRQn + 0U)
 #define QEC_CAPTURE_B_IRQ_BASE                      (QEC0_CMPA_IRQ_IRQn + 1U)
 
@@ -106,7 +112,7 @@ typedef struct _UTIMER_RESOURCES
 {
     UTIMER_Type *regs;                /**< Pointer to UTIMER registers >*/
     uint8_t max_channels;             /**< number of channels >*/
-    UTIMER_CHANNEL_INFO ch_info[DEVICE_FEATURE_UTIMER_MAX_CHANNELS]; /**< Pointer to Info structure of UTIMER >*/
+    UTIMER_CHANNEL_INFO ch_info[UTIMER_MAX_CHANNELS]; /**< Pointer to Info structure of UTIMER >*/
 } UTIMER_RESOURCES;
 
 /**

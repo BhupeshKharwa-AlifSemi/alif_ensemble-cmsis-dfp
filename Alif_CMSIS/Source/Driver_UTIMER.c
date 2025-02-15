@@ -99,7 +99,7 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
                     NVIC_SetPriority (UTIMER_CAPTURE_A_IRQ(channel), UTIMER_RES->ch_info[channel].capture_A_irq_priority);
                     NVIC_EnableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
                 }
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
                 {
                     NVIC_ClearPendingIRQ (QEC_CAPTURE_A_IRQ(channel));
@@ -118,7 +118,7 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
                     NVIC_SetPriority (UTIMER_CAPTURE_B_IRQ(channel), UTIMER_RES->ch_info[channel].capture_B_irq_priority);
                     NVIC_EnableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
                 }
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
                 {
                     NVIC_ClearPendingIRQ (QEC_CAPTURE_B_IRQ(channel));
@@ -261,7 +261,7 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
                     NVIC_ClearPendingIRQ (UTIMER_CAPTURE_A_IRQ(channel));
                     NVIC_DisableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
                 }
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
                 {
                     NVIC_ClearPendingIRQ (QEC_CAPTURE_A_IRQ(channel));
@@ -278,7 +278,7 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
                     NVIC_ClearPendingIRQ (UTIMER_CAPTURE_B_IRQ(channel));
                     NVIC_DisableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
                 }
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
                 {
                     NVIC_ClearPendingIRQ (QEC_CAPTURE_B_IRQ(channel));
@@ -831,7 +831,7 @@ static void UTIMER_UnderFlow_IRQHandler (UTIMER_RESOURCES *UTIMER_RES, uint8_t c
 #if RTE_UTIMER
 static UTIMER_RESOURCES UTIMER0 = {
     .regs        = (UTIMER_Type*) UTIMER_BASE,
-    .max_channels = DEVICE_FEATURE_UTIMER_MAX_CHANNELS,
+    .max_channels = UTIMER_MAX_CHANNELS,
     .ch_info[ARM_UTIMER_CHANNEL0]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL0_BUF_TROUGH_N_CREST,
@@ -968,7 +968,7 @@ static UTIMER_RESOURCES UTIMER0 = {
         .over_flow_irq_priority = RTE_UTIMER_CHANNEL3_OVER_FLOW_IRQ_PRIORITY,
         .under_flow_irq_priority = RTE_UTIMER_CHANNEL3_UNDER_FLOW_IRQ_PRIORITY
     },
-#if (DEVICE_FEATURE_UTIMER_MAX_CHANNELS > 4)
+#if (SOC_FEAT_HAS_UTIMER4_15)
     .ch_info[ARM_UTIMER_CHANNEL4]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL4_BUF_TROUGH_N_CREST,
@@ -1396,7 +1396,7 @@ static void UTIMER_IRQHandler_UnderFlow(uint8_t channel)
     UTIMER_UnderFlow_IRQHandler(&UTIMER0, channel);
 }
 
-#ifdef DEVICE_FEATURE_QEC_SEPARATE_CHANNELS
+#if SOC_FEAT_QEC_HAS_SEP_CHANNELS
 void QEC0_CMPA_IRQHandler(void)
 {
     UTIMER_IRQHandler_Capture_A(ARM_UTIMER_CHANNEL12);
@@ -1597,7 +1597,7 @@ void UTIMER_IRQ31Handler(void)
     UTIMER_IRQHandler_OverFlow(ARM_UTIMER_CHANNEL3);
 }
 
-#if (DEVICE_FEATURE_UTIMER_MAX_CHANNELS > 4)
+#if (SOC_FEAT_HAS_UTIMER4_15)
 void UTIMER_IRQ32Handler(void)
 {
     UTIMER_IRQHandler_Capture_A(ARM_UTIMER_CHANNEL4);

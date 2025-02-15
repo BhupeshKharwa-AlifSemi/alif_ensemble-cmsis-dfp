@@ -73,7 +73,7 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
                 return ARM_DRIVER_OK;
             }
 
-#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+#if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
             disable_gpio_clk(GPIO->gpio_id);
 #endif
 
@@ -87,7 +87,7 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
                 return ARM_DRIVER_ERROR;
             }
 
-#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+#if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
             enable_gpio_clk(GPIO->gpio_id);
 #endif
 
@@ -1855,11 +1855,11 @@ static GPIO_RESOURCES LPGPIO_RES = {
     .reg_base = (GPIO_Type*) LPGPIO_BASE,
     .gpio_id = LPGPIO_INSTANCE,
     .IRQ_base_num = LPGPIO_IRQ0_IRQn,
-    .max_pin = DEVICE_FEATURE_LPGPIO_MAX_PINS,
+    .max_pin = LPGPIO_MAX_PINS,
     .IRQ_priority = {
             RTE_LPGPIO_PIN0_IRQ_PRIORITY,
             RTE_LPGPIO_PIN1_IRQ_PRIORITY,
-#if (DEVICE_FEATURE_LPGPIO_MAX_PINS > 2)
+#if (SOC_FEAT_LPGPIO_HAS_PIN2_7)
             RTE_LPGPIO_PIN2_IRQ_PRIORITY,
             RTE_LPGPIO_PIN3_IRQ_PRIORITY,
             RTE_LPGPIO_PIN4_IRQ_PRIORITY,
@@ -1873,7 +1873,7 @@ void LPGPIO_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 0);    }
 
 void LPGPIO_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 1);    }
 
-#if (DEVICE_FEATURE_LPGPIO_MAX_PINS > 2)
+#if (SOC_FEAT_LPGPIO_HAS_PIN2_7)
 void LPGPIO_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 2);    }
 
 void LPGPIO_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 3);    }

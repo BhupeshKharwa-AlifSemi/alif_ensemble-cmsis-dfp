@@ -136,7 +136,7 @@ static inline void disable_lpspi_clk (void)
     M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_SPI_CKEN;
 }
 
-#ifndef DEVICE_FEATURE_LPSPI_MASTER_ONLY
+#if SOC_FEAT_LPSPI_HAS_MASTER_SLAVE
 /**
   \fn          static inline void lpspi_config_master (void)
   \brief       LPSPI configure as master

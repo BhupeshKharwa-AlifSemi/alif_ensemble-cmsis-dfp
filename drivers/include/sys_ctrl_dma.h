@@ -140,20 +140,20 @@ static inline void dmalocal_reset(void)
     M55LOCAL_CFG->DMA_CTRL |= DMA_CTRL_SW_RST;
 }
 
-#ifdef DEVICE_FEATURE_DMALOCAL_DMASEL_GPIO_GLITCH_FILTER_ENABLE
+#if SOC_FEAT_HAS_FLT_ENA_IN_DMA_SEL_REG
 static inline void dmalocal_set_glitch_filter(uint8_t glitch_filter)
 {
     M55LOCAL_CFG->DMA_SEL |= (glitch_filter << DMA_SEL_FLT_ENA_Pos);
 }
 #endif
 
-#ifdef DEVICE_FEATURE_DMA2_GPIO_GLITCH_FILTER_ENABLE0
+#if SOC_FEAT_DMA2_HAS_FLT_ENA0_REG
 static inline void dma2_set_glitch_filter0(uint32_t glitch_filter)
 {
     M55HE_CFG->HE_FLT_ENA0 = glitch_filter;
 }
 #endif
-#ifdef DEVICE_FEATURE_DMA2_GPIO_GLITCH_FILTER_ENABLE1
+#if SOC_FEAT_DMA2_HAS_FLT_ENA1_REG
 static inline void dma2_set_glitch_filter1(uint32_t glitch_filter)
 {
     M55HE_CFG->HE_FLT_ENA1 = glitch_filter;

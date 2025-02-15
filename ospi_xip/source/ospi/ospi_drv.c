@@ -21,7 +21,7 @@
 #include "ospi_drv.h"
 #include "ospi_xip_user.h"
 
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 #include "sys_ctrl_ospi.h"
 #endif
 
@@ -282,7 +282,7 @@ void ospi_xip_enter(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t 
     ospi_writel(ospi_cfg, xip_mode_bits, 0x0);
     ospi_writel(ospi_cfg, xip_incr_inst, incr_command);
     ospi_writel(ospi_cfg, xip_wrap_inst, wrap_command);
-#ifdef DEVICE_FEATURE_OSPI_HAS_XIP_SER
+#if SOC_FEAT_OSPI_HAS_XIP_SER
     ospi_writel(ospi_cfg, xip_ser, ospi_cfg->ser);
 #endif
 
@@ -328,7 +328,7 @@ void ospi_xip_exit(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t w
     ospi_writel(ospi_cfg, xip_mode_bits, 0x1);
     ospi_writel(ospi_cfg, xip_incr_inst, incr_command);
     ospi_writel(ospi_cfg, xip_wrap_inst, wrap_command);
-#ifdef DEVICE_FEATURE_OSPI_HAS_XIP_SER
+#if SOC_FEAT_OSPI_HAS_XIP_SER
     ospi_writel(ospi_cfg, xip_ser, ospi_cfg->ser);
 #endif
     ospi_writel(ospi_cfg, ser, ospi_cfg->ser);
@@ -348,7 +348,7 @@ void ospi_xip_exit(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t w
 */
 void ospi_init(ospi_flash_cfg_t *ospi_cfg)
 {
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
     enable_ospi_clk();
 #endif
     ospi_xip_disable(ospi_cfg);

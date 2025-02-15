@@ -35,6 +35,12 @@ extern "C"
 #include "Driver_IO.h"
 #include "gpio.h"
 
+#if SOC_FEAT_LPGPIO_HAS_PIN2_7
+#define LPGPIO_MAX_PINS                        8
+#else
+#define LPGPIO_MAX_PINS                        2
+#endif
+
 #define GPIO_PORT_MAX_PIN_NUMBER                0x8U     /* Number of pins in each port */
 
 #define ARM_GPIO_BIT_IRQ_POLARITY_Pos           0U       ///< bits - 0
@@ -107,19 +113,19 @@ static inline bool pin_is_flexio (GPIO_INSTANCE port, uint8_t pin)
     switch (port)
     {
         case GPIO1_INSTANCE:
-            if (pin_value & DEVICE_FEATURE_GPIO1_FLEXIO_PIN_MASK)
+            if (pin_value & SOC_FEAT_GPIO1_FLEXIO_PIN_MASK)
             {
                 return 1;
             }
             return 0;
         case GPIO7_INSTANCE:
-            if (pin_value & DEVICE_FEATURE_GPIO7_FLEXIO_PIN_MASK)
+            if (pin_value & SOC_FEAT_GPIO7_FLEXIO_PIN_MASK)
             {
                 return 1;
             }
             return 0;
         case LPGPIO_INSTANCE:
-            if (pin_value & DEVICE_FEATURE_LPGPIO_FLEXIO_PIN_MASK)
+            if (pin_value & SOC_FEAT_LPGPIO_FLEXIO_PIN_MASK)
             {
                 return 1;
             }

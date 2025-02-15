@@ -237,7 +237,7 @@ typedef struct {                                /*!< (@ 0x4903F000) CLKCTL_PER_M
 #define EXPMST0_CTRL_BKRAM_CKEN             (1U << 4)                       /* Backup SRAM Clock Enable                */
 
 /* CLKCTL_PER_SLV CANFD_CTRL CANFD Control field definitions */
-#if DEVICE_FEATURE_CANFD0_CANFD1_CONTROL
+#if SOC_FEAT_CANFD0_CANFD1_CTRL
 #define CANFD1_CTRL_FD_ENA                   (1U << 26U)                    /* CANFD1 FD Enable                        */
 #define CANFD1_CTRL_CLK_SEL_Pos              (25U)                          /* CANFD1 Clock Selection                  */
 #define CANFD1_CTRL_CKEN                     (1U << 24U)                    /* CANFD1 Clock Enable                     */
@@ -283,7 +283,7 @@ typedef struct {                                /*!< (@ 0x4903F000) CLKCTL_PER_M
 
 /* CLKCTL_PER_SLV GPIO_CTRLn field definitions */
 #define GPIO_CTRL_DB_CKEN                   (1U  << 12U) /* GPIO Debounce clock enable */
-#ifdef DEVICE_FEATURE_GPIO_HAS_CLOCK_ENABLE
+#if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
 #define GPIO_CTRL_CKEN                      (1U  << 16U) /* GPIO clock enable */
 #endif
 
@@ -316,7 +316,7 @@ typedef struct {                                /*!< (@ 0x4902F000) CLKCTL_PER_S
   __IOM uint32_t  ADC_CTRL;                     /*!< (@ 0x00000030) ADC Control Register                                       */
   __IOM uint32_t  DAC_CTRL;                     /*!< (@ 0x00000034) DAC Control Register                                       */
   __IOM uint32_t  CMP_CTRL;                     /*!< (@ 0x00000038) CMP Control Register                                       */
-#ifdef DEVICE_FEATURE_OSPI_CTRL_CLK_ENABLE
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
   __IOM uint32_t  OSPI_CTRL;                    /*!< (@ 0x0000003C) OSPI Control Register                                      */
 #else
   __IM  uint32_t  RESERVED3;
@@ -385,7 +385,7 @@ typedef struct {                                /*!< (@ 0x1A609000) VBAT Structu
 /* =========================================================================================================================== */
 /* ================                                         M55HE_CFG                                         ================ */
 /* =========================================================================================================================== */
-#ifdef DEVICE_FEATURE_DMALOCAL_DMASEL_GPIO_GLITCH_FILTER_ENABLE
+#if SOC_FEAT_HAS_FLT_ENA_IN_DMA_SEL_REG
 #define HE_DMA_SEL_FLT_ENA_Pos                   (24)                                 /* Glitch filter Pos for LPGPIO    */
 #define HE_DMA_SEL_FLT_ENA_Msk                   (0xFF)                               /* Glitch filter Mask for LPGPIO   */
 #endif
@@ -404,7 +404,7 @@ typedef struct {                                /*!< (@ 0x1A609000) VBAT Structu
 
 /* M55HE_CFG HE_CLK_ENA field definitions */
 #define HE_CLK_ENA_SPI_CKEN                     (1U << 16)  /* Enable LPSPI clock */
-#ifndef DEVICE_FEATURE_LPSPI_MASTER_ONLY
+#if SOC_FEAT_LPSPI_HAS_MASTER_SLAVE
 #define HE_CLK_ENA_SPI_MODE_SLAVE               (1U << 15)   /* Configure LPSPI as slave */
 #endif
 #define HE_CLK_ENA_LPCPI_CKEN                   (1U << 12)   /* Enable LPCPI clock */
@@ -424,10 +424,10 @@ typedef struct {                                /*!< (@ 0x43007000) M55HE_CFG St
   __IOM uint32_t  HE_I2S_CTRL;                  /*!< (@ 0x00000014) LPI2S Control Register                                     */
   __IM  uint32_t  RESERVED[2];
   __IOM uint32_t  HE_CAMERA_PIXCLK;             /*!< (@ 0x00000020) LPCPI Pixel Clock Control Register                         */
-#ifdef DEVICE_FEATURE_DMA2_GPIO_GLITCH_FILTER_ENABLE0
+#if SOC_FEAT_DMA2_HAS_FLT_ENA0_REG
   __IOM uint32_t  HE_FLT_ENA0;                  /*!< (@ 0x00000024) DMA Glitch Filter Enable0 Register                         */
 #endif
-#ifdef DEVICE_FEATURE_DMA2_GPIO_GLITCH_FILTER_ENABLE1
+#if SOC_FEAT_DMA2_HAS_FLT_ENA1_REG
   __IOM uint32_t  HE_FLT_ENA1;                  /*!< (@ 0x00000028) DMA Glitch Filter Enable1 Register                         */
 #endif
 } M55HE_CFG_Type;

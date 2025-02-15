@@ -47,7 +47,7 @@ static const ARM_SAI_CAPABILITIES DriverCapabilities = {
     0, /* supports AC'97 Protocol */
     1, /* supports Mono mode */
     0, /* supports Companding */
-#if DEVICE_FEATURE_I2S_EXT_AUDIO_CLK_PRESENT
+#if SOC_FEAT_I2S_HAS_EXT_AUDIO_CLK
     1, /* supports MCLK (Master Clock) pin */
 #else
     0, /* supports MCLK (Master Clock) pin */
@@ -1295,7 +1295,7 @@ static int32_t I2S_Control(uint32_t control, uint32_t arg1,
         /* Enable external clock source */
         select_i2s_clock_source(I2S->instance, I2S_EXTERNAL_CLOCK_SOURCE);
 
-#if DEVICE_FEATURE_I2S_EXT_AUDIO_CLK_PRESENT
+#if SOC_FEAT_I2S_HAS_EXT_AUDIO_CLK
         if(I2S->cfg->master_mode)
         {
             /* Enable external clock source */
@@ -1471,7 +1471,7 @@ static void I2S_DMACallback(uint32_t event, int8_t peri_num,
 #if (RTE_I2S0)
 
 static I2S_CONFIG_INFO I2S0_CONFIG = {
-    .master_mode         = DEVICE_FEATURE_I2S0_MASTER_MODE,
+    .master_mode         = SOC_FEAT_I2S0_MASTER_MODE,
     .rx_fifo_trg_lvl     = RTE_I2S0_RX_TRIG_LVL,
     .tx_fifo_trg_lvl     = RTE_I2S0_TX_TRIG_LVL,
     .irq_priority        = RTE_I2S0_IRQ_PRI,
@@ -1678,7 +1678,7 @@ ARM_DRIVER_SAI Driver_SAI0 = {
 #if (RTE_I2S1)
 
 static I2S_CONFIG_INFO I2S1_CONFIG = {
-    .master_mode         = DEVICE_FEATURE_I2S1_MASTER_MODE,
+    .master_mode         = SOC_FEAT_I2S1_MASTER_MODE,
     .rx_fifo_trg_lvl     = RTE_I2S1_RX_TRIG_LVL,
     .tx_fifo_trg_lvl     = RTE_I2S1_TX_TRIG_LVL,
     .irq_priority        = RTE_I2S1_IRQ_PRI,
@@ -1884,7 +1884,7 @@ ARM_DRIVER_SAI Driver_SAI1 = {
 #if (RTE_I2S2)
 
 static I2S_CONFIG_INFO I2S2_CONFIG = {
-    .master_mode         = DEVICE_FEATURE_I2S2_MASTER_MODE,
+    .master_mode         = SOC_FEAT_I2S2_MASTER_MODE,
     .rx_fifo_trg_lvl     = RTE_I2S2_RX_TRIG_LVL,
     .tx_fifo_trg_lvl     = RTE_I2S2_TX_TRIG_LVL,
     .irq_priority        = RTE_I2S2_IRQ_PRI,
@@ -2091,7 +2091,7 @@ ARM_DRIVER_SAI Driver_SAI2 = {
 #if (RTE_I2S3)
 
 static I2S_CONFIG_INFO I2S3_CONFIG = {
-    .master_mode         = DEVICE_FEATURE_I2S3_MASTER_MODE,
+    .master_mode         = SOC_FEAT_I2S3_MASTER_MODE,
     .rx_fifo_trg_lvl     = RTE_I2S3_RX_TRIG_LVL,
     .tx_fifo_trg_lvl     = RTE_I2S3_TX_TRIG_LVL,
     .irq_priority        = RTE_I2S3_IRQ_PRI,
@@ -2298,7 +2298,7 @@ ARM_DRIVER_SAI Driver_SAI3 = {
 #if (RTE_LPI2S)
 
 static I2S_CONFIG_INFO LPI2S_CONFIG = {
-    .master_mode         = DEVICE_FEATURE_LPI2S_MASTER_MODE,
+    .master_mode         = SOC_FEAT_LPI2S_MASTER_MODE,
     .rx_fifo_trg_lvl     = RTE_LPI2S_RX_TRIG_LVL,
     .tx_fifo_trg_lvl     = RTE_LPI2S_TX_TRIG_LVL,
     .irq_priority        = RTE_LPI2S_IRQ_PRI,
