@@ -10,7 +10,7 @@
 
 /* Include */
 #include "Driver_ADC_Private.h"
-#include "analog_config.h"
+#include "sys_ctrl_analog.h"
 #include "sys_utils.h"
 
 #if defined(RTE_Drivers_ADC)
@@ -38,10 +38,10 @@ static const ARM_ADC_CAPABILITIES DriverCapabilities = {
 static void Analog_Config(void)
 {
     /* Analog configuration Vbat register2 */
-    analog_config_vbat_reg2();
+    enable_analog_peripherals();
 
     /* Analog configuration comparator register2 */
-    analog_config_cmp_reg2();
+    configure_analog_peripherals();
 }
 
 /*
@@ -143,7 +143,7 @@ static int32_t ADC_PowerControl(ADC_RESOURCES *ADC, ARM_POWER_STATE state)
             adc_set_clk_control(ADC->drv_instance, true);
 
             /* Enabling comparator clock */
-            enable_cmp_periph_clk();
+            enable_analog_periph_clk();
 
             /*function include vbat and comparator address and it value */
             Analog_Config();
@@ -260,7 +260,7 @@ static int32_t ADC_PowerControl(ADC_RESOURCES *ADC, ARM_POWER_STATE state)
             }
 
             /* Disabling CMP clock */
-            disable_cmp_periph_clk();
+            disable_analog_periph_clk();
 
             /* adc clock disable */
             adc_set_clk_control(ADC->drv_instance, false);

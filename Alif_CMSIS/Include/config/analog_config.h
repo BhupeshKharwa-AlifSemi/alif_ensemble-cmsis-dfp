@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -10,10 +10,6 @@
 
 #ifndef ANALOG_CONFIG_H_
 #define ANALOG_CONFIG_H_
-
-#include "peripheral_types.h"
-
-#define VBAT_ANA_REG2_VAL       0x00C00000 /* Enable analog peripheral LDO and precision bandgap */
 
 /* Used to scale the input reference to the DAC6 with a step size of 1/16.
  * Ex: DAC6_VREF_SCALE has a value of 0x5, then
@@ -79,60 +75,6 @@
    Step: 6 mV Default (0xA)
 */
 #define ANA_PERIPH_BG_CONT      (0xAU << 1)
-
-#define CMP_REG2_VAL            (DAC6_VREF_SCALE | DAC6_CONT | DAC6_EN  |  \
-                                 DAC12_VREF_CONT | ADC_VREF_BUF_RDIV_EN |  \
-                                 ADC_VREF_BUF_EN | ADC_VREF_CONT        |  \
-                                 ANA_PERIPH_LDO_CONT | ANA_PERIPH_BG_CONT)
-
-#define CMP_REG2_BASE           (CMP0_BASE + 0x00000004) /* CMP register2 base address */
-
-/**
- @fn          void analog_config_vbat_reg2(void)
- @brief       Assigning Vbat registers values to the Vbat register2 base address
- @param[in]   none
- @return      none
- */
-static inline void analog_config_vbat_reg2(void)
-{
-    /* Analog configuration Vbat register2 */
-    ANA_REG->VBAT_ANA_REG2 |= VBAT_ANA_REG2_VAL;
-}
-
-/**
- @fn          void analog_config_cmp_reg2(void)
- @brief       Assigning comparator register2 values to the comparator
-              register2 base address
- @param[in]   none
- @return      none
- */
-static inline void analog_config_cmp_reg2(void)
-{
-    /* Analog configuration comparator register2 */
-    *((volatile uint32_t *)CMP_REG2_BASE) = CMP_REG2_VAL;
-}
-
-/**
-  \fn     static inline void enable_cmp_periph_clk(void)
-  \brief  Enable CMP Control register.
-  \param  none.
-  \return none.
- */
-static inline void enable_cmp_periph_clk(void)
-{
-    CLKCTL_PER_SLV->CMP_CTRL |= CMP_CTRL_CMP0_CLKEN;
-}
-
-/**
-  \fn     static inline void disable_cmp_periph_clk(void)
-  \brief  Disable CMP Control register.
-  \param  none.
-  \return none.
- */
-static inline void disable_cmp_periph_clk(void)
-{
-    CLKCTL_PER_SLV->CMP_CTRL &= ~CMP_CTRL_CMP0_CLKEN;
-}
 
 #endif /* ANALOG_CONFIG_H_ */
 

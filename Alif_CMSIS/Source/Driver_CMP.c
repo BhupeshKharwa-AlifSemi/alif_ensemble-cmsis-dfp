@@ -12,7 +12,7 @@
 #include "cmp.h"
 #include "Driver_CMP.h"
 #include "Driver_CMP_Private.h"
-#include "analog_config.h"
+#include "sys_ctrl_analog.h"
 #include "sys_ctrl_cmp.h"
 #include "sys_utils.h"
 
@@ -72,11 +72,11 @@ static void AnalogConfig(uint8_t instance)
     if(instance != CMP_INSTANCE_LP)
     {
         /* Analog configuration comparator register2 */
-        analog_config_cmp_reg2();
+        configure_analog_peripherals();
     }
 
     /* Analog configuration Vbat register2 */
-    analog_config_vbat_reg2();
+    enable_analog_peripherals();
 }
 
 /**

@@ -20,7 +20,7 @@
 
 /* Project Includes */
 #include "Driver_DAC_Private.h"
-#include "analog_config.h"
+#include "sys_ctrl_analog.h"
 #include "sys_utils.h"
 
 #if defined(RTE_Drivers_DAC)
@@ -52,10 +52,10 @@ static const ARM_DAC_CAPABILITIES DriverCapabilities = {
 static void Analog_Config(void)
 {
     /* Analog configuration Vbat register2 */
-    analog_config_vbat_reg2();
+    enable_analog_peripherals();
 
     /* Analog configuration comparator register2 */
-    analog_config_cmp_reg2();
+    configure_analog_peripherals();
 }
 
 /**
@@ -145,7 +145,7 @@ static int32_t DAC_PowerControl(ARM_POWER_STATE state,
 
                disable_dac_periph_clk(DAC->instance);
 
-               disable_cmp_periph_clk();
+               disable_analog_periph_clk();
 
                DAC->flags.powered = 0x0U;
                break;
@@ -157,7 +157,7 @@ static int32_t DAC_PowerControl(ARM_POWER_STATE state,
                  return ARM_DRIVER_OK;
               }
 
-               enable_cmp_periph_clk();
+               enable_analog_periph_clk();
 
                enable_dac_periph_clk(DAC->instance);
 
