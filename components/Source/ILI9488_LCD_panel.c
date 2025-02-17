@@ -13,7 +13,7 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-#if RTE_MIPI_DSI_ILI9488_PANEL
+#if defined(RTE_Drivers_MIPI_DSI_ILI9488_PANEL)
 
 #include "DSI_DCS.h"
 #include "Driver_IO.h"
@@ -331,4 +331,4 @@ static DISPLAY_PANEL_DEVICE ILI9488_display_panel =
 
 /* Registering Display Panel */
 DISPLAY_PANEL(ILI9488_display_panel)
-#endif
+#endif  //RTE_Drivers_MIPI_DSI_ILI9488_PANEL

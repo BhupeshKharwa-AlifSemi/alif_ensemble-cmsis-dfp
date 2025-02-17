@@ -185,8 +185,8 @@ static int rtc_init()
 #include "Driver_LPTIMER.h"
 
 /* LPTIMER Driver instance 0 */
-extern ARM_DRIVER_LPTIMER DRIVER_LPTIMER0;
-static ARM_DRIVER_LPTIMER *lptimerDrv = &DRIVER_LPTIMER0;
+extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
+static ARM_DRIVER_LPTIMER *lptimerDrv = &Driver_LPTIMER0;
 
 #define LPTIMER_CHANNEL    0
 
