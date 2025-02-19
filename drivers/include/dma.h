@@ -22,69 +22,12 @@
 #define DMA_H_
 
 #include <stdint.h>
+#include "soc.h"
 
 #ifdef  __cplusplus
-}
+extern "C"
+{
 #endif
-
-/**
-  * @brief DMA_DMA_CHANNEL_RT_INFO_Type [DMA_CHANNEL_RT_INFO] ([0..7])
-  */
-typedef struct {
-  volatile const  uint32_t  DMA_CSR;            /*!< (@ 0x00000000) Channel Status for DMA Channel (n) Register                */
-  volatile const  uint32_t  DMA_CPC;            /*!< (@ 0x00000004) Channel PC for DMA Channel (n) Register                    */
-} DMA_DMA_CHANNEL_RT_INFO_Type;                 /*!< Size = 8 (0x8)                                                            */
-
-
-/**
-  * @brief DMA_DMA_RT_CHANNEL_CFG_Type [DMA_RT_CHANNEL_CFG] ([0..7])
-  */
-typedef struct {
-  volatile const  uint32_t  DMA_SAR;            /*!< (@ 0x00000000) Source Address for DMA Channel (n) Register                */
-  volatile const  uint32_t  DMA_DAR;            /*!< (@ 0x00000004) Destination Address for DMA Channel (n) Register           */
-  volatile const  uint32_t  DMA_CCR;            /*!< (@ 0x00000008) Channel Control for DMA Channel (n) Register               */
-  volatile const  uint32_t  DMA_LC0;            /*!< (@ 0x0000000C) Loop Counter 0 for DMA Channel (n) Register                */
-  volatile const  uint32_t  DMA_LC1;            /*!< (@ 0x00000010) Loop Counter 1 for DMA Channel (n) Register                */
-  volatile const  uint32_t  RESERVED[3];
-} DMA_DMA_RT_CHANNEL_CFG_Type;                  /*!< Size = 32 (0x20)                                                          */
-
-
-/**
-  * @brief DMA (DMA)
-  */
-
-typedef struct {                                /*!< (@ 0x00000000) DMA Structure                                         */
-  volatile const  uint32_t  DMA_DSR;            /*!< (@ 0x00000000) DMA Manager Status Register                                */
-  volatile const  uint32_t  DMA_DPC;            /*!< (@ 0x00000004) DMA Program Counter Register                               */
-  volatile const  uint32_t  RESERVED[6];
-  volatile        uint32_t  DMA_INTEN;          /*!< (@ 0x00000020) Interrupt Enable Register                                  */
-  volatile const  uint32_t  DMA_INT_EVENT_RIS;  /*!< (@ 0x00000024) Event-Interrupt Raw Status Register                        */
-  volatile const  uint32_t  DMA_INTMIS;         /*!< (@ 0x00000028) Interrupt Status Register                                  */
-  volatile        uint32_t  DMA_INTCLR;         /*!< (@ 0x0000002C) Interrupt Clear Register                                   */
-  volatile const  uint32_t  DMA_FSRD;           /*!< (@ 0x00000030) Fault Status DMA Manager Register                          */
-  volatile const  uint32_t  DMA_FSRC;           /*!< (@ 0x00000034) Fault Status DMA Channel Register                          */
-  volatile const  uint32_t  DMA_FTRD;           /*!< (@ 0x00000038) Fault Type DMA Manager Register                            */
-  volatile const  uint32_t  RESERVED1;
-  volatile const  uint32_t  DMA_FTR[8];         /*!< (@ 0x00000040) Fault Type for DMA Channel (n) Register                    */
-  volatile const  uint32_t  RESERVED2[40];
-  volatile DMA_DMA_CHANNEL_RT_INFO_Type DMA_CHANNEL_RT_INFO[8];/*!< (@ 0x00000100) [0..7]                                    */
-  volatile const  uint32_t  RESERVED3[176];
-  volatile DMA_DMA_RT_CHANNEL_CFG_Type DMA_RT_CHANNEL_CFG[8];/*!< (@ 0x00000400) [0..7]                                      */
-  volatile const  uint32_t  RESERVED4[512];
-  volatile const  uint32_t  DMA_DBGSTATUS;      /*!< (@ 0x00000D00) Debug Status Register                                      */
-  volatile        uint32_t  DMA_DBGCMD;         /*!< (@ 0x00000D04) Debug Command Register                                     */
-  volatile        uint32_t  DMA_DBGINST0;       /*!< (@ 0x00000D08) Debug Instruction Register 0                               */
-  volatile        uint32_t  DMA_DBGINST1;       /*!< (@ 0x00000D0C) Debug Instruction Register 1                               */
-  volatile const  uint32_t  RESERVED5[60];
-  volatile const  uint32_t  DMA_CR0;            /*!< (@ 0x00000E00) Configuration Register 0                                   */
-  volatile const  uint32_t  DMA_CR1;            /*!< (@ 0x00000E04) Configuration Register 1                                   */
-  volatile const  uint32_t  DMA_CR2;            /*!< (@ 0x00000E08) Configuration Register 2                                   */
-  volatile const  uint32_t  DMA_CR3;            /*!< (@ 0x00000E0C) Configuration Register 3                                   */
-  volatile const  uint32_t  DMA_CR4;            /*!< (@ 0x00000E10) Configuration Register 4                                   */
-  volatile const  uint32_t  DMA_CRD;            /*!< (@ 0x00000E14) DMA Configuration Register                                 */
-  volatile const  uint32_t  RESERVED6[26];
-  volatile        uint32_t  DMA_WD;             /*!< (@ 0x00000E80) Watchdog Register                                          */
-} DMA_Type;                                     /*!< Size = 3716 (0xe84)                                                       */
 
 /* Register fields and masks */
 

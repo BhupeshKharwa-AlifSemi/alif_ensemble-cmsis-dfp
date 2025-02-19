@@ -11,28 +11,58 @@
 #ifndef SYS_CTRL_ADC_H_
 #define SYS_CTRL_ADC_H_
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+
+/* PMU_PERIPH field definitions */
+#define PMU_PERIPH_ADC1_PGA_EN              (1U << 0)
+#define PMU_PERIPH_ADC1_PGA_GAIN_Pos        (1)
+#define PMU_PERIPH_ADC1_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC1_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC2_PGA_EN              (1U << 4)
+#define PMU_PERIPH_ADC2_PGA_GAIN_Pos        (5)
+#define PMU_PERIPH_ADC2_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC2_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC3_PGA_EN              (1U << 8)
+#define PMU_PERIPH_ADC3_PGA_GAIN_Pos        (9)
+#define PMU_PERIPH_ADC3_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC3_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC24_EN                 (1U << 12)
+#define PMU_PERIPH_ADC24_OUTPUT_RATE_Pos    (13)
+#define PMU_PERIPH_ADC24_OUTPUT_RATE_Msk    (0x7 << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos)
+#define PMU_PERIPH_ADC24_PGA_EN             (1U << 16)
+#define PMU_PERIPH_ADC24_PGA_GAIN_Pos       (17)
+#define PMU_PERIPH_ADC24_PGA_GAIN_Msk       (0x7 << PMU_PERIPH_ADC24_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC24_BIAS_Pos           (20)
+#define PMU_PERIPH_ADC24_BIAS_Msk           (0x7 << PMU_PERIPH_ADC24_BIAS_Pos)
+
+/* CLKCTL_PER_SLV ADC_CTRL field definitions */
+#define ADC_CTRL_ADC0_CKEN                  (1U  << 0U)  /* ADC0 clock enable  */
+#define ADC_CTRL_ADC1_CKEN                  (1U  << 4U)  /* ADC1 clock enable  */
+#define ADC_CTRL_ADC2_CKEN                  (1U  << 8U)  /* ADC2 clock enable  */
+#define ADC_CTRL_ADC24_CKEN                 (1U  << 12U) /* ADC24 clock enable */
 
 /* ADC control */
-#define ADC_CTRL_BASE                      ADC120_BASE
+#define ADC_CTRL_BASE                       ADC120_BASE
 
 /* ADC reg1 position macro */
-#define ADC120_DIFFERENTIAL_EN_Pos               (1)
-#define ADC120_COMPARATOR_EN_Pos                 (2)
-#define ADC120_COMPARATOR_BIAS_Pos               (3)
-#define ADC120_VCM_DIV_Pos                       (5)
+#define ADC120_DIFFERENTIAL_EN_Pos          (1)
+#define ADC120_COMPARATOR_EN_Pos            (2)
+#define ADC120_COMPARATOR_BIAS_Pos          (3)
+#define ADC120_VCM_DIV_Pos                  (5)
 
-#define ADC121_DIFFERENTIAL_EN_Pos               (7)
-#define ADC121_COMPARATOR_EN_Pos                 (8)
-#define ADC121_COMPARATOR_BIAS_Pos               (9)
-#define ADC121_VCM_DIV_Pos                       (11)
+#define ADC121_DIFFERENTIAL_EN_Pos          (7)
+#define ADC121_COMPARATOR_EN_Pos            (8)
+#define ADC121_COMPARATOR_BIAS_Pos          (9)
+#define ADC121_VCM_DIV_Pos                  (11)
 
-#define ADC122_DIFFERENTIAL_EN_Pos               (13)
-#define ADC122_COMPARATOR_EN_Pos                 (14)
-#define ADC122_COMPARATOR_BIAS_Pos               (15)
-#define ADC122_VCM_DIV_Pos                       (17)
+#define ADC122_DIFFERENTIAL_EN_Pos          (13)
+#define ADC122_COMPARATOR_EN_Pos            (14)
+#define ADC122_COMPARATOR_BIAS_Pos          (15)
+#define ADC122_VCM_DIV_Pos                  (17)
 
-#define ADC_CTRL_ADC_CKEN_Msk                  (0x110)
+#define ADC_CTRL_ADC_CKEN_Msk               (0x110)
 
 /**
  * enum ADC_INSTANCE.
@@ -400,5 +430,9 @@ static inline void disable_adc_pga_gain(uint8_t instance)
 
     __enable_irq();
 }
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif /* SYS_CTRL_ADC_H_ */

@@ -24,7 +24,8 @@
 #include <dma_ctrl.h>
 
 #ifdef  __cplusplus
-}
+extern "C"
+{
 #endif
 
 typedef enum _DMA_CHANNEL_FLAG {

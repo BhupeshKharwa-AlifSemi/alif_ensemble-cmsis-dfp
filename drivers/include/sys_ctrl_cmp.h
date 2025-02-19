@@ -16,7 +16,15 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define LPCMP_CTRL_CLKEN            (1 << 14)  /* Enable 32-kHz clock to LPCMP comparator */
+
+/* CLKCTL_PER_SLV CMP field definitions */
+#define CMP_CTRL_CMP0_CLKEN         (1U << 0U)  /* Enable CMP0 clock */
+#define CMP_CTRL_CMP1_CLKEN         (1U << 4U)  /* Enable CMP1 clock */
+#define CMP_CTRL_CMP2_CLKEN         (1U << 8U)  /* Enable CMP2 clock */
+#define CMP_CTRL_CMP3_CLKEN         (1U << 12U) /* Enable CMP3 clock */
 
 /**
  * enum CMP_INSTANCE.
@@ -58,7 +66,7 @@ static inline void enable_cmp_clk(uint8_t instance)
         break;
 
     case CMP_INSTANCE_LP:
-        ANA_REG->VBAT_ANA_REG1 |= LPCMP_CTRL_CLKEN;
+        ANA->VBAT_ANA_REG1 |= LPCMP_CTRL_CLKEN;
         break;
     }
 }
@@ -90,7 +98,7 @@ static inline void disable_cmp_clk(uint8_t instance)
         break;
 
     case CMP_INSTANCE_LP:
-        ANA_REG->VBAT_ANA_REG1 &= ~LPCMP_CTRL_CLKEN;
+        ANA->VBAT_ANA_REG1 &= ~LPCMP_CTRL_CLKEN;
         break;
     }
 }
@@ -130,7 +138,7 @@ static inline void enable_cmp(uint8_t instance)
 
     case CMP_INSTANCE_LP:
         /* Enable the LPCMP module */
-        ANA_REG->VBAT_ANA_REG2 |= LPCMP_ENABLE;
+        ANA->VBAT_ANA_REG2 |= LPCMP_ENABLE;
         break;
     }
 }
@@ -170,7 +178,7 @@ static inline void disable_cmp(uint8_t instance)
 
     case CMP_INSTANCE_LP:
         /* Disable the LPCMP module */
-        ANA_REG->VBAT_ANA_REG2 &= ~LPCMP_ENABLE;
+        ANA->VBAT_ANA_REG2 &= ~LPCMP_ENABLE;
         break;
     }
 }
@@ -189,7 +197,7 @@ static void cmp_set_config(uint8_t instance, uint32_t config_value)
     if(instance == CMP_INSTANCE_LP)
     {
         /* Add LPCMP configuration values in Vbat reg2 */
-        ANA_REG->VBAT_ANA_REG2 |= config_value;
+        ANA->VBAT_ANA_REG2 |= config_value;
     }
     else
     {
@@ -210,7 +218,7 @@ static void cmp_set_config(uint8_t instance, uint32_t config_value)
 static void lpcmp_clear_config(void)
 {
     /* Clear LPCMP configuration values in Vbat reg2 */
-    ANA_REG->VBAT_ANA_REG2 &= ~LPCMP_MSK_CTRL_VAL;
+    ANA->VBAT_ANA_REG2 &= ~LPCMP_MSK_CTRL_VAL;
 }
 
 /**

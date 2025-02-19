@@ -15,7 +15,9 @@ extern "C"
 {
 #endif
 
-#include <peripheral_types.h>
+#include <soc.h>
+
+#define PERIPH_CLK_ENA_ETH_CKEN                (1U << 12) /* Enable clock supply for ETH */
 
 /**
   \fn     static inline void enable_eth_periph_clk(void)

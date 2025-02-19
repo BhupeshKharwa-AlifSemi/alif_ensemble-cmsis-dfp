@@ -352,7 +352,7 @@ void i2c_master_set_clock(I2C_Type *i2c, const uint32_t clk_khz, uint8_t speed_m
 
     /* Master code settings */
     /* only in High speed master mode */
-    i2c->ic_hs_maddr = 0;
+    i2c->I2C_HS_MADDR = 0;
 }
 
 /**

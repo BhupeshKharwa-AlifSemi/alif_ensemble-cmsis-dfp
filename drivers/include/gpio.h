@@ -29,33 +29,8 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "soc.h"
 
-/**
-  * @brief LPGPIO (LPGPIO)
-  */
-
-typedef struct {
-    volatile        uint32_t  GPIO_SWPORTA_DR;        /*!< (@ 0x00000000) GPIO Port Data Register                       */
-    volatile        uint32_t  GPIO_SWPORTA_DDR;       /*!< (@ 0x00000004) GPIO Port Data Direction Register             */
-    volatile        uint32_t  GPIO_SWPORTA_CTL;       /*!< (@ 0x00000008) GPIO Port Data Source Register                */
-    volatile const  uint32_t  RESERVED[9];
-    volatile        uint32_t  GPIO_INTEN;             /*!< (@ 0x00000030) GPIO Port Interrupt Enable Register            */
-    volatile        uint32_t  GPIO_INTMASK;           /*!< (@ 0x00000034) GPIO Port Interrupt Mask Register              */
-    volatile        uint32_t  GPIO_INTTYPE_LEVEL;     /*!< (@ 0x00000038) GPIO Port Interrupt Level Register             */
-    volatile        uint32_t  GPIO_INT_POLARITY;      /*!< (@ 0x0000003C) GPIO Port Interrupt Polarity Register          */
-    volatile const  uint32_t  GPIO_INTSTATUS;         /*!< (@ 0x00000040) GPIO Port Interrupt Status Register            */
-    volatile const  uint32_t  GPIO_RAW_INTSTATUS;     /*!< (@ 0x00000044) GPIO Port Raw Interrupt Status Register        */
-    volatile        uint32_t  GPIO_DEBOUNCE;          /*!< (@ 0x00000048) GPIO Port Debounce Enable Register             */
-    volatile        uint32_t  GPIO_PORTA_EOI;         /*!< (@ 0x0000004C) GPIO Port End Of Interrupt Register            */
-    volatile const  uint32_t  GPIO_EXT_PORTA;         /*!< (@ 0x00000050) GPIO External Port Read Register               */
-    volatile const  uint32_t  RESERVED1[3];
-    volatile        uint32_t  GPIO_LS_SYNC;           /*!< (@ 0x00000060) Synchronization Level Register                 */
-    volatile const  uint32_t  RESERVED2;
-    volatile        uint32_t  GPIO_INT_BOTHEDGE;      /*!< (@ 0x00000068) GPIO Port Interrupt Both Edge Type Register    */
-    volatile const  uint32_t  GPIO_VER_ID_CODE;       /*!< (@ 0x0000006C) Reserved                                       */
-    volatile const  uint32_t  GPIO_CONFIG_REG2;       /*!< (@ 0x00000070) Module Configuration Register 2                */
-    volatile const  uint32_t  GPIO_CONFIG_REG1;       /*!< (@ 0x00000074) Module Configuration Register 1                */
-} GPIO_Type;                                          /*!< Size = 120 (0x78)                                             */
 
 /**
  * enum GPIO_PIN_DIR.

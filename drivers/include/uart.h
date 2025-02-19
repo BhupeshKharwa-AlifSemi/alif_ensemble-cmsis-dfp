@@ -17,72 +17,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-
-/*
- \brief struct UART_Type:- Register map for UART
- */
-typedef struct {                                     /*!< UART Register Structure                                                   */
-
-  union {
-    volatile const  uint32_t UART_RBR;               /*!< (@ 0x00000000) Receive Buffer Register                                    */
-    volatile uint32_t UART_DLL;                      /*!< (@ 0x00000000) Divisor Latch Low Register                                 */
-    volatile uint32_t UART_THR;                      /*!< (@ 0x00000000) Transmit Holding Register                                  */
-  };
-
-  union {
-    volatile uint32_t UART_DLH;                      /*!< (@ 0x00000004) Divisor Latch High Register                                */
-    volatile uint32_t UART_IER;                      /*!< (@ 0x00000004) Interrupt Enable Register                                  */
-  };
-
-  union {
-    volatile uint32_t UART_FCR;                      /*!< (@ 0x00000008) FIFO Control Register                                      */
-    volatile const  uint32_t UART_IIR;               /*!< (@ 0x00000008) Interrupt Identification Register                          */
-  };
-
-    volatile uint32_t  UART_LCR;                     /*!< (@ 0x0000000C) Line Control Register                                      */
-    volatile uint32_t  UART_MCR;                     /*!< (@ 0x00000010) Modem Control Register                                     */
-    volatile const  uint32_t  UART_LSR;              /*!< (@ 0x00000014) Line Status Register                                       */
-    volatile const  uint32_t  UART_MSR;              /*!< (@ 0x00000018) Modem Status Register                                      */
-    volatile uint32_t  UART_SCR;                     /*!< (@ 0x0000001C) Scratchpad Register                                        */
-    volatile const  uint32_t  RESERVED[4];
-
-  union {
-    volatile const  uint32_t UART_SRBR[16];          /*!< (@ 0x00000030) Shadow Receive Buffer Register (n)                         */
-    volatile uint32_t UART_STHR[16];                 /*!< (@ 0x00000030) Shadow Transmit Holding Register (n)                       */
-  };
-
-    volatile uint32_t  UART_FAR;                     /*!< (@ 0x00000070) FIFO Access Register                                       */
-    volatile const  uint32_t  UART_TFR;              /*!< (@ 0x00000074) Tx FIFO Read Register                                      */
-    volatile uint32_t  UART_RFW;                     /*!< (@ 0x00000078) Rx FIFO Write Register                                     */
-    volatile const  uint32_t  UART_USR;              /*!< (@ 0x0000007C) UART Status Register                                       */
-    volatile const  uint32_t  UART_TFL;              /*!< (@ 0x00000080) Tx FIFO Level Register                                     */
-    volatile const  uint32_t  UART_RFL;              /*!< (@ 0x00000084) Rx FIFO Level Register                                     */
-    volatile uint32_t  UART_SRR;                     /*!< (@ 0x00000088) Software Reset Register                                    */
-    volatile uint32_t  UART_SRTS;                    /*!< (@ 0x0000008C) Shadow Request to Send Register                            */
-    volatile uint32_t  UART_SBCR;                    /*!< (@ 0x00000090) Shadow Break Control Register                              */
-    volatile uint32_t  UART_SDMAM;                   /*!< (@ 0x00000094) Shadow DMA Mode Register                                   */
-    volatile uint32_t  UART_SFE;                     /*!< (@ 0x00000098) Shadow FIFO Enable Register                                */
-    volatile uint32_t  UART_SRT;                     /*!< (@ 0x0000009C) Shadow RCVR Trigger Register                               */
-    volatile uint32_t  UART_STET;                    /*!< (@ 0x000000A0) Shadow Tx Empty Trigger Register                           */
-    volatile uint32_t  UART_HTX;                     /*!< (@ 0x000000A4) Halt Tx Register                                           */
-    volatile uint32_t  UART_DMASA;                   /*!< (@ 0x000000A8) DMA Software Acknowledge Register                          */
-    volatile uint32_t  UART_TCR;                     /*!< (@ 0x000000AC) Transceiver Control Register                               */
-    volatile uint32_t  UART_DE_EN;                   /*!< (@ 0x000000B0) Driver Output Enable Register                              */
-    volatile uint32_t  UART_RE_EN;                   /*!< (@ 0x000000B4) Receiver Output Enable Register                            */
-    volatile uint32_t  UART_DET;                     /*!< (@ 0x000000B8) Driver Output Enable Timing Register                       */
-    volatile uint32_t  UART_TAT;                     /*!< (@ 0x000000BC) Turnaround Timing Register                                 */
-    volatile uint32_t  UART_DLF;                     /*!< (@ 0x000000C0) Divisor Latch Fraction Register                            */
-    volatile uint32_t  UART_RAR;                     /*!< (@ 0x000000C4) Receive Address Register                                   */
-    volatile uint32_t  UART_TAR;                     /*!< (@ 0x000000C8) Transmit Address Register                                  */
-    volatile uint32_t  UART_LCR_EXT;                 /*!< (@ 0x000000CC) Line Extended Control Register                             */
-    volatile const  uint32_t  RESERVED1;
-    volatile uint32_t  UART_REG_TIMEOUT_RST;         /*!< (@ 0x000000D4) Timeout Counter Reset Value Register                       */
-    volatile const  uint32_t  RESERVED2[7];
-    volatile const  uint32_t  UART_CPR;              /*!< (@ 0x000000F4) Module Configuration Register                              */
-    volatile const  uint32_t  UART_UCV;              /*!< (@ 0x000000F8) Reserved                                                   */
-    volatile const  uint32_t  UART_CTR;              /*!< (@ 0x000000FC) Reserved                                                   */
-} UART_Type;                                         /*!< Size = 256 (0x100)                                                        */
-
+#include "soc.h"
 
 /* UART register bit definitions --------------------------- */
 

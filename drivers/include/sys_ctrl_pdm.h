@@ -27,7 +27,10 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define EXPMST0_CTRL_PDM_CKEN               (1U << 8)    /* PDM Clock Enable   */
+#define HE_CLK_ENA_PDM_CKEN                 (1U << 8)    /* Enable LPPDM clock */
 
 /**
  @fn          void enable_pdm_periph_clk(void)

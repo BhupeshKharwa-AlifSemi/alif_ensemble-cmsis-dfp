@@ -30,39 +30,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-/**
-  * @brief LPSPI (LPSPI)
-  */
-
-typedef struct {
-    volatile        uint32_t  SPI_CTRLR0;            /*!< (@ 0x00000000) Control Register 0                                  */
-    volatile        uint32_t  SPI_CTRLR1;            /*!< (@ 0x00000004) Control Register 1                                  */
-    volatile        uint32_t  SPI_ENR;               /*!< (@ 0x00000008) SPI Enable Register                                 */
-    volatile        uint32_t  SPI_MWCR;              /*!< (@ 0x0000000C) Microwire Control Register                          */
-    volatile        uint32_t  SPI_SER;               /*!< (@ 0x00000010) Slave Enable Register                               */
-    volatile        uint32_t  SPI_BAUDR;             /*!< (@ 0x00000014) Baud Rate Select Register                           */
-    volatile        uint32_t  SPI_TXFTLR;            /*!< (@ 0x00000018) Transmit FIFO Threshold Level Register              */
-    volatile        uint32_t  SPI_RXFTLR;            /*!< (@ 0x0000001C) Receive FIFO Threshold Level Register               */
-    volatile const  uint32_t  SPI_TXFLR;             /*!< (@ 0x00000020) Transmit FIFO Level Register                        */
-    volatile const  uint32_t  SPI_RXFLR;             /*!< (@ 0x00000024) Receive FIFO Level Register                         */
-    volatile const  uint32_t  SPI_SR;                /*!< (@ 0x00000028) Status Register                                     */
-    volatile        uint32_t  SPI_IMR;               /*!< (@ 0x0000002C) Interrupt Mask Register                             */
-    volatile const  uint32_t  SPI_ISR;               /*!< (@ 0x00000030) Interrupt Status Register                           */
-    volatile const  uint32_t  SPI_RISR;              /*!< (@ 0x00000034) Raw Interrupt Status Register                       */
-    volatile const  uint32_t  SPI_TXOICR;            /*!< (@ 0x00000038) Transmit FIFO Overflow Interrupt Clear Register     */
-    volatile const  uint32_t  SPI_RXOICR;            /*!< (@ 0x0000003C) Receive FIFO Overflow Interrupt Clear Register      */
-    volatile const  uint32_t  SPI_RXUICR;            /*!< (@ 0x00000040) Receive FIFO Underflow Interrupt Clear Register     */
-    volatile const  uint32_t  SPI_MSTICR;            /*!< (@ 0x00000044) Multi-Master Interrupt Clear Register               */
-    volatile const  uint32_t  SPI_ICR;               /*!< (@ 0x00000048) Interrupt Clear Register                            */
-    volatile        uint32_t  SPI_DMACR;             /*!< (@ 0x0000004C) DMA Control Register                                */
-    volatile        uint32_t  SPI_DMATDLR;           /*!< (@ 0x00000050) DMA Transmit Data Level Register                    */
-    volatile        uint32_t  SPI_DMARDLR;           /*!< (@ 0x00000054) DMA Receive Data Level Register                     */
-    volatile const  uint32_t  SPI_IDR;               /*!< (@ 0x00000058) Reserved                                            */
-    volatile const  uint32_t  SPI_VERSION_ID;        /*!< (@ 0x0000005C) Reserved                                            */
-    volatile        uint32_t  SPI_DR[36];            /*!< (@ 0x00000060) SPI Data Register (n)                               */
-    volatile        uint32_t  SPI_RX_SAMPLE_DELAY;   /*!< (@ 0x000000F0) RX Sample Delay Register                            */
-} SPI_Type;                                          /*!< Size = 244 (0xf4)                                                         */
+#include "soc.h"
 
 #define SPI_TX_FIFO_DEPTH                               16U
 #define SPI_RX_FIFO_DEPTH                               16U

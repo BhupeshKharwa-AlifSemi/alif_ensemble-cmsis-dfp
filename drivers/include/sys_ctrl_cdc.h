@@ -25,7 +25,15 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define PERIPH_CLK_ENA_DPI_CKEN                (1U << 1)  /* Enable clock supply for DPI controller (CDC) */
+
+/* CLKCTL_PER_MST CDC200_PIXCLK_CTRL field definitions */
+#define CDC200_PIXCLK_CTRL_CKEN                (1U << 0) /* CDC200 Pixel clock enables */
+#define CDC200_PIXCLK_CTRL_CLK_SEL             (1U << 4) /* CDC200 Pixel clock select  */
+#define CDC200_PIXCLK_CTRL_DIVISOR_Pos         16U       /* CDC200 Pixel clock divisor */
+#define CDC200_PIXCLK_CTRL_DIVISOR_Msk         (0x1FFU << CDC200_PIXCLK_CTRL_DIVISOR_Pos)
 
 /**
  * enum CDC_PIX_CLKSEL

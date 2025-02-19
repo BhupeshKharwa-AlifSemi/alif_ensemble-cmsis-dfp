@@ -24,7 +24,9 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define PERIPH_CLK_ENA_DSI_CKEN                (1U << 28) /* Enable clock supply for DSI */
 
 /**
   \fn          static inline void enable_dsi_periph_clk(void)

@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
-#include "core.h"
+#include "soc.h"
 
 
 #ifdef  __cplusplus

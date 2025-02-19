@@ -29,6 +29,7 @@ extern "C"
 
 #include <stdint.h>
 #include "stdbool.h"
+#include "soc.h"
 
 /*****************  Bit definition for TIMER_RegInfo:cntr_start_src_0 register  ******************/
 #define CNTR_SRC0_TRIG0_RISING                      ((uint32_t)0x00000001)
@@ -296,88 +297,6 @@ typedef struct _UTIMER_TRIGGER_CONFIG {
     UTIMER_TRIGGER_SRC         src_type;                  /**< UTIMER trigger source type >*/
     uint32_t                   trigger_type;              /**< UTIMER trigger type >*/
 } UTIMER_TRIGGER_CONFIG ;
-
-/**
-  * @brief UTIMER_UTIMER_CHANNEL_CFG [UTIMER_CHANNEL_CFG]
-  */
-typedef struct {
-    volatile        uint32_t  UTIMER_START_0_SRC;           /*!< (@ 0x00000000) Channel (n) Counter Start Source 0 Register          */
-    volatile        uint32_t  UTIMER_START_1_SRC;           /*!< (@ 0x00000004) Channel (n) Counter Start Source 1 Register          */
-    volatile        uint32_t  UTIMER_STOP_0_SRC;            /*!< (@ 0x00000008) Channel (n) Counter Stop Source 0 Register           */
-    volatile        uint32_t  UTIMER_STOP_1_SRC;            /*!< (@ 0x0000000C) Channel (n) Counter Stop Source 1 Register           */
-    volatile        uint32_t  UTIMER_CLEAR_0_SRC;           /*!< (@ 0x00000010) Channel (n) Counter Clear Source 0 Register          */
-    volatile        uint32_t  UTIMER_CLEAR_1_SRC;           /*!< (@ 0x00000014) Channel (n) Counter Clear Source 1 Register          */
-    volatile        uint32_t  UTIMER_UP_0_SRC;              /*!< (@ 0x00000018) Channel (n) Counter Up Count Source 0 Register       */
-    volatile        uint32_t  UTIMER_UP_1_SRC;              /*!< (@ 0x0000001C) Channel (n) Counter Up Count Source 1 Register       */
-    volatile        uint32_t  UTIMER_DOWN_0_SRC;            /*!< (@ 0x00000020) Channel (n) Counter Down Count Source 0 Register     */
-    volatile        uint32_t  UTIMER_DOWN_1_SRC;            /*!< (@ 0x00000024) Channel (n) Counter Down Count Source 1 Register     */
-    volatile        uint32_t  UTIMER_TRIG_CAPTURE_SRC_A_0;  /*!< (@ 0x00000028) Channel (n) Trigger Capture Source A 0 Register      */
-    volatile        uint32_t  UTIMER_TRIG_CAPTURE_SRC_A_1;  /*!< (@ 0x0000002C) Channel (n) Trigger Capture Source A 1 Register      */
-    volatile        uint32_t  UTIMER_TRIG_CAPTURE_SRC_B_0;  /*!< (@ 0x00000030) Channel (n) Trigger Capture Source B 0 Register      */
-    volatile        uint32_t  UTIMER_TRIG_CAPTURE_SRC_B_1;  /*!< (@ 0x00000034) Channel (n) Trigger Capture Source B 1 Register      */
-    volatile        uint32_t  UTIMER_DMA_CLEAR_SRC_A_0;     /*!< (@ 0x00000038) Channel (n) DMA Clear Source A 0 Register            */
-    volatile        uint32_t  UTIMER_DMA_CLEAR_SRC_A_1;     /*!< (@ 0x0000003C) Channel (n) DMA Clear Source A 1 Register            */
-    volatile        uint32_t  UTIMER_DMA_CLEAR_SRC_B_0;     /*!< (@ 0x00000040) Channel (n) DMA Clear Source B 0 Register            */
-    volatile        uint32_t  UTIMER_DMA_CLEAR_SRC_B_1;     /*!< (@ 0x00000044) Channel (n) DMA Clear Source B 1 Register            */
-    volatile        uint32_t  UTIMER_CNTR_PAUSE_SRC;        /*!< (@ 0x00000048) Channel (n) Counter Pause Source Register            */
-    volatile const  uint32_t  RESERVED[13];
-    volatile        uint32_t  UTIMER_CNTR_CTRL;             /*!< (@ 0x00000080) Channel (n) Counter Control Register                 */
-    volatile        uint32_t  UTIMER_FILTER_CTRL_A;         /*!< (@ 0x00000084) Channel (n) Filter Control A Register                */
-    volatile        uint32_t  UTIMER_FILTER_CTRL_B;         /*!< (@ 0x00000088) Channel (n) Filter Control B Register                */
-    volatile        uint32_t  UTIMER_COMPARE_CTRL_A;        /*!< (@ 0x0000008C) Channel (n) Compare Control A Register               */
-    volatile        uint32_t  UTIMER_COMPARE_CTRL_B;        /*!< (@ 0x00000090) Channel (n) Compare Control B Register               */
-    volatile        uint32_t  UTIMER_BUF_OP_CTRL;           /*!< (@ 0x00000094) Channel (n) Buffer Operation Control Register        */
-    volatile const  uint32_t  RESERVED1[2];
-    volatile        uint32_t  UTIMER_CNTR;                  /*!< (@ 0x000000A0) Channel (n) Counter Register                         */
-    volatile        uint32_t  UTIMER_CNTR_PTR;              /*!< (@ 0x000000A4) Channel (n) Counter Pointer Register                 */
-    volatile        uint32_t  UTIMER_CNTR_PTR_BUF1;         /*!< (@ 0x000000A8) Channel (n) Counter Pointer Buffer 1 Register        */
-    volatile        uint32_t  UTIMER_CNTR_PTR_BUF2;         /*!< (@ 0x000000AC) Channel (n) Counter Pointer Buffer 2 Register        */
-    volatile        uint32_t  UTIMER_CAPTURE_A;             /*!< (@ 0x000000B0) Channel (n) Capture A Register                       */
-    volatile        uint32_t  UTIMER_CAPTURE_A_BUF1;        /*!< (@ 0x000000B4) Channel (n) Capture A Buffer 1 Register              */
-    volatile        uint32_t  UTIMER_CAPTURE_A_BUF2;        /*!< (@ 0x000000B8) Channel (n) Capture A Buffer 2 Register              */
-    volatile const  uint32_t  RESERVED2;
-    volatile        uint32_t  UTIMER_CAPTURE_B;             /*!< (@ 0x000000C0) Channel (n) Capture B Register                       */
-    volatile        uint32_t  UTIMER_CAPTURE_B_BUF1;        /*!< (@ 0x000000C4) Channel (n) Capture B Buffer 1 Register              */
-    volatile        uint32_t  UTIMER_CAPTURE_B_BUF2;        /*!< (@ 0x000000C8) Channel (n) Capture B Buffer 2 Register              */
-    volatile const  uint32_t  RESERVED3;
-    volatile        uint32_t  UTIMER_COMPARE_A;             /*!< (@ 0x000000D0) Channel (n) Compare A Register                       */
-    volatile        uint32_t  UTIMER_COMPARE_A_BUF1;        /*!< (@ 0x000000D4) Channel (n) Compare A Buffer 1 Register              */
-    volatile        uint32_t  UTIMER_COMPARE_A_BUF2;        /*!< (@ 0x000000D8) Channel (n) Compare A Buffer 2 Register              */
-    volatile const  uint32_t  RESERVED4;
-    volatile        uint32_t  UTIMER_COMPARE_B;             /*!< (@ 0x000000E0) Channel (n) Compare B Register                       */
-    volatile        uint32_t  UTIMER_COMPARE_B_BUF1;        /*!< (@ 0x000000E4) Channel (n) Compare B Buffer 1 Register              */
-    volatile        uint32_t  UTIMER_COMPARE_B_BUF2;        /*!< (@ 0x000000E8) Channel (n) Compare B Buffer 2 Register              */
-    volatile const  uint32_t  RESERVED5;
-    volatile        uint32_t  UTIMER_DT_UP;                 /*!< (@ 0x000000F0) Channel (n) Dead-time Up Register                    */
-    volatile        uint32_t  UTIMER_DT_UP_BUF1;            /*!< (@ 0x000000F4) Channel (n) Dead-time Up Buffer 1 Register           */
-    volatile        uint32_t  UTIMER_DT_DOWN;               /*!< (@ 0x000000F8) Channel (n) Dead-time Down Register                  */
-    volatile        uint32_t  UTIMER_DT_DOWN_BUF1;          /*!< (@ 0x000000FC) Channel (n) Dead-time Down Buffer 1 Register         */
-    volatile const  uint32_t  RESERVED6[5];
-    volatile        uint32_t  UTIMER_CHAN_STATUS;           /*!< (@ 0x00000114) Channel (n) Status Register                          */
-    volatile        uint32_t  UTIMER_CHAN_INTERRUPT;        /*!< (@ 0x00000118) Channel (n) Interrupt Control Register               */
-    volatile        uint32_t  UTIMER_CHAN_INTERRUPT_MASK;   /*!< (@ 0x0000011C) Channel (n) Interrupt Mask Register                  */
-    volatile        uint32_t  UTIMER_DUTY_CYCLE_CTRL;       /*!< (@ 0x00000120) Channel (n) Duty Cycle Control Register              */
-    volatile        uint32_t  UTIMER_DEAD_TIME_CTRL;        /*!< (@ 0x00000124) Channel (n) Dead-time Control Register               */
-    volatile const  uint32_t  RESERVED7[2];
-    volatile        uint32_t  UTIMER_INT_CNTR_CTRL;         /*!< (@ 0x00000130) Channel (n) Interrupt Counter Control Register       */
-    volatile        uint32_t  UTIMER_FAULT_CTRL;            /*!< (@ 0x00000134) Channel (n) Fault Control Register                   */
-    volatile const  uint32_t  RESERVED8[946];
-} UTIMER_UTIMER_CHANNEL_CFG_Type;                           /*!< Size = 4096 (0x1000)                                                */
-
-/**
-  * @brief UTIMER (UTIMER)
-  */
-typedef struct {
-    volatile        uint32_t  UTIMER_GLB_CNTR_START;        /*!< (@ 0x00000000) Channels Global Counter Start Register               */
-    volatile        uint32_t  UTIMER_GLB_CNTR_STOP;         /*!< (@ 0x00000004) Channels Global Counter Stop Register                */
-    volatile        uint32_t  UTIMER_GLB_CNTR_CLEAR;        /*!< (@ 0x00000008) Channels Global Counter Clear Register               */
-    volatile const  uint32_t  UTIMER_GLB_CNTR_RUNNING;      /*!< (@ 0x0000000C) Channels Global Counter Running Status Register      */
-    volatile        uint32_t  UTIMER_GLB_DRIVER_OEN;        /*!< (@ 0x00000010) Channels Driver Output Enable Register               */
-    volatile const  uint32_t  RESERVED[3];
-    volatile        uint32_t  UTIMER_GLB_CLOCK_ENABLE;      /*!< (@ 0x00000020) Channels Clock Enable Register                       */
-    volatile const  uint32_t  RESERVED1[1015];
-    volatile        UTIMER_UTIMER_CHANNEL_CFG_Type UTIMER_CHANNEL_CFG[16];/*!< (@ 0x00001000) [0..15]                                */
-} UTIMER_Type;                                              /*!< Size = 69632 (0x11000)                                              */
 
 typedef struct _utimer_channel_config
 {

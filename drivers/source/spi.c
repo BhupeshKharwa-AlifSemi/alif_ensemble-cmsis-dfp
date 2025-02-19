@@ -1279,7 +1279,7 @@ void spi_irq_handler(SPI_Type *spi, spi_transfer_t *transfer)
     if (event & (SPI_RX_FIFO_OVER_FLOW_EVENT | SPI_TX_FIFO_OVER_FLOW_EVENT))
     {
         /* clear interrupt events */
-        (void) spi->SPI_TXOICR;
+        (void) spi->SPI_TXEICR;
         (void) spi->SPI_RXOICR;
 
         spi_disable(spi);
@@ -1439,7 +1439,7 @@ void spi_mw_irq_handler(SPI_Type *spi, spi_transfer_t *transfer)
     if (event & (SPI_RX_FIFO_OVER_FLOW_EVENT | SPI_TX_FIFO_OVER_FLOW_EVENT))
     {
         /* clear interrupt events */
-        (void) spi->SPI_TXOICR;
+        (void) spi->SPI_TXEICR;
         (void) spi->SPI_RXOICR;
 
         spi_disable(spi);

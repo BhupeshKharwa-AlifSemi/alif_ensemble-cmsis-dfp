@@ -21,7 +21,7 @@
 #define CACHE_H
 
 #include <stdbool.h>
-#include "core.h"
+#include "soc.h"
 
 #ifdef __cplusplus
 extern "C" {

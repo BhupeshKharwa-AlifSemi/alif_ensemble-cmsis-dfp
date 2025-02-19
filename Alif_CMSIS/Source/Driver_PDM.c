@@ -263,19 +263,19 @@ __STATIC_INLINE int32_t PDM_DMA_Usermcode(DMA_PERIPHERAL_CONFIG *dma_periph,
 
 /**
  @fn          int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
-                                             PDM_RESOURCES *PDM)
+                                             PDM_RESOURCES *PDM_RES)
   @brief       Generate PDM DMA microcode
   \param[in]   dma_periph   Pointer to DMA resources
-  @param[in]   PDM : Pointer to PDM resources
+  @param[in]   PDM_RES : Pointer to PDM resources
   \return      \ref         execution_status
 */
 int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
-                                PDM_RESOURCES *PDM)
+                                PDM_RESOURCES *PDM_RES)
 {
     uint8_t             dma_handle = (uint8_t)dma_periph->dma_handle;
-    uint32_t            dst_addr = LocalToGlobal(PDM->transfer.buf);
-    uint32_t            active_channels = pdm_get_active_channels(PDM->regs);
-    uint8_t             periph_num = PDM->dma_cfg->dma_rx.dma_periph_req;
+    uint32_t            dst_addr = LocalToGlobal(PDM_RES->transfer.buf);
+    uint32_t            active_channels = pdm_get_active_channels(PDM_RES->regs);
+    uint8_t             periph_num = PDM_RES->dma_cfg->dma_rx.dma_periph_req;
     dma_opcode_buf      op_buf;
     dma_loop_t          lp_args;
     dma_ccr_t           ccr;
@@ -286,7 +286,7 @@ int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
     uint32_t            src_addr;
     uint8_t             tmp, num_active_channels;
 
-    op_buf.buf = (uint8_t *)&PDM->dma_mcode;
+    op_buf.buf = (uint8_t *)&PDM_RES->dma_mcode;
     op_buf.buf_size = PDM_DMA_MICROCODE_SIZE;
     op_buf.off = 0;
 
@@ -312,7 +312,7 @@ int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
     if(!ret)
         return ret;
 
-    src_addr = LocalToGlobal(pdm_get_ch0_1_addr(PDM->regs));
+    src_addr = LocalToGlobal(pdm_get_ch0_1_addr(PDM_RES->regs));
     ret = dma_construct_move(src_addr, DMA_REG_SAR, &op_buf);
     if(!ret)
         return ret;
@@ -328,7 +328,7 @@ int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
     num_active_channels = num_active_channels / 2;
 
     burst       = (1 << BS_BYTE_4);
-    total_bytes = PDM->transfer.total_cnt * 2;
+    total_bytes = PDM_RES->transfer.total_cnt * 2;
     req_burst   = total_bytes / (burst * num_active_channels);
 
     while(req_burst)
@@ -509,84 +509,84 @@ int32_t PDM_DMA_GenerateOpcode(DMA_PERIPHERAL_CONFIG *dma_periph,
 #endif
 
 /**
- @fn          void PDM_ERROR_IRQ_handler(PDM_RESOURCES *PDM)
+ @fn          void PDM_ERROR_IRQ_handler(PDM_RESOURCES *PDM_RES)
  @brief       IRQ handler for the error interrupt
- @param[in]   PDM : Pointer to PDM resources
+ @param[in]   PDM_RES : Pointer to PDM resources
  @return      none
  */
-void PDM_ERROR_IRQ_handler(PDM_RESOURCES *PDM)
+void PDM_ERROR_IRQ_handler(PDM_RESOURCES *PDM_RES)
 {
-    pdm_error_detect_irq_handler(PDM->regs);
+    pdm_error_detect_irq_handler(PDM_RES->regs);
 
     /* call user callback */
-    PDM->cb_event(ARM_PDM_EVENT_ERROR);
+    PDM_RES->cb_event(ARM_PDM_EVENT_ERROR);
 }
 
 /**
- @fn          void PDM_AUDIO_DETECT_IRQ_handler(PDM_RESOURCES *PDM)
+ @fn          void PDM_AUDIO_DETECT_IRQ_handler(PDM_RESOURCES *PDM_RES)
  @brief       IRQ handler for the audio detect interrupt
- @param[in]   PDM : Pointer to PDM resources
+ @param[in]   PDM_RES : Pointer to PDM resources
  @return      none
  */
-void PDM_AUDIO_DETECT_IRQ_handler(PDM_RESOURCES *PDM)
+void PDM_AUDIO_DETECT_IRQ_handler(PDM_RESOURCES *PDM_RES)
 {
-    pdm_transfer_t *transfer = &PDM->transfer;
+    pdm_transfer_t *transfer = &PDM_RES->transfer;
 
-    pdm_audio_detect_irq_handler(PDM->regs, transfer);
+    pdm_audio_detect_irq_handler(PDM_RES->regs, transfer);
 
     if(transfer->status == PDM_AUDIO_STATUS_DETECTION)
     {
         transfer->status  = PDM_CAPTURE_STATUS_NONE;
 
         /* call user callback */
-        PDM->cb_event(ARM_PDM_EVENT_AUDIO_DETECTION);
+        PDM_RES->cb_event(ARM_PDM_EVENT_AUDIO_DETECTION);
     }
 }
 
 /**
- @fn          void PDM_WARNING_IRQ_handler(PDM_RESOURCES *PDM)
+ @fn          void PDM_WARNING_IRQ_handler(PDM_RESOURCES *PDM_RES)
  @brief       IRQ handler for the PDM warning interrupt
- @param[in]   PDM : Pointer to PDM resources
+ @param[in]   PDM_RES : Pointer to PDM resources
  @return      none
  */
-void PDM_WARNING_IRQ_handler(PDM_RESOURCES *PDM)
+void PDM_WARNING_IRQ_handler(PDM_RESOURCES *PDM_RES)
 {
-    pdm_transfer_t *transfer = &(PDM->transfer);
+    pdm_transfer_t *transfer = &(PDM_RES->transfer);
 
-    pdm_warning_irq_handler(PDM->regs, transfer);
+    pdm_warning_irq_handler(PDM_RES->regs, transfer);
 
     if(transfer->status ==  PDM_CAPTURE_STATUS_COMPLETE)
     {
         transfer->status  = PDM_CAPTURE_STATUS_NONE;
 
         /* call user callback */
-        PDM->cb_event(ARM_PDM_EVENT_CAPTURE_COMPLETE);
+        PDM_RES->cb_event(ARM_PDM_EVENT_CAPTURE_COMPLETE);
     }
 }
 
 #if PDM_DMA_ENABLE
 /**
- * @fn         void PDMx_DMACallback(uint32_t event, int8_t peri_num, PDM_RESOURCES *PDM)
+ * @fn         void PDMx_DMACallback(uint32_t event, int8_t peri_num, PDM_RESOURCES *PDM_RES)
  * @brief      DMA Callback function for PDM.
  * @note       none.
- * @param[in]  PDM : Pointer to pdm resources structure.
+ * @param[in]  PDM_RES : Pointer to pdm resources structure.
  * @param[in]  event : Event from DMA
  * @param[in]  peri_num : peripheral request number
  * @retval     none
  */
-static void PDMx_DMACallback(uint32_t event, int8_t peri_num, PDM_RESOURCES *PDM)
+static void PDMx_DMACallback(uint32_t event, int8_t peri_num, PDM_RESOURCES *PDM_RES)
 {
     ARG_UNUSED(peri_num);
 
-    if(!PDM->cb_event)
+    if(!PDM_RES->cb_event)
         return;
 
     if(event & ARM_DMA_EVENT_COMPLETE)
     {
         /* Disable the PDM error irq */
-        pdm_disable_error_irq(PDM->regs);
+        pdm_disable_error_irq(PDM_RES->regs);
 
-        PDM->cb_event(ARM_PDM_EVENT_CAPTURE_COMPLETE);
+        PDM_RES->cb_event(ARM_PDM_EVENT_CAPTURE_COMPLETE);
     }
 
     /* Abort Occurred */
@@ -602,44 +602,44 @@ static void PDMx_DMACallback(uint32_t event, int8_t peri_num, PDM_RESOURCES *PDM
 #endif
 
 /**
- * @fn      ARM_PDM_STATUS PDMx_GetStatus(PDM_RESOURCES *PDM)
+ * @fn      ARM_PDM_STATUS PDMx_GetStatus(PDM_RESOURCES *PDM_RES)
  * @brief   CMSIS-Driver PDM get status
  * @note    none.
- * @param   PDM    : Pointer to PDM resources structure
+ * @param   PDM_RES    : Pointer to PDM resources structure
  * @retval  ARM_PDM_STATUS
  */
-static ARM_PDM_STATUS PDMx_GetStatus(PDM_RESOURCES *PDM)
+static ARM_PDM_STATUS PDMx_GetStatus(PDM_RESOURCES *PDM_RES)
 {
-    return PDM->status;
+    return PDM_RES->status;
 }
 
 /**
-@fn          int32_t PDMx_Initialize(ARM_PDM_SignalEvent_t cb_event, PDM_RESOURCES *PDM)
+@fn          int32_t PDMx_Initialize(ARM_PDM_SignalEvent_t cb_event, PDM_RESOURCES *PDM_RES)
 @brief       Initialize the PDM interface
-@param[in]   PDM : Pointer to PDM resources
+@param[in]   PDM_RES : Pointer to PDM resources
  @return     ARM_DRIVER_ERROR_PARAMETER : if PDM device is invalid
              ARM_DRIVER_OK              : if PDM successfully initialized or already initialized
  */
-static int32_t PDMx_Initialize(ARM_PDM_SignalEvent_t cb_event, PDM_RESOURCES *PDM)
+static int32_t PDMx_Initialize(ARM_PDM_SignalEvent_t cb_event, PDM_RESOURCES *PDM_RES)
 {
     if(!cb_event)
         return ARM_DRIVER_ERROR_PARAMETER;
 
-    if(PDM->state.initialized == 1)
+    if(PDM_RES->state.initialized == 1)
     {
         return ARM_DRIVER_OK;
     }
 
     /* User call back Event */
-    PDM->cb_event = cb_event;
+    PDM_RES->cb_event = cb_event;
 
 #if PDM_DMA_ENABLE
-    if(PDM->dma_enable)
+    if(PDM_RES->dma_enable)
     {
-        PDM->dma_cfg->dma_rx.dma_handle = -1;
+        PDM_RES->dma_cfg->dma_rx.dma_handle = -1;
 
         /* Initialize DMA for PDM-Rx */
-        if(PDM_DMA_Initialize(&PDM->dma_cfg->dma_rx)!= ARM_DRIVER_OK)
+        if(PDM_DMA_Initialize(&PDM_RES->dma_cfg->dma_rx)!= ARM_DRIVER_OK)
         {
             return ARM_DRIVER_ERROR;
         }
@@ -647,59 +647,59 @@ static int32_t PDMx_Initialize(ARM_PDM_SignalEvent_t cb_event, PDM_RESOURCES *PD
 #endif
 
     /* Setting the state */
-    PDM->state.initialized = 1;
+    PDM_RES->state.initialized = 1;
 
     return ARM_DRIVER_OK;
 }
 
 /**
-@fn          int32_t PDMx_Uninitialize(PDM_RESOURCES *PDM)
+@fn          int32_t PDMx_Uninitialize(PDM_RESOURCES *PDM_RES)
 @brief       UnInitialize the PDM interface
-@param[in]   PDM : Pointer to PDM resources
+@param[in]   PDM_RES : Pointer to PDM resources
  @return     ARM_DRIVER_ERROR_PARAMETER : if PDM device is invalid
              ARM_DRIVER_OK              : if PDM successfully initialized or already initialized
  */
-static int32_t PDMx_Uninitialize(PDM_RESOURCES *PDM)
+static int32_t PDMx_Uninitialize(PDM_RESOURCES *PDM_RES)
 {
-    if(PDM->state.initialized == 0)
+    if(PDM_RES->state.initialized == 0)
         return ARM_DRIVER_OK;
 
     /* set call back to NULL */
-    PDM->cb_event = NULL;
+    PDM_RES->cb_event = NULL;
 
 #if PDM_DMA_ENABLE
-    if(PDM->dma_enable)
+    if(PDM_RES->dma_enable)
     {
-        PDM->dma_cfg->dma_rx.dma_handle = -1;
+        PDM_RES->dma_cfg->dma_rx.dma_handle = -1;
     }
 #endif
 
     /* Reset the state */
-    PDM->state.initialized = 0U;
+    PDM_RES->state.initialized = 0U;
 
     return ARM_DRIVER_OK;
 }
 
 /**
- @fn          int32_t PDMx_Channel_Config(PDM_CH_CONFIG *cnfg, PDM_RESOURCES *PDM)
+ @fn          int32_t PDMx_Channel_Config(PDM_CH_CONFIG *cnfg, PDM_RESOURCES *PDM_RES)
  @brief       PDM channel configurations
- @param[in]   PDM : Pointer to PDM resources
+ @param[in]   PDM_RES : Pointer to PDM resources
  @param[in]   cngf : Pointer to PDM_CH_CONFIG
  @return      ARM_DRIVER_OK : if function return successfully
  */
-static int32_t PDMx_Channel_Config(PDM_CH_CONFIG *cnfg, PDM_RESOURCES *PDM)
+static int32_t PDMx_Channel_Config(PDM_CH_CONFIG *cnfg, PDM_RESOURCES *PDM_RES)
 {
-    if(PDM->state.initialized == 0)
+    if(PDM_RES->state.initialized == 0)
         return ARM_DRIVER_ERROR;
 
-    if(PDM->state.powered == 0)
+    if(PDM_RES->state.powered == 0)
         return ARM_DRIVER_ERROR;
 
     /* Store the fir coefficient values */
-    pdm_set_fir_coeff(PDM->regs, cnfg->ch_num, cnfg->ch_fir_coef);
+    pdm_set_fir_coeff(PDM_RES->regs, cnfg->ch_num, cnfg->ch_fir_coef);
 
     /* Store the iir coefficient values */
-    pdm_set_ch_iir_coef(PDM->regs, cnfg->ch_num, cnfg->ch_iir_coef);
+    pdm_set_ch_iir_coef(PDM_RES->regs, cnfg->ch_num, cnfg->ch_iir_coef);
 
     return ARM_DRIVER_OK;
 }
@@ -707,17 +707,17 @@ static int32_t PDMx_Channel_Config(PDM_CH_CONFIG *cnfg, PDM_RESOURCES *PDM)
 
 /**
  @fn           int32_t PDMx_PowerControl (ARM_POWER_STATE state,
-                                          PDM_RESOURCES *PDM)
+                                          PDM_RESOURCES *PDM_RES)
  @brief        CMSIS-DRIVER PDM power control
  @param[in]    state : Power state
- @param[in]    PDM   : Pointer to PDM resources
+ @param[in]    PDM_RES   : Pointer to PDM resources
  @return       ARM_DRIVER_ERROR_PARAMETER  : if PDM device is invalid
                ARM_DRIVER_OK               : if PDM successfully uninitialized or already not initialized
  */
 static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
-                                PDM_RESOURCES *PDM)
+                                PDM_RESOURCES *PDM_RES)
 {
-    if(PDM->state.initialized == 0)
+    if(PDM_RES->state.initialized == 0)
         return ARM_DRIVER_ERROR;
 
     switch(state)
@@ -725,15 +725,15 @@ static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
     case ARM_POWER_OFF:
 
         /* Clear the fifo clear bit */
-        pdm_disable_fifo_clear(PDM->regs);
+        pdm_disable_fifo_clear(PDM_RES->regs);
 
-        if(PDM->instance == PDM_INSTANCE_LPPDM)
+        if(PDM_RES->instance == PDM_INSTANCE_LPPDM)
         {
             /* Clear Any Pending IRQ */
-            NVIC_ClearPendingIRQ(PDM->warning_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->warning_irq);
 
             /* Disable the NIVC */
-            NVIC_DisableIRQ(PDM->warning_irq);
+            NVIC_DisableIRQ(PDM_RES->warning_irq);
 
             /* Disable LPPDM clock */
             disable_lppdm_periph_clk();
@@ -741,32 +741,32 @@ static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
         else
         {
             /* Clear Any Pending IRQ */
-            NVIC_ClearPendingIRQ(PDM->warning_irq);
-            NVIC_ClearPendingIRQ(PDM->error_irq);
-            NVIC_ClearPendingIRQ(PDM->audio_detect_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->warning_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->error_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->audio_detect_irq);
 
             /* Disable the NIVC */
-            NVIC_DisableIRQ(PDM->warning_irq);
-            NVIC_DisableIRQ(PDM->error_irq);
-            NVIC_DisableIRQ(PDM->audio_detect_irq);
+            NVIC_DisableIRQ(PDM_RES->warning_irq);
+            NVIC_DisableIRQ(PDM_RES->error_irq);
+            NVIC_DisableIRQ(PDM_RES->audio_detect_irq);
 
             /* Disable PDM clock */
             disable_pdm_periph_clk();
         }
 
 #if PDM_DMA_ENABLE
-       if(PDM->dma_enable)
+       if(PDM_RES->dma_enable)
        {
             /* Disable the DMA handshake */
-            pdm_dma_handshake(PDM->regs, false);
+            pdm_dma_handshake(PDM_RES->regs, false);
 
             /* DeAllocate DMA for PDM-Rx */
-            if(PDM_DMA_DeAllocate(&PDM->dma_cfg->dma_rx) != ARM_DRIVER_OK)
+            if(PDM_DMA_DeAllocate(&PDM_RES->dma_cfg->dma_rx) != ARM_DRIVER_OK)
             {
                 return ARM_DRIVER_ERROR;
             }
             /* Power Control DMA for PDM-Rx */
-            if(PDM_DMA_PowerControl(state, &PDM->dma_cfg->dma_rx) != ARM_DRIVER_OK)
+            if(PDM_DMA_PowerControl(state, &PDM_RES->dma_cfg->dma_rx) != ARM_DRIVER_OK)
             {
                 return ARM_DRIVER_ERROR;
             }
@@ -774,28 +774,28 @@ static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
 #endif
 
         /* Reset the power status of PDM */
-        PDM->state.powered = 0;
+        PDM_RES->state.powered = 0;
 
     break;
 
     case ARM_POWER_FULL:
 
-        if(PDM->state.initialized == 0)
+        if(PDM_RES->state.initialized == 0)
             return ARM_DRIVER_ERROR;
 
-        if(PDM->state.powered == 1)
+        if(PDM_RES->state.powered == 1)
             return ARM_DRIVER_OK;
 
-        if(PDM->instance == PDM_INSTANCE_LPPDM)
+        if(PDM_RES->instance == PDM_INSTANCE_LPPDM)
         {
             /* Clear Any Pending IRQ */
-            NVIC_ClearPendingIRQ(PDM->warning_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->warning_irq);
 
             /* Set priority */
-            NVIC_SetPriority (PDM->warning_irq, PDM->warning_irq_priority);
+            NVIC_SetPriority (PDM_RES->warning_irq, PDM_RES->warning_irq_priority);
 
             /* Enable the NIVC */
-            NVIC_EnableIRQ(PDM->warning_irq);
+            NVIC_EnableIRQ(PDM_RES->warning_irq);
 
             /* Enable LPPDM clock */
             enable_lppdm_periph_clk();
@@ -803,51 +803,51 @@ static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
         else
         {
             /* Clear Any Pending IRQ */
-            NVIC_ClearPendingIRQ(PDM->warning_irq);
-            NVIC_ClearPendingIRQ(PDM->error_irq);
-            NVIC_ClearPendingIRQ(PDM->audio_detect_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->warning_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->error_irq);
+            NVIC_ClearPendingIRQ(PDM_RES->audio_detect_irq);
 
             /* Set priority */
-            NVIC_SetPriority (PDM->warning_irq, PDM->warning_irq_priority);
-            NVIC_SetPriority(PDM->error_irq, PDM->error_irq_priority);
-            NVIC_SetPriority(PDM->audio_detect_irq, PDM->audio_irq_priority);
+            NVIC_SetPriority (PDM_RES->warning_irq, PDM_RES->warning_irq_priority);
+            NVIC_SetPriority(PDM_RES->error_irq, PDM_RES->error_irq_priority);
+            NVIC_SetPriority(PDM_RES->audio_detect_irq, PDM_RES->audio_irq_priority);
 
             /* Enable the NIVC */
-            NVIC_EnableIRQ(PDM->warning_irq);
-            NVIC_EnableIRQ(PDM->error_irq);
-            NVIC_EnableIRQ(PDM->audio_detect_irq);
+            NVIC_EnableIRQ(PDM_RES->warning_irq);
+            NVIC_EnableIRQ(PDM_RES->error_irq);
+            NVIC_EnableIRQ(PDM_RES->audio_detect_irq);
 
             /* Enable PDM clock */
             enable_pdm_periph_clk();
         }
 
         /* Set the FIFO clear bit */
-        pdm_enable_fifo_clear(PDM->regs);
+        pdm_enable_fifo_clear(PDM_RES->regs);
 
         /* Set the fifo watermark value */
-        pdm_set_fifo_watermark(PDM->regs, PDM->fifo_watermark);
+        pdm_set_fifo_watermark(PDM_RES->regs, PDM_RES->fifo_watermark);
 
 #if PDM_DMA_ENABLE
-        if(PDM->dma_enable)
+        if(PDM_RES->dma_enable)
         {
             /* Power Control DMA for PDM-Rx */
-            if(PDM_DMA_PowerControl(state, &PDM->dma_cfg->dma_rx) != ARM_DRIVER_OK)
+            if(PDM_DMA_PowerControl(state, &PDM_RES->dma_cfg->dma_rx) != ARM_DRIVER_OK)
             {
                 return ARM_DRIVER_ERROR;
             }
             /* Allocate DMA for PDM-Rx */
-            if(PDM_DMA_Allocate(&PDM->dma_cfg->dma_rx) != ARM_DRIVER_OK)
+            if(PDM_DMA_Allocate(&PDM_RES->dma_cfg->dma_rx) != ARM_DRIVER_OK)
             {
                 return ARM_DRIVER_ERROR;
             }
 
             /* Enable the DMA handshake */
-            pdm_dma_handshake(PDM->regs, true);
+            pdm_dma_handshake(PDM_RES->regs, true);
       }
 #endif
 
         /* Set the power state enabled */
-        PDM->state.powered = 1;
+        PDM_RES->state.powered = 1;
 
     break;
 
@@ -862,23 +862,23 @@ static int32_t PDMx_PowerControl(ARM_POWER_STATE state,
 /**
  @fn           int32_t PDMx_Control (uint32_t control,
                                     uint32_t arg1, uint32_t arg2,
-                                    PDM_RESOURCES *PDM)
+                                    PDM_RESOURCES *PDM_RES)
  @brief        CMSIS-Driver PDM control.
                Control PDM Interface.
  @param[in]    control : Operation \ref Driver_PDM.h : PDM control codes
  @param[in]    arg1     : Argument of operation (optional)
   @param[in]   arg2     : Argument of operation (optional)
- @param[in]    PDM     : Pointer to PDM resources
+ @param[in]    PDM_RES     : Pointer to PDM resources
  @return       ARM_DRIVER_ERROR_PARAMETER  : if PDM device is invalid
                ARM_DRIVER_OK               : if PDM successfully uninitialized or already not initialized
  */
 static int32_t PDMx_Control (uint32_t control,
                              uint32_t arg1,
                              uint32_t arg2,
-                             PDM_RESOURCES *PDM)
+                             PDM_RESOURCES *PDM_RES)
 {
     /* Verify whether the driver is initialized and powered*/
-    if(PDM->state.powered == 0)
+    if(PDM_RES->state.powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -900,7 +900,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Store the channel phase control values */
-        pdm_set_ch_phase(PDM->regs, arg1, arg2 );
+        pdm_set_ch_phase(PDM_RES->regs, arg1, arg2 );
 
         break;
 
@@ -910,7 +910,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Store the Gain value */
-        pdm_set_ch_gain(PDM->regs, arg1, arg2 );
+        pdm_set_ch_gain(PDM_RES->regs, arg1, arg2 );
 
         break;
 
@@ -920,7 +920,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Store the Peak Detector Threshold */
-        pdm_set_peak_detect_th(PDM->regs, arg1, arg2 );
+        pdm_set_peak_detect_th(PDM_RES->regs, arg1, arg2 );
 
         break;
 
@@ -930,7 +930,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Store the Peak Detector Interval */
-        pdm_set_peak_detect_itv(PDM->regs, arg1, arg2 );
+        pdm_set_peak_detect_itv(PDM_RES->regs, arg1, arg2 );
 
         break;
 
@@ -940,10 +940,10 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Clear PDM channels */
-        pdm_clear_channel(PDM->regs);
+        pdm_clear_channel(PDM_RES->regs);
 
         /* Enable PDM multi channel */
-        pdm_enable_multi_ch(PDM->regs, arg1);
+        pdm_enable_multi_ch(PDM_RES->regs, arg1);
 
         break;
 
@@ -953,10 +953,10 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Clear the PDM modes */
-        pdm_clear_modes(PDM->regs);
+        pdm_clear_modes(PDM_RES->regs);
 
         /* Select the PDM modes */
-        pdm_enable_modes(PDM->regs, arg1);
+        pdm_enable_modes(PDM_RES->regs, arg1);
 
         break;
 
@@ -966,7 +966,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the Bypass IIR filter */
-        pdm_bypass_iir(PDM->regs, arg1);
+        pdm_bypass_iir(PDM_RES->regs, arg1);
 
         break;
 
@@ -976,7 +976,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the Bypass FIR filter */
-        pdm_bypass_fir(PDM->regs, arg1);
+        pdm_bypass_fir(PDM_RES->regs, arg1);
 
         break;
 
@@ -986,7 +986,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the peak detect node */
-        pdm_peak_detect(PDM->regs, arg1);
+        pdm_peak_detect(PDM_RES->regs, arg1);
 
         break;
 
@@ -996,7 +996,7 @@ static int32_t PDMx_Control (uint32_t control,
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the sample advance */
-        pdm_sample_advance(PDM->regs, arg1);
+        pdm_sample_advance(PDM_RES->regs, arg1);
 
         break;
     }
@@ -1004,64 +1004,64 @@ static int32_t PDMx_Control (uint32_t control,
 }
 
 /**
-@fn         int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM)
+@fn         int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM_RES)
 @brief      -> clear and set the fifo clear bit
             -> Store the user enabled channel
             -> Store the fifo watermark value
             -> Enable the PDM IRQ
 @param[in]  data     : Pointer storing buffer address
 @param[in]  num      : Total number of samples
-@param[in]  PDM      : Pointer to PDM resources
+@param[in]  PDM_RES      : Pointer to PDM resources
 @return     ARM_DRIVER_OK : if function return successfully
 */
-static int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM)
+static int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM_RES)
 {
-    if(PDM->state.initialized == 0)
+    if(PDM_RES->state.initialized == 0)
         return ARM_DRIVER_ERROR;
 
-    if(PDM->state.powered == 0)
+    if(PDM_RES->state.powered == 0)
         return ARM_DRIVER_ERROR;
 
     /* clear the fifo clear bit */
-    pdm_disable_fifo_clear(PDM->regs);
+    pdm_disable_fifo_clear(PDM_RES->regs);
 
-    PDM->transfer.total_cnt  = num;
-    PDM->transfer.buf        = data;
-    PDM->transfer.curr_cnt   = 0;
-    PDM->status.rx_busy      = 1;
-    PDM->status.rx_overflow  = 0;
+    PDM_RES->transfer.total_cnt  = num;
+    PDM_RES->transfer.buf        = data;
+    PDM_RES->transfer.curr_cnt   = 0;
+    PDM_RES->status.rx_busy      = 1;
+    PDM_RES->status.rx_overflow  = 0;
 
 #if PDM_DMA_ENABLE
-    if(PDM->dma_enable)
+    if(PDM_RES->dma_enable)
     {
         ARM_DMA_PARAMS dma_params;
 
-        if(!PDM_DMA_GenerateOpcode(&PDM->dma_cfg->dma_rx, PDM))
+        if(!PDM_DMA_GenerateOpcode(&PDM_RES->dma_cfg->dma_rx, PDM_RES))
         {
             return ARM_DRIVER_ERROR;
         }
 
-        if(PDM_DMA_Usermcode(&PDM->dma_cfg->dma_rx,
-                             LocalToGlobal(&PDM->dma_mcode)))
+        if(PDM_DMA_Usermcode(&PDM_RES->dma_cfg->dma_rx,
+                             LocalToGlobal(&PDM_RES->dma_mcode)))
         {
             return ARM_DRIVER_ERROR;
         }
 
         /* Start the DMA engine for sending the data to PDM */
-        dma_params.peri_reqno    = (int8_t)PDM->dma_cfg->dma_rx.dma_periph_req;
+        dma_params.peri_reqno    = (int8_t)PDM_RES->dma_cfg->dma_rx.dma_periph_req;
         dma_params.dir           = ARM_DMA_DEV_TO_MEM;
-        dma_params.cb_event      = PDM->dma_cb;
+        dma_params.cb_event      = PDM_RES->dma_cb;
         /* Enable PDM DMA */
-        pdm_dma_enable_irq(PDM->regs);
+        pdm_dma_enable_irq(PDM_RES->regs);
 
         /* Each PCM sample is represented by 16-bits resolution (2 bytes) */
         dma_params.num_bytes    = num * 2;
-        dma_params.irq_priority = PDM->dma_irq_priority;
+        dma_params.irq_priority = PDM_RES->dma_irq_priority;
         dma_params.burst_len    = 1;
         dma_params.burst_size   = BS_BYTE_4;
 
         /* Start DMA transfer */
-        if(PDM_DMA_Start(&PDM->dma_cfg->dma_rx, &dma_params) != ARM_DRIVER_OK)
+        if(PDM_DMA_Start(&PDM_RES->dma_cfg->dma_rx, &dma_params) != ARM_DRIVER_OK)
         {
             return ARM_DRIVER_ERROR;
         }
@@ -1072,24 +1072,24 @@ static int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM)
 #if PDM_BLOCKING_MODE_ENABLE
 
         /* Check if blocking mode (polling) is enabled */
-        if(PDM->blocking_mode)
+        if(PDM_RES->blocking_mode)
         {
-            pdm_transfer_t *transfer = &(PDM->transfer);
+            pdm_transfer_t *transfer = &(PDM_RES->transfer);
 
             /* Block execution until PDM receives all PCM samples */
-            pdm_receive_blocking(PDM->regs, transfer);
+            pdm_receive_blocking(PDM_RES->regs, transfer);
 
             /* Check for error detection status */
             if(transfer->status == PDM_ERROR_DETECT)
             {
-                PDM->status.rx_overflow = 1U;
+                PDM_RES->status.rx_overflow = 1U;
                 transfer->status  = PDM_CAPTURE_STATUS_NONE;
             }
 
             /* Check for capture complete status */
             if(transfer->status == PDM_CAPTURE_STATUS_COMPLETE)
             {
-                PDM->status.rx_busy = 0U;
+                PDM_RES->status.rx_busy = 0U;
                 transfer->status  = PDM_CAPTURE_STATUS_NONE;
             }
         }
@@ -1097,7 +1097,7 @@ static int32_t PDMx_Receive(void *data, uint32_t num, PDM_RESOURCES *PDM)
 #endif
         {
             /* Enable irq */
-            pdm_enable_irq(PDM->regs);
+            pdm_enable_irq(PDM_RES->regs);
         }
     }
     return ARM_DRIVER_OK;
@@ -1124,7 +1124,7 @@ static PDM_DMA_HW_CONFIG PDM0_DMA_HW_CONFIG = {
 };
 #endif
 
-static PDM_RESOURCES PDM = {
+static PDM_RESOURCES PDM_RES = {
     .cb_event              = NULL,
     .regs                  = (PDM_Type *)PDM_BASE,
     .transfer              = {0},
@@ -1152,67 +1152,67 @@ static PDM_RESOURCES PDM = {
 /* Function Name: PDM_Initialize */
 static int32_t PDM_Initialize(ARM_PDM_SignalEvent_t cb_event)
 {
-    return (PDMx_Initialize(cb_event, &PDM));
+    return (PDMx_Initialize(cb_event, &PDM_RES));
 }
 
 /* Function Name: PDM_Uninitialize */
 static int32_t PDM_Uninitialize(void)
 {
-    return (PDMx_Uninitialize(&PDM));
+    return (PDMx_Uninitialize(&PDM_RES));
 }
 
 /* Function Name: PDM_PowerControl */
 static int32_t PDM_PowerControl(ARM_POWER_STATE state)
 {
-    return (PDMx_PowerControl(state, &PDM));
+    return (PDMx_PowerControl(state, &PDM_RES));
 }
 
 /* Function Name: PDM_Channel_Config */
 static int32_t PDM_Channel_Config(PDM_CH_CONFIG *cnfg)
 {
-    return (PDMx_Channel_Config(cnfg, &PDM));
+    return (PDMx_Channel_Config(cnfg, &PDM_RES));
 }
 
 /* Function Name: PDM_Control */
 static int32_t PDM_Control(uint32_t control, uint32_t arg1, uint32_t arg2)
 {
-    return (PDMx_Control(control, arg1, arg2, &PDM));
+    return (PDMx_Control(control, arg1, arg2, &PDM_RES));
 }
 
 /* Function Name: PDM_Receive */
 static int32_t PDM_Receive(void *data, uint32_t num)
 {
-    return (PDMx_Receive(data, num, &PDM));
+    return (PDMx_Receive(data, num, &PDM_RES));
 }
 
 /*Function Name : PDM_WARNNING_IRQHANDLER */
 void PDM_WARN_IRQHandler (void)
 {
-    PDM_WARNING_IRQ_handler(&PDM);
+    PDM_WARNING_IRQ_handler(&PDM_RES);
 }
 
 /*Function Name : PDM_ERROR_IRQHandler */
 void PDM_ERROR_IRQHandler (void)
 {
-    PDM_ERROR_IRQ_handler(&PDM);
+    PDM_ERROR_IRQ_handler(&PDM_RES);
 }
 
 /*Function Name : PDM_AUDIO_DET_IRQHandler */
 void PDM_AUDIO_DET_IRQHandler (void)
 {
-    PDM_AUDIO_DETECT_IRQ_handler(&PDM);
+    PDM_AUDIO_DETECT_IRQ_handler(&PDM_RES);
 }
 
 /* Function Name: PDM_GetStatus */
 static ARM_PDM_STATUS PDM_GetStatus(void)
 {
-    return PDMx_GetStatus(&PDM);
+    return PDMx_GetStatus(&PDM_RES);
 }
 
 #if RTE_PDM_DMA_ENABLE
 void PDM_DMACallback(uint32_t event, int8_t peri_num)
 {
-    PDMx_DMACallback(event, peri_num, &PDM);
+    PDMx_DMACallback(event, peri_num, &PDM_RES);
 }
 #endif
 
@@ -1252,7 +1252,7 @@ static PDM_DMA_HW_CONFIG LPPDM_DMA_HW_CONFIG = {
 };
 #endif
 
-static PDM_RESOURCES LPPDM  = {
+static PDM_RESOURCES LPPDM_RES  = {
     .cb_event              = NULL,
     .regs                  = (PDM_Type *)LPPDM_BASE,
     .transfer              = {0},
@@ -1275,55 +1275,55 @@ static PDM_RESOURCES LPPDM  = {
 /* Function Name: LPPDM_Initialize */
 static int32_t LPPDM_Initialize(ARM_PDM_SignalEvent_t cb_event)
 {
-    return (PDMx_Initialize(cb_event, &LPPDM));
+    return (PDMx_Initialize(cb_event, &LPPDM_RES));
 }
 
 /* Function Name: LPPDM_Uninitialize */
 static int32_t LPPDM_Uninitialize(void)
 {
-    return (PDMx_Uninitialize(&LPPDM));
+    return (PDMx_Uninitialize(&LPPDM_RES));
 }
 
 /* Function Name: LPPDM_PowerControl */
 static int32_t LPPDM_PowerControl(ARM_POWER_STATE status)
 {
-    return (PDMx_PowerControl(status, &LPPDM));
+    return (PDMx_PowerControl(status, &LPPDM_RES));
 }
 
 /* Function Name: LPPDM_Control */
 static int32_t LPPDM_Control(uint32_t control, uint32_t arg1, uint32_t arg2)
 {
-    return (PDMx_Control(control, arg1, arg2, &LPPDM));
+    return (PDMx_Control(control, arg1, arg2, &LPPDM_RES));
 }
 
 /* Function Name: LPPDM_Capture */
 static int32_t LPPDM_Receive(void *data, uint32_t num)
 {
-    return (PDMx_Receive(data, num, &LPPDM));
+    return (PDMx_Receive(data, num, &LPPDM_RES));
 }
 
 /* Function Name: LPPDM_Channel_Config */
 static int32_t LPPDM_Channel_Config(PDM_CH_CONFIG *cnfg)
 {
-    return (PDMx_Channel_Config(cnfg, &LPPDM));
+    return (PDMx_Channel_Config(cnfg, &LPPDM_RES));
 }
 
 /*Function Name : LPPDM_IRQHandler */
 void LPPDM_IRQHandler (void)
 {
-    PDM_WARNING_IRQ_handler(&LPPDM);
+    PDM_WARNING_IRQ_handler(&LPPDM_RES);
 }
 
 /* Function Name: LPPDM_GetStatus */
 static ARM_PDM_STATUS LPPDM_GetStatus(void)
 {
-    return PDMx_GetStatus(&LPPDM);
+    return PDMx_GetStatus(&LPPDM_RES);
 }
 
 #if RTE_LPPDM_DMA_ENABLE
 void LPPDM_DMACallback(uint32_t event, int8_t peri_num)
 {
-    PDMx_DMACallback(event, peri_num, &LPPDM);
+    PDMx_DMACallback(event, peri_num, &LPPDM_RES);
 }
 #endif
 

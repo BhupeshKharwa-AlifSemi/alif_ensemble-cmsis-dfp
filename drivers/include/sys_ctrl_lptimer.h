@@ -25,7 +25,11 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+/* VBAT TIMER_CLKSEL field definitions */
+#define TIMER_CLKSEL_Pos                   (0U)   /* TIMER_CLKSEL bit position */
+#define TIMER_CLKSEL_Msk                   (3U << TIMER_CLKSEL_Pos)
 
 /**
  * enum LPTIMER_CLK_SRC.

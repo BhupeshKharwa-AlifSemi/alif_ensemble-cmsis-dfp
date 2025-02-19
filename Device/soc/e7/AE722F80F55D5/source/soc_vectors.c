@@ -15,7 +15,8 @@
  * Both are attached together in the linker script such that it is continous.
  */
 
- #include "core.h"
+ #include "soc.h"
+ #include "system.h"
 
 #define __WEAK_ISR          __attribute__ ((weak, alias("Default_Handler")))
 

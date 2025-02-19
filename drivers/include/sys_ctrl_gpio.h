@@ -25,7 +25,15 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define GPIO_CTRL_VOLT_1V8                 (1U << 0U)
+
+/* CLKCTL_PER_SLV GPIO_CTRLn field definitions */
+#define GPIO_CTRL_DB_CKEN                   (1U  << 12U) /* GPIO Debounce clock enable */
+#if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
+#define GPIO_CTRL_CKEN                      (1U  << 16U) /* GPIO clock enable */
+#endif
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
 /**
@@ -36,10 +44,7 @@ extern "C"
 */
 static inline void enable_gpio_clk (GPIO_INSTANCE instance)
 {
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) ((&CLKCTL_PER_SLV->GPIO_CTRL0) + instance);
-
-    /* enable EXPMST0 GPIO clock. */
-    *gpio_ctrl |= GPIO_CTRL_CKEN;
+    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_CKEN;
 }
 
 /**
@@ -50,10 +55,7 @@ static inline void enable_gpio_clk (GPIO_INSTANCE instance)
 */
 static inline void disable_gpio_clk (GPIO_INSTANCE instance)
 {
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) ((&CLKCTL_PER_SLV->GPIO_CTRL0) + instance);
-
-    /* disable EXPMST0 GPIO clock. */
-    *gpio_ctrl &= ~GPIO_CTRL_CKEN;
+    CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_CKEN;
 }
 #endif
 
@@ -65,10 +67,7 @@ static inline void disable_gpio_clk (GPIO_INSTANCE instance)
 */
 static inline void enable_gpio_debounce_clk (GPIO_INSTANCE instance)
 {
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) ((&CLKCTL_PER_SLV->GPIO_CTRL0) + instance);
-
-    /* enable EXPMST0 GPIO de-bounce clock. */
-    *gpio_ctrl |= GPIO_CTRL_DB_CKEN;
+    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_DB_CKEN;
 }
 
 /**
@@ -79,10 +78,7 @@ static inline void enable_gpio_debounce_clk (GPIO_INSTANCE instance)
 */
 static inline void disable_gpio_debounce_clk (GPIO_INSTANCE instance)
 {
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) ((&CLKCTL_PER_SLV->GPIO_CTRL0) + instance);
-
-    /* disable EXPMST0 GPIO de-bounce clock. */
-    *gpio_ctrl &= ~GPIO_CTRL_DB_CKEN;
+    CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_DB_CKEN;
 }
 
 /**
@@ -94,10 +90,7 @@ static inline void disable_gpio_debounce_clk (GPIO_INSTANCE instance)
 */
 static inline void set_gpio_debounce_clkdiv (uint16_t clk_div, GPIO_INSTANCE instance)
 {
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) ((&CLKCTL_PER_SLV->GPIO_CTRL0) + instance);
-
-    /* config debounce clock divisor */
-    *gpio_ctrl |= clk_div;
+    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= clk_div;
 }
 
 /**

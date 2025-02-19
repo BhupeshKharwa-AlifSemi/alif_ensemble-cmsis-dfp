@@ -17,12 +17,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
-
-typedef struct {                                     /*!< (@ HWSEM Structure                                                       */
-    volatile uint32_t  HWSEM_REQ_REG;                /*!< (@ 0x00000000) Request register                                           */
-    volatile uint32_t  HWSEM_REL_REG;                /*!< (@ 0x00000004) Release register                                           */
-    volatile uint32_t  HWSEM_RST_REG;                /*!< (@ 0x00000008) Reset register                                             */
-} HWSEM_Type;
+#include "soc.h"
 
 /**
   \fn          static inline uint32_t hwsem_request(HWSEM_Type *hwsem, uint32_t master_id)

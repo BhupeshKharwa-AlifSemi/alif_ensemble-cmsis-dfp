@@ -24,7 +24,21 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define PERIPH_CLK_ENA_CPI_CKEN                (1U << 0)  /* Enable clock supply for CPI */
+
+/* CLKCTL_PER_MST CAMERA_PIXCLK_CTRL field definitions */
+#define CAMERA_PIXCLK_CTRL_CKEN                (1U << 0) /* Camera Pixel clock enables */
+#define CAMERA_PIXCLK_CTRL_CLK_SEL             (1U << 4) /* Camera Pixel clock select  */
+#define CAMERA_PIXCLK_CTRL_DIVISOR_Pos         16U       /* Camera Pixel clock divisor */
+#define CAMERA_PIXCLK_CTRL_DIVISOR_Msk         (0x1FF << CAMERA_PIXCLK_CTRL_DIVISOR_Pos)
+
+#define HE_CLK_ENA_LPCPI_CKEN                  (1U << 12)   /* Enable LPCPI clock */
+
+#define HE_CAMERA_PIXCLK_CTRL_CKEN             (1U << 0)
+#define HE_CAMERA_PIXCLK_CTRL_DIVISOR_Pos      16U
+#define HE_CAMERA_PIXCLK_CTRL_DIVISOR_Msk      (0x1FF << HE_CAMERA_PIXCLK_CTRL_DIVISOR_Pos)
 
 /**
  * enum CPI_PIX_CLKSEL

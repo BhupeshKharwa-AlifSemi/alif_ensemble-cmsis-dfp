@@ -27,92 +27,9 @@ extern "C" {
 #endif
 
 /* Includes */
-#include "RTE_Device.h"
-#include "RTE_Components.h"
-#include CMSIS_device_header
 #include "stdint.h"
+#include "soc.h"
 
-/* =========================================================================================================================== */
-/* ================                                           SDMMC                                           ================ */
-/* =========================================================================================================================== */
-
-/**
-  * @brief SDMMC (SDMMC)
-  */
-
-typedef struct _SDMMC_Type {                              /*!< (SDMMC Structure                                                          */
-  volatile uint32_t         SDMMC_SDMASA_R;               /*!< (@ 0x00000000) SDMA System Address Register                               */
-  volatile uint16_t         SDMMC_BLOCKSIZE_R;            /*!< (@ 0x00000004) Block Size Register                                        */
-  volatile uint16_t         SDMMC_BLOCKCOUNT_R;           /*!< (@ 0x00000006) 16-bit Block Count Register                                */
-  volatile uint32_t         SDMMC_ARGUMENT_R;             /*!< (@ 0x00000008) Argument Register                                          */
-  volatile uint16_t         SDMMC_XFER_MODE_R;            /*!< (@ 0x0000000C) Transfer Mode Register                                     */
-  volatile uint16_t         SDMMC_CMD_R;                  /*!< (@ 0x0000000E) Command Register                                           */
-  volatile const uint32_t   SDMMC_RESP01_R;               /*!< (@ 0x00000010) Response Register 0/1                                      */
-  volatile const uint32_t   SDMMC_RESP23_R;               /*!< (@ 0x00000014) Response Register 2/3                                      */
-  volatile const uint32_t   SDMMC_RESP45_R;               /*!< (@ 0x00000018) Response Register 4/5                                      */
-  volatile const uint32_t   SDMMC_RESP67_R;               /*!< (@ 0x0000001C) Response Register 6/7                                      */
-  volatile uint32_t         SDMMC_BUF_DATA_R;             /*!< (@ 0x00000020) Buffer Data Port Register                                  */
-  volatile const uint32_t   SDMMC_PSTATE_REG;             /*!< (@ 0x00000024) Present State Register                                     */
-  volatile uint8_t          SDMMC_HOST_CTRL1_R;           /*!< (@ 0x00000028) Host Control 1 Register                                    */
-  volatile uint8_t          SDMMC_PWR_CTRL_R;             /*!< (@ 0x00000029) Power Control Register                                     */
-  volatile uint8_t          SDMMC_BGAP_CTRL_R;            /*!< (@ 0x0000002A) Block Gap Control Register                                 */
-  volatile uint8_t          SDMMC_WUP_CTRL_R;             /*!< (@ 0x0000002B) Wakeup Control Register                                    */
-  volatile uint16_t         SDMMC_CLK_CTRL_R;             /*!< (@ 0x0000002C) Clock Control Register                                     */
-  volatile uint8_t          SDMMC_TOUT_CTRL_R;            /*!< (@ 0x0000002E) Timeout Control Register                                   */
-  volatile uint8_t          SDMMC_SW_RST_R;               /*!< (@ 0x0000002F) Software Reset Register                                    */
-  volatile uint16_t         SDMMC_NORMAL_INT_STAT_R;      /*!< (@ 0x00000030) Normal Interrupt Status Register                           */
-  volatile uint16_t         SDMMC_ERROR_INT_STAT_R;       /*!< (@ 0x00000032) Error Interrupt Status Register                            */
-  volatile uint16_t         SDMMC_NORMAL_INT_STAT_EN_R;   /*!< (@ 0x00000034) Normal Interrupt Status Enable Register                    */
-  volatile uint16_t         SDMMC_ERROR_INT_STAT_EN_R;    /*!< (@ 0x00000036) Error Interrupt Status Enable Register                     */
-  volatile uint16_t         SDMMC_NORMAL_INT_SIGNAL_EN_R; /*!< (@ 0x00000038) Normal Interrupt Signal Enable Register                    */
-  volatile uint16_t         SDMMC_ERROR_INT_SIGNAL_EN_R;  /*!< (@ 0x0000003A) Error Interrupt Signal Enable Register                     */
-  volatile const uint16_t   SDMMC_AUTO_CMD_STAT_R;        /*!< (@ 0x0000003C) Auto CMD Status Register                                   */
-  volatile uint16_t         SDMMC_HOST_CTRL2_R;           /*!< (@ 0x0000003E) Host Control 2 Register                                    */
-  volatile const uint32_t   SDMMC_CAPABILITIES1_R;        /*!< (@ 0x00000040) Capabilities 1 Register (0 to 31)                          */
-  volatile const uint32_t   SDMMC_CAPABILITIES2_R;        /*!< (@ 0x00000044) Capabilities 2 Register (32 to 63)                         */
-  volatile const uint32_t   SDMMC_CURR_CAPABILITIES1_R;   /*!< (@ 0x00000048) Maximum Current Capabilities 1 Register (0 to
-                                                                              31)                                                        */
-  volatile const uint32_t   RESERVED;
-  volatile uint16_t         SDMMC_FORCE_AUTO_CMD_STAT_R;  /*!< (@ 0x00000050) Force Event Register for Auto CMD Error Status             */
-  volatile uint16_t         SDMMC_FORCE_ERROR_INT_STAT_R; /*!< (@ 0x00000052) Force Event Register for Error Interrupt Status            */
-  volatile const uint8_t    SDMMC_ADMA_ERR_STAT_R;        /*!< (@ 0x00000054) ADMA Error Status Register                                 */
-  volatile const uint8_t    RESERVED1;
-  volatile const uint16_t   RESERVED2;
-  volatile uint32_t         SDMMC_ADMA_SA_LOW_R;          /*!< (@ 0x00000058) ADMA System Address Register (Low)                         */
-  volatile const uint32_t   RESERVED3;
-  volatile const uint16_t   SDMMC_PRESET_INIT_R;          /*!< (@ 0x00000060) Register with Preset Value for Initialization              */
-  volatile const uint16_t   SDMMC_PRESET_DS_R;            /*!< (@ 0x00000062) Register with Preset Value for Default Speed               */
-  volatile const uint16_t   SDMMC_PRESET_HS_R;            /*!< (@ 0x00000064) Register with Preset Value for High Speed                  */
-  volatile const uint16_t   SDMMC_PRESET_SDR12_R;         /*!< (@ 0x00000066) Register with Preset Value for SDR12                       */
-  volatile const uint16_t   SDMMC_PRESET_SDR25_R;         /*!< (@ 0x00000068) Register with Preset Value for SDR25                       */
-  volatile const uint16_t   SDMMC_PRESET_SDR50_R;         /*!< (@ 0x0000006A) Register with Preset Value for SDR50                       */
-  volatile const uint32_t   RESERVED4[3];
-  volatile uint32_t         SDMMC_ADMA_ID_LOW_R;          /*!< (@ 0x00000078) ADMA3 Integrated Descriptor Address Register
-                                                                              (Low)                                                      */
-  volatile const uint32_t   RESERVED5[27];
-  volatile const uint16_t   SDMMC_P_VENDOR_SPECIFIC_AREA; /*!< (@ 0x000000E8) Pointer for Vendor Specific Area 1                         */
-  volatile const uint16_t   RESERVED6;
-  volatile const uint32_t   RESERVED7[4];
-  volatile const uint16_t   SDMMC_SLOT_INTR_STATUS_R;     /*!< (@ 0x000000FC) Slot Interrupt Status Register                             */
-  volatile const uint16_t   SDMMC_HOST_CNTRL_VERS_R;      /*!< (@ 0x000000FE) Reserved                                                   */
-  volatile const uint32_t   RESERVED8[256];
-  volatile const uint32_t   SDMMC_MSHC_VER_ID_R;          /*!< (@ 0x00000500) Reserved                                                   */
-  volatile const uint32_t   SDMMC_MSHC_VER_TYPE_R;        /*!< (@ 0x00000504) Reserved                                                   */
-  volatile uint8_t          SDMMC_MSHC_CTRL_R;            /*!< (@ 0x00000508) SDMMC Host Controller Control Register                     */
-  volatile const uint8_t    RESERVED9;
-  volatile const uint16_t   RESERVED10;
-  volatile const uint32_t   RESERVED11;
-  volatile uint8_t          SDMMC_MBIU_CTRL_R;            /*!< (@ 0x00000510) Master Bus Interface Unit Control Register                 */
-  volatile const uint8_t    RESERVED12;
-  volatile const uint16_t   RESERVED13;
-  volatile const uint32_t   RESERVED14[6];
-  volatile uint16_t         SDMMC_EMMC_CTRL_R;            /*!< (@ 0x0000052C) eMMC Control Register                                      */
-  volatile uint16_t         SDMMC_BOOT_CTRL_R;            /*!< (@ 0x0000052E) eMMC Boot Control Register                                 */
-  volatile const  uint32_t  RESERVED15[655];
-  volatile uint32_t         SDMMC_EMBEDDED_CTRL_R;        /*!< (@ 0x00000F6C) Embedded Control Register                                  */
-} SDMMC_Type;                                             /*!< Size = 3952 (0xf70)                                                       */
-
-#define SDMMC                                   ((SDMMC_Type *) SDMMC_BASE)
 #define SDMMC_HC_VERSION_REG                    (SDMMC_BASE + 0xFEU)
 #define SDMMC_HC_VERSION_REG_Msk                0xFFFFU
 #define SDMMC_IRQ_NUM                           SDMMC_IRQ_IRQn

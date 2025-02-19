@@ -23,12 +23,31 @@
 #define SYS_CTRL_CANFD_H_
 
 #include <stdbool.h>
-#include "peripheral_types.h"
 #include "RTE_Device.h"
+#include "soc.h"
 
 #define CANFD_CLK_SRC_38P4MHZ_CLK           38400000U                        /* 38.4 MHz */
 #define CANFD_CLK_SRC_160MHZ_CLK            160000000U                       /* 160 MHz  */
 #define CANFD_MAX_CLK_SPEED                 (CANFD_CLK_SRC_160MHZ_CLK / 2U)  /* 80 MHz   */
+
+/* CLKCTL_PER_SLV CANFD_CTRL CANFD Control field definitions */
+#if SOC_FEAT_CANFD0_CANFD1_CTRL
+#define CANFD1_CTRL_FD_ENA                   (1U << 26U)                    /* CANFD1 FD Enable                        */
+#define CANFD1_CTRL_CLK_SEL_Pos              (25U)                          /* CANFD1 Clock Selection                  */
+#define CANFD1_CTRL_CKEN                     (1U << 24U)                    /* CANFD1 Clock Enable                     */
+#define CANFD1_CTRL_CKDIV_Pos                (16U)                          /* CANFD1 Clock Divisor position           */
+
+#define CANFD0_CTRL_FD_ENA                   (1U << 10U)                    /* CANFD0 FD Enable                        */
+#define CANFD0_CTRL_CLK_SEL_Pos              (9U)                           /* CANFD0 Clock Selection                  */
+#define CANFD0_CTRL_CKEN                     (1U << 8U)                     /* CANFD0 Clock Enable                     */
+#define CANFD0_CTRL_CKDIV_Pos                (0U)                           /* CANFD0 Clock Divisor position           */
+
+#else
+#define CANFD0_CTRL_FD_ENA                   (1U << 20U)                    /* CANFD0 FD Enable                        */
+#define CANFD0_CTRL_CLK_SEL_Pos              (16U)                          /* CANFD0 Clock Selection                  */
+#define CANFD0_CTRL_CKEN                     (1U << 12U)                    /* CANFD0 Clock Enable                     */
+#define CANFD0_CTRL_CKDIV_Pos                (0U)                           /* CANFD0 Clock Divisor position           */
+#endif
 
 typedef enum _CANFD_INSTANCE
 {

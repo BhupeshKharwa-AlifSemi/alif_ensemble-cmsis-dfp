@@ -21,98 +21,12 @@
 #define CSI_H_
 
 #include <stdint.h>
+#include <soc.h>
 
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
-
-/**
-  * @brief CSI (CSI)
-  */
-typedef struct {                                           /*!< (@ 0x49033000) CSI Structure                                     */
-    volatile       uint32_t  CSI_VERSION;                  /*!< (@ 0x00000000) Reserved                                          */
-    volatile       uint32_t  CSI_N_LANES;                  /*!< (@ 0x00000004) Lane Configuration Register                       */
-    volatile       uint32_t  CSI_CSI2_RESETN;              /*!< (@ 0x00000008) CSI Controller Reset Control Register             */
-    volatile const uint32_t  CSI_INT_ST_MAIN;              /*!< (@ 0x0000000C) Main Interrupt Status Register                    */
-    volatile       uint32_t  CSI_DATA_IDS_1;               /*!< (@ 0x00000010) DT Data ID Monitors Configuration Register        */
-    volatile const uint32_t  RESERVED[7];
-    volatile       uint32_t  CSI_DATA_IDS_VC_1;            /*!< (@ 0x00000030) VC Data ID Monitors Configuration Register        */
-    volatile const uint32_t  RESERVED1[3];
-    volatile       uint32_t  CSI_PHY_SHUTDOWNZ;            /*!< (@ 0x00000040) PHY Shutdown Control Register                     */
-    volatile       uint32_t  CSI_DPHY_RSTZ;                /*!< (@ 0x00000044) PHY Reset Control Register                        */
-    volatile       uint32_t  CSI_PHY_RX;                   /*!< (@ 0x00000048) PHY RX Signals Status Register                    */
-    volatile const uint32_t  CSI_PHY_STOPSTATE;            /*!< (@ 0x0000004C) PHY STOPSTATE Signal Status Register              */
-    volatile       uint32_t  CSI_PHY_TEST_CTRL0;           /*!< (@ 0x00000050) PHY Test Control 0 Register                       */
-    volatile       uint32_t  CSI_PHY_TEST_CTRL1;           /*!< (@ 0x00000054) PHY Test Control 1 Register                       */
-    volatile const uint32_t  RESERVED2[10];
-    volatile       uint32_t  CSI_IPI_MODE;                 /*!< (@ 0x00000080) IPI Mode Selection Register                       */
-    volatile       uint32_t  CSI_IPI_VCID;                 /*!< (@ 0x00000084) IPI VC Selection Register                         */
-    volatile       uint32_t  CSI_IPI_DATA_TYPE;            /*!< (@ 0x00000088) IPI DT Selection Register                         */
-    volatile       uint32_t  CSI_IPI_MEM_FLUSH;            /*!< (@ 0x0000008C) IPI Memory Flush Control Register                 */
-    volatile       uint32_t  CSI_IPI_HSA_TIME;             /*!< (@ 0x00000090) IPI HSA Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_HBP_TIME;             /*!< (@ 0x00000094) IPI HBP Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_HSD_TIME;             /*!< (@ 0x00000098) IPI HSD Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_HLINE_TIME;           /*!< (@ 0x0000009C) IPI HLINE Configuration Register                  */
-    volatile       uint32_t  CSI_IPI_SOFTRSTN;             /*!< (@ 0x000000A0) IPI Reset Control Register                        */
-    volatile const uint32_t  RESERVED3[2];
-    volatile       uint32_t  CSI_IPI_ADV_FEATURES;         /*!< (@ 0x000000AC) IPI Advanced Features Configuration Register      */
-    volatile       uint32_t  CSI_IPI_VSA_LINES;            /*!< (@ 0x000000B0) IPI VSA Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_VBP_LINES;            /*!< (@ 0x000000B4) IPI VBP Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_VFP_LINES;            /*!< (@ 0x000000B8) IPI VFP Configuration Register                    */
-    volatile       uint32_t  CSI_IPI_VACTIVE_LINES;        /*!< (@ 0x000000BC) IPI VACTIVE Configuration Register                */
-    volatile const uint32_t  RESERVED4[2];
-    volatile       uint32_t  CSI_VC_EXTENSION;             /*!< (@ 0x000000C8) VC Extension Configuration Register               */
-    volatile       uint32_t  CSI_PHY_CAL;                  /*!< (@ 0x000000CC) PHY CALIBRATION Signal Status Register            */
-    volatile const uint32_t  RESERVED5[4];
-    volatile const uint32_t  CSI_INT_ST_PHY_FATAL;         /*!< (@ 0x000000E0) PHY Packet Discarded Interrupt Status Register    */
-    volatile       uint32_t  CSI_INT_MSK_PHY_FATAL;        /*!< (@ 0x000000E4) PHY Packet Discarded Interrupt Mask Register      */
-    volatile       uint32_t  CSI_INT_FORCE_PHY_FATAL;      /*!< (@ 0x000000E8) PHY Packet Discarded Interrupt Force Register     */
-    volatile const uint32_t  RESERVED6;
-    volatile const uint32_t  CSI_INT_ST_PKT_FATAL;         /*!< (@ 0x000000F0) PHY Packet Construction Interrupt Status Register */
-    volatile       uint32_t  CSI_INT_MSK_PKT_FATAL;        /*!< (@ 0x000000F4) PHY Packet Construction Interrupt Mask Register   */
-    volatile       uint32_t  CSI_INT_FORCE_PKT_FATAL;      /*!< (@ 0x000000F8) PHY Packet Construction Interrupt Force Register  */
-    volatile const uint32_t  RESERVED7[5];
-    volatile const uint32_t  CSI_INT_ST_PHY;               /*!< (@ 0x00000110) PHY Interrupt Status Register                     */
-    volatile       uint32_t  CSI_INT_MSK_PHY;              /*!< (@ 0x00000114) PHY Interrupt Mask Register                       */
-    volatile       uint32_t  CSI_INT_FORCE_PHY;            /*!< (@ 0x00000118) PHY Interrupt Force Register                      */
-    volatile const uint32_t  RESERVED8[5];
-    volatile const uint32_t  CSI_INT_ST_LINE;              /*!< (@ 0x00000130) PHY Line Construction Interrupt Status Register   */
-    volatile       uint32_t  CSI_INT_MSK_LINE;             /*!< (@ 0x00000134) PHY Line Construction Interrupt Mask Register     */
-    volatile       uint32_t  CSI_INT_FORCE_LINE;           /*!< (@ 0x00000138) PHY Line Construction Interrupt Force Register    */
-    volatile const uint32_t  RESERVED9;
-    volatile const uint32_t  CSI_INT_ST_IPI_FATAL;         /*!< (@ 0x00000140) IPI Interface Interrupt Status Register           */
-    volatile       uint32_t  CSI_INT_MSK_IPI_FATAL;        /*!< (@ 0x00000144) IPI Interface Interrupt Mask Register             */
-    volatile       uint32_t  CSI_INT_FORCE_IPI_FATAL;      /*!< (@ 0x00000148) IPI Interface Interrupt Force Register            */
-    volatile const uint32_t  RESERVED10[77];
-    volatile const uint32_t  CSI_INT_ST_BNDRY_FRAME_FATAL; /*!< (@ 0x00000280) Frame Boundary Error Interrupt Status Register    */
-    volatile       uint32_t  CSI_INT_MSK_BNDRY_FRAME_FATAL;/*!< (@ 0x00000284) Frame Boundary Error Interrupt Mask Register      */
-    volatile       uint32_t  CSI_INT_FORCE_BNDRY_FRAME_FATAL;/*!< (@ 0x00000288) Frame Boundary Error Interrupt Force Register   */
-    volatile const uint32_t  RESERVED11;
-    volatile const uint32_t  CSI_INT_ST_SEQ_FRAME_FATAL;   /*!< (@ 0x00000290) Frame Sequence Error Interrupt Status Register    */
-    volatile       uint32_t  CSI_INT_MSK_SEQ_FRAME_FATAL;  /*!< (@ 0x00000294) Frame Sequence Error Interrupt Mask Register      */
-    volatile       uint32_t  CSI_INT_FORCE_SEQ_FRAME_FATAL;/*!< (@ 0x00000298) Frame Sequence Error Interrupt Force Register     */
-    volatile const uint32_t  RESERVED12;
-    volatile const uint32_t  CSI_INT_ST_CRC_FRAME_FATAL;   /*!< (@ 0x000002A0) Frame CRC Error Interrupt Status Register         */
-    volatile       uint32_t  CSI_INT_MSK_CRC_FRAME_FATAL;  /*!< (@ 0x000002A4) Frame CRC Error Interrupt Mask Register           */
-    volatile       uint32_t  CSI_INT_FORCE_CRC_FRAME_FATAL;/*!< (@ 0x000002A8) Frame CRC Error Interrupt Force Register          */
-    volatile const uint32_t  RESERVED13;
-    volatile const uint32_t  CSI_INT_ST_PLD_CRC_FATAL;     /*!< (@ 0x000002B0) Frame Payload Error Interrupt Status Register     */
-    volatile       uint32_t  CSI_INT_MSK_PLD_CRC_FATAL;    /*!< (@ 0x000002B4) Frame Payload Error Interrupt Mask Register       */
-    volatile       uint32_t  CSI_INT_FORCE_PLD_CRC_FATAL;  /*!< (@ 0x000002B8) Frame Payload Error Interrupt Force Register      */
-    volatile const uint32_t  RESERVED14;
-    volatile const uint32_t  CSI_INT_ST_DATA_ID;           /*!< (@ 0x000002C0) DT Error Interrupt Status Register                */
-    volatile       uint32_t  CSI_INT_MSK_DATA_ID;          /*!< (@ 0x000002C4) DT Error Interrupt Mask Register                  */
-    volatile       uint32_t  CSI_INT_FORCE_DATA_ID;        /*!< (@ 0x000002C8) DT Error Interrupt Force Register                 */
-    volatile const uint32_t  RESERVED15;
-    volatile const uint32_t  CSI_INT_ST_ECC_CORRECT;       /*!< (@ 0x000002D0) ECC Interrupt Status Register                     */
-    volatile       uint32_t  CSI_INT_MSK_ECC_CORRECT;      /*!< (@ 0x000002D4) ECC Interrupt Mask Register                       */
-    volatile       uint32_t  CSI_INT_FORCE_ECC_CORRECT;    /*!< (@ 0x000002D8) ECC Interrupt Force Register                      */
-    volatile const uint32_t  RESERVED16[9];
-    volatile       uint32_t  CSI_SCRAMBLING;               /*!< (@ 0x00000300) Descrambling Control Register                     */
-    volatile       uint32_t  CSI_SCRAMBLING_SEED1;         /*!< (@ 0x00000304) Descrambling Seed Configuration Lane 0 Register   */
-    volatile       uint32_t  CSI_SCRAMBLING_SEED2;         /*!< (@ 0x00000308) Descrambling Seed Configuration Lane 1 Register   */
-} CSI_Type;                                                /*!< Size = 780 (0x30c)                                               */
 
 /* CSI2 Parameters */
 #define CSI_IPI_FIFO_DEPTH                           1024
@@ -1031,7 +945,7 @@ static inline void csi_clear_dt_err_intr_mask(CSI_Type *csi)
 */
 static inline uint32_t csi_get_ecc_intr_status(CSI_Type *csi)
 {
-    return csi->CSI_INT_ST_ECC_CORRECT ;
+    return csi->CSI_INT_ST_ECC_CORRECTED;
 }
 
 /**
@@ -1042,7 +956,7 @@ static inline uint32_t csi_get_ecc_intr_status(CSI_Type *csi)
 */
 static inline void csi_set_ecc_intr_mask(CSI_Type *csi)
 {
-    csi->CSI_INT_MSK_ECC_CORRECT |= CSI_INT_ECC_CORRECT_MASK;
+    csi->CSI_INT_MSK_ECC_CORRECTED |= CSI_INT_ECC_CORRECT_MASK;
 }
 
 /**
@@ -1053,7 +967,7 @@ static inline void csi_set_ecc_intr_mask(CSI_Type *csi)
 */
 static inline void csi_clear_ecc_intr_mask(CSI_Type *csi)
 {
-    csi->CSI_INT_MSK_ECC_CORRECT = 0;
+    csi->CSI_INT_MSK_ECC_CORRECTED = 0;
 }
 
 /**

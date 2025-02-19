@@ -25,7 +25,14 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define PERIPH_CLK_ENA_CSI_CKEN                (1U << 24) /* Enable clock supply for CSI */
+
+#define CSI_PIXCLK_CTRL_CKEN                   (0x1U << 0) /* CSI Pixel clock enables */
+#define CSI_PIXCLK_CTRL_CLK_SEL                (0x1U << 4) /* CSI Pixel clock select  */
+#define CSI_PIXCLK_CTRL_DIVISOR_Pos            16U         /* CSI Pixel clock divisor */
+#define CSI_PIXCLK_CTRL_DIVISOR_Msk            (0x1FF << CSI_PIXCLK_CTRL_DIVISOR_Pos)
 
 /**
  * enum CSI_PIX_CLKSEL

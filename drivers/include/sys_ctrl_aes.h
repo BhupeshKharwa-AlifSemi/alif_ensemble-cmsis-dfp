@@ -22,13 +22,18 @@
 #ifndef SYS_CTRL_AES_H
 #define SYS_CTRL_AES_H
 
-#include <stdint.h>
-#include "peripheral_types.h"
+#include "soc.h"
 
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
+
+#define AES_CONTROL_DECRYPT_EN                  (1U << 0)
+#define AES_CONTROL_RESET_LOGIC                 (1U << 1)
+#define AES_CONTROL_XIP_EN                      (1U << 4)
+#define AES_CONTROL_LD_KEY                      (1U << 7)
+
 static inline void aes_set_rxds_delay(AES_Type *aes, uint8_t rxds_delay)
 {
     aes->AES_RXDS_DELAY = rxds_delay;

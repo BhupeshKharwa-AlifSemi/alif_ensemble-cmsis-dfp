@@ -12,7 +12,7 @@
 #define SYS_CTRL_I3C_H
 
 #include <stdint.h>
-#include "peripheral_types.h"
+#include "soc.h"
 
 
 static inline void enable_i3c_clock(void)

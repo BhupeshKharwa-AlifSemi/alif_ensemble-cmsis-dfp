@@ -8,7 +8,8 @@
  *
  */
 
-#include "core.h"
+#include "soc.h"
+#include "system.h"
 
 /*----------------------------------------------------------------------------
   External References

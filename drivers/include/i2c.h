@@ -18,69 +18,7 @@ extern "C"
 
 #include <stdbool.h>
 #include <stdint.h>
-
-/* i2c register set */
-typedef struct {
-    volatile uint32_t  I2C_CON;                      /*!< (@ 0x00000000) Control Register                                           */
-    volatile uint32_t  I2C_TAR;                      /*!< (@ 0x00000004) Target Address Register                                    */
-    volatile uint32_t  I2C_SAR;                      /*!< (@ 0x00000008) Slave Address Register                                     */
-    volatile uint32_t ic_hs_maddr;                   /* (0x0c) : I2C HS Master Mode Code address          */
-    volatile uint32_t  I2C_DATA_CMD;                 /*!< (@ 0x00000010) Rx/Tx Data Buffer and Command Register                     */
-
-    volatile uint32_t I2C_SS_SCL_HCNT;               /*!< (@ 0x00000014) Standard Speed SCL High Count Register                     */
-    volatile uint32_t I2C_SS_SCL_LCNT;               /* (0x18) : Standard Speed I2C clock SCL Low Count   */
-    volatile uint32_t I2C_FS_SCL_HCNT;               /*!< (@ 0x0000001C) Fast Mode or Fast Mode Plus SCL High Count Register        */
-    volatile uint32_t I2C_FS_SCL_LCNT;               /*!< (@ 0x00000020) Fast Mode or Fast Mode Plus SCL Low Count Register         */
-    volatile uint32_t ic_hs_scl_hcnt;                /* (0x24) : High Speed I2C clock SCL Low Count       */
-    volatile uint32_t ic_hs_scl_lcnt;                /* (0x28) : High Speed I2C clock SCL Low Count       */
-
-    volatile const uint32_t  I2C_INTR_STAT;          /*!< (@ 0x0000002C) Interrupt Status Register                                  */
-    volatile       uint32_t  I2C_INTR_MASK;          /*!< (@ 0x00000030) Interrupt Mask Register                                    */
-    volatile const uint32_t  I2C_RAW_INTR_STAT;      /*!< (@ 0x00000034) Raw Interrupt Status Register                              */
-
-    volatile       uint32_t  I2C_RX_TL;              /*!< (@ 0x00000038) Receive FIFO Threshold Register                            */
-    volatile       uint32_t  I2C_TX_TL;              /*!< (@ 0x0000003C) Transmit FIFO Threshold Register                           */
-
-    volatile const   uint32_t  I2C_CLR_INTR;         /*!< (@ 0x00000040) Clear Combined and Individual Interrupt Register           */
-    volatile const   uint32_t  I2C_CLR_RX_UNDER;     /*!< (@ 0x00000044) Clear RX_UNDER Interrupt Register                          */
-    volatile const   uint32_t  I2C_CLR_RX_OVER;      /*!< (@ 0x00000048) Clear RX_OVER Interrupt Register                           */
-    volatile const   uint32_t  I2C_CLR_TX_OVER;      /*!< (@ 0x0000004C) Clear TX_OVER Interrupt Register                           */
-    volatile const   uint32_t  I2C_CLR_RD_REQ;       /*!< (@ 0x00000050) Clear RD_REQ Interrupt Register                            */
-    volatile const   uint32_t  I2C_CLR_TX_ABRT;      /*!< (@ 0x00000054) Clear TX_ABRT Interrupt Register                           */
-    volatile const   uint32_t  I2C_CLR_RX_DONE;      /*!< (@ 0x00000058) Clear RX_DONE Interrupt Register                           */
-    volatile const   uint32_t  I2C_CLR_ACTIVITY;     /*!< (@ 0x0000005C) Clear ACTIVITY Interrupt Register                          */
-    volatile const   uint32_t  I2C_CLR_STOP_DET;     /*!< (@ 0x00000060) Clear STOP_DET Interrupt Register                          */
-    volatile const   uint32_t  I2C_CLR_START_DET;    /*!< (@ 0x00000064) Clear START_DET Interrupt Register                         */
-    volatile const   uint32_t  I2C_CLR_GEN_CALL;     /*!< (@ 0x00000068) Clear GEN_CALL Interrupt Register                          */
-
-    volatile       uint32_t  I2C_ENABLE;             /*!< (@ 0x0000006C) Enable Register                                            */
-    volatile const uint32_t  I2C_STATUS;             /*!< (@ 0x00000070) Status Register                                            */
-    volatile const uint32_t  I2C_TXFLR;              /*!< (@ 0x00000074) Transmit FIFO Level Register                               */
-    volatile const uint32_t  I2C_RXFLR;              /*!< (@ 0x00000078) Receive FIFO Level Register                                */
-    volatile uint32_t  I2C_SDA_HOLD;                 /*!< (@ 0x0000007C) SDA Hold Time Length Register                              */
-    volatile const uint32_t  I2C_TX_ABRT_SOURCE;     /*!< (@ 0x00000080) Transmit Abort Source Register                             */
-    volatile uint32_t ic_slv_data_nack_only;         /* (0x84) : Generate SLV_DATA_NACK Register          */
-
-    volatile uint32_t  I2C_DMA_CR;                   /*!< (@ 0x00000088) DMA Control Register                                       */
-    volatile uint32_t  I2C_DMA_TDLR;                 /*!< (@ 0x0000008C) DMA Transmit Data Level Register                           */
-    volatile uint32_t  I2C_DMA_RDLR;                 /*!< (@ 0x00000090) DMA Transmit Data Level Register                           */
-
-    volatile uint32_t  I2C_SDA_SETUP;                /*!< (@ 0x00000094) SDA Setup Register                                         */
-    volatile uint32_t  I2C_ACK_GENERAL_CALL;         /*!< (@ 0x00000098) ACK General Call Register                                  */
-    volatile const uint32_t  I2C_ENABLE_STATUS;      /*!< (@ 0x0000009C) Enable Status Register                                     */
-
-    volatile uint32_t  I2C_FS_SPKLEN;                /*!< (@ 0x000000A0) SS, FS or FM+ Spike Suppression Limit Register             */
-    volatile uint32_t reserved[2];
-    volatile uint32_t  I2C_SCL_STUCK_AT_LOW_TIMEOUT; /*!< (@ 0x000000AC) SCL Stuck at Low Timeout Register                          */
-    volatile uint32_t  I2C_SDA_STUCK_AT_LOW_TIMEOUT; /*!< (@ 0x000000B0) SDA Stuck at Low Timeout Register                          */
-    volatile const uint32_t  I2C_CLR_SCL_STUCK_DET;  /*!< (@ 0x000000B4) Clear SCL Stuck at Low Detect Interrupt Register           */
-    volatile const uint32_t  I2C_DEVICE_ID;          /*!< (@ 0x000000B8) Device-ID Register                                         */
-    volatile const uint32_t RESERVED4[13];
-    volatile uint32_t  I2C_REG_TIMEOUT_RST;          /*!< (@ 0x000000F0) Timeout Counter Reset Value Register                       */
-    volatile const uint32_t  I2C_COMP_PARAM_1;       /*!< (@ 0x000000F4) Module Configuration Register 1                            */
-    volatile const uint32_t  I2C_COMP_VERSION;       /*!< (@ 0x000000F8) Reserved                                                   */
-    volatile const uint32_t  I2C_COMP_TYPE;          /*!< (@ 0x000000FC) Reserved                                                   */
-} I2C_Type;
+#include "soc.h"
 
 /*!< FIFO Depth for Tx & Rx  */
 #define I2C_FIFO_DEPTH                              32

@@ -16,6 +16,7 @@
  * @brief    Clock information
  ******************************************************************************/
 #include <sys_clocks.h>
+#include "soc_features.h"
 
 /*----------------------------------------------------------------------------
   System AXI Clock Variable(SYST_ACLK)

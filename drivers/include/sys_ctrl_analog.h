@@ -11,8 +11,15 @@
 #ifndef SYS_CTRL_ANALOG_H
 #define SYS_CTRL_ANALOG_H
 
-#include "peripheral_types.h"
+#include "soc.h"
 #include "analog_config.h"
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+
+#define CMP_CTRL_CMP0_CLKEN     (1U << 0U)  /* Enable CMP0 clock */
 
 #define VBAT_ANA_REG2_VAL       0x00C00000 /* Enable analog peripheral LDO and precision bandgap */
 
@@ -32,7 +39,7 @@
 static inline void enable_analog_peripherals(void)
 {
     /* Analog configuration Vbat register2 */
-    ANA_REG->VBAT_ANA_REG2 |= VBAT_ANA_REG2_VAL;
+    ANA->VBAT_ANA_REG2 |= VBAT_ANA_REG2_VAL;
 }
 
 /**
@@ -69,6 +76,10 @@ static inline void disable_analog_periph_clk(void)
 {
     CLKCTL_PER_SLV->CMP_CTRL &= ~CMP_CTRL_CMP0_CLKEN;
 }
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif /* SYS_CTRL_ANALOG_H */
 

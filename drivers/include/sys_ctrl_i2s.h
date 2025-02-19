@@ -25,12 +25,22 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <math.h>
-#include "peripheral_types.h"
+#include "soc.h"
 
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
+
+/* CLKCTL_PER_SLV I2Sn_CTRL I2S Control field definitions */
+#define I2S_CTRL_SCLK_AON                   (1U << 20)                      /* SCLK Always On                          */
+#define I2S_CTRL_DIV_BYPASS                 (1U << 17)                      /* Bypass Clock Divider                    */
+#define I2S_CTRL_CLK_SEL_Msk                (1U << 16)                      /* Clock Source Selection Mask             */
+#define I2S_CTRL_CLK_SEL_76M8_CLK           (0U << 16)                      /* Enable 76.8MHz Crystal Oscillator Clock */
+#define I2S_CTRL_CLK_SEL_EXT_CLK            (1U << 16)                      /* Enable External Audio clock input       */
+#define I2S_CTRL_CKEN                       (1U << 12)                      /* Enable I2S controller clock             */
+#define I2S_CTRL_CKDIV_Pos                  (0)                             /* Clock divider start position            */
+#define I2S_CTRL_CKDIV_Msk                  (0x3FF << I2S_CTRL_CKDIV_Pos)   /* Clock divider start mask                */
 
 /*!< I2S Input Clock Source */
 #define I2S_CLK_SOURCE_76P8M_IN_HZ          76800000
@@ -66,16 +76,16 @@ static inline void enable_i2s_sclk_aon(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL |= I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL |= I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL |= I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL |= I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_SCLK_AON;
@@ -94,16 +104,16 @@ static inline void disable_i2s_sclk_aon(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL &= ~I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL &= ~I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL &= ~I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL &= ~I2S_CTRL_SCLK_AON;
+        CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_SCLK_AON;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_SCLK_AON;
@@ -122,16 +132,16 @@ static inline void bypass_i2s_clock_divider(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL |= I2S_CTRL_DIV_BYPASS;
+        CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_DIV_BYPASS;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL |= I2S_CTRL_DIV_BYPASS;
+        CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_DIV_BYPASS;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL |= I2S_CTRL_DIV_BYPASS;
+        CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_DIV_BYPASS;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL |= I2S_CTRL_DIV_BYPASS;
+        CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_DIV_BYPASS;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_DIV_BYPASS;
@@ -154,20 +164,20 @@ static inline void select_i2s_clock_source(I2S_INSTANCE instance, bool ext_clk_s
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
-        CLKCTL_PER_SLV->I2S0_CTRL |= val;
+        CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_CLK_SEL_Msk;
+        CLKCTL_PER_SLV->I2S_CTRL[0] |= val;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
-        CLKCTL_PER_SLV->I2S1_CTRL |= val;
+        CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_CLK_SEL_Msk;
+        CLKCTL_PER_SLV->I2S_CTRL[1] |= val;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
-        CLKCTL_PER_SLV->I2S2_CTRL |= val;
+        CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_CLK_SEL_Msk;
+        CLKCTL_PER_SLV->I2S_CTRL[2] |= val;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
-        CLKCTL_PER_SLV->I2S3_CTRL |= val;
+        CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_CLK_SEL_Msk;
+        CLKCTL_PER_SLV->I2S_CTRL[3] |= val;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
@@ -187,16 +197,16 @@ static inline void enable_i2s_clock(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL |= I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL |= I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL |= I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL |= I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_CKEN;
@@ -215,16 +225,16 @@ static inline void disable_i2s_clock(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        CLKCTL_PER_SLV->I2S0_CTRL &= ~I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_1:
-        CLKCTL_PER_SLV->I2S1_CTRL &= ~I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_2:
-        CLKCTL_PER_SLV->I2S2_CTRL &= ~I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_3:
-        CLKCTL_PER_SLV->I2S3_CTRL &= ~I2S_CTRL_CKEN;
+        CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_CKEN;
         break;
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_CKEN;
@@ -246,28 +256,28 @@ static inline void set_i2s_clock_divisor(I2S_INSTANCE instance, uint16_t clk_div
     switch(instance)
     {
     case I2S_INSTANCE_0:
-        ctrl = CLKCTL_PER_SLV->I2S0_CTRL;
+        ctrl = CLKCTL_PER_SLV->I2S_CTRL[0];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
-        CLKCTL_PER_SLV->I2S0_CTRL = ctrl;
+        CLKCTL_PER_SLV->I2S_CTRL[0] = ctrl;
         break;
     case I2S_INSTANCE_1:
-        ctrl = CLKCTL_PER_SLV->I2S1_CTRL;
+        ctrl = CLKCTL_PER_SLV->I2S_CTRL[1];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
-        CLKCTL_PER_SLV->I2S1_CTRL = ctrl;
+        CLKCTL_PER_SLV->I2S_CTRL[1] = ctrl;
         break;
     case I2S_INSTANCE_2:
-        ctrl = CLKCTL_PER_SLV->I2S2_CTRL;
+        ctrl = CLKCTL_PER_SLV->I2S_CTRL[2];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
-        CLKCTL_PER_SLV->I2S2_CTRL = ctrl;
+        CLKCTL_PER_SLV->I2S_CTRL[2] = ctrl;
         break;
     case I2S_INSTANCE_3:
-        ctrl = CLKCTL_PER_SLV->I2S3_CTRL;
+        ctrl = CLKCTL_PER_SLV->I2S_CTRL[3];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
-        CLKCTL_PER_SLV->I2S3_CTRL = ctrl;
+        CLKCTL_PER_SLV->I2S_CTRL[3] = ctrl;
         break;
     case I2S_INSTANCE_LP:
         ctrl = M55HE_CFG->HE_I2S_CTRL;

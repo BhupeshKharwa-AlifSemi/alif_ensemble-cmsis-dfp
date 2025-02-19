@@ -26,20 +26,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
-
-typedef struct {                                      /*!< LPCPI/CPI Structure                                                    */
-    volatile       uint32_t  CAM_CTRL;                /*!< (@ 0x00000000) Camera Control Register                                 */
-    volatile       uint32_t  CAM_INTR;                /*!< (@ 0x00000004) Camera Interrupt Status Register                        */
-    volatile       uint32_t  CAM_INTR_ENA;            /*!< (@ 0x00000008) Camera Interrupt Enable Register                        */
-    volatile const uint32_t  RESERVED;                /*!< (@ 0x0000000C) Camera reserved Register                                */
-    volatile       uint32_t  CAM_CFG;                 /*!< (@ 0x00000010) Camera Configuration Register                           */
-    volatile       uint32_t  CAM_FIFO_CTRL;           /*!< (@ 0x00000014) Camera FIFO Control Register                            */
-    volatile const uint32_t  CAM_AXI_ERR_STAT;        /*!< (@ 0x00000018) Camera AXI Error Status Register                        */
-    volatile const uint32_t  RESERVED1[3];            /*!< (@ 0x0000001C) Camera Reserved Register                                */
-    volatile       uint32_t  CAM_VIDEO_FCFG;          /*!< (@ 0x00000028) Camera Video Frame Configuration Register               */
-    volatile       uint32_t  CAM_CSI_CMCFG;           /*!< (@ 0x0000002C) Camera MIPI CSI Color Mode Configuration Register       */
-    volatile       uint32_t  CAM_FRAME_ADDR;          /*!< (@ 0x00000030) Camera Video Frame A Start Address Register             */
-} CPI_Type;                                           /*!< Size = 52 (0x34)                                                       */
+#include <soc.h>
 
 /* Camera Control Register (CAM_CTRL) bit Definition, Macros, Offsets and Masks
  * these include CPI capture mode, capture status, software reset, start/stop capture and FIFO clock select.

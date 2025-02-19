@@ -1715,7 +1715,7 @@ static UART_DMA_HW_CONFIG UART0_DMA_HW_CONFIG =
 #endif /* RTE_UART0_DMA_ENABLE */
 
 /* UART0 Driver Resources */
-static UART_RESOURCES UART0 =
+static UART_RESOURCES UART0_RES =
 {
     .regs             = (UART_Type *)UART0_BASE,
     .cb_event         = NULL,
@@ -1750,79 +1750,79 @@ static UART_RESOURCES UART0 =
 
 void UART0_IRQHandler (void)
 {
-    UART_IRQHandler(&UART0);
+    UART_IRQHandler(&UART0_RES);
 }
 
 #if RTE_UART0_DMA_ENABLE
 static void UART0_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART0);
+    UART_DMATxCallback(event, peri_num, &UART0_RES);
 }
 
 static void UART0_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART0);
+    UART_DMARxCallback(event, peri_num, &UART0_RES);
 }
 #endif /* RTE_UART0_DMA_ENABLE */
 
 static int32_t UART0_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART0));
+    return (ARM_USART_Initialize(cb_event,  &UART0_RES));
 }
 
 static int32_t UART0_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART0));
+    return (ARM_USART_Uninitialize(&UART0_RES));
 }
 
 static int32_t UART0_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART0));
+    return (ARM_USART_PowerControl(state, &UART0_RES));
 }
 
 static int32_t UART0_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART0));
+    return (ARM_USART_Send(p_data, num , &UART0_RES));
 }
 
 static int32_t UART0_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART0));
+    return (ARM_USART_Receive(p_data, num, &UART0_RES));
 }
 
 static int32_t UART0_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART0));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART0_RES));
 }
 
 static uint32_t UART0_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART0));
+    return (ARM_USART_GetTxCount(&UART0_RES));
 }
 
 static uint32_t UART0_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART0));
+    return (ARM_USART_GetRxCount(&UART0_RES));
 }
 
 static int32_t UART0_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART0));
+    return (ARM_USART_Control(control, arg, &UART0_RES));
 }
 
 static ARM_USART_STATUS UART0_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART0));
+    return (ARM_USART_GetStatus(&UART0_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART0_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART0));
+    return (ARM_USART_GetModemStatus(&UART0_RES));
 }
 
 static int32_t UART0_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART0));
+    return (ARM_USART_SetModemControl(control, &UART0_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART0;
@@ -1883,7 +1883,7 @@ static UART_DMA_HW_CONFIG UART1_DMA_HW_CONFIG =
 #endif /* RTE_UART1_DMA_ENABLE */
 
 /* UART1 Driver Resources */
-static UART_RESOURCES UART1 =
+static UART_RESOURCES UART1_RES =
 {
     .regs             = (UART_Type *)UART1_BASE,
     .cb_event         = NULL,
@@ -1918,79 +1918,79 @@ static UART_RESOURCES UART1 =
 
 void UART1_IRQHandler (void)
 {
-    UART_IRQHandler(&UART1);
+    UART_IRQHandler(&UART1_RES);
 }
 
 #if RTE_UART1_DMA_ENABLE
 static void UART1_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART1);
+    UART_DMATxCallback(event, peri_num, &UART1_RES);
 }
 
 static void UART1_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART1);
+    UART_DMARxCallback(event, peri_num, &UART1_RES);
 }
 #endif /* RTE_UART1_DMA_ENABLE */
 
 static int32_t UART1_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART1));
+    return (ARM_USART_Initialize(cb_event,  &UART1_RES));
 }
 
 static int32_t UART1_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART1));
+    return (ARM_USART_Uninitialize(&UART1_RES));
 }
 
 static int32_t UART1_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART1));
+    return (ARM_USART_PowerControl(state, &UART1_RES));
 }
 
 static int32_t UART1_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART1));
+    return (ARM_USART_Send(p_data, num , &UART1_RES));
 }
 
 static int32_t UART1_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART1));
+    return (ARM_USART_Receive(p_data, num, &UART1_RES));
 }
 
 static int32_t UART1_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART1));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART1_RES));
 }
 
 static uint32_t UART1_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART1));
+    return (ARM_USART_GetTxCount(&UART1_RES));
 }
 
 static uint32_t UART1_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART1));
+    return (ARM_USART_GetRxCount(&UART1_RES));
 }
 
 static int32_t UART1_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART1));
+    return (ARM_USART_Control(control, arg, &UART1_RES));
 }
 
 static ARM_USART_STATUS UART1_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART1));
+    return (ARM_USART_GetStatus(&UART1_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART1_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART1));
+    return (ARM_USART_GetModemStatus(&UART1_RES));
 }
 
 static int32_t UART1_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART1));
+    return (ARM_USART_SetModemControl(control, &UART1_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART1;
@@ -2052,7 +2052,7 @@ static UART_DMA_HW_CONFIG UART2_DMA_HW_CONFIG =
 
 
 /* UART2 Driver Resources */
-static UART_RESOURCES UART2 =
+static UART_RESOURCES UART2_RES =
 {
     .regs             = (UART_Type *)UART2_BASE,
     .cb_event         = NULL,
@@ -2087,79 +2087,79 @@ static UART_RESOURCES UART2 =
 
 void UART2_IRQHandler (void)
 {
-    UART_IRQHandler(&UART2);
+    UART_IRQHandler(&UART2_RES);
 }
 
 #if RTE_UART2_DMA_ENABLE
 static void UART2_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART2);
+    UART_DMATxCallback(event, peri_num, &UART2_RES);
 }
 
 static void UART2_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART2);
+    UART_DMARxCallback(event, peri_num, &UART2_RES);
 }
 #endif /* RTE_UART2_DMA_ENABLE */
 
 static int32_t UART2_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART2));
+    return (ARM_USART_Initialize(cb_event,  &UART2_RES));
 }
 
 static int32_t UART2_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART2));
+    return (ARM_USART_Uninitialize(&UART2_RES));
 }
 
 static int32_t UART2_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART2));
+    return (ARM_USART_PowerControl(state, &UART2_RES));
 }
 
 static int32_t UART2_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART2));
+    return (ARM_USART_Send(p_data, num , &UART2_RES));
 }
 
 static int32_t UART2_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART2));
+    return (ARM_USART_Receive(p_data, num, &UART2_RES));
 }
 
 static int32_t UART2_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART2));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART2_RES));
 }
 
 static uint32_t UART2_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART2));
+    return (ARM_USART_GetTxCount(&UART2_RES));
 }
 
 static uint32_t UART2_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART2));
+    return (ARM_USART_GetRxCount(&UART2_RES));
 }
 
 static int32_t UART2_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART2));
+    return (ARM_USART_Control(control, arg, &UART2_RES));
 }
 
 static ARM_USART_STATUS UART2_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART2));
+    return (ARM_USART_GetStatus(&UART2_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART2_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART2));
+    return (ARM_USART_GetModemStatus(&UART2_RES));
 }
 
 static int32_t UART2_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART2));
+    return (ARM_USART_SetModemControl(control, &UART2_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART2;
@@ -2220,7 +2220,7 @@ static UART_DMA_HW_CONFIG UART3_DMA_HW_CONFIG =
 #endif /* RTE_UART3_DMA_ENABLE */
 
 /* UART3 Driver Resources */
-static UART_RESOURCES UART3 =
+static UART_RESOURCES UART3_RES =
 {
     .regs             = (UART_Type *)UART3_BASE,
     .cb_event         = NULL,
@@ -2255,79 +2255,79 @@ static UART_RESOURCES UART3 =
 
 void UART3_IRQHandler (void)
 {
-    UART_IRQHandler(&UART3);
+    UART_IRQHandler(&UART3_RES);
 }
 
 #if RTE_UART3_DMA_ENABLE
 static void UART3_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART3);
+    UART_DMATxCallback(event, peri_num, &UART3_RES);
 }
 
 static void UART3_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART3);
+    UART_DMARxCallback(event, peri_num, &UART3_RES);
 }
 #endif /* RTE_UART3_DMA_ENABLE */
 
 static int32_t UART3_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART3));
+    return (ARM_USART_Initialize(cb_event,  &UART3_RES));
 }
 
 static int32_t UART3_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART3));
+    return (ARM_USART_Uninitialize(&UART3_RES));
 }
 
 static int32_t UART3_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART3));
+    return (ARM_USART_PowerControl(state, &UART3_RES));
 }
 
 static int32_t UART3_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART3));
+    return (ARM_USART_Send(p_data, num , &UART3_RES));
 }
 
 static int32_t UART3_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART3));
+    return (ARM_USART_Receive(p_data, num, &UART3_RES));
 }
 
 static int32_t UART3_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART3));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART3_RES));
 }
 
 static uint32_t UART3_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART3));
+    return (ARM_USART_GetTxCount(&UART3_RES));
 }
 
 static uint32_t UART3_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART3));
+    return (ARM_USART_GetRxCount(&UART3_RES));
 }
 
 static int32_t UART3_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART3));
+    return (ARM_USART_Control(control, arg, &UART3_RES));
 }
 
 static ARM_USART_STATUS UART3_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART3));
+    return (ARM_USART_GetStatus(&UART3_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART3_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART3));
+    return (ARM_USART_GetModemStatus(&UART3_RES));
 }
 
 static int32_t UART3_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART3));
+    return (ARM_USART_SetModemControl(control, &UART3_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART3;
@@ -2388,7 +2388,7 @@ static UART_DMA_HW_CONFIG UART4_DMA_HW_CONFIG =
 #endif /* RTE_UART4_DMA_ENABLE */
 
 /* UART4 Driver Resources */
-static UART_RESOURCES UART4 =
+static UART_RESOURCES UART4_RES =
 {
     .regs             = (UART_Type *)UART4_BASE,
     .cb_event         = NULL,
@@ -2434,79 +2434,79 @@ static UART_RESOURCES UART4 =
 
 void UART4_IRQHandler (void)
 {
-    UART_IRQHandler(&UART4);
+    UART_IRQHandler(&UART4_RES);
 }
 
 #if RTE_UART4_DMA_ENABLE
 static void UART4_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART4);
+    UART_DMATxCallback(event, peri_num, &UART4_RES);
 }
 
 static void UART4_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART4);
+    UART_DMARxCallback(event, peri_num, &UART4_RES);
 }
 #endif /* RTE_UART4_DMA_ENABLE */
 
 static int32_t UART4_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART4));
+    return (ARM_USART_Initialize(cb_event,  &UART4_RES));
 }
 
 static int32_t UART4_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART4));
+    return (ARM_USART_Uninitialize(&UART4_RES));
 }
 
 static int32_t UART4_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART4));
+    return (ARM_USART_PowerControl(state, &UART4_RES));
 }
 
 static int32_t UART4_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART4));
+    return (ARM_USART_Send(p_data, num , &UART4_RES));
 }
 
 static int32_t UART4_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART4));
+    return (ARM_USART_Receive(p_data, num, &UART4_RES));
 }
 
 static int32_t UART4_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART4));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART4_RES));
 }
 
 static uint32_t UART4_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART4));
+    return (ARM_USART_GetTxCount(&UART4_RES));
 }
 
 static uint32_t UART4_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART4));
+    return (ARM_USART_GetRxCount(&UART4_RES));
 }
 
 static int32_t UART4_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART4));
+    return (ARM_USART_Control(control, arg, &UART4_RES));
 }
 
 static ARM_USART_STATUS UART4_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART4));
+    return (ARM_USART_GetStatus(&UART4_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART4_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART4));
+    return (ARM_USART_GetModemStatus(&UART4_RES));
 }
 
 static int32_t UART4_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART4));
+    return (ARM_USART_SetModemControl(control, &UART4_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART4;
@@ -2567,7 +2567,7 @@ static UART_DMA_HW_CONFIG UART5_DMA_HW_CONFIG =
 #endif /* RTE_UART5_DMA_ENABLE */
 
 /* UART5 Driver Resources */
-static UART_RESOURCES UART5 =
+static UART_RESOURCES UART5_RES =
 {
     .regs             = (UART_Type *)UART5_BASE,
     .cb_event         = NULL,
@@ -2613,79 +2613,79 @@ static UART_RESOURCES UART5 =
 
 void UART5_IRQHandler (void)
 {
-    UART_IRQHandler(&UART5);
+    UART_IRQHandler(&UART5_RES);
 }
 
 #if RTE_UART5_DMA_ENABLE
 static void UART5_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART5);
+    UART_DMATxCallback(event, peri_num, &UART5_RES);
 }
 
 static void UART5_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART5);
+    UART_DMARxCallback(event, peri_num, &UART5_RES);
 }
 #endif /* RTE_UART5_DMA_ENABLE */
 
 static int32_t UART5_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART5));
+    return (ARM_USART_Initialize(cb_event,  &UART5_RES));
 }
 
 static int32_t UART5_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART5));
+    return (ARM_USART_Uninitialize(&UART5_RES));
 }
 
 static int32_t UART5_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART5));
+    return (ARM_USART_PowerControl(state, &UART5_RES));
 }
 
 static int32_t UART5_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART5));
+    return (ARM_USART_Send(p_data, num , &UART5_RES));
 }
 
 static int32_t UART5_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART5));
+    return (ARM_USART_Receive(p_data, num, &UART5_RES));
 }
 
 static int32_t UART5_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART5));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART5_RES));
 }
 
 static uint32_t UART5_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART5));
+    return (ARM_USART_GetTxCount(&UART5_RES));
 }
 
 static uint32_t UART5_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART5));
+    return (ARM_USART_GetRxCount(&UART5_RES));
 }
 
 static int32_t UART5_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART5));
+    return (ARM_USART_Control(control, arg, &UART5_RES));
 }
 
 static ARM_USART_STATUS UART5_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART5));
+    return (ARM_USART_GetStatus(&UART5_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART5_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART5));
+    return (ARM_USART_GetModemStatus(&UART5_RES));
 }
 
 static int32_t UART5_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART5));
+    return (ARM_USART_SetModemControl(control, &UART5_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART5;
@@ -2746,7 +2746,7 @@ static UART_DMA_HW_CONFIG UART6_DMA_HW_CONFIG =
 #endif /* RTE_UART6_DMA_ENABLE */
 
 /* UART6 Driver Resources */
-static UART_RESOURCES UART6 =
+static UART_RESOURCES UART6_RES =
 {
     .regs             = (UART_Type *)UART6_BASE,
     .cb_event         = NULL,
@@ -2792,79 +2792,79 @@ static UART_RESOURCES UART6 =
 
 void UART6_IRQHandler (void)
 {
-    UART_IRQHandler(&UART6);
+    UART_IRQHandler(&UART6_RES);
 }
 
 #if RTE_UART6_DMA_ENABLE
 static void UART6_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART6);
+    UART_DMATxCallback(event, peri_num, &UART6_RES);
 }
 
 static void UART6_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART6);
+    UART_DMARxCallback(event, peri_num, &UART6_RES);
 }
 #endif /* RTE_UART6_DMA_ENABLE */
 
 static int32_t UART6_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART6));
+    return (ARM_USART_Initialize(cb_event,  &UART6_RES));
 }
 
 static int32_t UART6_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART6));
+    return (ARM_USART_Uninitialize(&UART6_RES));
 }
 
 static int32_t UART6_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART6));
+    return (ARM_USART_PowerControl(state, &UART6_RES));
 }
 
 static int32_t UART6_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART6));
+    return (ARM_USART_Send(p_data, num , &UART6_RES));
 }
 
 static int32_t UART6_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART6));
+    return (ARM_USART_Receive(p_data, num, &UART6_RES));
 }
 
 static int32_t UART6_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART6));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART6_RES));
 }
 
 static uint32_t UART6_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART6));
+    return (ARM_USART_GetTxCount(&UART6_RES));
 }
 
 static uint32_t UART6_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART6));
+    return (ARM_USART_GetRxCount(&UART6_RES));
 }
 
 static int32_t UART6_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART6));
+    return (ARM_USART_Control(control, arg, &UART6_RES));
 }
 
 static ARM_USART_STATUS UART6_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART6));
+    return (ARM_USART_GetStatus(&UART6_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART6_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART6));
+    return (ARM_USART_GetModemStatus(&UART6_RES));
 }
 
 static int32_t UART6_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART6));
+    return (ARM_USART_SetModemControl(control, &UART6_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART6;
@@ -2925,7 +2925,7 @@ static UART_DMA_HW_CONFIG UART7_DMA_HW_CONFIG =
 #endif /* RTE_UART7_DMA_ENABLE */
 
 /* UART7 Driver Resources */
-static UART_RESOURCES UART7 =
+static UART_RESOURCES UART7_RES =
 {
     .regs             = (UART_Type *)UART7_BASE,
     .cb_event         = NULL,
@@ -2971,79 +2971,79 @@ static UART_RESOURCES UART7 =
 
 void UART7_IRQHandler (void)
 {
-    UART_IRQHandler(&UART7);
+    UART_IRQHandler(&UART7_RES);
 }
 
 #if RTE_UART7_DMA_ENABLE
 static void UART7_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &UART7);
+    UART_DMATxCallback(event, peri_num, &UART7_RES);
 }
 
 static void UART7_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &UART7);
+    UART_DMARxCallback(event, peri_num, &UART7_RES);
 }
 #endif /* RTE_UART7_DMA_ENABLE */
 
 static int32_t UART7_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event,  &UART7));
+    return (ARM_USART_Initialize(cb_event,  &UART7_RES));
 }
 
 static int32_t UART7_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&UART7));
+    return (ARM_USART_Uninitialize(&UART7_RES));
 }
 
 static int32_t UART7_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &UART7));
+    return (ARM_USART_PowerControl(state, &UART7_RES));
 }
 
 static int32_t UART7_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &UART7));
+    return (ARM_USART_Send(p_data, num , &UART7_RES));
 }
 
 static int32_t UART7_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &UART7));
+    return (ARM_USART_Receive(p_data, num, &UART7_RES));
 }
 
 static int32_t UART7_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART7));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &UART7_RES));
 }
 
 static uint32_t UART7_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&UART7));
+    return (ARM_USART_GetTxCount(&UART7_RES));
 }
 
 static uint32_t UART7_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&UART7));
+    return (ARM_USART_GetRxCount(&UART7_RES));
 }
 
 static int32_t UART7_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &UART7));
+    return (ARM_USART_Control(control, arg, &UART7_RES));
 }
 
 static ARM_USART_STATUS UART7_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&UART7));
+    return (ARM_USART_GetStatus(&UART7_RES));
 }
 
 static ARM_USART_MODEM_STATUS UART7_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&UART7));
+    return (ARM_USART_GetModemStatus(&UART7_RES));
 }
 
 static int32_t UART7_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &UART7));
+    return (ARM_USART_SetModemControl(control, &UART7_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USART7;
@@ -3104,7 +3104,7 @@ static UART_DMA_HW_CONFIG LPUART_DMA_HW_CONFIG =
 #endif /* RTE_LPUART_DMA_ENABLE */
 
 /* LPUART Driver Resources */
-static UART_RESOURCES LPUART =
+static UART_RESOURCES LPUART_RES =
 {
     .regs             = (UART_Type *)LPUART_BASE,
     .cb_event         = NULL,
@@ -3139,79 +3139,79 @@ static UART_RESOURCES LPUART =
 
 void LPUART_IRQHandler (void)
 {
-    UART_IRQHandler(&LPUART);
+    UART_IRQHandler(&LPUART_RES);
 }
 
 #if RTE_LPUART_DMA_ENABLE
 static void LPUART_DMATxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMATxCallback(event, peri_num, &LPUART);
+    UART_DMATxCallback(event, peri_num, &LPUART_RES);
 }
 
 static void LPUART_DMARxCallback(uint32_t event, int8_t peri_num)
 {
-    UART_DMARxCallback(event, peri_num, &LPUART);
+    UART_DMARxCallback(event, peri_num, &LPUART_RES);
 }
 #endif /* RTE_LPUART_DMA_ENABLE */
 
 static int32_t LPUART_Initialize(ARM_USART_SignalEvent_t cb_event)
 {
-    return (ARM_USART_Initialize(cb_event, &LPUART));
+    return (ARM_USART_Initialize(cb_event, &LPUART_RES));
 }
 
 static int32_t LPUART_Uninitialize(void)
 {
-    return (ARM_USART_Uninitialize(&LPUART));
+    return (ARM_USART_Uninitialize(&LPUART_RES));
 }
 
 static int32_t LPUART_PowerControl(ARM_POWER_STATE state)
 {
-    return (ARM_USART_PowerControl(state, &LPUART));
+    return (ARM_USART_PowerControl(state, &LPUART_RES));
 }
 
 static int32_t LPUART_Send(void const * const p_data, uint32_t num)
 {
-    return (ARM_USART_Send(p_data, num , &LPUART));
+    return (ARM_USART_Send(p_data, num , &LPUART_RES));
 }
 
 static int32_t LPUART_Receive(void * const p_data, uint32_t num)
 {
-    return (ARM_USART_Receive(p_data, num, &LPUART));
+    return (ARM_USART_Receive(p_data, num, &LPUART_RES));
 }
 
 static int32_t LPUART_Transfer(void const * const p_data_out, void * const p_data_in, uint32_t num)
 {
-    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &LPUART));
+    return (ARM_USART_Transfer(p_data_out, p_data_in, num, &LPUART_RES));
 }
 
 static uint32_t LPUART_GetTxCount(void)
 {
-    return (ARM_USART_GetTxCount(&LPUART));
+    return (ARM_USART_GetTxCount(&LPUART_RES));
 }
 
 static uint32_t LPUART_GetRxCount(void)
 {
-    return (ARM_USART_GetRxCount(&LPUART));
+    return (ARM_USART_GetRxCount(&LPUART_RES));
 }
 
 static int32_t LPUART_Control(uint32_t control, uint32_t arg)
 {
-    return (ARM_USART_Control(control, arg, &LPUART));
+    return (ARM_USART_Control(control, arg, &LPUART_RES));
 }
 
 static ARM_USART_STATUS LPUART_GetStatus(void)
 {
-    return (ARM_USART_GetStatus(&LPUART));
+    return (ARM_USART_GetStatus(&LPUART_RES));
 }
 
 static ARM_USART_MODEM_STATUS LPUART_GetModemStatus(void)
 {
-    return (ARM_USART_GetModemStatus(&LPUART));
+    return (ARM_USART_GetModemStatus(&LPUART_RES));
 }
 
 static int32_t LPUART_SetModemControl(ARM_USART_MODEM_CONTROL control)
 {
-    return (ARM_USART_SetModemControl(control, &LPUART));
+    return (ARM_USART_SetModemControl(control, &LPUART_RES));
 }
 
 extern ARM_DRIVER_USART Driver_USARTLP;

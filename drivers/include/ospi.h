@@ -27,83 +27,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-typedef struct {
-    volatile uint32_t  OSPI_CTRLR0;                  /*!< (@ 0x00000000) OSPI Control Register 0                                    */
-    volatile uint32_t  OSPI_CTRLR1;                  /*!< (@ 0x00000004) OSPI Control Register 1                                    */
-    volatile uint32_t  OSPI_ENR;                     /*!< (@ 0x00000008) OSPI Enable Register                                       */
-    volatile uint32_t  RESERVED;
-    volatile uint32_t  OSPI_SER;                     /*!< (@ 0x00000010) OSPI Slave Enable Register                                 */
-    volatile uint32_t  OSPI_BAUDR;                   /*!< (@ 0x00000014) OSPI Baud Rate Select Register                             */
-    volatile uint32_t  OSPI_TXFTLR;                  /*!< (@ 0x00000018) OSPI Transmit FIFO Threshold Level Register                */
-    volatile uint32_t  OSPI_RXFTLR;                  /*!< (@ 0x0000001C) OSPI Receive FIFO Threshold Level Register                 */
-    volatile uint32_t  OSPI_TXFLR;                   /*!< (@ 0x00000020) OSPI Transmit FIFO Level Register                          */
-    volatile uint32_t  OSPI_RXFLR;                   /*!< (@ 0x00000024) OSPI Receive FIFO Level Register                           */
-    volatile uint32_t  OSPI_SR;                      /*!< (@ 0x00000028) OSPI Status Register                                       */
-    volatile uint32_t  OSPI_IMR;                     /*!< (@ 0x0000002C) OSPI Interrupt Mask Register                               */
-    volatile uint32_t  OSPI_ISR;                     /*!< (@ 0x00000030) OSPI Interrupt Status Register                             */
-    volatile uint32_t  OSPI_RISR;                    /*!< (@ 0x00000034) OSPI Raw Interrupt Status Register                         */
-    volatile uint32_t  OSPI_TXEICR;                  /*!< (@ 0x00000038) OSPI Transmit FIFO Error Interrupt Clear Register          */
-    volatile uint32_t  OSPI_RXOICR;                  /*!< (@ 0x0000003C) OSPI Receive FIFO Overflow Interrupt Clear Register        */
-    volatile uint32_t  OSPI_RXUICR;                  /*!< (@ 0x00000040) OSPI Receive FIFO Underflow Interrupt Clear Register       */
-    volatile uint32_t  RESERVED1;
-    volatile uint32_t  OSPI_ICR;                     /*!< (@ 0x00000048) OSPI Interrupt Clear Register                              */
-    volatile uint32_t  OSPI_DMACR;                   /*!< (@ 0x0000004C) OSPI DMA Control Register                                  */
-    volatile uint32_t  OSPI_DMATDLR;                 /*!< (@ 0x00000050) OSPI DMA Transmit Data Level Register                      */
-    volatile uint32_t  OSPI_DMARDLR;                 /*!< (@ 0x00000054) OSPI DMA Receive Data Level Register                       */
-    volatile uint32_t  OSPI_IDR;                     /*!< (@ 0x00000058) Reserved                                                   */
-    volatile uint32_t  OSPI_VERSION_ID;              /*!< (@ 0x0000005C) Reserved                                                   */
-    volatile uint32_t  OSPI_DR0;                     /*!< (@ 0x00000060) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR1;                     /*!< (@ 0x00000064) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR2;                     /*!< (@ 0x00000068) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR3;                     /*!< (@ 0x0000006C) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR4;                     /*!< (@ 0x00000070) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR5;                     /*!< (@ 0x00000074) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR6;                     /*!< (@ 0x00000078) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR7;                     /*!< (@ 0x0000007C) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR8;                     /*!< (@ 0x00000080) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR9;                     /*!< (@ 0x00000084) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR10;                    /*!< (@ 0x00000088) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR11;                    /*!< (@ 0x0000008C) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR12;                    /*!< (@ 0x00000090) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR13;                    /*!< (@ 0x00000094) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR14;                    /*!< (@ 0x00000098) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR15;                    /*!< (@ 0x0000009C) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR16;                    /*!< (@ 0x000000A0) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR17;                    /*!< (@ 0x000000A4) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR18;                    /*!< (@ 0x000000A8) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR19;                    /*!< (@ 0x000000AC) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR20;                    /*!< (@ 0x000000B0) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR21;                    /*!< (@ 0x000000B4) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR22;                    /*!< (@ 0x000000B8) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR23;                    /*!< (@ 0x000000BC) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR24;                    /*!< (@ 0x000000C0) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR25;                    /*!< (@ 0x000000C4) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR26;                    /*!< (@ 0x000000C8) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR27;                    /*!< (@ 0x000000CC) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR28;                    /*!< (@ 0x000000D0) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR29;                    /*!< (@ 0x000000D4) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR30;                    /*!< (@ 0x000000D8) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR31;                    /*!< (@ 0x000000DC) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR32;                    /*!< (@ 0x000000E0) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR33;                    /*!< (@ 0x000000E4) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR34;                    /*!< (@ 0x000000E8) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_DR35;                    /*!< (@ 0x000000EC) OSPI Data Register (n)                                     */
-    volatile uint32_t  OSPI_RX_SAMPLE_DELAY;         /*!< (@ 0x000000F0) OSPI RX Sample Delay Register                              */
-    volatile uint32_t  OSPI_SPI_CTRLR0;              /*!< (@ 0x000000F4) OSPI SPI Control Register                                  */
-    volatile uint32_t  OSPI_DDR_DRIVE_EDGE;          /*!< (@ 0x000000F8) OSPI Transmit Drive Edge Register                          */
-    volatile uint32_t  OSPI_XIP_MODE_BITS;           /*!< (@ 0x000000FC) OSPI XIP Mode Bits Register                                */
-    volatile uint32_t  OSPI_XIP_INCR_INST;           /*!< (@ 0x00000100) OSPI XIP INCR Transfer Opcode Register                     */
-    volatile uint32_t  OSPI_XIP_WRAP_INST;           /*!< (@ 0x00000104) OSPI XIP WRAP Transfer Opcode Register                     */
-    volatile uint32_t  OSPI_XIP_CTRL;                /*!< (@ 0x00000108) OSPI XIP Control Register                                  */
-    volatile uint32_t  OSPI_XIP_SER;                 /*!< (@ 0x0000010C) OSPI XIP Slave Enable Register                             */
-    volatile uint32_t  RESERVED2;
-    volatile uint32_t  OSPI_XIP_CNT_TIME_OUT;        /*!< (@ 0x00000114) OSPI XIP Timeout Register for Continuous Transfers         */
-    volatile const uint32_t RESERVED3[10];
-    volatile uint32_t  OSPI_XIP_WRITE_INCR_INST;     /*!< (@ 0x00000140) OSPI XIP Write INCR Transfer Opcode Register               */
-    volatile uint32_t  OSPI_XIP_WRITE_WRAP_INST;     /*!< (@ 0x00000144) OSPI XIP Write WRAP Transfer Opcode Register               */
-    volatile uint32_t  OSPI_XIP_WRITE_CTRL;          /*!< (@ 0x00000148) OSPI XIP Write Control Register                            */
-} OSPI_Type;
+#include <soc.h>
 
 #define OSPI_TX_FIFO_DEPTH                               256U
 #define OSPI_RX_FIFO_DEPTH                               256U
@@ -448,7 +372,7 @@ static inline void ospi_mask_interrupts(OSPI_Type *ospi)
 */
 static inline volatile uint32_t *ospi_get_dma_addr(OSPI_Type *ospi)
 {
-    return &ospi->OSPI_DR0;
+    return &ospi->OSPI_DR[0];
 }
 
 /**

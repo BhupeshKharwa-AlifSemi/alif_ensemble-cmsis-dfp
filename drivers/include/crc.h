@@ -19,24 +19,11 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "soc.h"
 
 /* 8bit and 32bit Data input Reg offset */
 #define CRC_DATA_IN_8BIT_REG_OFFSET   0x20
 #define CRC_DATA_IN_32BIT_REG_OFFSET  0x60
-
-/**
- @brief struct CRC_Type:- Register map for CRC
- */
-typedef struct {                                     /*!< (@ 0x48107000) CRC0 Structure                  */
-    volatile  uint32_t  CRC_CONTROL;                 /*!< (@ 0x00000000) CRC Calculation Setup Register  */
-    volatile const  uint32_t  RESERVED[3];
-    volatile  uint32_t  CRC_SEED;                    /*!< (@ 0x00000010) Seed Value Register             */
-    volatile  uint32_t  CRC_POLY_CUSTOM;             /*!< (@ 0x00000014) Custom Polynomial Register      */
-    volatile const  uint32_t  CRC_OUT;               /*!< (@ 0x00000018) Accumulated CRC Register        */
-    volatile const  uint32_t  RESERVED1;
-    volatile  uint8_t  CRC_DATA_IN_8_[64];           /*!< (@ 0x00000020) 8-bit Values Register n         */
-    volatile  uint32_t  CRC_DATA_IN_32_[40];         /*!< (@ 0x00000060) 32-bit Values Register n        */
-} CRC_Type;                                          /*!< Size = 256 (0x100)                             */
 
 #define CRC_REFLECT             (1 << 11)            /* To Reflect the CRC value            */
 #define CRC_INVERT              (1 << 10)            /* To Invert the CRC value             */

@@ -472,7 +472,7 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
                 tx_data = transfer->tx_buff[0];
                 transfer->tx_buff = (transfer->tx_buff + 1);
             }
-            ospi->OSPI_DR0 = tx_data;
+            ospi->OSPI_DR[0] = tx_data;
             transfer->tx_current_cnt++;
         }
     }
@@ -487,7 +487,7 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
         {
             for (index = 0; index < rx_count; index++)
             {
-                *((uint32_t *) transfer->rx_buff) = ospi->OSPI_DR0;
+                *((uint32_t *) transfer->rx_buff) = ospi->OSPI_DR[0];
 
                 transfer->rx_buff = (uint8_t *) transfer->rx_buff + sizeof(uint32_t);
                 transfer->rx_current_cnt++;
@@ -497,7 +497,7 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
         {
             for (index = 0; index < rx_count; index++)
             {
-                *((uint16_t *) transfer->rx_buff) = (uint16_t) (ospi->OSPI_DR0);
+                *((uint16_t *) transfer->rx_buff) = (uint16_t) (ospi->OSPI_DR[0]);
 
                 transfer->rx_buff = (uint8_t *) transfer->rx_buff + sizeof(uint16_t);
                 transfer->rx_current_cnt++;
@@ -512,7 +512,7 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
                  * frames. Workaround this by making two valid 8bit frames out of the
                  * DR content.
                  */
-                uint32_t val = ospi->OSPI_DR0;
+                uint32_t val = ospi->OSPI_DR[0];
 
                 *((uint8_t *) transfer->rx_buff) = (uint8_t) ((val >> 8) & 0xff);
                 transfer->rx_buff = (uint8_t *) transfer->rx_buff + sizeof(uint8_t);

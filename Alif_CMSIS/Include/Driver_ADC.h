@@ -21,7 +21,7 @@
 #include"Driver_Common.h"
 
 #ifdef _cplusplus
-extern "c"
+extern "C"
 {
 #endif
 

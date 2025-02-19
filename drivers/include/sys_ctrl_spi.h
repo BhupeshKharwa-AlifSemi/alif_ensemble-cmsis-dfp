@@ -25,7 +25,22 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define HE_CLK_ENA_SPI_CKEN                 (1U << 16)   /* Enable LPSPI clock */
+
+#if SOC_FEAT_LPSPI_HAS_MASTER_SLAVE
+#define HE_CLK_ENA_SPI_MODE_SLAVE           (1U << 15)   /* Configure LPSPI as slave */
+#endif
+
+#define SSI_CTRL_SS_IN_SEL_0                (1U  <<  0U) /* SPI0 Slave select mode */
+#define SSI_CTRL_SS_IN_SEL_1                (1U  <<  1U) /* SPI1 Slave select mode */
+#define SSI_CTRL_SS_IN_SEL_2                (1U  <<  2U) /* SPI2 Slave select mode */
+#define SSI_CTRL_SS_IN_SEL_3                (1U  <<  3U) /* SPI3 Slave select mode */
+#define SSI_CTRL_SS_IN_VAL_0                (1U  <<  8U) /* SPI0 Slave select value */
+#define SSI_CTRL_SS_IN_VAL_1                (1U  <<  9U) /* SPI1 Slave select value */
+#define SSI_CTRL_SS_IN_VAL_2                (1U  << 10U) /* SPI2 Slave select value */
+#define SSI_CTRL_SS_IN_VAL_3                (1U  << 11U) /* SPI3 Slave select value */
 
 /**
  * enum SS_IN_SEL.

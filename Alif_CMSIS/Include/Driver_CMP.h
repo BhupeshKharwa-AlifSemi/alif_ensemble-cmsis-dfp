@@ -22,9 +22,8 @@
 
 #include"Driver_Common.h"
 
-#ifdef _cplusplus
-extern "c"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define ARM_CMP_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1,0)  /* API version */
@@ -113,5 +112,8 @@ typedef struct ARM_DRIVER_COMPARATOR{
     int32_t                       (*Stop)              (void);                                   /* Pointer to Stop the Comparator */
 }const ARM_DRIVER_CMP;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* DRIVER_CMP_H_ */

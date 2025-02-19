@@ -12,7 +12,7 @@
 #define SYS_CTRL_UART_H_
 
 #include <stdint.h>
-#include "peripheral_types.h"
+#include "soc.h"
 
 
 static inline void enable_lpuart_clock(void)

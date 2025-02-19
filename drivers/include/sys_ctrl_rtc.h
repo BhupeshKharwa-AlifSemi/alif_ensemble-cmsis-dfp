@@ -25,7 +25,9 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+#define RTC_CLK_ENABLE                     (1U << 0U)  /* Enable RTC clock */
 
 /**
   \fn           static inline void enable_lprtc_clk (void)

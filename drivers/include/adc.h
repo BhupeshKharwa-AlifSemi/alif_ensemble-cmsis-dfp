@@ -13,27 +13,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
-typedef struct {
-  volatile       uint32_t  ADC_START_SRC;                /*!< (@ 0x00000000) ADC Start-of-Conversion Source Register                    */
-  volatile       uint32_t  ADC_COMP_THRESH_A;            /*!< (@ 0x00000004) ADC Comparator Threshold A Register                        */
-  volatile       uint32_t  ADC_COMP_THRESH_B;            /*!< (@ 0x00000008) ADC Comparator Threshold B Register                        */
-  volatile       uint32_t  ADC_CLK_DIVISOR;              /*!< (@ 0x0000000C) ADC Clock Divider Value Register                           */
-  volatile       uint32_t  ADC_INTERRUPT;                /*!< (@ 0x00000010) ADC Interrupt Status and Clear Register                    */
-  volatile       uint32_t  ADC_INTERRUPT_MASK;           /*!< (@ 0x00000014) ADC Interrupt Mask Register                                */
-  volatile       uint32_t  ADC_SAMPLE_WIDTH;             /*!< (@ 0x00000018) ADC Sampling Signal Duration Register                      */
-  volatile const uint32_t  RESERVED;
-  volatile       uint32_t  ADC_AVG_NUM;                  /*!< (@ 0x00000020) ADC Number of Samples for Averaging Register               */
-  volatile       uint32_t  ADC_SHIFT_CONTROL;            /*!< (@ 0x00000024) ADC Data Shift Select Register                             */
-  volatile const uint32_t  RESERVED1[2];
-  volatile       uint32_t  ADC_CONTROL;                  /*!< (@ 0x00000030) ADC Single-shot Conversion Start and Comparator
-                                                                    Threshold Mode Register                                             */
-  volatile       uint32_t  ADC_SEQUENCER_CTRL;           /*!< (@ 0x00000034) ADC Sequencer Control Register                             */
-  volatile       uint32_t  ADC_REG1;                     /*!< (@ 0x00000038) ADC Analog Control Register for ADC12 Modules              */
-  volatile const uint32_t  ADC_SEL;                      /*!< (@ 0x0000003C) ADC Sample Register Selected (read-only value of n)        */
-  volatile const uint32_t  RESERVED2[4];
-  volatile       uint32_t  ADC_SAMPLE_REG_[9];           /*!< (@ 0x00000050) ADC Sampled Value From Input n Register                    */
-} ADC_Type;                                              /*!< Size = 116 (0x74)                                                         */
+#include "soc.h"
 
 /****ADC Register macros****/
 #define ADC_START_CONTINUOUS_CONV                (1U << 6)    /* start continuous conversion           */

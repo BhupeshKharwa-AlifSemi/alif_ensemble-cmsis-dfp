@@ -17,21 +17,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
-
-/**
- @brief struct CMP_Type:- Register map for Analog Comparator
- */
-typedef struct {                                     /*!< CMP Structure                              */
-    volatile uint32_t  CMP_COMP_REG1;                /*!< Comparator Register 1                      */
-    volatile uint32_t  CMP_COMP_REG2;                /*!< Comparator Register 2                      */
-    volatile uint32_t  CMP_POLARITY_CTRL;            /*!< CMP Polarity Control Register              */
-    volatile uint32_t  CMP_WINDOW_CTRL;              /*!< CMP Window Control Register                */
-    volatile uint32_t  CMP_FILTER_CTRL;              /*!< CMP Filter Control Register                */
-    volatile uint32_t  CMP_PRESCALER_CTRL;           /*!< CMP Prescaler Control Register             */
-    volatile const  uint32_t  RESERVED[2];
-    volatile uint32_t  CMP_INTERRUPT_STATUS;         /*!< CMP Interrupt Status and Clear Register    */
-    volatile uint32_t  CMP_INTERRUPT_MASK;           /*!< CMP Interrupt Mask Register                */
-}CMP_Type;                                          /*!< Size = 40 (0x28)                           */
+#include "soc.h"
 
 #define CMP0_ENABLE                    (1U << 28)    /* To enable the Comp0                          */
 #define CMP1_ENABLE                    (1U << 29)    /* To enable the Comp1                          */

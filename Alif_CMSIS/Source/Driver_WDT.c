@@ -332,7 +332,7 @@ static int32_t WDT_Control(uint32_t      control,
 
 /* Watchdog-0 device configuration */
 static WDT_RESOURCES WDT0 = {
-    .regs                     = (WDT_CTRL_Type *) LOCAL_WDT_CTRL_BASE,
+    .regs                     = (WDT_CTRL_Type *) WDTLOCAL_CTRL_BASE,
     .flags                     = 0,
     .timeout                   = 0
 };

@@ -25,7 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "core.h"
+#include "soc.h"
 #include "sau_tcm_ns_setup.h"
 #include "tgu.h"
 

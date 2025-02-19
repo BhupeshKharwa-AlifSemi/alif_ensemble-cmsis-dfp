@@ -17,8 +17,8 @@
  * @bug      None
  * @Note     None
  ******************************************************************************/
+#include <cache.h>
 #include <sys_utils.h>
-#include <peripheral_types.h>
 
 /**
   \fn          void RTSS_IsGlobalCacheClean_Required (void)

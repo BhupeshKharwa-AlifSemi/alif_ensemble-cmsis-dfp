@@ -29,13 +29,13 @@
 
 #if defined(RTSS_HE)
 #define CPU_STRING "M55_HE"
-#include "core.h"
 #elif defined(RTSS_HP)
 #define CPU_STRING "M55_HP"
-#include "core.h"
 #else
 #define CPU_STRING "<unknown>"
 #endif
+
+#include "alif.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"

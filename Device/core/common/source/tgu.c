@@ -8,7 +8,7 @@
  *
  */
 
-#include "core.h"
+#include "soc.h"
 #include "tgu.h"
 #include "sau_tcm_ns_setup.h"
 

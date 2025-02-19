@@ -24,7 +24,55 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+/* CLKCTL_PER_MST DPHY_PLL_CTRL0 field definitions */
+#define DPHY_PLL_CTRL0_FORCE_LOCK              (1U << 0)  /* Force lock to device */
+#define DPHY_PLL_CTRL0_SHADOW_CONTROL          (1U << 4)  /* Selection of PLL configuration mechanism */
+#define DPHY_PLL_CTRL0_UPDATEPLL               (1U << 8)  /* Control for PLL operation frequency updated */
+#define DPHY_PLL_CTRL0_SHADOW_CLEAR            (1U << 12) /* Shadow registers clear */
+#define DPHY_PLL_CTRL0_GMP_CTRL_Pos            16U        /* Control for effective loop-filter resistance */
+#define DPHY_PLL_CTRL0_GMP_CTRL_Msk            (0x3U << DPHY_PLL_CTRL0_GMP_CTRL_Pos)
+#define DPHY_PLL_CTRL0_CLKSEL_Pos              20U        /* CLKEXT divider selection */
+#define DPHY_PLL_CTRL0_CLKSEL_Msk              (0x3U << DPHY_PLL_CTRL0_CLKSEL_Pos)
+
+/* CLKCTL_PER_MST DPHY_PLL_CTRL1 field definitions */
+#define DPHY_PLL_CTRL1_FEEDBACK_MULT_RATIO_Pos 0U      /* Control for feedback multiplication ratio */
+#define DPHY_PLL_CTRL1_FEEDBACK_MULT_RATIO_Msk (0x3FFU << DPHY_PLL_CTRL1_FEEDBACK_MULT_RATIO_Pos)
+#define DPHY_PLL_CTRL1_INPUT_DIV_FACTOR_Pos    12U     /* Control for input frequency division ratio */
+#define DPHY_PLL_CTRL1_INPUT_DIV_FACTOR_Msk    (0xFU << DPHY_PLL_CTRL1_INPUT_DIV_FACTOR_Pos)
+
+/* CLKCTL_PER_MST DPHY_PLL_CTRL2 field definitions */
+#define DPHY_PLL_CTRL2_CPBIAS_CTRL_Pos         0U      /* Charge pump bias control */
+#define DPHY_PLL_CTRL2_CPBIAS_CTRL_Msk         (0x7FU << DPHY_PLL_CTRL2_CPBIAS_CTRL_Pos)
+#define DPHY_PLL_CTRL2_INT_CTRL_Pos            8U      /* Integral charge pump control */
+#define DPHY_PLL_CTRL2_INT_CTRL_Msk            (0x3FU << DPHY_PLL_CTRL2_INT_CTRL_Pos)
+#define DPHY_PLL_CTRL2_PROP_CTRL_Pos           16U     /* Proportional charge pump control */
+#define DPHY_PLL_CTRL2_PROP_CTRL_Msk           (0x3FU << DPHY_PLL_CTRL2_PROP_CTRL_Pos)
+#define DPHY_PLL_CTRL2_VCO_CTRL_Pos            24U     /* VCO operating range */
+#define DPHY_PLL_CTRL2_VCO_CTRL_Msk            (0x3FU << DPHY_PLL_CTRL2_VCO_CTRL_Pos)
+
+/* CLKCTL_PER_MST DPHY_CTRL0 field definitions */
+#define DPHY_CTRL0_BIST_ON                     (1U << 0) /* BIST OK */
+#define DPHY_CTRL0_BIST_DONE                   (1U << 1) /* BIST DONE */
+#define DPHY_CTRL0_BIST_OK                     (1U << 2) /* BIST OK */
+#define DPHY_CTRL0_TESTPORT_SEL                (1U << 4) /* Test port select */
+#define DPHY_CTRL0_TXRXZ                       (1U << 8) /* Selects master or slave configuration for the PHY */
+#define DPHY_CTRL0_BASEDIR_Pos                 12U       /* Configures the base direction for PHY data lanes */
+#define DPHY_CTRL0_BASEDIR_Msk                 (0x3U << DPHY_CTRL0_BASEDIR_Pos)
+#define DPHY_CTRL0_HSFREQRANGE_Pos             16U       /* Module operating frequency */
+#define DPHY_CTRL0_HSFREQRANGE_Msk             (0x7FU << DPHY_CTRL0_HSFREQRANGE_Pos)
+#define DPHY_CTRL0_CFGCLKFREQRANGE_Pos         24U       /* Input reference clock frequency */
+#define DPHY_CTRL0_CFGCLKFREQRANGE_Msk         (0xFFU << DPHY_CTRL0_CFGCLKFREQRANGE_Pos)
+
+/* CLKCTL_PER_MST DPHY_CTRL1 field definitions */
+#define DPHY_CTRL1_FORCERXMODE_Pos             0U /* Controls FORCERXMODE pin of DPHY */
+#define DPHY_CTRL1_FORCERXMODE_Msk             (0x3U << DPHY_CTRL1_FORCERXMODE_Pos)
+
+#define MIPI_CLKEN_TXDPHY_CKEN                 (1U << 0)  /* Enable configure clock for TX D-PHY */
+#define MIPI_CLKEN_RXDPHY_CKEN                 (1U << 4)  /* Enable configure clock for RX D-PHY */
+#define MIPI_CLKEN_PLLREF_CKEN                 (1U << 8)  /* Enable reference clock for MIPI D-PHY PLL */
+#define MIPI_CLKEN_BYPASS_CKEN                 (1U << 12) /* Enable bypass clock for MIPI D-PHY PLL */
 
 /**
  * enum DPHY_PLL_CLKSEL

@@ -54,7 +54,7 @@ static int32_t setup_pinmux(void)
 {
     int32_t ret;
 
-#if OSPI_XIP_INSTANCE == OSPI0
+#if (OSPI_XIP_INSTANCE == 0)
     ret = pinconf_set(OSPI0_D0_PORT, OSPI0_D0_PIN, OSPI0_D0_PIN_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
         return -1;
@@ -219,7 +219,7 @@ int main ()
         key[i] = ospi_aes_user_key[AES_128_KEY_SIZE - 1 - i];
     }
 
-#if OSPI_XIP_INSTANCE == OSPI0
+#if (OSPI_XIP_INSTANCE == 0)
     command = OSPI_WRITE_EXTERNAL_KEY_OSPI0;
 #else
     command = OSPI_WRITE_EXTERNAL_KEY_OSPI1;

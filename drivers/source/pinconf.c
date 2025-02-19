@@ -18,7 +18,7 @@
  ******************************************************************************/
 #include <stddef.h>
 #include <pinconf.h>
-#include "global_map.h"
+#include "soc.h"
 
 #define PINMUX_ALTERNATE_FUNCTION_MASK                      7U
 #define PADCTRL_SHIFT                                       16U

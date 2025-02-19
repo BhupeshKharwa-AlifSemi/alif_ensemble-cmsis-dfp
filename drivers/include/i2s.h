@@ -23,57 +23,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "soc.h"
 
 #ifdef  __cplusplus
-}
+extern "C"
+{
 #endif
-
-/**
-  * @brief I2S (I2S)
-  */
-
-typedef struct {                                      /*!< I2S Structure                                                  */
-    volatile uint32_t           I2S_IER;              /*!< (@ 0x00000000) I2S Enable Register                             */
-    volatile uint32_t           I2S_IRER;             /*!< (@ 0x00000004) I2S Receiver Block Enable Register              */
-    volatile uint32_t           I2S_ITER;             /*!< (@ 0x00000008) I2S Transmitter Block Enable Register           */
-    volatile uint32_t           I2S_CER;              /*!< (@ 0x0000000C) Clock Enable Register                           */
-    volatile uint32_t           I2S_CCR;              /*!< (@ 0x00000010) Clock Configuration Register                    */
-    volatile uint32_t           I2S_RXFFR;            /*!< (@ 0x00000014) Receiver Block FIFO Reset Register              */
-    volatile uint32_t           I2S_TXFFR;            /*!< (@ 0x00000018) Transmitter Block FIFO Reset Register           */
-    volatile const uint32_t     RESERVED;
-
-    union {
-        volatile const uint32_t I2S_LRBR0;            /*!< (@ 0x00000020) Left Receive Buffer Register 0                  */
-        volatile uint32_t       I2S_LTHR0;            /*!< (@ 0x00000020) Left Transmit Holding Register 0                */
-    };
-
-    union {
-      volatile const uint32_t   I2S_RRBR0;            /*!< (@ 0x00000024) Right Receive Buffer Register 0               */
-      volatile uint32_t         I2S_RTHR0;            /*!< (@ 0x00000024) Right Transmit Holding Register 0   */
-    };
-    volatile uint32_t             I2S_RER0;           /*!< (@ 0x00000028) Receive Enable Register 0                       */
-    volatile uint32_t             I2S_TER0;           /*!< (@ 0x0000002C) Transmit Enable Register 0                      */
-    volatile uint32_t             I2S_RCR0;           /*!< (@ 0x00000030) Receive Configuration Register 0                */
-    volatile uint32_t             I2S_TCR0;           /*!< (@ 0x00000034) Transmit Configuration Register 0               */
-    volatile const uint32_t       I2S_ISR0;           /*!< (@ 0x00000038) Interrupt Status Register 0                     */
-    volatile uint32_t             I2S_IMR0;           /*!< (@ 0x0000003C) Interrupt Mask Register 0                       */
-    volatile const uint32_t       I2S_ROR0;           /*!< (@ 0x00000040) Receive Overrun Register 0                      */
-    volatile const uint32_t       I2S_TOR0;           /*!< (@ 0x00000044) Transmit Overrun Register 0                     */
-    volatile uint32_t             I2S_RFCR0;          /*!< (@ 0x00000048) Receive FIFO Configuration Register 0           */
-    volatile uint32_t             I2S_TFCR0;          /*!< (@ 0x0000004C) Transmit FIFO Configuration Register 0          */
-    volatile uint32_t             I2S_RFF0;           /*!< (@ 0x00000050) Receive FIFO Flush Register 0                   */
-    volatile uint32_t             I2S_TFF0;           /*!< (@ 0x00000054) Transmit FIFO Flush Register 0                  */
-    volatile const uint32_t       RESERVED1[90];
-    volatile const uint32_t       I2S_RXDMA;          /*!< (@ 0x000001C0) Receiver Block DMA Register                     */
-    volatile const uint32_t       RESERVED2;
-    volatile uint32_t             I2S_TXDMA;          /*!< (@ 0x000001C8) Transmitter Block DMA Register                  */
-    volatile const uint32_t       RESERVED3[9];
-    volatile const uint32_t       I2S_COMP_PARAM_2;   /*!< (@ 0x000001F0) Module Configuration Register 2                 */
-    volatile const uint32_t       I2S_COMP_PARAM_1;   /*!< (@ 0x000001F4) Module Configuration Register 1                 */
-    volatile const uint32_t       I2S_COMP_VERSION;   /*!< (@ 0x000001F8) Reserved                                        */
-    volatile const uint32_t       I2S_COMP_TYPE;      /*!< (@ 0x000001FC) Reserved                                        */
-    volatile uint32_t             I2S_DMACR;          /*!< (@ 0x00000200) DMA Control Register                            */
-} I2S_Type;                                           /*!< Size = 516 (0x204)                                             */
 
 /*!< Number of bytes for 16/32bit resolution*/
 #define I2S_16BIT_BUF_TYPE_BYTES        2

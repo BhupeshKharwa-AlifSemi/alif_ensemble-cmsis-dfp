@@ -25,7 +25,7 @@
 #include "Driver_Common.h"
 
 #ifdef _cplusplus
-extern "c"
+extern "C"
 {
 #endif
 
@@ -145,5 +145,9 @@ typedef struct ARM_DRIVER_PDM{
     int32_t                       (*Receive)           (void *data, uint32_t num);             /* Pointer to Receive : PDM Receive Configuration                                */
     ARM_PDM_STATUS                (*GetStatus)         (void);                                 /* Pointer to GetStatus: Get the PDM status                                      */
 }const ARM_DRIVER_PDM;
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif /* DRIVER_PDM_H_ */

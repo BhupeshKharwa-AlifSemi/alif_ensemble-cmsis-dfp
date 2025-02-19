@@ -21,7 +21,7 @@
 #define SYS_UTILS_H
 
 #include <stdbool.h>
-#include "core.h"
+#include "alif.h"
 
 #ifdef __cplusplus
 extern "C" {

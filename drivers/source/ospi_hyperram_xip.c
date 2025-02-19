@@ -23,7 +23,7 @@
 #include "ospi_hyperram_xip.h"
 #include "ospi.h"
 #include "sys_ctrl_aes.h"
-#include "global_map.h"
+#include "soc.h"
 #include "sys_clocks.h"
 
 /**

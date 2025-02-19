@@ -19,7 +19,8 @@
  ******************************************************************************/
 #include <sys_utils.h>
 #include "sys_clocks.h"
-#include <peripheral_types.h>
+
+#define CNTCR_EN    (1U << 0)                   /* Enable the counter */
 
 /**
   \fn          void sys_busy_loop_init_ns(void)

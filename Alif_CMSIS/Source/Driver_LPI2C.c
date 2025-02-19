@@ -63,98 +63,98 @@ static const ARM_I2C_CAPABILITIES DriverCapabilities = {
  * @brief   lpi2c initialize
  * @note    it will use initialize the lpi2c driver.
  * @param   cb_event    : Pointer to \ref ARM_LPI2C_SignalEvent
- * @param   LPI2C       : Pointer to lpi2c resources structure
+ * @param   LPI2C_RES       : Pointer to lpi2c resources structure
  * @retval  ARM_DRIVER_OK : successfully initialized
  */
 static int32_t ARM_LPI2C_Initialize(ARM_I2C_SignalEvent_t cb_event,
-                                    LPI2C_RESOURCES        *LPI2C)
+                                    LPI2C_RESOURCES        *LPI2C_RES)
 {
   if (!cb_event)
     return ARM_DRIVER_ERROR_PARAMETER;
 
-  LPI2C->cb_event = cb_event;
+  LPI2C_RES->cb_event = cb_event;
 
-  LPI2C->state.initialized = 1U;
+  LPI2C_RES->state.initialized = 1U;
 
   return ARM_DRIVER_OK;
 }
 
 /**
- * @func   : int32_t ARM_LPI2C_Uninitialize(LPI2C_RESOURCES *LPI2C)
+ * @func   : int32_t ARM_LPI2C_Uninitialize(LPI2C_RESOURCES *LPI2C_RES)
  * @brief  : lpi2c uninitialize
  * @note   : it will use uninitialize the lpi2c driver.
- * @param  : lpi2c         : Pointer to lpi2c resources structure
+ * @param  : LPI2C_RES         : Pointer to lpi2c resources structure
  * @retval : ARM_DRIVER_OK : successfully initialized
  */
-static int32_t ARM_LPI2C_Uninitialize(LPI2C_RESOURCES *LPI2C)
+static int32_t ARM_LPI2C_Uninitialize(LPI2C_RESOURCES *LPI2C_RES)
 {
 
   /* check lpi2c driver is initialized or not */
-  if (LPI2C->state.initialized == 0)
+  if (LPI2C_RES->state.initialized == 0)
       return ARM_DRIVER_OK;
 
   /* check lpi2c driver is powered or not */
-  if (LPI2C->state.powered == 1)
+  if (LPI2C_RES->state.powered == 1)
       return ARM_DRIVER_ERROR;
 
-  LPI2C->cb_event = 0U;
+  LPI2C_RES->cb_event = 0U;
 
-  LPI2C->state.initialized = 0U;
+  LPI2C_RES->state.initialized = 0U;
 
   return ARM_DRIVER_OK;
 }
 
 /**
- * @func    : int32_t ARM_LPI2C_PowerControl (ARM_POWER_STATE state, LPI2C_RESOURCES *LPI2C)
+ * @func    : int32_t ARM_LPI2C_PowerControl (ARM_POWER_STATE state, LPI2C_RESOURCES *LPI2C_RES)
  * @brief   : Power the driver and enable the NVIC
  * @param   : state : Power state
- * @param   : LPI2C   : Pointer to lpi2c resources structure
+ * @param   : LPI2C_RES   : Pointer to lpi2c resources structure
  * @return  : ARM_DRIVER_OK
  */
-static int32_t ARM_LPI2C_PowerControl (ARM_POWER_STATE state, LPI2C_RESOURCES *LPI2C)
+static int32_t ARM_LPI2C_PowerControl (ARM_POWER_STATE state, LPI2C_RESOURCES *LPI2C_RES)
 {
     switch (state)
     {
     case ARM_POWER_FULL:
 
          /* check for Driver initialization */
-         if (LPI2C->state.initialized == 0)
+         if (LPI2C_RES->state.initialized == 0)
          {
              return ARM_DRIVER_ERROR;
          }
 
          /* check for the power is done before initialization or not */
-         if (LPI2C->state.powered == 1)
+         if (LPI2C_RES->state.powered == 1)
          {
              return ARM_DRIVER_OK;
          }
 
          /* Clear Any Pending Irq */
-         NVIC_ClearPendingIRQ(LPI2C->irq_num);
+         NVIC_ClearPendingIRQ(LPI2C_RES->irq_num);
 
          /* Set Priority */
-         NVIC_SetPriority(LPI2C->irq_num, LPI2C->irq_priority);
+         NVIC_SetPriority(LPI2C_RES->irq_num, LPI2C_RES->irq_priority);
 
          /* Enable IRQ */
-         NVIC_EnableIRQ(LPI2C->irq_num);
+         NVIC_EnableIRQ(LPI2C_RES->irq_num);
 
-         LPI2C->state.powered = 1;
+         LPI2C_RES->state.powered = 1;
 
         break;
     case ARM_POWER_OFF:
 
-         if (LPI2C->state.powered == 0)
+         if (LPI2C_RES->state.powered == 0)
          {
              return ARM_DRIVER_OK;
          }
 
          /* Disable the IRQ */
-         NVIC_DisableIRQ(LPI2C->irq_num);
+         NVIC_DisableIRQ(LPI2C_RES->irq_num);
 
          /* Clearing pending */
-         NVIC_ClearPendingIRQ(LPI2C->irq_num);
+         NVIC_ClearPendingIRQ(LPI2C_RES->irq_num);
 
-         LPI2C->state.powered = 0;
+         LPI2C_RES->state.powered = 0;
         break;
     case ARM_POWER_LOW:
         return ARM_DRIVER_ERROR_UNSUPPORTED;
@@ -163,62 +163,62 @@ static int32_t ARM_LPI2C_PowerControl (ARM_POWER_STATE state, LPI2C_RESOURCES *L
 }
 
 /**
- * @func   : int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C,
+ * @func   : int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C_RES,
                                         const uint8_t *data,
                                               uint32_t num)
  * @brief  : lpi2c slave transmit
  *         : Start sending data to i2c master.
  * @param  : data : Pointer to buffer with data to send to i2c master
  * @param  : num  : Number of data items to send
- * @param  : LPI2C  : Pointer to lpi2c resources structure
+ * @param  : LPI2C_RES  : Pointer to lpi2c resources structure
  * @retval : ARM_DRIVER_ERROR_PARAMETER  : error in parameter
  * @retval : ARM_DRIVER_ERROR            : error in driver
  * @retval : ARM_DRIVER_OK               : success in interrupt case
  */
-static int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C,
+static int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C_RES,
                                        const uint8_t *data,
                                              uint32_t num)
 {
 
   /* check lpi2c driver is initialized or not */
-  if (LPI2C->state.initialized == 0)
+  if (LPI2C_RES->state.initialized == 0)
       return ARM_DRIVER_ERROR;
 
   /* check lpi2c driver is powered or not */
-  if (LPI2C->state.powered == 0)
+  if (LPI2C_RES->state.powered == 0)
       return ARM_DRIVER_ERROR;
 
-  if (LPI2C->status.busy == 1U)
+  if (LPI2C_RES->status.busy == 1U)
     return ARM_DRIVER_ERROR;
 
   /* Set busy state */
-  LPI2C->status.busy = 1U;
+  LPI2C_RES->status.busy = 1U;
 
-  LPI2C->transfer.tx_buf       = data;
-  LPI2C->transfer.tx_total_num = num;
-  LPI2C->transfer.tx_curr_cnt  = 0U;
+  LPI2C_RES->transfer.tx_buf       = data;
+  LPI2C_RES->transfer.tx_total_num = num;
+  LPI2C_RES->transfer.tx_curr_cnt  = 0U;
 
-  LPI2C->transfer.rx_buf       = NULL;
-  LPI2C->transfer.rx_total_num = 0U;
-  LPI2C->transfer.rx_curr_cnt  = 0U;
+  LPI2C_RES->transfer.rx_buf       = NULL;
+  LPI2C_RES->transfer.rx_total_num = 0U;
+  LPI2C_RES->transfer.rx_curr_cnt  = 0U;
 
   /* Writing data to fifo */
-  lpi2c_send(LPI2C->regs, &LPI2C->transfer, LPI2C_1BYTE_TIME);
+  lpi2c_send(LPI2C_RES->regs, &LPI2C_RES->transfer, LPI2C_1BYTE_TIME);
 
-  if(LPI2C->transfer.status & LPI2C_XFER_STAT_COMPLETE)
+  if(LPI2C_RES->transfer.status & LPI2C_XFER_STAT_COMPLETE)
   {
-      LPI2C->status.busy = 0U;
+      LPI2C_RES->status.busy = 0U;
       /* receive complete successfully. */
-      LPI2C->cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
+      LPI2C_RES->cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
 
-      LPI2C->transfer.status = LPI2C_XFER_STAT_NONE;
+      LPI2C_RES->transfer.status = LPI2C_XFER_STAT_NONE;
   }
 
   return ARM_DRIVER_OK;
 }
 
 /**
- * @func   : int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C,
+ * @func   : int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C_RES,
                                        const uint8_t *data,
                                              uint32_t num)
  * @brief  : lpi2c slave receive
@@ -226,36 +226,36 @@ static int32_t ARM_LPI2C_SlaveTransmit(LPI2C_RESOURCES *LPI2C,
  * @note   : none
  * @param  : data : Pointer to buffer for data to receive from i2c master
  * @param  : num  : Number of data items to receive
- * @param  : LPI2C  : Pointer to lpi2c resources structure
+ * @param  : LPI2C_RES  : Pointer to lpi2c resources structure
  * @retval : ARM_DRIVER_ERROR_PARAMETER  : error in parameter
  * @retval : ARM_DRIVER_ERROR            : error in driver
  * @retval : ARM_DRIVER_OK               : success in interrupt case
  */
-static int32_t ARM_LPI2C_SlaveReceive(LPI2C_RESOURCES *LPI2C,
+static int32_t ARM_LPI2C_SlaveReceive(LPI2C_RESOURCES *LPI2C_RES,
                                       uint8_t *data,
                                       uint32_t num)
 {
   /* check lpi2c driver is initialized or not */
-  if (LPI2C->state.initialized == 0)
+  if (LPI2C_RES->state.initialized == 0)
       return ARM_DRIVER_ERROR;
 
   /* check lpi2c driver is powered or not */
-  if (LPI2C->state.powered == 0)
+  if (LPI2C_RES->state.powered == 0)
       return ARM_DRIVER_ERROR;
 
-  if (LPI2C->status.busy == 1U)
+  if (LPI2C_RES->status.busy == 1U)
     return ARM_DRIVER_ERROR;
 
   /* Set busy state */
-  LPI2C->status.busy = 1U;
+  LPI2C_RES->status.busy = 1U;
 
-  LPI2C->transfer.rx_buf       = data;
-  LPI2C->transfer.rx_total_num = num;
-  LPI2C->transfer.rx_curr_cnt  = 0U;
+  LPI2C_RES->transfer.rx_buf       = data;
+  LPI2C_RES->transfer.rx_total_num = num;
+  LPI2C_RES->transfer.rx_curr_cnt  = 0U;
 
-  LPI2C->transfer.tx_buf       = NULL;
-  LPI2C->transfer.tx_total_num = 0U;
-  LPI2C->transfer.tx_curr_cnt  = 0U;
+  LPI2C_RES->transfer.tx_buf       = NULL;
+  LPI2C_RES->transfer.tx_total_num = 0U;
+  LPI2C_RES->transfer.tx_curr_cnt  = 0U;
 
   return ARM_DRIVER_OK;
 }
@@ -264,20 +264,20 @@ static int32_t ARM_LPI2C_SlaveReceive(LPI2C_RESOURCES *LPI2C,
  * @brief  : CMSIS-Driver lpi2c get transfer data count
  * @note   : it can be either transmit or receive data count which perform last
  *           (useful only in interrupt mode)
- * @param  : LPI2C   : Pointer to lpi2c resources structure
+ * @param  : LPI2C_RES   : Pointer to lpi2c resources structure
  * @retval : transfer data count
  */
-static int32_t ARM_LPI2C_GetDataCount(const LPI2C_RESOURCES *LPI2C)
+static int32_t ARM_LPI2C_GetDataCount(const LPI2C_RESOURCES *LPI2C_RES)
 {
     int32_t ret;
 
-    if (LPI2C->transfer.tx_buf != NULL)
+    if (LPI2C_RES->transfer.tx_buf != NULL)
     {
-        ret = LPI2C->transfer.tx_curr_cnt;
+        ret = LPI2C_RES->transfer.tx_curr_cnt;
     }
     else
     {
-        ret = LPI2C->transfer.rx_curr_cnt;
+        ret = LPI2C_RES->transfer.rx_curr_cnt;
     }
 
     return ret;
@@ -286,12 +286,12 @@ static int32_t ARM_LPI2C_GetDataCount(const LPI2C_RESOURCES *LPI2C)
 /**
  * @brief  : CMSIS-Driver lpi2c get status
  * @note   : none
- * @param  : LPI2C : Pointer to lpi2c resources structure
+ * @param  : LPI2C_RES : Pointer to lpi2c resources structure
  * @retval : ARM_i2c_STATUS
  */
-static ARM_I2C_STATUS ARM_LPI2C_GetStatus(const LPI2C_RESOURCES *LPI2C)
+static ARM_I2C_STATUS ARM_LPI2C_GetStatus(const LPI2C_RESOURCES *LPI2C_RES)
 {
-    return LPI2C->status;
+    return LPI2C_RES->status;
 }
 
 /* LPI2C Driver Instance */

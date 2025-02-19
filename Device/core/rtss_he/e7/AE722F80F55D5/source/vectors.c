@@ -18,7 +18,8 @@
  * continous.
  */
 
-#include "core.h"
+#include "soc.h"
+#include "system.h"
 
 #define __WEAK_FAULT        __attribute__ ((weak, alias("Fault_Handler")))
 #define __WEAK_ISR          __attribute__ ((weak, alias("Default_Handler")))

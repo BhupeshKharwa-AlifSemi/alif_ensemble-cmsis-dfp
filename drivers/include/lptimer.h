@@ -28,6 +28,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include "soc.h"
 
 /* LPTIMER Control Register bit Definition */
 #define LPTIMER_CONTROL_REG_TIMER_ENABLE_BIT                0x01U
@@ -35,30 +36,6 @@ extern "C"
 #define LPTIMER_CONTROL_REG_TIMER_INTERRUPT_MASK_BIT        0x04U
 #define LPTIMER_CONTROL_REG_TIMER_PWM_BIT                   0x08U
 #define LPTIMER_CONTROL_REG_TIMER_ON_100PWM_BIT             0x10U
-
-/**
-  * @brief LPTIMER_LPTIMER_CHANNEL_CFG [LPTIMER_CHANNEL_CFG]
-  */
-typedef struct {
-    volatile        uint32_t  LPTIMER_LOADCOUNT;                             /*!< (@ 0x00000000) Timer (n) Load Count Register         */
-    volatile const  uint32_t  LPTIMER_CURRENTVAL;                            /*!< (@ 0x00000004) Timer (n) Current Value Register      */
-    volatile        uint32_t  LPTIMER_CONTROLREG;                            /*!< (@ 0x00000008) Timer (n) Control Register            */
-    volatile const  uint32_t  LPTIMER_EOI;                                   /*!< (@ 0x0000000C) Timer (n) End-of-Interrupt Register   */
-    volatile const  uint32_t  LPTIMER_INTSTAT;                               /*!< (@ 0x00000010) Timer (n) Interrupt Status Register   */
-} LPTIMER_LPTIMER_CHANNEL_CFG_Type;                                          /*!< Size = 20 (0x14)                                     */
-
-/**
-  * @brief LPTIMER (LPTIMER)
-  */
-typedef struct {
-    volatile        LPTIMER_LPTIMER_CHANNEL_CFG_Type LPTIMER_CHANNEL_CFG[4]; /*!< (@ 0x00000000) [0..3]                                */
-    volatile const  uint32_t  RESERVED[20];
-    volatile const  uint32_t  LPTIMERS_INTSTATUS;                            /*!< (@ 0x000000A0) Timers Interrupt Status Register      */
-    volatile const  uint32_t  LPTIMERS_EOI;                                  /*!< (@ 0x000000A4) Timers End-of-Interrupt Register      */
-    volatile const  uint32_t  LPTIMERS_RAWINTSTATUS;                         /*!< (@ 0x000000A8) Timers Raw Interrupt Status Register  */
-    volatile const  uint32_t  LPTIMERS_COMP_VERSION;                         /*!< (@ 0x000000AC) Reserved                              */
-    volatile        uint32_t  LPTIMER_LOADCOUNT2[4];                         /*!< (@ 0x000000B0) Timer (n) Load Count 2 Register       */
-} LPTIMER_Type;                                                              /*!< Size = 192 (0xc0)                                    */
 
 /**
   \fn          static inline void lptimer_set_mode_userdefined (LPTIMER_Type *lptimer, uint8_t channel)
@@ -181,6 +158,7 @@ static inline void lptimer_unmask_interrupt (LPTIMER_Type *lptimer, uint8_t chan
     lptimer->LPTIMER_CHANNEL_CFG[channel].LPTIMER_CONTROLREG &= ~LPTIMER_CONTROL_REG_TIMER_INTERRUPT_MASK_BIT;
 }
 
+#if SOC_FEAT_LPTIMER_HAS_PWM
 /**
   \fn          static inline void lptimer_load_count2 (LPTIMER_Type *lptimer, uint8_t channel, uint32_t value)
   \brief       Load counter 2 value
@@ -193,7 +171,7 @@ static inline void lptimer_load_count2 (LPTIMER_Type *lptimer, uint8_t channel, 
 {
     lptimer->LPTIMER_LOADCOUNT2[channel] = *value;
 }
-
+#endif
 /**
   \fn          static inline void lptimer_enable_pwm (LPTIMER_Type *lptimer, uint8_t channel)
   \brief       Enable channel PWM feature

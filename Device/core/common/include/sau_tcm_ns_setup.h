@@ -22,6 +22,8 @@
 #ifndef SAU_TCM_NS_SETUP_H
 #define SAU_TCM_NS_SETUP_H
 
+#include "core_defines.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

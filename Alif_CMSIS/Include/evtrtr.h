@@ -25,7 +25,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
-#include "peripheral_types.h"
+
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #include "RTE_Device.h"
@@ -44,6 +44,16 @@ extern "C"
 #if defined( RTE_DMA2 )
 #define RTE_EVTRTR2 RTE_DMA2
 #endif
+
+#define DMA_CTRL_ACK_TYPE_Pos               (16U)  /* HandShake Type 0: Peripheral, 1: Event Router               */
+#define DMA_CTRL_ENA                        (1U << 4)   /* Enable DMA Channel                                          */
+#define DMA_CTRL_SEL_Pos                    (0U)        /* Select DMA group from 0 to 3 for DMA0. For Local, only GRP0 */
+#define DMA_CTRL_SEL_Msk                    (0x3)       /* Select DMA group from 0 to 3 for DMA0. For Local, only GRP0 */
+
+#define DMA_REQ_CTRL_CB                     (1U << 12)  /* Enable peripheral Burst DMA request  : DMACBREQ        */
+#define DMA_REQ_CTRL_CS                     (1U << 8)   /* Enable peripheral Single DMA request : DMACSREQ        */
+#define DMA_REQ_CTRL_CLB                    (1U << 4)   /* Enable peripheral Last Burst DMA request  : DMACLBREQ  */
+#define DMA_REQ_CTRL_CLS                    (1U << 0)   /* Enable peripheral Last Single DMA request  : DMACLSREQ */
 
 /**
  * enum DMA_ACK_COMPLETION
@@ -80,35 +90,33 @@ static inline void evtrtr0_enable_dma_channel(uint8_t channel,
                                               uint8_t group,
                                               DMA_ACK_COMPLETION ack_type)
 {
-    volatile uint32_t *dma_ctrl_addr = &EVTRTR0->DMA_CTRL0 +
-                                       (channel & EVTRTR_DMA_CHANNEL_MAX_Msk);
+    uint32_t index = channel & EVTRTR_DMA_CHANNEL_MAX_Msk;
 
-    *dma_ctrl_addr = DMA_CTRL_ENA | (DMA_CTRL_SEL_Msk & group)
+    EVTRTR0->EVTRTR_DMA_CTRL[index] = DMA_CTRL_ENA | (DMA_CTRL_SEL_Msk & group)
                      | (ack_type << DMA_CTRL_ACK_TYPE_Pos);
 }
 
 static inline void evtrtr0_disable_dma_channel(uint8_t channel)
 {
-    volatile uint32_t *dma_ctrl_addr = &EVTRTR0->DMA_CTRL0 +
-                                       (channel & EVTRTR_DMA_CHANNEL_MAX_Msk);
+    uint32_t index = channel & EVTRTR_DMA_CHANNEL_MAX_Msk;
 
-    *dma_ctrl_addr = 0;
+    EVTRTR0->EVTRTR_DMA_CTRL[index] = 0;
 }
 
 static inline void evtrtr0_enable_dma_req(void)
 {
-    EVTRTR0->DMA_REQ_CTRL |= (DMA_REQ_CTRL_CB | DMA_REQ_CTRL_CLB
+    EVTRTR0->EVTRTR_DMA_REQ_CTRL |= (DMA_REQ_CTRL_CB | DMA_REQ_CTRL_CLB
                               | DMA_REQ_CTRL_CS | DMA_REQ_CTRL_CLS);
 }
 
 static inline void evtrtr0_disable_dma_req(void)
 {
-    EVTRTR0->DMA_REQ_CTRL = 0;
+    EVTRTR0->EVTRTR_DMA_REQ_CTRL = 0;
 }
 
 static inline void evtrtr0_enable_dma_handshake(uint8_t channel, uint8_t group)
 {
-    volatile uint32_t *dma_ack_type_addr = &EVTRTR0->DMA_ACK_TYPE0 +
+    volatile uint32_t *dma_ack_type_addr = &EVTRTR0->EVTRTR_DMA_ACK_TYPE0 +
                                            (DMA_CTRL_SEL_Msk & group);
 
     __disable_irq();
@@ -118,7 +126,7 @@ static inline void evtrtr0_enable_dma_handshake(uint8_t channel, uint8_t group)
 
 static inline void evtrtr0_disable_dma_handshake(uint8_t channel, uint8_t group)
 {
-    volatile uint32_t *dma_ack_type_addr = &EVTRTR0->DMA_ACK_TYPE0 +
+    volatile uint32_t *dma_ack_type_addr = &EVTRTR0->EVTRTR_DMA_ACK_TYPE0 +
                                            (DMA_CTRL_SEL_Msk & group);
 
     __disable_irq();
@@ -132,36 +140,34 @@ static inline void evtrtrlocal_enable_dma_channel(uint8_t channel,
                                                   uint8_t group,
                                                   DMA_ACK_COMPLETION ack_type)
 {
-    volatile uint32_t *dma_ctrl_addr = &EVTRTRLOCAL->DMA_CTRL0 +
-                                       (channel & EVTRTR_DMA_CHANNEL_MAX_Msk);
+    uint32_t index = channel & EVTRTR_DMA_CHANNEL_MAX_Msk;
 
-    *dma_ctrl_addr = DMA_CTRL_ENA | (DMA_CTRL_SEL_Msk & group)
-                     | (ack_type << DMA_CTRL_ACK_TYPE_Pos);
+    EVTRTRLOCAL->EVTRTR_DMA_CTRL[index] = DMA_CTRL_ENA | (DMA_CTRL_SEL_Msk & group)
+                                            | (ack_type << DMA_CTRL_ACK_TYPE_Pos);
 }
 
 static inline void evtrtrlocal_disable_dma_channel(uint8_t channel)
 {
-    volatile uint32_t *dma_ctrl_addr = &EVTRTRLOCAL->DMA_CTRL0 +
-                                       (channel & EVTRTR_DMA_CHANNEL_MAX_Msk);
+    uint32_t index = channel & EVTRTR_DMA_CHANNEL_MAX_Msk;
 
-    *dma_ctrl_addr = 0;
+    EVTRTRLOCAL->EVTRTR_DMA_CTRL[index] = 0;
 }
 
 static inline void evtrtrlocal_enable_dma_req(void)
 {
-    EVTRTRLOCAL->DMA_REQ_CTRL |= (DMA_REQ_CTRL_CB | DMA_REQ_CTRL_CLB
-                                  | DMA_REQ_CTRL_CS | DMA_REQ_CTRL_CLS);
+    EVTRTRLOCAL->EVTRTR_DMA_REQ_CTRL |= (DMA_REQ_CTRL_CB | DMA_REQ_CTRL_CLB
+                                        | DMA_REQ_CTRL_CS | DMA_REQ_CTRL_CLS);
 }
 
 static inline void evtrtrlocal_disable_dma_req(void)
 {
-    EVTRTRLOCAL->DMA_REQ_CTRL = 0;
+    EVTRTRLOCAL->EVTRTR_DMA_REQ_CTRL = 0;
 }
 
 static inline void evtrtrlocal_enable_dma_handshake(uint8_t channel,
                                                     uint8_t group)
 {
-    volatile uint32_t *dma_ack_type_addr = &EVTRTRLOCAL->DMA_ACK_TYPE0 +
+    volatile uint32_t *dma_ack_type_addr = &EVTRTRLOCAL->EVTRTR_DMA_ACK_TYPE0 +
                                            (DMA_CTRL_SEL_Msk & group);
 
     __disable_irq();
@@ -172,7 +178,7 @@ static inline void evtrtrlocal_enable_dma_handshake(uint8_t channel,
 static inline void evtrtrlocal_disable_dma_handshake(uint8_t channel,
                                                      uint8_t group)
 {
-    volatile uint32_t *dma_ack_type_addr = &EVTRTRLOCAL->DMA_ACK_TYPE0 +
+    volatile uint32_t *dma_ack_type_addr = &EVTRTRLOCAL->EVTRTR_DMA_ACK_TYPE0 +
                                            (DMA_CTRL_SEL_Msk & group);
 
     __disable_irq();

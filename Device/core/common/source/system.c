@@ -37,7 +37,8 @@
  * @Note	   None
  ******************************************************************************/
 
-#include "core.h"
+#include "soc.h"
+#include "core_config.h"
 
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
   #include "app_tz.h"

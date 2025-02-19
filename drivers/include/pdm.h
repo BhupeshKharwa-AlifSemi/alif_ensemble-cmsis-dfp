@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "soc.h"
 
 /**
   * @brief PDM_PDM_CHANNEL_CFG [PDM_CHANNEL_CFG] ([0..7])
@@ -45,26 +46,6 @@ typedef struct {
   volatile const  uint32_t  PDM_CH_PKDET_STAT;     /*!< (@ 0x00000094) Channel (n) Peak Detector Status Register                  */
   volatile const  uint32_t  RESERVED1[26];
 } PDM_PDM_CHANNEL_CFG_Type;                        /*!< Size = 256 (0x100)                                                        */
-
-/**
-  * @brief PDM (PDM)
-  */
-typedef struct {                                         /*!< (@ 0x43002000) PDM Structure                                              */
-  volatile uint32_t  PDM_CTL0;                           /*!< (@ 0x00000000) PDM Audio Control Register 0                               */
-  volatile uint32_t  PDM_CTL1;                           /*!< (@ 0x00000004) PDM Audio Control Register 1                               */
-  volatile uint32_t  PDM_FIFO_WATERMARK_H;               /*!< (@ 0x00000008) FIFO Watermark Register                                    */
-  volatile const  uint32_t  PDM_FIFO_STAT;               /*!< (@ 0x0000000C) FIFO Status Register                                       */
-  volatile const  uint32_t  PDM_ERROR_IRQ;               /*!< (@ 0x00000010) FIFO Error Interrupt Status Register                       */
-  volatile const  uint32_t  PDM_WARN_IRQ;                /*!< (@ 0x00000014) FIFO Warning Interrupt Status Register                     */
-  volatile const  uint32_t  PDM_AUDIO_DETECT_IRQ;        /*!< (@ 0x00000018) Audio Detection Interrupt Status Register                  */
-  volatile uint32_t  PDM_IRQ_ENABLE;                     /*!< (@ 0x0000001C) Interrupt Enable Register                                  */
-  volatile uint32_t  PDM_CH0_CH1_AUDIO_OUT;              /*!< (@ 0x00000020) Channels 0 and 1 Audio Output Register                     */
-  volatile uint32_t  PDM_CH2_CH3_AUDIO_OUT;              /*!< (@ 0x00000024) Channels 2 and 3 Audio Output Register                     */
-  volatile uint32_t  PDM_CH4_CH5_AUDIO_OUT;              /*!< (@ 0x00000028) Channels 4 and 5 Audio Output Register                     */
-  volatile uint32_t  PDM_CH6_CH7_AUDIO_OUT;              /*!< (@ 0x0000002C) Channels 6 and 7 Audio Output Register                     */
-  volatile const  uint32_t  RESERVED[4];
-  volatile PDM_PDM_CHANNEL_CFG_Type PDM_CHANNEL_CFG[8];  /*!< (@ 0x00000040) [0..7]                                                     */
-} PDM_Type;                                              /*!< Size = 2112 (0x840)                                                       */
 
 #define PDM0_IRQ_ENABLE               (0xFF03U)                   /* To enable the interrupt status register */
 #define PDM_BYPASS_IIR                (1U << 2U)                  /* Bypass DC blocking IIR filter           */

@@ -11,18 +11,12 @@
 #ifndef DAC_H_
 #define DAC_H_
 
+#include "soc.h"
+
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
-
-/**
-  * @brief DAC (DAC)
-  */
-typedef struct {                             /*!< DAC Structure                                          */
-    volatile uint32_t  DAC_REG1;             /*!< REG1 DAC Control Register                              */
-    volatile uint32_t  DAC_IN;               /*!< DAC Input Value Register                               */
-} DAC_Type;                                  /*!< Size = 8 (0x8)                                         */
 
 /* DAC  Control register */
 #define DAC_EN                   (1U << 0)   /* Enable DAC                                               */

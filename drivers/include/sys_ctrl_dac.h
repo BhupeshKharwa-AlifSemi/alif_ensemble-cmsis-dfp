@@ -27,7 +27,11 @@ extern "C"
 {
 #endif
 
-#include "peripheral_types.h"
+#include "soc.h"
+
+/* CLKCTL_PER_SLV DAC field definitions */
+#define DAC_CTRL_DAC0_CKEN                  (1U  <<  0U) /* DAC0 clock enable */
+#define DAC_CTRL_DAC1_CKEN                  (1U  <<  4U) /* DAC1 clock enable */
 
 /**
  * enum DAC_INSTANCE.

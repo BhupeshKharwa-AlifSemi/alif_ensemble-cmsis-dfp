@@ -31,21 +31,17 @@ extern "C"
 // <h> OSPI XIP Configuration
 // =========================================
 
-#define OSPI0                                    0U
-#define OSPI1                                    1U
-
-
 /**
   \def OSPI_XIP_INSTANCE
   \brief OSPI instance configuration. Can be set to either \ref OSPI0 or \ref OSPI1.
 */
 
 //   <o OSPI_XIP_INSTANCE> OSPI instance selection
-//      <OSPI0=>  0
-//      <OSPI1=>  1
+//      <0=>  OSPI0
+//      <1=>  OSPI1
 //   <i> OSPI instance selection
 
-#define OSPI_XIP_INSTANCE                        OSPI1
+#define OSPI_XIP_INSTANCE                        1
 
 /**
   \def OSPI_XIP_IMAGE_ADDRESS

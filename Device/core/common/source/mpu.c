@@ -24,7 +24,8 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "core.h"
+#include "soc.h"
+#include "core_defines.h"
 
 /* Public functions ----------------------------------------------------------*/
 /**
