@@ -55,7 +55,6 @@ SECTIONS
   .startup.at_itcm : ALIGN(2048)
   {
     KEEP(*(.vectors))
-    KEEP(*(irqrtr_vectors))
 
     *startup*(.text .rodata*)
     *system*(.text .rodata*)
