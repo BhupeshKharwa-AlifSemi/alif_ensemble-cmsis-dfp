@@ -58,6 +58,7 @@ SD_DRV_STATUS sd_error_handler(){
 SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param){
 
     uint8_t powerlevel;
+    uint16_t reg;
 
     /* Enable SDMMC Clock */
     enable_sd_periph_clk();
@@ -125,6 +126,15 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param){
     else
         /* Wrong input given by user swithing to default ADMA2 mode */
         hc_config_dma(pHsd, (uint8_t)(SDMMC_HOST_CTRL1_ADMA32_MODE_Msk | SDMMC_HOST_CTRL1_DMA_SEL_1BIT_MODE));
+
+    /* Default clock settings to 400KHz */
+    pHsd->sd_card.cardtype   = SDMMC_CARD_SDHC;
+    pHsd->sd_card.busspeed   = SDMMC_CLK_400_KHZ;
+
+    reg = SDMMC_CLK_GEN_SEL_Msk | SDMMC_INIT_CLK_DIVSOR_Msk |
+          SDMMC_PLL_EN_Msk | SDMMC_CLK_EN_Msk | SDMMC_INTERNAL_CLK_EN_Msk;
+
+    hc_set_clk_freq(pHsd, reg);
 
     return SD_DRV_STATUS_OK;
 }
@@ -440,5 +450,4 @@ retry:
 
     return SD_DRV_STATUS_OK;
 }
-
 
