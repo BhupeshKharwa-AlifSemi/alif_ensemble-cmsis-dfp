@@ -177,16 +177,48 @@ typedef struct _adma2_desc_t{
 #define NORMAL_INT_STAT_XFER_COMPLETE_Msk       (1U << NORMAL_INT_STAT_XFER_COMPLETE_Pos)
 
 /* Card CSD */
+#define RAW_CSD_BUF_IDX0                        0U
+#define RAW_CSD_BUF_IDX1                        1U
+#define RAW_CSD_BUF_IDX2                        2U
+#define RAW_CSD_BUF_IDX3                        3U
 #define CSD_SPEC_VER_Msk                        0x003C0000U
 #define READ_BLK_LEN_Msk                        0x00000F00U
 #define C_SIZE_MULT_Msk                         0x00000380U
 #define C_SIZE_LOWER_Msk                        0xFFC00000U
+#define C_SIZE_LOWER_Pos                        22U
 #define C_SIZE_UPPER_Msk                        0x00000003U
+#define C_SIZE_UPPER_Pos                        0x0000000AU
 #define CSD_STRUCT_Msk                          0x00C00000U
+#define CSD_STRUCT_Pos                          22U
 #define CSD_V2_C_SIZE_Msk                       0x3FFFFF00U
+#define CSD_V2_C_SIZE_Pos                       0x8U
+#define CSD_V1_BLK_LEN_Pos                      0x8U
 #define CSD_CCC_Msk                             0xFFF00000U
 #define CSD_CCC_SHIFT                           20U
 #define CSD_CCC_CLASS5_Msk                      0x20U
+
+/* ext CSD Command Index */
+#define SDMMC_EXT_CSD_CMD_BOOT_CFG              0xAFU
+#define SDMMC_EXT_CSD_CMD_BUS_WIDTH             0xB7U
+#define SDMMC_EXT_CSD_CMD_HS_MODE               0xB9U
+#define SDMMC_EXT_CSD_HS_MODE                   0x1U
+#define SDMMC_EXT_CSD_BOOT_WR_PROTECT           0x1U
+
+/* CMD6 Argument Format */
+#define SDMMC_CMD6_DELAY                        5000U
+#define SDMMC_CMD6_ACCESS_MODE_CMD              0U
+#define SDMMC_CMD6_ACCESS_MODE_SET_BIT          1U
+#define SDMMC_CMD6_ACCESS_MODE_CLR_BIT          2U
+#define SDMMC_CMD6_ACCESS_MODE_WR_BYTE          3U
+#define SDMMC_CMD6_SWITCH_MODE_APPLY            1U
+#define SDMMC_CMD6_SWITCH_MODE_TEST             0U
+
+#define SDMMC_EXT_CSD_WRITE_Pos                 0x18U
+#define SDMMC_EXT_CSD_WRITE_Msk                 (SDMMC_CMD6_ACCESS_MODE_WR_BYTE <<  SDMMC_EXT_CSD_WRITE_Pos)
+#define SDMMC_EXT_CSD_IDS_Pos                   0x10
+#define SDMMC_EXT_CSD_IDX_Msk(IDX)              ((IDX) << SDMMC_EXT_CSD_IDS_Pos)
+#define SDMMC_EXT_CSD_VAL_Pos                   0x8U
+#define SDMMC_EXT_CSD_VAL_Msk(VAL)              ((VAL) << SDMMC_EXT_CSD_VAL_Pos)
 
 /* Blk Size */
 #define SDMMC_BLK_SIZE_512_Msk                  0x0200U     /*!< Blk Size 512             */
@@ -332,6 +364,7 @@ typedef struct _adma2_desc_t{
 /* SD Relative Card Address Constnat */
 #define SDMMC_RCA_Pos                           0x10U
 #define SDMMC_RCA_Msk                           0xFFFF0000U
+#define EMMC_DEFAULT_RCA                        0x12340000U
 
 #ifdef __cplusplus
 }

@@ -28,10 +28,17 @@ extern "C" {
 #include "sd_host.h"
 #include "sdio.h"
 
+//#define SDMMC_DEBUG_WARN
 //#define SDMMC_PRINTF_DEBUG
 //#define SDMMC_PRINTF_SD_STATE_DEBUG
 //#define SDMMC_PRINT_SEC_DATA
 #define SDMMC_IRQ_MODE
+
+#define SDMMC_CACHED_NUM_BLK       8U
+#define SDMMC_EXT_CSD_SIZE         512U
+#define SDMMC_DATA_TIMEOUT         0xFFFU
+#define SDMMC_CMD_TIMEOUT          0xFFU
+#define SDMMC_SDHC_MAX_SECTOR_CNT  0xFFFFU
 
 /**
  * @brief  SD driver status enum definition
@@ -64,6 +71,51 @@ typedef enum _SD_CARD_STATE{
 }SD_CARD_STATE;
 
 /**
+ * @brief MMC High Speed timing enum
+ */
+typedef enum _mmc_timing_mode_t{
+    MMC_LEGACY,
+    MMC_HS,
+    MMC_HS200,
+    MMC_HS400
+}mmc_timing_mode_t;
+
+/**
+ * @brief MMC device types enum
+ */
+typedef enum _mmc_dev_type_t{
+    MMC_HS400_DDR_1P2V,
+    MMC_HS400_DDR_1P8V,
+    MMC_HS200_DDR_1P2V,
+    MMC_HS200_DDR_1P8V,
+    MMC_HS_DDR_1P2V,
+    MMC_HS_DDR_1P8V,
+    MMC_HS_52MHZ,
+    MMC_HS_26MHZ
+}mmc_dev_type_t;
+
+/**
+ * @brief MMC ext csd version
+ */
+typedef enum _mmc_ext_csd_ver_t{
+    MMC_5P1, MMC_5P0, MMC_4P5, MMC_4P4, MMC_4P3, MMC_4P2, MMC_4P1, MMC_4P0
+}mmc_ext_csd_ver_t;
+
+/**
+ * @brief MMC ext csd register
+ */
+typedef struct _mmc_ext_csd{
+    uint32_t            sector_cnt;
+    uint8_t             bus_width;
+    mmc_timing_mode_t   hs_mode;
+    uint8_t             device_type;
+    mmc_ext_csd_ver_t   mmc_ext_csd_ver;
+    uint8_t             power_class;
+    uint8_t             mmc_drv_strength;
+    uint32_t            cache_size;
+}mmc_ext_csd_t;
+
+/**
  * @brief  SD Card Information Structure definition
  */
 typedef struct _sd_cardinfo_t{
@@ -86,23 +138,24 @@ typedef struct _sd_cardinfo_t{
  * @brief  SD command structure definition
  */
 typedef struct _sd_cmd_t{
-    uint32_t arg;           /*!< SD Command Argument        */
-    uint16_t xfer_mode;     /*!< SD Command transfer mode   */
-    uint8_t cmdidx;         /*!< SD Command index           */
-    uint8_t data_present;   /*!< SD Command uses Data lines */
+    uint32_t arg;                /*!< SD Command Argument        */
+    uint16_t xfer_mode;          /*!< SD Command transfer mode   */
+    uint8_t cmdidx;              /*!< SD Command index           */
+    uint8_t data_present;        /*!< SD Command uses Data lines */
+    uint8_t card_buffer[SDMMC_CACHED_BLK_SIZE * SDMMC_BLK_SIZE_512_Msk]
+            __attribute__((aligned(512)));
 }sd_cmd_t;
-
 
 /**
  * @brief SD Default init Parameters
  */
 typedef struct _sd_param_t{
-    uint8_t dev_id;                     /*!< SD Device ID                               */
-    uint8_t clock_id;                   /*!< SD Clock id 0: 12.5MHz 1: 25MHz 2: 50MHz   */
-    uint8_t bus_width;                  /*!< SD Bus Width 0: 1 Bit 1: 4Bit              */
-    uint8_t dma_mode;                   /*!< SD DMA Mode 0: SDMA 1: ADMA2               */
-    uint8_t operation_mode;             /*!< SD operation mode 0: Polling 1: Interrupt  */
-    void (*app_callback)(uint16_t, uint16_t);     /*!< SD Application Callback function pointer   */
+    uint8_t dev_id;                            /*!< SD Device ID                               */
+    uint8_t clock_id;                          /*!< SD Clock id 0: 12.5MHz 1: 25MHz 2: 50MHz   */
+    uint8_t bus_width;                         /*!< SD Bus Width 0: 1 Bit 1: 4Bit              */
+    uint8_t dma_mode;                          /*!< SD DMA Mode 0: SDMA 1: ADMA2               */
+    uint8_t operation_mode;                    /*!< SD operation mode 0: Polling 1: Interrupt  */
+    void (*app_callback)(uint16_t, uint16_t);  /*!< SD Application Callback function pointer   */
 }sd_param_t;
 
 /**
@@ -121,6 +174,7 @@ typedef struct _sd_handle_t{
     SD_CARD_STATE           state;          /*!< SD card State                          */
     uint16_t                hc_version;     /*!< Host controller version                */
     sd_param_t              sd_param;       /*!< SD Default Config Parameters           */
+    mmc_ext_csd_t           mmc_ext_csd;    /*!< mmc extended card specific data        */
 }sd_handle_t;
 
 /**
@@ -152,6 +206,8 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *, sd_param_t *);
 SD_DRV_STATUS sd_write(uint32_t, uint32_t, volatile unsigned char *);
 SD_DRV_STATUS sd_read(uint32_t, uint16_t, volatile unsigned char *);
 SD_DRV_STATUS sd_error_handler();
+void sdmmc_decode_card_csd(sd_handle_t *);
+void sdmmc_decode_card_ext_csd(sd_handle_t *, uint8_t *);
 #ifdef SDMMC_IRQ_MODE
 void sd_cb(uint16_t, uint16_t);
 #endif
@@ -160,12 +216,15 @@ SDMMC_HC_STATUS hc_reset(sd_handle_t *, uint8_t);
 void hc_set_bus_power(sd_handle_t *, uint8_t);
 SDMMC_HC_STATUS hc_set_clk_freq(sd_handle_t *, uint16_t);
 void hc_set_tout(sd_handle_t *, uint8_t);
+SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t len);
 SDMMC_HC_STATUS hc_identify_card(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_ifcond(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_emmc_card_opcond(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_cid(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_csd(sd_handle_t *);
+SDMMC_HC_STATUS hc_get_card_ext_csd(sd_handle_t *, uint8_t *);
+SDMMC_HC_STATUS hc_get_card_scr(sd_handle_t *);
 SDMMC_HC_STATUS hc_config_dma(sd_handle_t *, uint8_t);
 SDMMC_HC_STATUS hc_set_bus_width(sd_handle_t *, uint8_t);
 SDMMC_HC_STATUS hc_switch_1v8(sd_handle_t *);

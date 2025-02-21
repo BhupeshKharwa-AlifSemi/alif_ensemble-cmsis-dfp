@@ -38,7 +38,7 @@ const diskio_t SD_Driver =
 };
 
 /* Global SD Handle */
-sd_handle_t Hsd;
+sd_handle_t Hsd __attribute__((section("sd_dma_buf"))) ;
 
 /**
   \fn           SDErrorHandler
@@ -47,6 +47,8 @@ sd_handle_t Hsd;
   \return       sd driver state
   */
 SD_DRV_STATUS sd_error_handler(){
+    sd_handle_t *pHsd = &Hsd;
+    hc_reset(pHsd, SDMMC_SW_RST_DAT_Msk | SDMMC_SW_RST_CMD_Msk);
     return ~SD_DRV_STATUS_OK;
 }
 
@@ -68,11 +70,8 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param){
     pHsd->regs      = SDMMC;
     pHsd->state     = SD_CARD_STATE_INIT;
 
-    pHsd->sd_param.dev_id       = p_sd_param->dev_id;
-    pHsd->sd_param.clock_id     = p_sd_param->clock_id;
-    pHsd->sd_param.bus_width    = p_sd_param->bus_width;
-    pHsd->sd_param.dma_mode     = p_sd_param->dma_mode;
-    pHsd->sd_param.app_callback = p_sd_param->app_callback;
+    /* copy initial device parameters */
+    memcpy((void *)&pHsd->sd_param.dev_id, (const void *)&p_sd_param->dev_id, sizeof(pHsd->sd_param));
 
     /* Get the Host Controller version */
     pHsd->hc_version = *((volatile uint16_t *)(SDMMC_HC_VERSION_REG)) & SDMMC_HC_VERSION_REG_Msk;
@@ -220,6 +219,15 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param){
             return SD_DRV_STATUS_CARD_INIT_ERR;
         }
 
+        sdmmc_decode_card_csd(pHsd);
+
+        if(pHsd->sd_card.cardtype != SDMMC_CARD_MMC) {
+            /* Get the SCR register */
+            if(hc_get_card_scr(pHsd)!= SDMMC_HC_STATUS_OK){
+                return SD_DRV_STATUS_CARD_INIT_ERR;
+            }
+        }
+
         /* Change the Card State from Identification to Ready */
         pHsd->state = SD_CARD_STATE_STBY;
 
@@ -232,8 +240,8 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param){
 
     if(!(pHsd->sd_card.sdio_mode)){
 
-        if(pHsd->sd_param.bus_width == SDMMC_4_BIT_MODE){
-            if(hc_set_bus_width(pHsd, SDMMC_HOST_CTRL1_4_BIT_WIDTH) != SDMMC_HC_STATUS_OK){
+        if(pHsd->sd_param.bus_width >= SDMMC_4_BIT_MODE){
+            if(hc_set_bus_width(pHsd, pHsd->sd_param.bus_width) != SDMMC_HC_STATUS_OK){
                 return SD_DRV_STATUS_CARD_INIT_ERR;
             }
         }
@@ -281,6 +289,82 @@ SD_DRV_STATUS sd_init(sd_param_t *p_sd_param){
         return SD_DRV_STATUS_CARD_INIT_ERR;
 
     return SD_DRV_STATUS_OK;
+}
+
+/**
+  \fn           sdmmc_decode_card_ext_csd
+  \brief        decode emmc ext csd data
+  \param[in]    sd handle pointer
+  \param[in]    raw ext csd data pointer
+  \return       none
+  */
+void sdmmc_decode_card_ext_csd(sd_handle_t *pHsd, uint8_t *praw_ext_csd)
+{
+
+    RTSS_InvalidateDCache_by_Addr(praw_ext_csd, SDMMC_EXT_CSD_SIZE);
+
+    pHsd->mmc_ext_csd.sector_cnt = (uint32_t *)praw_ext_csd[212];
+
+    pHsd->mmc_ext_csd.bus_width = praw_ext_csd[SDMMC_EXT_CSD_CMD_BUS_WIDTH];
+    pHsd->mmc_ext_csd.hs_mode   = praw_ext_csd[SDMMC_EXT_CSD_CMD_HS_MODE];
+
+    /* get the device type */
+    pHsd->mmc_ext_csd.device_type = ((1 << 7U) & praw_ext_csd[196U]) | ((1 << 6U) & praw_ext_csd[196U]) |
+                                    ((1 << 5U) & praw_ext_csd[196U]) | ((1 << 5U) & praw_ext_csd[196U]) |
+                                    ((1 << 3U) & praw_ext_csd[196U]) | ((1 << 2U) & praw_ext_csd[196U]) |
+                                    ((1 << 1U) & praw_ext_csd[196U]) | ((1 << 0U) & praw_ext_csd[196U]);
+    pHsd->mmc_ext_csd.mmc_ext_csd_ver = praw_ext_csd[192];
+    pHsd->mmc_ext_csd.power_class = praw_ext_csd[187] & 0xF;
+    pHsd->mmc_ext_csd.mmc_drv_strength = praw_ext_csd[197];
+    pHsd->mmc_ext_csd.cache_size = (praw_ext_csd[252] << 24U) + (praw_ext_csd[251] << 16U) +
+                                    (praw_ext_csd[250] << 8U) + (praw_ext_csd[249] << 0U);
+
+    pHsd->sd_card.sectorcount = pHsd->mmc_ext_csd.sector_cnt;
+    pHsd->sd_card.sectorsize = SDMMC_BLK_SIZE_512_Msk;
+    pHsd->sd_card.logblocksize = SDMMC_BLK_SIZE_512_Msk;
+
+    return;
+}
+
+/**
+  \fn           sdmmc_decode_card_csd
+  \brief        decode card csd data
+  \param[in]    sd handle pointer
+  \return       none
+  */
+void sdmmc_decode_card_csd(sd_handle_t *pHsd)
+{
+    uint32_t blk_len;
+    uint32_t device_size;
+    uint32_t mult, c_size;
+
+    if(((pHsd->csd[RAW_CSD_BUF_IDX3] & CSD_STRUCT_Msk) >> CSD_STRUCT_Pos) == 0U){
+        blk_len = (uint32_t)1U << ((uint32_t)(pHsd->csd[RAW_CSD_BUF_IDX2] & READ_BLK_LEN_Msk) >> CSD_V1_BLK_LEN_Pos);
+        mult = (uint32_t)1U << ((uint32_t)((pHsd->csd[RAW_CSD_BUF_IDX1] & C_SIZE_MULT_Msk) >> 7U) + (uint32_t)2U);
+        device_size = (pHsd->csd[RAW_CSD_BUF_IDX1] & C_SIZE_LOWER_Msk) >> C_SIZE_LOWER_Pos;
+        device_size |= (pHsd->csd[RAW_CSD_BUF_IDX2] & C_SIZE_UPPER_Msk) << C_SIZE_UPPER_Pos;
+        device_size = (device_size + 1U) * mult;
+        device_size =  device_size * blk_len;
+        pHsd->sd_card.sectorcount = (device_size/SDMMC_BLK_SIZE_512_Msk);
+        pHsd->sd_card.sectorsize = blk_len;
+        pHsd->sd_card.logblocksize = blk_len;
+    }else if(((pHsd->csd[RAW_CSD_BUF_IDX3] & CSD_STRUCT_Msk) >> CSD_STRUCT_Pos) == 1U){
+        c_size = ((pHsd->csd[RAW_CSD_BUF_IDX1] & CSD_V2_C_SIZE_Msk) >> CSD_V2_C_SIZE_Pos);
+
+        if(c_size >= SDMMC_SDHC_MAX_SECTOR_CNT)
+            pHsd->sd_card.cardtype = SDMMC_CARD_SDXC;
+
+        pHsd->sd_card.sectorcount = (c_size + 1U) * 1024U;
+        pHsd->sd_card.card_class = (uint16_t)((pHsd->csd[RAW_CSD_BUF_IDX2] & CSD_CCC_Msk) >> CSD_CCC_SHIFT);
+        pHsd->sd_card.sectorsize = SDMMC_BLK_SIZE_512_Msk;
+        pHsd->sd_card.logblocksize = SDMMC_BLK_SIZE_512_Msk;
+    }else if(((pHsd->csd[RAW_CSD_BUF_IDX3] & CSD_STRUCT_Msk) >> CSD_STRUCT_Pos) == 3U){
+        /* get ext csd data for eMMC */
+        if(hc_get_card_ext_csd(pHsd, &pHsd->sd_cmd.card_buffer[0]) == SDMMC_HC_STATUS_OK)
+            if(hc_check_xfer_done(pHsd, SDMMC_DATA_TIMEOUT) == SDMMC_HC_STATUS_OK)
+                sdmmc_decode_card_ext_csd(pHsd, &pHsd->sd_cmd.card_buffer[0]);
+    }
+    return;
 }
 
 /**
@@ -351,7 +435,7 @@ SD_DRV_STATUS sd_info(sd_cardinfo_t *pinfo){
 SD_DRV_STATUS sd_read(uint32_t sec, uint16_t blk_cnt, volatile unsigned char *dest_buff){
 
     sd_handle_t *pHsd =  &Hsd;
-    uint32_t timeout_cnt = 2000 * blk_cnt;
+    uint32_t timeout_cnt = SDMMC_DATA_TIMEOUT * blk_cnt;
     uint8_t retry_cnt = 1;
 
     if(dest_buff == NULL)
@@ -381,7 +465,7 @@ retry:
         /* Soft reset Host controller cmd and data lines */
         hc_reset(pHsd, (uint8_t)(SDMMC_SW_RST_DAT_Msk | SDMMC_SW_RST_CMD_Msk));
 
-        if(!retryCnt--)
+        if(!retry_cnt--)
             return SD_DRV_STATUS_RD_ERR;
         goto retry;
     }
@@ -417,7 +501,8 @@ SD_DRV_STATUS sd_write(uint32_t sector, uint32_t blk_cnt, volatile unsigned char
 
     sd_handle_t *pHsd =  &Hsd;
     int timeout_cnt = 2000 * blk_cnt;
-    uint8_t retryCnt=1;
+    uint8_t retry_cnt = 1;
+    uint8_t *aligned_buff = (uint8_t *)src_buff;
     if(src_buff == NULL)
         return SD_DRV_STATUS_WR_ERR;
 
@@ -425,19 +510,39 @@ SD_DRV_STATUS sd_write(uint32_t sector, uint32_t blk_cnt, volatile unsigned char
     printf("SD WRITE Src Buff: 0x%p Sec: %d, Block Count: %d\n",src_buff,sector,blk_cnt);
 #endif
 
+    if((uint32_t)src_buff & (SDMMC_BLK_SIZE_512_Msk - 1)) {
+#ifdef SDMMC_DEBUG_WARN
+        printf("SD Write ADMA access un-aligned buffer ...\n");
+#endif
+        if(blk_cnt <= SDMMC_CACHED_NUM_BLK){
+            memcpy(&pHsd->sd_cmd.card_buffer[0], (const void *)src_buff, blk_cnt * 512);
+            aligned_buff = &pHsd->sd_cmd.card_buffer[0];
+        } else {
+            /* return write error in case of un-aligned buffer and
+             * length more than internal buffer size(4K)
+             */
+            return SD_DRV_STATUS_WR_ERR;
+        }
+    }
+
     /* Clean the DCache */
-    RTSS_CleanDCache_by_Addr(src_buff, blk_cnt * SDMMC_BLK_SIZE_512_Msk);
+    RTSS_CleanDCache_by_Addr(aligned_buff, blk_cnt * SDMMC_BLK_SIZE_512_Msk);
 
+#ifndef SDMMC_IRQ_MODE
 retry:
-    hc_write_setup(pHsd, LocalToGlobal((const volatile void *)src_buff), sector, blk_cnt);
+#endif
 
+    hc_write_setup(pHsd, LocalToGlobal((const volatile void *)aligned_buff), sector, blk_cnt);
+
+#ifndef SDMMC_IRQ_MODE
     if(hc_check_xfer_done(pHsd, timeout_cnt) != SDMMC_HC_STATUS_OK){
         hc_reset(pHsd, (uint8_t)(SDMMC_SW_RST_DAT_Msk | SDMMC_SW_RST_CMD_Msk));
 
-        if(!retryCnt--)
+        if(!retry_cnt--)
             return SD_DRV_STATUS_WR_ERR;
         goto retry;
     }
+#endif
 
 #ifdef SDMMC_PRINT_SEC_DATA
     int j = 0;
