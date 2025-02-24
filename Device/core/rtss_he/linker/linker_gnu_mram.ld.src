@@ -70,7 +70,6 @@ SECTIONS
 
     *lv_*(.text .rodata*)
 
-    *(startup_ro_data)
     . = ALIGN(16);
   } > MRAM
 

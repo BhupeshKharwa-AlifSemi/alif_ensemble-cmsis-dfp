@@ -31,13 +31,13 @@ extern "C" {
 #if defined ( __ARMCC_VERSION )
 extern const uint32_t Image$$NS_REGION_0$$Base;
 extern const uint32_t Image$$NS_REGION_0_PAD$$Base;
-static const uint32_t ns_region_0_start __attribute__((weakref("Image$$NS_REGION_0$$Base"))) __STARTUP_RO_DATA_ATTRIBUTE;
-static const uint32_t ns_region_0_end __attribute__((weakref("Image$$NS_REGION_0_PAD$$Base"))) __STARTUP_RO_DATA_ATTRIBUTE;
+static const uint32_t ns_region_0_start __attribute__((weakref("Image$$NS_REGION_0$$Base")));
+static const uint32_t ns_region_0_end __attribute__((weakref("Image$$NS_REGION_0_PAD$$Base")));
 #elif defined ( __GNUC__ )
 extern const uint32_t __ns_region_0_start;
 extern const uint32_t __ns_region_0_end;
-static const uint32_t ns_region_0_start __attribute__((weakref("__ns_region_0_start"))) __STARTUP_RO_DATA_ATTRIBUTE;
-static const uint32_t ns_region_0_end __attribute__((weakref("__ns_region_0_end"))) __STARTUP_RO_DATA_ATTRIBUTE;
+static const uint32_t ns_region_0_start __attribute__((weakref("__ns_region_0_start")));
+static const uint32_t ns_region_0_end __attribute__((weakref("__ns_region_0_end")));
 #else
   #error Unknown compiler.
 #endif

@@ -94,7 +94,6 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
 
   ER_ROM (AlignExpr(+0, 8)) {                 ; load address = execution address
    *(InRoot$$Sections)
-   *.o (startup_ro_data)
 
    ; These should be part of primary load region
    *startup*.o (+RO)

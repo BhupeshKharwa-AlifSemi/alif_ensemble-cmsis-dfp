@@ -17,7 +17,7 @@
  * The start and end address of the non-secure region in updated
  * from the linker scripts.
  */
-static const struct mem_region ns_regions[] __STARTUP_RO_DATA_ATTRIBUTE = {
+static const struct mem_region ns_regions[] = {
     {(uint32_t)&ns_region_0_start, (uint32_t)&ns_region_0_end - 1, DTCM},
     };
 

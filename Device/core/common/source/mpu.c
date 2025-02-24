@@ -51,7 +51,7 @@ void MPU_Load_Regions(void)
 #define MEMATTRIDX_NORMAL_WB_RA_WA           2
 #define MEMATTRIDX_NORMAL_WT_RA              3
 
-    static const ARM_MPU_Region_t mpu_table[] __STARTUP_RO_DATA_ATTRIBUTE =
+    static const ARM_MPU_Region_t mpu_table[] =
     {
         {   /* SRAM0 - 4MB : RO-0, NP-1, XN-0 */
             .RBAR = ARM_MPU_RBAR(0x02000000, ARM_MPU_SH_NON, 0, 1, 0),

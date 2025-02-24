@@ -13,10 +13,6 @@
 
 #include "soc_features.h"
 
-#ifndef __STARTUP_RO_DATA_ATTRIBUTE
-#define __STARTUP_RO_DATA_ATTRIBUTE  __attribute__((section("startup_ro_data")))
-#endif
-
 #define HWSEM_MASTERID    (0x410FD221)
 
 #define ITCM_ALIAS_BIT    (0x01000000UL)
