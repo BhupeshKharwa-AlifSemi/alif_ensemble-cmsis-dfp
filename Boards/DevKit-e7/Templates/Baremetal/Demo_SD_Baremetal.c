@@ -45,13 +45,14 @@ const diskio_t  *p_SD_Driver = &SD_Driver;
 volatile uint32_t dma_done_irq = 0;
 
 /**
-  \fn           sd_cb(uint32_t status)
+  \fn           sd_cb(uint16_t cmd_status, uint16_t xfer_status)
   \brief        SD interrupt callback
-  \param[in]    uint32_t status
+  \param[in]    uint16_t cmd_status
+  \param[in]    uint16_t xfer_status
   \return       none
 */
-void sd_cb(uint32_t status) {
-    if(!status)
+void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
+    if(xfer_status)
         dma_done_irq = 1;
 }
 

@@ -102,7 +102,7 @@ typedef struct _sd_param_t{
     uint8_t bus_width;                  /*!< SD Bus Width 0: 1 Bit 1: 4Bit              */
     uint8_t dma_mode;                   /*!< SD DMA Mode 0: SDMA 1: ADMA2               */
     uint8_t operation_mode;             /*!< SD operation mode 0: Polling 1: Interrupt  */
-    void (*app_callback)(uint32_t);     /*!< SD Application Callback function pointer   */
+    void (*app_callback)(uint16_t, uint16_t);     /*!< SD Application Callback function pointer   */
 }sd_param_t;
 
 /**
@@ -134,7 +134,7 @@ typedef struct _diskio_t{
     SD_DRV_STATUS (*disk_read)          (uint32_t, uint16_t, volatile uint8_t *);   /*!< Read Sector(s)             */
     SD_DRV_STATUS (*disk_write)         (uint32_t, uint32_t, volatile uint8_t *);   /*!< Write Sector(s)            */
 #ifdef SDMMC_IRQ_MODE
-    void (*disk_cb)(uint32_t);
+    void (*disk_cb)(uint16_t, uint16_t);
 #endif
 }diskio_t;
 
@@ -153,7 +153,7 @@ SD_DRV_STATUS sd_write(uint32_t, uint32_t, volatile unsigned char *);
 SD_DRV_STATUS sd_read(uint32_t, uint16_t, volatile unsigned char *);
 SD_DRV_STATUS sd_error_handler();
 #ifdef SDMMC_IRQ_MODE
-void sd_cb(uint32_t);
+void sd_cb(uint16_t, uint16_t);
 #endif
 SDMMC_HC_STATUS hc_send_cmd(sd_handle_t *, sd_cmd_t *);
 SDMMC_HC_STATUS hc_reset(sd_handle_t *, uint8_t);

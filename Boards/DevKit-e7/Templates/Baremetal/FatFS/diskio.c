@@ -24,12 +24,10 @@ static sd_handle_t *pHsd = &Hsd;
 
 /* Interrupt Handler callback */
 volatile uint32_t dma_done_irq;
-void sd_cb(uint32_t status)
+void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 {
-    if(status == RES_OK)
+    if(xfer_status)
         dma_done_irq = 1;
-    else
-        printf("Invalid Xfer status...:%d\n",status);
 }
 extern unsigned char media_memory;
 volatile uint8_t *dma_buff = &media_memory;
