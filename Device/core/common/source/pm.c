@@ -22,64 +22,9 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "pm.h"
-#include <cmsis_version.h>
 
 #define VERSION(api, driver)        (((api) << 8) | (driver))
-#define PM_DRV_VERSION              VERSION(1, 0) /*!< PM Driver Version */
-
-#if (__CM_CMSIS_VERSION < 0x00060000)
-/* EWIC Control (EWIC_CR) Register Definitions */
-#define EWIC_EWIC_CR_EN_Pos                 0U                                         /*!< EWIC EWIC_CR: EN Position */
-#define EWIC_EWIC_CR_EN_Msk                (0x1UL /*<< EWIC_EWIC_CR_EN_Pos*/)          /*!< EWIC EWIC_CR: EN Mask */
-
-/* EWIC Automatic Sequence Control (EWIC_ASCR) Register Definitions */
-#define EWIC_EWIC_ASCR_ASPU_Pos             1U                                         /*!< EWIC EWIC_ASCR: ASPU Position */
-#define EWIC_EWIC_ASCR_ASPU_Msk            (0x1UL << EWIC_EWIC_ASCR_ASPU_Pos)          /*!< EWIC EWIC_ASCR: ASPU Mask */
-
-#define EWIC_EWIC_ASCR_ASPD_Pos             0U                                         /*!< EWIC EWIC_ASCR: ASPD Position */
-#define EWIC_EWIC_ASCR_ASPD_Msk            (0x1UL /*<< EWIC_EWIC_ASCR_ASPD_Pos*/)      /*!< EWIC EWIC_ASCR: ASPD Mask */
-
-/* EWIC Event Number ID (EWIC_NUMID) Register Definitions */
-#define EWIC_EWIC_NUMID_NUMEVENT_Pos        0U                                         /*!< EWIC_NUMID: NUMEVENT Position */
-#define EWIC_EWIC_NUMID_NUMEVENT_Msk       (0xFFFFUL /*<< EWIC_EWIC_NUMID_NUMEVENT_Pos*/) /*!< EWIC_NUMID: NUMEVENT Mask */
-
-/* EWIC Mask A (EWIC_MASKA) Register Definitions */
-#define EWIC_EWIC_MASKA_EDBGREQ_Pos         2U                                         /*!< EWIC EWIC_MASKA: EDBGREQ Position */
-#define EWIC_EWIC_MASKA_EDBGREQ_Msk        (0x1UL << EWIC_EWIC_MASKA_EDBGREQ_Pos)      /*!< EWIC EWIC_MASKA: EDBGREQ Mask */
-
-#define EWIC_EWIC_MASKA_NMI_Pos             1U                                         /*!< EWIC EWIC_MASKA: NMI Position */
-#define EWIC_EWIC_MASKA_NMI_Msk            (0x1UL << EWIC_EWIC_MASKA_NMI_Pos)          /*!< EWIC EWIC_MASKA: NMI Mask */
-
-#define EWIC_EWIC_MASKA_EVENT_Pos           0U                                         /*!< EWIC EWIC_MASKA: EVENT Position */
-#define EWIC_EWIC_MASKA_EVENT_Msk          (0x1UL /*<< EWIC_EWIC_MASKA_EVENT_Pos*/)    /*!< EWIC EWIC_MASKA: EVENT Mask */
-
-/* EWIC Mask n (EWIC_MASKn) Register Definitions */
-#define EWIC_EWIC_MASKn_IRQ_Pos             0U                                           /*!< EWIC EWIC_MASKn: IRQ Position */
-#define EWIC_EWIC_MASKn_IRQ_Msk            (0xFFFFFFFFUL /*<< EWIC_EWIC_MASKn_IRQ_Pos*/) /*!< EWIC EWIC_MASKn: IRQ Mask */
-
-/* EWIC Pend A (EWIC_PENDA) Register Definitions */
-#define EWIC_EWIC_PENDA_EDBGREQ_Pos         2U                                         /*!< EWIC EWIC_PENDA: EDBGREQ Position */
-#define EWIC_EWIC_PENDA_EDBGREQ_Msk        (0x1UL << EWIC_EWIC_PENDA_EDBGREQ_Pos)      /*!< EWIC EWIC_PENDA: EDBGREQ Mask */
-
-#define EWIC_EWIC_PENDA_NMI_Pos             1U                                         /*!< EWIC EWIC_PENDA: NMI Position */
-#define EWIC_EWIC_PENDA_NMI_Msk            (0x1UL << EWIC_EWIC_PENDA_NMI_Pos)          /*!< EWIC EWIC_PENDA: NMI Mask */
-
-#define EWIC_EWIC_PENDA_EVENT_Pos           0U                                         /*!< EWIC EWIC_PENDA: EVENT Position */
-#define EWIC_EWIC_PENDA_EVENT_Msk          (0x1UL /*<< EWIC_EWIC_PENDA_EVENT_Pos*/)    /*!< EWIC EWIC_PENDA: EVENT Mask */
-
-/* EWIC Pend n (EWIC_PENDn) Register Definitions */
-#define EWIC_EWIC_PENDn_IRQ_Pos             0U                                           /*!< EWIC EWIC_PENDn: IRQ Position */
-#define EWIC_EWIC_PENDn_IRQ_Msk            (0xFFFFFFFFUL /*<< EWIC_EWIC_PENDn_IRQ_Pos*/) /*!< EWIC EWIC_PENDn: IRQ Mask */
-
-/* EWIC Pend Summary (EWIC_PSR) Register Definitions */
-#define EWIC_EWIC_PSR_NZ_Pos                1U                                         /*!< EWIC EWIC_PSR: NZ Position */
-#define EWIC_EWIC_PSR_NZ_Msk               (0x7FFFUL << EWIC_EWIC_PSR_NZ_Pos)          /*!< EWIC EWIC_PSR: NZ Mask */
-
-#define EWIC_EWIC_PSR_NZA_Pos               0U                                         /*!< EWIC EWIC_PSR: NZA Position */
-#define EWIC_EWIC_PSR_NZA_Msk              (0x1UL /*<< EWIC_EWIC_PSR_NZA_Pos*/)        /*!< EWIC EWIC_PSR: NZA Mask */
-
-/*@}*/ /* end of group EWIC_Type */
-#endif
+#define PM_DRV_VERSION              VERSION(2, 0) /*!< PM Driver Version */
 
 /* Coprocessor Power Control Register Definitions */
 #define ICB_CPPWR_SU11_Pos         22U                             /*!< CPPWR: State Unknown 11 Position */
@@ -103,12 +48,6 @@
  /*!< WICCONTROL: bit 9 (architecture dependent)*/
 #define WICCONTROL_IWIC_Pos                 (9U)
 #define WICCONTROL_IWIC_Msk                 (1U << WICCONTROL_IWIC_Pos)
-
-/*!< External Wakeup Interrupt Controller Base Address */
-#define _EWIC_BASE                          (0xE0047000UL)
-
-/*!< EWIC configuration struct */
-#define _EWIC                               ((_EWIC_Type *)  _EWIC_BASE )
 
 /* WICCONTROL register : volatile static uint32_t *const WICCONTROL*/
 #if   defined(RTSS_HP)
@@ -140,32 +79,6 @@ typedef enum _PM_LPSTATE
     PM_LPSTATE_RET,                     /*!<  Not supported     */
     PM_LPSTATE_OFF                      /*!<  OFF               */
 } PM_LPSTATE;
-
-/**
-  \ingroup  CMSIS_core_register
-  \defgroup EWIC_Type     External Wakeup Interrupt Controller Registers
-  \brief    Type definitions for the External Wakeup Interrupt Controller Registers (EWIC)
-  @{
- */
-
-/**
-  @brief  Structure type to access the External Wakeup Interrupt Controller Registers (EWIC).
- */
-typedef struct
-{
-  __IOM uint32_t EWIC_CR;                /*!< Offset: 0x000 (R/W)  EWIC Control Register */
-  __IOM uint32_t EWIC_ASCR;              /*!< Offset: 0x004 (R/W)  EWIC Automatic Sequence Control Register */
-  __OM  uint32_t EWIC_CLRMASK;           /*!< Offset: 0x008 ( /W)  EWIC Clear Mask Register */
-  __IM  uint32_t EWIC_NUMID;             /*!< Offset: 0x00C (R/ )  EWIC Event Number ID Register */
-        uint32_t RESERVED0[124U];
-  __IOM uint32_t EWIC_MASKA;             /*!< Offset: 0x200 (R/W)  EWIC MaskA Register */
-  __IOM uint32_t EWIC_MASKn[15];         /*!< Offset: 0x204 (R/W)  EWIC Maskn Registers */
-        uint32_t RESERVED1[112U];
-  __IM  uint32_t EWIC_PENDA;             /*!< Offset: 0x400 (R/ )  EWIC PendA Event Register */
-  __IOM uint32_t EWIC_PENDn[15];         /*!< Offset: 0x404 (R/W)  EWIC Pendn Event Registers */
-        uint32_t RESERVED2[112U];
-  __IM  uint32_t EWIC_PSR;               /*!< Offset: 0x600 (R/ )  EWIC Pend Summary Register */
-} _EWIC_Type;
 
 #if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
     (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
@@ -719,11 +632,11 @@ bool pm_core_wakeup_is_spurious(void)
      * Compare the NVIC pending status and the EWIC Mask.
      * If any of the interrupt is in pending state, return false.
      */
-    num_events = ((_EWIC->EWIC_NUMID - 3) + 31) / 32;
+    num_events = ((EWIC->EWIC_NUMID - 3) + 31) / 32;
     for (count = 0; count < num_events; count++)
     {
-        if (_EWIC->EWIC_MASKn[count]
-                              && (NVIC->ISPR[count] & _EWIC->EWIC_MASKn[count]))
+        if (EWIC->EWIC_MASKn[count]
+                              && (NVIC->ISPR[count] & EWIC->EWIC_MASKn[count]))
             return false;
     }
 
@@ -745,7 +658,7 @@ bool pm_core_wakeup_is_spurious(void)
 */
 void pm_core_enable_automatic_pd_sequencing(void)
 {
-    _EWIC->EWIC_ASCR |= EWIC_EWIC_ASCR_ASPD_Msk;
+    EWIC->EWIC_ASCR |= EWIC_EWIC_ASCR_ASPD_Msk;
 }
 
 /**
@@ -759,16 +672,16 @@ void pm_core_enable_manual_pd_sequencing(void)
 {
     uint16_t num_events, count = 0;
 
-    _EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPD_Msk;
-    _EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
+    EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPD_Msk;
+    EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
 
     /*
      * Copy NVIC pending registers to EWIC pending regs
      */
-    num_events = ((_EWIC->EWIC_NUMID - 3) + 31) / 32;
+    num_events = ((EWIC->EWIC_NUMID - 3) + 31) / 32;
     for (count = 0; count < num_events; count++)
     {
-        _EWIC->EWIC_PENDn[count] = NVIC->ISPR[count];
+        EWIC->EWIC_PENDn[count] = NVIC->ISPR[count];
     }
 }
 
@@ -782,7 +695,7 @@ void pm_core_enable_manual_pd_sequencing(void)
 */
 void pm_core_enable_automatic_pu_sequencing(void)
 {
-    _EWIC->EWIC_ASCR |= EWIC_EWIC_ASCR_ASPU_Msk;
+    EWIC->EWIC_ASCR |= EWIC_EWIC_ASCR_ASPU_Msk;
 }
 
 /**
@@ -794,8 +707,8 @@ void pm_core_enable_automatic_pu_sequencing(void)
 */
 void pm_core_enable_manual_pu_sequencing(void)
 {
-    _EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPU_Msk;
-    _EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
+    EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPU_Msk;
+    EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
 }
 
 #if PM_HANDLE_SPURIOUS_WAKEUP
