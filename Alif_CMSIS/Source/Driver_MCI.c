@@ -14,15 +14,22 @@
  * @email    deepak@alifsemi.com
  * @version  V1.0.0
  * @date     24-Jan-2025
- * @brief    MCI Driver for Alif Ensemble Dev Kit
+ * @brief    MCI Driver
  * @bug      None.
  * @Note     make MC_MCI fs_mc0_mci as non static in fs_config.c
+ *           Keil MDK-Middleware pack required
  ******************************************************************************/
+#include "RTE_Components.h"
 #include "stdio.h"
 #include "Driver_MCI.h"
 #include "sd.h"
+
+#if defined(RTE_FileSystem_Drive_MC_0)
 #include "fs_memory_card.h"
 #include "fs_mc.h"
+#endif
+
+#if defined(RTE_Drivers_MCI)
 
 #define ARM_MCI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* driver version */
 
@@ -412,3 +419,4 @@ ARM_DRIVER_MCI Driver_MCI0 = {
     ARM_MCI_GetStatus
 };
 
+#endif //RTE_DRIVER_MCI
