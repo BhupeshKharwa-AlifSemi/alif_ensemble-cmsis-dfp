@@ -103,6 +103,16 @@ void RTSS_InvalidateICache_by_Addr (volatile void *addr, int32_t isize)
   \fn          void RTSS_InvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
   \brief       Add a wrapper on the InvalidateDcache APIs so that
                TCM regions are ignored.
+  \note        Our internal benchmarks shows that if the requested size is more
+               than the threshold size, it is better to invalidate the whole
+               D-Cache instead of looping through the address.
+
+               Notably, just invalidate is faster at 0.015ms, but we'd have to
+               be sure there are no writeback cacheable areas.
+
+               The breakeven point for ranged invalidate time = global clean+invalidate
+               would be 43Kbyte. Considering the cost of refills, we decided to
+               keep the threshold size to 128K.
   \param[in]   addr    address
   \param[in]   dsize   size of memory block (in number of bytes)
 */
