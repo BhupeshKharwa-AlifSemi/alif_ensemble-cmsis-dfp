@@ -14,7 +14,7 @@
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     29-March-2023
- * @brief    CMSIS Driver for GPIO.
+ * @brief    Alif Driver for GPIO.
  * @bug      None.
  * @Note     None
  ******************************************************************************/
@@ -40,6 +40,8 @@ static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
+
+    GPIO->control_mode = GPIO_SOFTWARE_CONTROL_MODE;
 
     GPIO->cb_event[pin_no] = cb_event;
 
@@ -125,6 +127,10 @@ static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
+    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE)
+    {
+        return ARM_DRIVER_ERROR_UNSUPPORTED;
+    }
 
     switch (dir)
     {
@@ -171,6 +177,10 @@ static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
+    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE)
+    {
+        return ARM_DRIVER_ERROR_UNSUPPORTED;
+    }
 
     if (gpio_get_direction (GPIO->reg_base, pin_no))
     {
@@ -204,24 +214,64 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    if (GPIO->gpio_bit_man_en)
+    {
+        if (GPIO->control_mode == GPIO_SOFTWARE_CONTROL_MODE)
+        {
+            return ARM_DRIVER_ERROR;
+        }
+    }
+#endif
+
     switch (value)
     {
         case GPIO_PIN_OUTPUT_STATE_LOW:
         {
-            /**< Set LOW(0) to the pin >*/
-            gpio_set_value_low (GPIO->reg_base, pin_no);
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+            if (GPIO->gpio_bit_man_en)
+            {
+                /**< Set LOW(0) to the pin >*/
+                gpio_bit_man_set_value_low (GPIO->reg_base, pin_no);
+            }
+            else
+            {
+                /**< Set LOW(0) to the pin >*/
+                gpio_set_value_low (GPIO->reg_base, pin_no);
+            }
+#endif
             break;
         }
         case GPIO_PIN_OUTPUT_STATE_HIGH:
         {
-            /**< Set HIGH(1) to the pin >*/
-            gpio_set_value_high (GPIO->reg_base, pin_no);
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+            if (GPIO->gpio_bit_man_en)
+            {
+                /**< Set HIGH(1) to the pin >*/
+                gpio_bit_man_set_value_high (GPIO->reg_base, pin_no);
+            }
+            else
+            {
+                /**< Set HIGH(1) to the pin >*/
+                gpio_set_value_high (GPIO->reg_base, pin_no);
+            }
+#endif
             break;
         }
         case GPIO_PIN_OUTPUT_STATE_TOGGLE:
         {
-            /**< Toggle pin value >*/
-            gpio_toggle_value (GPIO->reg_base, pin_no);
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+            if (GPIO->gpio_bit_man_en)
+            {
+                /**< Toggle pin value >*/
+                gpio_bit_man_toggle_value (GPIO->reg_base, pin_no);
+            }
+            else
+            {
+                /**< Toggle pin value >*/
+                gpio_toggle_value (GPIO->reg_base, pin_no);
+            }
+#endif
             break;
         }
         default:
@@ -428,16 +478,27 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
         {
             if (GPIO->gpio_id != LPGPIO_INSTANCE)
             {
-                return ARM_DRIVER_ERROR_UNSUPPORTED;
+                if (SOC_FEAT_GPIO_HAS_HARDWARE_CTRL_MODE)
+                {
+                    /* Only bit 0 is accessable for normal GPIOs which
+                     * configures whole port as S/W or H/W Data mode */
+                    pin_no = 0;
+                }
+                else
+                {
+                    return ARM_DRIVER_ERROR_UNSUPPORTED;
+                }
             }
 
             if (*arg)
             {
                 gpio_set_hardware_mode(GPIO->reg_base, pin_no);
+                GPIO->control_mode = GPIO_HARDWARE_CONTROL_MODE;
             }
             else
             {
                 gpio_set_software_mode(GPIO->reg_base, pin_no);
+                GPIO->control_mode = GPIO_SOFTWARE_CONTROL_MODE;
             }
             break;
         }
@@ -503,6 +564,9 @@ static GPIO_RESOURCES GPIO0_RES = {
     .gpio_id = GPIO0_INSTANCE,
     .db_clkdiv = RTE_GPIO0_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO0_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
         RTE_GPIO0_PIN0_IRQ_PRIORITY,
         RTE_GPIO0_PIN1_IRQ_PRIORITY,
@@ -594,6 +658,9 @@ static GPIO_RESOURCES GPIO1_RES = {
     .gpio_id = GPIO1_INSTANCE,
     .db_clkdiv = RTE_GPIO1_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO1_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
         RTE_GPIO1_PIN0_IRQ_PRIORITY,
         RTE_GPIO1_PIN1_IRQ_PRIORITY,
@@ -684,6 +751,9 @@ static GPIO_RESOURCES GPIO2_RES = {
     .gpio_id = GPIO2_INSTANCE,
     .db_clkdiv = RTE_GPIO2_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO2_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
         RTE_GPIO2_PIN0_IRQ_PRIORITY,
         RTE_GPIO2_PIN1_IRQ_PRIORITY,
@@ -774,6 +844,9 @@ static GPIO_RESOURCES GPIO3_RES = {
     .gpio_id = GPIO3_INSTANCE,
     .db_clkdiv = RTE_GPIO3_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO3_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
         RTE_GPIO3_PIN0_IRQ_PRIORITY,
         RTE_GPIO3_PIN1_IRQ_PRIORITY,
@@ -864,6 +937,9 @@ static GPIO_RESOURCES GPIO4_RES = {
     .gpio_id = GPIO4_INSTANCE,
     .db_clkdiv = RTE_GPIO4_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO4_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO4_PIN0_IRQ_PRIORITY,
             RTE_GPIO4_PIN1_IRQ_PRIORITY,
@@ -955,6 +1031,9 @@ static GPIO_RESOURCES GPIO5_RES = {
     .gpio_id = GPIO5_INSTANCE,
     .db_clkdiv = RTE_GPIO5_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO5_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO5_PIN0_IRQ_PRIORITY,
             RTE_GPIO5_PIN1_IRQ_PRIORITY,
@@ -1046,6 +1125,9 @@ static GPIO_RESOURCES GPIO6_RES = {
     .gpio_id = GPIO6_INSTANCE,
     .db_clkdiv = RTE_GPIO6_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO6_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO6_PIN0_IRQ_PRIORITY,
             RTE_GPIO6_PIN1_IRQ_PRIORITY,
@@ -1137,6 +1219,9 @@ static GPIO_RESOURCES GPIO7_RES = {
     .gpio_id = GPIO7_INSTANCE,
     .db_clkdiv = RTE_GPIO7_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO7_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO7_PIN0_IRQ_PRIORITY,
             RTE_GPIO7_PIN1_IRQ_PRIORITY,
@@ -1227,6 +1312,9 @@ static GPIO_RESOURCES GPIO8_RES = {
     .gpio_id = GPIO8_INSTANCE,
     .db_clkdiv = RTE_GPIO8_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO8_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO8_PIN0_IRQ_PRIORITY,
             RTE_GPIO8_PIN1_IRQ_PRIORITY,
@@ -1317,6 +1405,9 @@ static GPIO_RESOURCES GPIO9_RES = {
     .gpio_id = GPIO9_INSTANCE,
     .db_clkdiv = RTE_GPIO9_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO9_BIT_MANIPULATION,
+#endif
     .IRQ_priority = {
             RTE_GPIO9_PIN0_IRQ_PRIORITY,
             RTE_GPIO9_PIN1_IRQ_PRIORITY,
@@ -1407,6 +1498,7 @@ static GPIO_RESOURCES GPIO10_RES = {
     .gpio_id = GPIO10_INSTANCE,
     .db_clkdiv = RTE_GPIO10_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_GPIO10_PIN0_IRQ_PRIORITY,
             RTE_GPIO10_PIN1_IRQ_PRIORITY,
@@ -1497,6 +1589,7 @@ static GPIO_RESOURCES GPIO11_RES = {
     .gpio_id = GPIO11_INSTANCE,
     .db_clkdiv = RTE_GPIO11_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_GPIO11_PIN0_IRQ_PRIORITY,
             RTE_GPIO11_PIN1_IRQ_PRIORITY,
@@ -1587,6 +1680,7 @@ static GPIO_RESOURCES GPIO12_RES = {
     .gpio_id = GPIO12_INSTANCE,
     .db_clkdiv = RTE_GPIO12_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_GPIO12_PIN0_IRQ_PRIORITY,
             RTE_GPIO12_PIN1_IRQ_PRIORITY,
@@ -1677,6 +1771,7 @@ static GPIO_RESOURCES GPIO13_RES = {
     .gpio_id = GPIO13_INSTANCE,
     .db_clkdiv = RTE_GPIO13_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_GPIO13_PIN0_IRQ_PRIORITY,
             RTE_GPIO13_PIN1_IRQ_PRIORITY,
@@ -1767,6 +1862,7 @@ static GPIO_RESOURCES GPIO14_RES = {
     .gpio_id = GPIO14_INSTANCE,
     .db_clkdiv = RTE_GPIO14_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_GPIO14_PIN0_IRQ_PRIORITY,
             RTE_GPIO14_PIN1_IRQ_PRIORITY,
@@ -1856,6 +1952,7 @@ static GPIO_RESOURCES LPGPIO_RES = {
     .gpio_id = LPGPIO_INSTANCE,
     .IRQ_base_num = LPGPIO_IRQ0_IRQn,
     .max_pin = LPGPIO_MAX_PINS,
+    .gpio_bit_man_en = 0,
     .IRQ_priority = {
             RTE_LPGPIO_PIN0_IRQ_PRIORITY,
             RTE_LPGPIO_PIN1_IRQ_PRIORITY,

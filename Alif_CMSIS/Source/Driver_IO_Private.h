@@ -14,14 +14,13 @@
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     29-March-2023
- * @brief    Header file for GPIO.
+ * @brief    Alif Header file for GPIO.
  * @bug      None.
  * @Note	 None
  ******************************************************************************/
 
-#ifndef DRIVER_GPIO_PRIVATE_H_
-
-#define DRIVER_GPIO_PRIVATE_H_
+#ifndef DRIVER_IO_PRIVATE_H_
+#define DRIVER_IO_PRIVATE_H_
 
 #ifdef  __cplusplus
 extern "C"
@@ -79,6 +78,16 @@ typedef enum _GPIO_INSTANCE
     LPGPIO_INSTANCE
 } GPIO_INSTANCE;
 
+/**
+ * enum GPIO_CONTROL_MODE.
+ * GPIO control mode.
+ */
+typedef enum _GPIO_CONTROL_MODE
+{
+    GPIO_SOFTWARE_CONTROL_MODE,
+    GPIO_HARDWARE_CONTROL_MODE
+} GPIO_CONTROL_MODE;
+
 typedef struct _GPIO_DRV_STATE {
     uint32_t initialized : 1; /* Driver Initialized*/
     uint32_t powered     : 1; /* Driver powered */
@@ -96,6 +105,8 @@ typedef struct _GPIO_RESOURCES {
     uint8_t             IRQ_priority[GPIO_PORT_MAX_PIN_NUMBER];  /**< GPIO PIN IRQ priority >**/
     uint8_t             max_pin;                                 /**< GPIO MAX PIN Numbers >**/
     GPIO_INSTANCE       gpio_id;                                 /**< GPIO instance >*/
+    GPIO_CONTROL_MODE   control_mode;                            /**< GPIO control mode >*/
+    bool                gpio_bit_man_en;                         /**< GPIO PORT Bit Manipulation feature >*/
     ARM_GPIO_SignalEvent_t cb_event[GPIO_PORT_MAX_PIN_NUMBER];   /**< GPIO Call back function >*/
 } GPIO_RESOURCES;
 
@@ -139,6 +150,6 @@ static inline bool pin_is_flexio (GPIO_INSTANCE port, uint8_t pin)
 }
 #endif
 
-#endif /* DRIVER_GPIO_PRIVATE_H_ */
+#endif /* DRIVER_IO_PRIVATE_H_ */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

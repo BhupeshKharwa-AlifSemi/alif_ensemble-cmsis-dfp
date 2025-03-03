@@ -18,8 +18,8 @@
  * @bug      None.
  * @Note     None
  ******************************************************************************/
-#ifndef __DRIVER_GPIO_H__
-#define __DRIVER_GPIO_H__
+#ifndef __DRIVER_IO_H__
+#define __DRIVER_IO_H__
 
 #include "Driver_Common.h"
 
@@ -154,4 +154,4 @@ typedef struct _ARM_DRIVER_GPIO {
     int32_t (*Uninitialize) (uint8_t pin_no);                                               /**< Pointer to \ref ARM_GPIO_Uninitialize  : Un-initialize the GPIO Pin configuration >*/
 } ARM_DRIVER_GPIO;
 
-#endif /* __DRIVER_GPIO_H__ */
+#endif /* __DRIVER_IO_H__ */
