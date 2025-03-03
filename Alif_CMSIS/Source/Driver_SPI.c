@@ -512,6 +512,8 @@ static int32_t ARM_SPI_PowerControl(SPI_RESOURCES *SPI, ARM_POWER_STATE state)
             }
 #endif
 
+            spi_disable(SPI->regs);
+
             NVIC_ClearPendingIRQ(SPI->irq);
             NVIC_DisableIRQ(SPI->irq);
 
