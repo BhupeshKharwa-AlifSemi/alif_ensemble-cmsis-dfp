@@ -24,7 +24,7 @@
 #include "gpio.h"
 #include "sys_ctrl_gpio.h"
 
-#if defined(RTE_Drivers_GPIO)
+#if defined(RTE_Drivers_IO)
 
 /**
   \fn      int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t pin_no)

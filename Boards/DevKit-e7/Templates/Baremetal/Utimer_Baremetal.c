@@ -44,7 +44,7 @@
 
 
 /* GPIO related definitions */
-#define GPIO3                          3
+#define GPIO                           3
 #define GPIO3_PIN5                     5
 #define GPIO3_PIN6                     6
 #define GPIO3_PIN3                     3
@@ -55,8 +55,8 @@ extern ARM_DRIVER_UTIMER Driver_UTIMER0;
 ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
 /* GPIO3 Driver instance */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO3);
-ARM_DRIVER_GPIO *ptrDrv = &ARM_Driver_GPIO_(GPIO3);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO);
+ARM_DRIVER_GPIO *ptrDrv = &ARM_Driver_GPIO_(GPIO);
 
 static volatile uint32_t cb_basic_status = 0;
 static volatile uint32_t cb_buffer_status = 0;
