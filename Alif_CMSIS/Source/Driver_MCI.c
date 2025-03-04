@@ -369,6 +369,7 @@ static int32_t ARM_MCI_Control(uint32_t control, uint32_t arg)
     case ARM_MCI_DRIVER_STRENGTH:
     default: return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
+    return ARM_DRIVER_OK;
 }
 
 /**
@@ -380,6 +381,7 @@ static int32_t ARM_MCI_Control(uint32_t control, uint32_t arg)
 static ARM_MCI_STATUS ARM_MCI_GetStatus(void)
 {
     ARM_MCI_STATUS mci_status;
+	mci_status.command_active = 0;
     if( p_SD_Driver->disk_status() < SD_CARD_STATE_IDLE) {
         printf("SD invalid status...\n");
         return mci_status;
