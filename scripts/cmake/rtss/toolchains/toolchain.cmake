@@ -33,6 +33,7 @@ if (COMPILER STREQUAL ARMCLANG)
     set(CMAKE_C_FLAGS                   "${C_COMPILER_FLAGS} ${HW_FLAGS} --target=${TARGET_NAME}  -mfpu=${FPU} -xc  -MD -MP")
     set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS} -fno-exceptions  -fno-rtti")
     set(CMAKE_ASM_FLAGS                 "${ASM_FLAGS} ${HW_FLAGS} --target=${TARGET_NAME} -x assembler-with-cpp")
+    add_compile_options(-fcolor-diagnostics)
 
     # Tell linker that reset interrupt handler is our entry point
     add_link_options(--map --entry=Reset_Handler --diag_suppress 6312,6314)
@@ -58,7 +59,8 @@ elseif(COMPILER STREQUAL GCC)
     add_link_options(-Wl,--gc-sections -Xlinker -print-memory-usage)
 
     # Link Options
-    add_link_options(-T${CMAKE_LINKER_SCRIPT} ${HW_FLAGS} -march=${ARCH} -mfpu=${FPU} -lc)
+    add_link_options(-T${CMAKE_LINKER_SCRIPT} ${HW_FLAGS} -march=${ARCH} -mfpu=${FPU})
+    add_compile_options(-fdiagnostics-color=always)
 
     if(NOT (${RETARGET_EN_NO_SEMIHOSTING}))
         add_link_options(--specs=rdimon.specs)
@@ -82,6 +84,7 @@ elseif(COMPILER STREQUAL CLANG)
     set(CMAKE_C_FLAGS                   "${C_COMPILER_FLAGS} ${HW_FLAGS} -Wno-int-conversion --target=${TARGET_NAME}")
     set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS} -fno-exceptions  -fno-rtti")
     set(CMAKE_ASM_FLAGS                 "${ASM_FLAGS} ${HW_FLAGS} --target=${TARGET_NAME}")
+    add_compile_options(-fdiagnostics-color=always)
 
     if(${RETARGET_EN_NO_SEMIHOSTING})
         set(CRT_LIBS                    -lcrt0)

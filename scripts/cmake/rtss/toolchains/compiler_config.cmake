@@ -27,7 +27,7 @@ if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
     set (RETARGET_IO_SRC                    "${CMSIS_COMPILER_PATH}/source/armcc/retarget_io.c")
 
     if(COMPILER STREQUAL CLANG)
-        set (RETARGET_IO_SRC                "${RETARGET_SRC_DIR}/retarget_io/compiler/clang/Source/retarget.c")
+        set (RETARGET_IO_SRC                "${CMSIS_COMPILER_PATH}/source/clang/retarget_syscalls.c")
     endif()
 
 elseif (COMPILER STREQUAL GCC)

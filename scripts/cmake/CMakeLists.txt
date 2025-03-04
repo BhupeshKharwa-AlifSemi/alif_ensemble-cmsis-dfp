@@ -1,0 +1,329 @@
+#/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+# * Use, distribution and modification of this code is permitted under the
+# * terms stated in the Alif Semiconductor Software License Agreement
+# *
+# * You should have received a copy of the Alif Semiconductor Software
+# * License Agreement with this file. If not, please write to:
+# * contact@alifsemi.com, or visit: https://alifsemi.com/license
+# *
+# */
+
+cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
+
+# These can be also set via command line
+get_filename_component(ALIF_DEV_SRC_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/../.."     ABSOLUTE)
+
+set(ALIF_BOARD_DIR              ${ALIF_DEV_SRC_DIR}/Boards)
+set(ALIF_CMSIS_DRIVER_DIR       ${ALIF_DEV_SRC_DIR}/Alif_CMSIS)
+set(ALIF_DEVICE_DIR             ${ALIF_DEV_SRC_DIR}/Device)
+set(ALIF_COMPONENTS_DIR         ${ALIF_DEV_SRC_DIR}/components)
+set(ALIF_ENSEMBLE_DRIVERS_DIR   ${ALIF_DEV_SRC_DIR}/drivers)
+
+# Library directory
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY          "${CMAKE_BINARY_DIR}/lib")
+
+#string(TOLOWER $CACHE{COMPILER} TMP)
+#set(CMAKE_TOOLCHAIN_FILE        ${ALIF_DEV_SRC_DIR}/scripts/toolchain/toolchain-${TMP}.cmake)
+#include (${CMAKE_TOOLCHAIN_FILE})
+
+set(USER_CMAKE_SCRIPT_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/rtss")
+
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m"                CACHE INTERNAL "")
+  set(ColourBold  "${Esc}[1m"               CACHE INTERNAL "")
+  set(Red         "${Esc}[31m"              CACHE INTERNAL "")
+  set(Green       "${Esc}[32m"              CACHE INTERNAL "")
+  set(Yellow      "${Esc}[33m"              CACHE INTERNAL "")
+  set(Blue        "${Esc}[34m"              CACHE INTERNAL "")
+  set(Magenta     "${Esc}[35m"              CACHE INTERNAL "")
+  set(Cyan        "${Esc}[36m"              CACHE INTERNAL "")
+  set(White       "${Esc}[37m"              CACHE INTERNAL "")
+  set(HCyan       "${Esc}[38;5;45m"         CACHE INTERNAL "")
+endif()
+
+#To Debug Cmake environment
+#set(CMAKE_VERBOSE_MAKEFILE      ON)
+set(CMAKE_COLOR_MAKEFILE        ON)
+
+# Modify the `PATH` for the build process
+#set(ENV{PATH}   $ENV{COMPILER_BIN_PATH}:$ENV{PATH})
+
+# Including Utilities cmake
+include (${USER_CMAKE_SCRIPT_DIR}/utilities_func.cmake)
+
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOOT                    BOOT                    CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(DEVICE                  DEVICE                  CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CPU                     CPU                     CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(RTSS                    RTSS                    CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOARD_REV               BOARD_REV               CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(TEST_APP                TEST_APP                CACHE)
+#CONVERT_PRESET_VAR_TO_CMAKE_VAR(RTE_COMP_DIR            RTE_COMP_DIR            CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER                COMPILER                CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_PACK_PATH         CMSIS_PACK_PATH         ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER_BIN_PATH       COMPILER_BIN_PATH       ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_COMPILER_PATH     CMSIS_COMPILER_PATH     ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(SE_TOOLS                SE_TOOLS                ENV)
+
+#Error Check
+ERR_CHECK_MSG(FATAL_ERROR    CMSIS_PACK_PATH        "CMSIS PACK"        Red)
+ERR_CHECK_MSG(FATAL_ERROR    COMPILER_BIN_PATH      "COMPILER"          Red)
+ERR_CHECK_MSG(WARNING        CMSIS_COMPILER_PATH    "CMSIS COMPILER"    Magenta)
+
+# Extract Device Series
+string(SUBSTRING    ${DEVICE}   1   1   DEV_FAMILY)
+string(SUBSTRING    ${DEVICE}   1   2   DEVICE_SERIES)
+
+# Look for E1C device
+if( ${DEVICE_SERIES} STREQUAL "E1")
+    string(SUBSTRING    ${DEVICE}       3   1   D_TMP)
+    if( ${D_TMP} STREQUAL "C")
+        string(SUBSTRING    ${DEVICE}   1   3   EXT_DEVICE_SERIES)
+    endif()
+    set(DEVICE_PART_NUMBER           "${DEVICE}")
+
+elseif (${DEVICE_SERIES} STREQUAL "E7")
+    set(EXT_DEVICE_SERIES           "${DEVICE}")
+    string(SUBSTRING    ${DEVICE}   0   13      DEVICE_PART_NUMBER)
+
+endif()
+
+# Device Known device name
+if (DEV_FAMILY STREQUAL "E")
+    set(DEVICE_FAMILY_NAME      "ENSEMBLE")
+elseif(DEV_FAMILY STREQUAL "B")
+    set(DEVICE_FAMILY_NAME      "BALLETTO")
+else ()
+    message (FATAL_ERROR "${Red}DEFINE PROPER DEVICE NAME ${ColourReset}")
+endif()
+
+# Setting the Toolchain path
+set(CMAKE_TOOLCHAIN_FILE    "${USER_CMAKE_SCRIPT_DIR}/toolchains/toolchain.cmake")
+
+# Setting Properssor Name
+set (PROC                   "${CPU}_${RTSS}")
+
+# Setting Paths for OS selection cmake files
+set (OS_CMAKE_DIR           "${USER_CMAKE_SCRIPT_DIR}/os_cmake")
+
+# Setting path for Driver cmake files
+set (DRIVERS_CMAKE_DIR      "${USER_CMAKE_SCRIPT_DIR}/drivers_cmake")
+
+# Setting path for Device related cmake file
+set (DEVICE_CMAKE_DIR       "${USER_CMAKE_SCRIPT_DIR}/device_cmake")
+
+# Setting path for se_host_services related cmake file
+set (HOST_SERVICES_CMAKE_DIR "${USER_CMAKE_SCRIPT_DIR}/host_services_cmake")
+
+set (DEVICE_PATH            "${ALIF_DEVICE_DIR}")
+set (DRIVERS_CMAKE_FILE     "${DRIVERS_CMAKE_DIR}/drivers.cmake")
+set (RETARGET_SRC_DIR       "${ALIF_DEV_SRC_DIR}/libs")
+
+#Include Retarget Include path
+set(RETARGET_IO_INC     "${CMSIS_COMPILER_PATH}/include;${RETARGET_SRC_DIR}/retarget_io/config")
+
+include_directories("${RETARGET_IO_INC};${CMSIS_PACK_PATH}/CMSIS/RTOS2/Include")
+include("${USER_CMAKE_SCRIPT_DIR}/toolchains/compiler_config.cmake")
+
+# Including Device related cmake
+include (${DEVICE_CMAKE_DIR}/device.cmake)
+
+# Mark the language as C so that CMake doesn't try to test the C++
+# cross-compiler's ability to compile a simple program because that will fail
+project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
+        VERSION 2.0.0
+        DESCRIPTION "COLLECTION_OF_ALIF_TESTAPPS "
+        LANGUAGES C ASM)
+
+get_rte_macros()
+
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN      stdin_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT     stdout_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR     stderr_def_cnt)
+IS_MACRO_DEF("${RTEcomponentFile}"   STDIN_ECHO                    stdin_echo_def_cnt)
+
+message("")
+message (STATUS "📌 SELECTED COMPILER        --> ${HCyan}${COMPILER}${ColourReset}")
+message (STATUS "📌 SELECTED DEVICE          --> ${HCyan}${DEVICE}${ColourReset}")
+message (STATUS "📌 SELECTED CORE            --> ${HCyan}${CPU} (${RTSS}, Rev-${BOARD_REV})${ColourReset}")
+message (STATUS "📌 SELECTED BOOT            --> ${HCyan}${BOOT}${ColourReset}")
+message (STATUS "📌 SELECTED BOARD           --> ${HCyan}${BOARD_NAME}${ColourReset}")
+message (STATUS "📌 SELECTED DEVICE FAMILY   --> ${HCyan}${DEVICE_FAMILY_NAME} ${ColourReset}")
+
+# Checking if Test app name is given
+if(${TEST_APP} STREQUAL "ALL")
+    set(EN_APP_FLAG        0    CACHE INTERNAL "")
+else()
+    set(EN_APP_FLAG        1    CACHE INTERNAL "")      # If Test App name is given, then make the flag high
+endif()
+
+if( stdin_def_cnt OR (stdout_def_cnt GREATER_EQUAL 2) OR stderr_def_cnt OR stdin_echo_def_cnt)
+    if(${ENABLE_USART})
+        set(RETARGET_EN_NO_SEMIHOSTING        ON)
+        # Collect all retargeting source files
+        file(GLOB_RECURSE   RETARGET_IO_SRCS    "${RETARGET_SRC_DIR}/retarget_io/source/*.c")
+        list(APPEND         RETARGET_IO_SRCS    "${RETARGET_IO_SRC}")
+    else()
+        message(STATUS     "[WARNING]${Yellow}RETARGETTING IS ENABLED BUT UART DRIVER IS NOT ENABLED ${ColourReset}")
+    endif()
+endif()
+
+if(${RETARGET_EN_NO_SEMIHOSTING})
+    message (STATUS "📌 SELECTED STANDARD I/O    --> ${HCyan}UART${ColourReset}")
+else()
+    message (STATUS "📌 SELECTED STANDARD I/O    --> ${HCyan}DEBUGGER CONSOLE${ColourReset}")
+endif()
+
+# Directory paths of OS cmake files
+if (OS STREQUAL NONE)
+    message (STATUS "📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
+    include (${OS_CMAKE_DIR}/baremetal.cmake)
+
+else()
+    # OS is not proper
+    message (FATAL_ERROR "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}")
+
+endif ()
+
+#Remove Dependancy
+resolve_dependancy()
+
+# Including cmake for Drivers
+include (${DRIVERS_CMAKE_FILE})
+
+# Including Host Services cmake
+include (${HOST_SERVICES_CMAKE_DIR}/se_host_services.cmake)
+
+# Creating a Library file for Retarget IO & Common Source Files
+if ((RETARGET_IO_SRCS) OR (COMMON_SRCS))
+    set(COMMON_LIB     "COMMON")
+
+    if(${RETARGET_EN_NO_SEMIHOSTING})
+        list(APPEND     COMMON_SRCS     ${RETARGET_IO_SRCS})
+    endif()
+
+    if(NOT COMMON_SRCS)
+        message(WARNING "COMMON_SRCS is empty. No source files found!")
+    else()
+        add_library(${COMMON_LIB}   STATIC      ${COMMON_SRCS})
+    endif()
+endif()
+
+
+# Collecting all the Test application names
+list(LENGTH    TEST_APP_SRCS  TOTAL_NUM_OF_APPLICATION)
+message("\n<--- Test Applications to be Built -->")
+
+string (REPLACE     ","     ";"     TEST_APPS           ${TEST_APP} )
+
+if (EN_APP_FLAG)
+    list(LENGTH     TEST_APPS   TOTAL_NUM_OF_REQUESTED_APPLICATION)
+    list(FIND       TEST_APPS   "ALL"   ALL_APPS_FLAG)
+
+    if( NOT ALL_APPS_FLAG EQUAL -1)
+        set(EN_APP_FLAG     0   CACHE INTERNAL "")
+        MATH(EXPR TOTAL_NUM_OF_REQUESTED_APPLICATION "${TOTAL_NUM_OF_APPLICATION} - ${TOTAL_NUM_OF_REQUESTED_APPLICATION} + 1")
+        set(EXCLUDED_APP_LIST   "${TEST_APPS}")
+        set(TEST_APPS           "ALL")
+        list(REMOVE_ITEM ${EXCLUDED_APP_LIST} "ALL")
+    endif()
+    message ("<--- ${TOTAL_NUM_OF_REQUESTED_APPLICATION} application requested to build out of ${TOTAL_NUM_OF_APPLICATION} -->")
+
+else ()
+    set(TOTAL_NUM_OF_REQUESTED_APPLICATION ${TOTAL_NUM_OF_APPLICATION})
+    message ("<--- All ${TOTAL_NUM_OF_APPLICATION} applications will build -->")
+
+endif()
+
+set(CMAKE_TEMP_FOLDER       "${CMAKE_BINARY_DIR}/.temp")
+file(MAKE_DIRECTORY         ${CMAKE_TEMP_FOLDER})
+#execute_process(COMMAND     attrib +h   ${CMAKE_TEMP_FOLDER})
+
+set(TMP_FILE                "${CMAKE_TEMP_FOLDER}/.tmp" )
+set(TMP_FILE1               "${CMAKE_TEMP_FOLDER}/.tmp1")
+set(GENERATED_TEST_APP_LIST     "")
+set(REQUESTED_TEST_APP_LIST     "")
+
+file(WRITE      ${TMP_FILE}     ${OUTPUT_DIR})
+file(WRITE      ${TMP_FILE1}    "")
+file(APPEND     ${TMP_FILE}     "\nRequested: ${TOTAL_NUM_OF_REQUESTED_APPLICATION}, Total: ${TOTAL_NUM_OF_APPLICATION}")
+SET(INVALID_TESTAPP_CNT     0)
+
+foreach (testApp ${TEST_APPS})
+    set(TEST_FOUND_FLAG "Not Found")
+    foreach (testsourcefile ${TEST_APP_SRCS})
+
+        # Collectiong Test app names one by one
+        get_filename_component (tempname "${testsourcefile}" NAME)
+        string (REPLACE ".c" "" testname ${tempname} )
+
+        if("${testname}" STREQUAL "Demo_SD_fatFS_Baremetal")
+            set(addonsourcefiles        ${SD_TEST_APP_DEP_SRCS})
+        else()
+            set(addonsourcefiles        "")
+        endif()
+
+        # If the Flag is high, build only for the given Test Application
+        if (EN_APP_FLAG)
+
+            if (testname STREQUAL testApp)
+
+                message (STATUS "🎯 App Name --> ${Yellow}${testname}${ColourReset}")
+                set(TEST_FOUND_FLAG "found")
+
+                file(APPEND ${TMP_FILE} "\n${testname}")
+                list(APPEND     ${REQUESTED_TEST_APP_LIST}      ${testname})
+
+                # Calling the build function
+                BUILD_PROJECT ()
+
+                break ()
+
+            endif ()
+
+        # Build for all the test Applications
+        elseif (NOT EN_APP_FLAG)
+            list(FIND       EXCLUDED_APP_LIST   ${testname}   EXCLUDED_APP_LIST_FLAG)
+
+            if (EXCLUDED_APP_LIST_FLAG EQUAL -1)
+                message (STATUS "🎯 App Name --> ${Yellow}${testname}${ColourReset}")
+
+                file(APPEND ${TMP_FILE} "\n${testname}")
+                list(APPEND     ${REQUESTED_TEST_APP_LIST}      ${testname})
+
+                # Calling the build function
+                BUILD_PROJECT ()
+
+            endif()
+
+        endif ()
+
+    endforeach (testsourcefile )
+
+    if ( (TEST_FOUND_FLAG STREQUAL "Not Found") AND (NOT testApp STREQUAL "ALL" ) )
+        message (STATUS "🚨 App Name --> ${Yellow}${testApp}    => [ :${Red}${TEST_FOUND_FLAG} ]${ColourReset}")
+        MATH(EXPR INVALID_TESTAPP_CNT "${INVALID_TESTAPP_CNT}+1")
+    endif ()
+
+endforeach (testApp)
+
+message("\n")
+message("${HCyan}Disabled/Removed (because of improper flags selection) App List as follows ${ColourReset}")
+
+foreach(element IN LISTS RM_TEST_APPS_LIST)
+    message(STATUS  "🚫 ${Yellow} ${element} ${ColourReset}")
+endforeach()
+
+message("")
+file(APPEND ${TMP_FILE} "\n${INVALID_TESTAPP_CNT}")
+
+#--------------------------------------------------------------------------------------------------------
+enable_testing()
+
+add_test(NAME BUILD_STATISTICS COMMAND bash ${CMAKE_SOURCE_DIR}/build_stats.sh    ${CMAKE_TEMP_FOLDER})
+add_test(NAME SE_FLASHING_TOOL COMMAND bash ${CMAKE_SOURCE_DIR}/se_flashing.sh)
+#--------------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------------
+include(CPack)
+#--------------------------------------------------------------------------------------------------------
