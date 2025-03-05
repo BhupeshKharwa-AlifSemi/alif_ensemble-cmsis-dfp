@@ -44,6 +44,11 @@ extern "C"
 #define IMU_MAGNETOMETER_DATA_READY             (1UL << 2)  ///< Magnetometer data is ready
 #define IMU_TEMPERATURE_DATA_READY              (1UL << 3)  ///< Temperature data is ready
 
+/*
+ * IMU event info
+ */
+#define IMU_EVENT_NONE                          (0UL << 0)  ///< Event none
+
 /**
 \brief IMU Coordinates
 */

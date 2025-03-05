@@ -1728,10 +1728,10 @@
 
 #if RTE_BMI323
 
-// <o> BMI323 IMU INT pin GPIO port number range <0-15>
-// <i> Defines BMI323 IMU INT pin GPIO port number.
+// <o> BMI323 IMU INT pin IO port number range <0-15>
+// <i> Defines BMI323 IMU INT pin IO port number.
 // <i> Default: 8
-#define RTE_BMI323_INT_GPIO_PORT            8
+#define RTE_BMI323_INT_IO_PORT              8
 
 // <o> BMI323 IMU INT pin number range <0-7>
 // <i> Defines BMI323 IMU INT pin number.
