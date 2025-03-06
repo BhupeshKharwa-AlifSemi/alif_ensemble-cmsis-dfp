@@ -201,6 +201,12 @@ extern "C"
 #define I2C_MIN_FS_PLUS_HIGH_TIME_NS    (290)
 #define I2C_MIN_FS_PLUS_LOW_TIME_NS     (550)
 
+/* Macros for write-read mode */
+#define I2C_WRITE_READ_MODE_EN               0x80U
+#define I2C_WRITE_READ_TAR_REG_ADDR_SIZE_Msk 0xFU
+#define I2C_WRITE_READ_TAR_REG_ADDR_SIZE_Pos 0x0U
+#define I2C_WRITE_READ_TAR_REG_ADDR_SIZE(x)  (x & I2C_WRITE_READ_TAR_REG_ADDR_SIZE_Msk >> I2C_WRITE_READ_TAR_REG_ADDR_SIZE_Pos)
+
 /* I2C Bus possible speed modes */
 typedef enum i2c_speed_mode
 {
@@ -281,7 +287,8 @@ typedef struct i2c_transfer_info
   volatile I2C_TRANSFER_STATE   curr_stat;        /* \ref I2C_TRANSFER_STATE "current working state for i2c device"          */
   volatile uint32_t             next_cond;        /* \ref I2C_NEXT_CONDTION "next condition for master transmit or receive", \
                                                       possible values are STOP or RESTART, it should be STOP for first open  */
-  volatile I2C_TRANSFER_STATUS  status;        /* \ref to I2C_TRANSFER_STATUS for data transfer state                         */
+  volatile I2C_TRANSFER_STATUS  status;           /* \ref to I2C_TRANSFER_STATUS for data transfer state                     */
+  volatile bool                 wr_mode;          /* write-read mode                                                         */
 } i2c_transfer_info_t;
 
 
