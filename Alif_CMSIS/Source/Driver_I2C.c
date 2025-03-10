@@ -18,7 +18,7 @@
 #include "sys_clocks.h"
 
 /* Driver version */
-#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 3)
+#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 4)
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -1179,6 +1179,134 @@ static ARM_I2C_STATUS ARM_I2C_GetStatus(const I2C_RESOURCES  *I2C)
     return I2C->status;
 }
 
+/**
+ * @brief   CMSIS-Driver i2c irq status handler
+ * @note    none
+ * @param   I2C_RES : Pointer to i2c resources structure
+ * @retval  none
+ */
+void I2C_HandleIRQStatus(I2C_RESOURCES *I2C_RES)
+{
+    i2c_transfer_info_t *transfer = &(I2C_RES->transfer);
+    ARM_I2C_STATUS *i2c_stat      = &(I2C_RES->status);
+
+    /* Check the ISR response */
+    if (transfer->status & I2C_TRANSFER_STATUS_DONE)
+    {
+        /* set busy flag to 0U */
+        i2c_stat->busy = 0U;
+
+        I2C_RES->cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
+    }
+    else if (transfer->status & I2C_TRANSFER_STATUS_GENERAL_CALL)
+    {
+        I2C_RES->cb_event(ARM_I2C_EVENT_GENERAL_CALL);
+    }
+    else if (transfer->status & I2C_TRANSFER_STATUS_BUS_CLEAR)
+    {
+        I2C_RES->cb_event(ARM_I2C_EVENT_BUS_CLEAR);
+    }
+    else
+    {
+#if I2C_DMA_ENABLE
+        if (I2C_RES->dma_enable)
+        {
+            if (I2C_RES->status.direction == I2C_DIR_TRANSMITTER)
+            {
+              I2C_DMA_Stop(&I2C_RES->dma_cfg->dma_tx);
+            }
+            else
+            {
+              I2C_DMA_Stop(&I2C_RES->dma_cfg->dma_rx);
+            }
+            /* set busy flag to 0U */
+            i2c_stat->busy = 0U;
+        }
+#endif
+        if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_TRANSMIT)
+        {
+            I2C_RES->cb_event(ARM_I2C_EVENT_SLAVE_TRANSMIT);
+            i2c_stat->busy = 0U;
+        }
+
+        else if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_RECEIVE)
+        {
+            I2C_RES->cb_event(ARM_I2C_EVENT_SLAVE_RECEIVE);
+            i2c_stat->busy = 0U;
+        }
+
+        else if (transfer->status & I2C_TRANSFER_STATUS_ADDRESS_NACK)
+        {
+            I2C_RES->cb_event(ARM_I2C_EVENT_ADDRESS_NACK);
+            i2c_stat->busy = 0U;
+        }
+
+        else if (transfer->status & I2C_TRANSFER_STATUS_ARBITRATION_LOST)
+        {
+            i2c_stat->arbitration_lost = 1U;
+
+            I2C_RES->cb_event(ARM_I2C_EVENT_ARBITRATION_LOST);
+            i2c_stat->busy = 0U;
+        }
+
+        else if (transfer->status & I2C_TRANSFER_STATUS_BUS_ERROR)
+        {
+            i2c_stat->bus_error = 1U;
+
+            I2C_RES->cb_event(ARM_I2C_EVENT_BUS_ERROR);
+            i2c_stat->busy = 0U;
+        }
+
+        else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE)
+        {
+            I2C_RES->cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
+            i2c_stat->busy = 0U;
+        }
+    }
+    transfer->status = I2C_TRANSFER_STATUS_NONE;
+}
+
+/**
+ * @brief   CMSIS-Driver i2c irq handler
+ * @note    none
+ * @param   I2C_RES : Pointer to i2c resources structure
+ * @retval  none
+ */
+void I2C_IRQHandler(I2C_RESOURCES *I2C_RES)
+{
+    i2c_transfer_info_t *transfer = &(I2C_RES->transfer);
+
+    /* Check for master mode */
+    if (I2C_RES->mode == I2C_MASTER_MODE)
+    {
+        if (transfer->curr_stat == I2C_TRANSFER_MST_TX)
+        {
+            /* Master transmit*/
+            i2c_master_tx_isr(I2C_RES->regs, transfer);
+        }
+        if(transfer->curr_stat == I2C_TRANSFER_MST_RX)
+        {
+            /* Master receive */
+            i2c_master_rx_isr(I2C_RES->regs, transfer);
+        }
+    }
+    else /* Slave mode */
+    {
+        if(transfer->curr_stat == I2C_TRANSFER_SLV_TX)
+        {
+            /* slave transmit*/
+            i2c_slave_tx_isr(I2C_RES->regs, transfer);
+        }
+        if(transfer->curr_stat == I2C_TRANSFER_SLV_RX)
+        {
+            /* slave receive */
+            i2c_slave_rx_isr(I2C_RES->regs, transfer);
+        }
+    }/* Slave mode */
+
+    I2C_HandleIRQStatus(I2C_RES);
+}
+
 #if I2C_DMA_ENABLE
 
 /**
@@ -1309,109 +1437,7 @@ static ARM_I2C_STATUS I2C0_GetStatus(void)
 
 void I2C0_IRQHandler(void)
 {
-    i2c_transfer_info_t *transfer = &(I2C0_RES.transfer);
-    ARM_I2C_STATUS *i2c_stat = &(I2C0_RES.status);
-
-    /* Check for master mode */
-    if (I2C0_RES.mode == I2C_MASTER_MODE)
-    {
-        if (transfer->curr_stat == I2C_TRANSFER_MST_TX)
-        {
-            /* Master transmit*/
-            i2c_master_tx_isr(I2C0_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_MST_RX)
-        {
-            /* Master receive */
-            i2c_master_rx_isr(I2C0_RES.regs, transfer);
-        }
-    }
-    else /* Slave mode */
-    {
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_TX)
-        {
-            /* slave transmit*/
-            i2c_slave_tx_isr(I2C0_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_RX)
-        {
-            /* slave receive */
-            i2c_slave_rx_isr(I2C0_RES.regs, transfer);
-        }
-    }/* Slave mode */
-
-    /* Check the ISR response */
-    if (transfer->status & I2C_TRANSFER_STATUS_DONE)
-    {
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-
-        I2C0_RES.cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_GENERAL_CALL)
-    {
-        I2C0_RES.cb_event(ARM_I2C_EVENT_GENERAL_CALL);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_BUS_CLEAR)
-    {
-        I2C0_RES.cb_event(ARM_I2C_EVENT_BUS_CLEAR);
-    }
-    else
-    {
-#if RTE_I2C0_DMA_ENABLE
-        if(I2C0_RES.status.direction == I2C_DIR_TRANSMITTER)
-        {
-          I2C_DMA_Stop(&I2C0_RES.dma_cfg->dma_tx);
-        }
-        else
-        {
-          I2C_DMA_Stop(&I2C0_RES.dma_cfg->dma_rx);
-        }
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-#endif
-
-        if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_TRANSMIT)
-        {
-            I2C0_RES.cb_event(ARM_I2C_EVENT_SLAVE_TRANSMIT);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_RECEIVE)
-        {
-            I2C0_RES.cb_event(ARM_I2C_EVENT_SLAVE_RECEIVE);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ADDRESS_NACK)
-        {
-            I2C0_RES.cb_event(ARM_I2C_EVENT_ADDRESS_NACK);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ARBITRATION_LOST)
-        {
-            i2c_stat->arbitration_lost = 1U;
-
-            I2C0_RES.cb_event(ARM_I2C_EVENT_ARBITRATION_LOST);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_BUS_ERROR)
-        {
-            i2c_stat->bus_error = 1U;
-
-            I2C0_RES.cb_event(ARM_I2C_EVENT_BUS_ERROR);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE)
-        {
-            I2C0_RES.cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
-            i2c_stat->busy = 0U;
-        }
-    }
-    transfer->status = I2C_TRANSFER_STATUS_NONE;
+    I2C_IRQHandler(&I2C0_RES);
 }
 
 #if RTE_I2C0_DMA_ENABLE
@@ -1544,108 +1570,7 @@ static ARM_I2C_STATUS I2C1_GetStatus(void)
 
 void I2C1_IRQHandler(void)
 {
-    i2c_transfer_info_t *transfer = &(I2C1_RES.transfer);
-    ARM_I2C_STATUS *i2c_stat = &(I2C1_RES.status);
-
-    /* Check for master mode */
-    if (I2C1_RES.mode == I2C_MASTER_MODE)
-    {
-        if (transfer->curr_stat == I2C_TRANSFER_MST_TX)
-        {
-            /* Master transmit*/
-            i2c_master_tx_isr(I2C1_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_MST_RX)
-        {
-            /* Master receive */
-            i2c_master_rx_isr(I2C1_RES.regs, transfer);
-        }
-    }
-    else /* Slave mode */
-    {
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_TX)
-        {
-           /* slave transmit*/
-           i2c_slave_tx_isr(I2C1_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_RX)
-        {
-           /* slave receive */
-            i2c_slave_rx_isr(I2C1_RES.regs, transfer);
-        }
-    }/* Slave mode */
-
-    if (transfer->status & I2C_TRANSFER_STATUS_DONE)
-    {
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-
-        I2C1_RES.cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_GENERAL_CALL)
-    {
-        I2C1_RES.cb_event(ARM_I2C_EVENT_GENERAL_CALL);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_BUS_CLEAR)
-    {
-        I2C1_RES.cb_event(ARM_I2C_EVENT_BUS_CLEAR);
-    }
-    else
-    {
-#if RTE_I2C1_DMA_ENABLE
-        if(I2C1_RES.status.direction == I2C_DIR_TRANSMITTER)
-        {
-            I2C_DMA_Stop(&I2C1_RES.dma_cfg->dma_tx);
-        }
-        else
-        {
-            I2C_DMA_Stop(&I2C1_RES.dma_cfg->dma_rx);
-        }
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-#endif
-
-        if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_TRANSMIT)
-        {
-             I2C1_RES.cb_event(ARM_I2C_EVENT_SLAVE_TRANSMIT);
-             i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_RECEIVE)
-        {
-             I2C1_RES.cb_event(ARM_I2C_EVENT_SLAVE_RECEIVE);
-             i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ADDRESS_NACK)
-        {
-             I2C1_RES.cb_event(ARM_I2C_EVENT_ADDRESS_NACK);
-             i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ARBITRATION_LOST)
-        {
-             i2c_stat->arbitration_lost = 1U;
-
-             I2C1_RES.cb_event(ARM_I2C_EVENT_ARBITRATION_LOST);
-             i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_BUS_ERROR)
-        {
-             i2c_stat->bus_error = 1U;
-
-             I2C1_RES.cb_event(ARM_I2C_EVENT_BUS_ERROR);
-             i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE)
-        {
-             I2C1_RES.cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
-             i2c_stat->busy = 0U;
-        }
-    }
-    transfer->status = I2C_TRANSFER_STATUS_NONE;
+    I2C_IRQHandler(&I2C1_RES);
 }
 
 #if RTE_I2C1_DMA_ENABLE
@@ -1778,108 +1703,7 @@ static ARM_I2C_STATUS I2C2_GetStatus(void)
 
 void I2C2_IRQHandler(void)
 {
-    i2c_transfer_info_t *transfer = &(I2C2_RES.transfer);
-    ARM_I2C_STATUS *i2c_stat = &(I2C2_RES.status);
-
-    /* Check for master mode */
-    if (I2C2_RES.mode == I2C_MASTER_MODE)
-    {
-        if (transfer->curr_stat == I2C_TRANSFER_MST_TX)
-        {
-            /* Master transmit*/
-            i2c_master_tx_isr(I2C2_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_MST_RX)
-        {
-            /* Master receive */
-            i2c_master_rx_isr(I2C2_RES.regs, transfer);
-        }
-    }
-    else /* Slave mode */
-    {
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_TX)
-        {
-           /* slave transmit*/
-           i2c_slave_tx_isr(I2C2_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_RX)
-        {
-           /* slave receive */
-            i2c_slave_rx_isr(I2C2_RES.regs, transfer);
-        }
-    }/* Slave mode */
-
-    if (transfer->status & I2C_TRANSFER_STATUS_DONE)
-    {
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-
-        I2C2_RES.cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_GENERAL_CALL)
-    {
-        I2C2_RES.cb_event(ARM_I2C_EVENT_GENERAL_CALL);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_BUS_CLEAR)
-    {
-        I2C2_RES.cb_event(ARM_I2C_EVENT_BUS_CLEAR);
-    }
-    else
-    {
-#if RTE_I2C2_DMA_ENABLE
-        if(I2C2_RES.status.direction == I2C_DIR_TRANSMITTER)
-        {
-          I2C_DMA_Stop(&I2C2_RES.dma_cfg->dma_tx);
-        }
-        else
-        {
-          I2C_DMA_Stop(&I2C2_RES.dma_cfg->dma_rx);
-        }
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-#endif
-
-        if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_TRANSMIT)
-        {
-            I2C2_RES.cb_event(ARM_I2C_EVENT_SLAVE_TRANSMIT);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_RECEIVE)
-        {
-            I2C2_RES.cb_event(ARM_I2C_EVENT_SLAVE_RECEIVE);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ADDRESS_NACK)
-        {
-            I2C2_RES.cb_event(ARM_I2C_EVENT_ADDRESS_NACK);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ARBITRATION_LOST)
-        {
-            i2c_stat->arbitration_lost = 1U;
-
-            I2C2_RES.cb_event(ARM_I2C_EVENT_ARBITRATION_LOST);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_BUS_ERROR)
-        {
-            i2c_stat->bus_error = 1U;
-
-            I2C2_RES.cb_event(ARM_I2C_EVENT_BUS_ERROR);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE)
-        {
-            I2C2_RES.cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
-            i2c_stat->busy = 0U;
-        }
-    }
-    transfer->status = I2C_TRANSFER_STATUS_NONE;
+    I2C_IRQHandler(&I2C2_RES);
 }
 
 #if RTE_I2C2_DMA_ENABLE
@@ -2011,108 +1835,7 @@ static ARM_I2C_STATUS I2C3_GetStatus(void)
 
 void I2C3_IRQHandler(void)
 {
-    i2c_transfer_info_t *transfer = &(I2C3_RES.transfer);
-    ARM_I2C_STATUS *i2c_stat = &(I2C3_RES.status);
-
-    /* Check for master mode */
-    if (I2C3_RES.mode == I2C_MASTER_MODE)
-    {
-        if (transfer->curr_stat == I2C_TRANSFER_MST_TX)
-        {
-            /* Master transmit*/
-            i2c_master_tx_isr(I2C3_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_MST_RX)
-        {
-            /* Master receive */
-            i2c_master_rx_isr(I2C3_RES.regs, transfer);
-        }
-    }
-    else /* Slave mode */
-    {
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_TX)
-        {
-            /* slave transmit*/
-            i2c_slave_tx_isr(I2C3_RES.regs, transfer);
-        }
-        if(transfer->curr_stat == I2C_TRANSFER_SLV_RX)
-        {
-            /* slave receive */
-            i2c_slave_rx_isr(I2C3_RES.regs, transfer);
-        }
-    }/* Slave mode */
-
-    if (transfer->status & I2C_TRANSFER_STATUS_DONE)
-    {
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-
-        I2C3_RES.cb_event(ARM_I2C_EVENT_TRANSFER_DONE);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_GENERAL_CALL)
-    {
-        I2C3_RES.cb_event(ARM_I2C_EVENT_GENERAL_CALL);
-    }
-    else if (transfer->status & I2C_TRANSFER_STATUS_BUS_CLEAR)
-    {
-        I2C3_RES.cb_event(ARM_I2C_EVENT_BUS_CLEAR);
-    }
-    else
-    {
-#if RTE_I2C3_DMA_ENABLE
-        if(I2C3_RES.status.direction == I2C_DIR_TRANSMITTER)
-        {
-          I2C_DMA_Stop(&I2C3_RES.dma_cfg->dma_tx);
-        }
-        else
-        {
-          I2C_DMA_Stop(&I2C3_RES.dma_cfg->dma_rx);
-        }
-        /* set busy flag to 0U */
-        i2c_stat->busy = 0U;
-#endif
-
-        if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_TRANSMIT)
-        {
-            I2C3_RES.cb_event(ARM_I2C_EVENT_SLAVE_TRANSMIT);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_SLAVE_RECEIVE)
-        {
-            I2C3_RES.cb_event(ARM_I2C_EVENT_SLAVE_RECEIVE);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ADDRESS_NACK)
-        {
-            I2C3_RES.cb_event(ARM_I2C_EVENT_ADDRESS_NACK);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_ARBITRATION_LOST)
-        {
-            i2c_stat->arbitration_lost = 1U;
-
-            I2C3_RES.cb_event(ARM_I2C_EVENT_ARBITRATION_LOST);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_BUS_ERROR)
-        {
-            i2c_stat->bus_error = 1U;
-
-            I2C3_RES.cb_event(ARM_I2C_EVENT_BUS_ERROR);
-            i2c_stat->busy = 0U;
-        }
-
-        else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE)
-        {
-           I2C3_RES.cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
-           i2c_stat->busy = 0U;
-        }
-    }
-    transfer->status = I2C_TRANSFER_STATUS_NONE;
+    I2C_IRQHandler(&I2C3_RES);
 }
 
 #if RTE_I2C3_DMA_ENABLE
