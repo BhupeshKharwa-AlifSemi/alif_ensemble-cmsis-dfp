@@ -44,7 +44,7 @@
                 "BOARD_REV": "B0",
                 "BOOT": "TCM",
                 "BOARD_NAME": "DevKit-e7",
-                "DEVICE": "AE722F80F55D5XX",
+                "DEVICE": "AE722F80F55D5",
                 "COMPILER": "ARMCLANG",
                 "DEVICE_SERIES": "E7",
                 "OS": "NONE",
@@ -63,7 +63,8 @@
                 "ARM_PRODUCT_DEF": "/opt/arm/developmentstudio-2022.0/sw/mappings/gold.elmap",
                 "ARMLMD_LICENSE_FILE": "27000@10.10.2.99",
                 "CMSIS_PACK_PATH": "$env{HOME}/Arm/Packs/ARM/CMSIS/6.0.0",
-                "CMSIS_COMPILER_PATH": "$env{HOME}/Arm/Packs/ARM/CMSIS-Compiler/2.1.0"
+                "CMSIS_COMPILER_PATH": "$env{HOME}/Arm/Packs/ARM/CMSIS-Compiler/2.1.0",
+                "SE_TOOLS":"$env{HOME}/se/build/images"
             }
         }
     ],

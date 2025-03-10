@@ -211,11 +211,11 @@ macro (BUILD_PROJECT)
 
     endif ()
 
-    IF (EXISTS "${SE_TOOLS}/build/images")
+    IF (EXISTS "${SE_TOOLS_IMAGE_DIR}")
         add_custom_command(TARGET  ${EXECUTABLE}
             POST_BUILD
-            COMMAND  cp -v "${OUTPUT_DIR}/${EXECUTABLE}.bin" "${SE_TOOLS}/build/images/${EXECUTABLE}_${CPU}_${RTSS}.bin"
-            COMMAND  echo "${Green} Copied binary ${EXECUTABLE}_${CPU}_${RTSS}.bin ${ColourReset} to ${SE_TOOLS}/build/images/"
+            COMMAND ${CMAKE_COMMAND} -E copy "${OUTPUT_DIR}/${EXECUTABLE}.bin" "${SE_TOOLS_IMAGE_DIR}/${EXECUTABLE}_${CPU}_${RTSS}.bin"  &&
+            echo "${Cyan}Copied binary ${EXECUTABLE}_${CPU}_${RTSS}.bin ${ColourReset} to ${Green} ${SE_TOOLS_IMAGE_DIR} ${ColourReset}"
         )
     endif ()
 

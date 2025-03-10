@@ -127,7 +127,7 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     #build_num_args=$(echo "$build_param" | grep -o " " | wc -l)
 
     # Print output
-    #echo "config_param : $config_param"
+    #echo "config_param : $config_param" 
     #echo "build  param : $build_param"
     #echo "Test   param : $preset_param"
 
@@ -169,13 +169,13 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
             fi
 
             if [[ $EXISTING_BUILD_PRESETS  =~ "${preset_param_array[1]}" ]]; then 
-                selected_cfg_preset=${preset_param_array[1]} 
+                selected_build_preset=${preset_param_array[1]} 
             else 
                 echo -e "${RED}Didn't find ${BLUE} ${preset_param_array[1]} ${RED}config preset in list ${BLUE}" {$EXISTING_BUILD_PRESETS} "${NC}"
             fi
 
             if [[ $EXISTING_TEST_PRESETS  =~ "${preset_param_array[2]}" ]]; then 
-                selected_cfg_preset=${preset_param_array[2]} 
+                selected_test_preset=${preset_param_array[2]} 
             else 
                 echo -e "${RED}Didn't find ${BLUE} ${preset_param_array[2]} ${RED}config preset in list ${BLUE}" {$EXISTING_TEST_PRESETS} "${NC}"
             fi

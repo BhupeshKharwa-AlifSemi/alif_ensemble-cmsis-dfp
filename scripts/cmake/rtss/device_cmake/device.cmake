@@ -43,10 +43,9 @@ set(RTSS_SPECIFIC_DIR   "rtss_${rtss}")
 set (DEVICE_CORE_PATH                       "${DEVICE_PATH}/core/${RTSS_SPECIFIC_DIR}")
 
 # Binary Directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY          ${CMAKE_BINARY_DIR}/exec)
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY          ${CMAKE_BINARY_DIR}/${RTSS}/${BOOT}/exec)
 # Setting paths for Device directories
-set (DEVICE_SKU_DIR             "${DEVICE_PATH}/soc/${DEVICE_PART_NUMBER}")
+set (DEVICE_SKU_DIR             "${DEVICE_PATH}/soc/${DEVICE}")
 set (DEVICE_COMMON_SRC          "${DEVICE_PATH}/core/common/source")
 set (DEVICE_COMMON_INC          "${DEVICE_PATH}/core/common/include")
 set (DEVICE_CORE_CONFIG_DIR     "${DEVICE_CORE_PATH}/config")
