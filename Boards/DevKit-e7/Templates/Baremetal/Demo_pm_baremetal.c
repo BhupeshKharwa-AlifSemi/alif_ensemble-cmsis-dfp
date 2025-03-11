@@ -32,6 +32,7 @@
 #include CMSIS_device_header
 #include "se_services_port.h"
 #include "clock_runtime.h"
+#include "sys_utils.h"
 
 #if defined(RTE_CMSIS_Compiler_STDIN)
 #include "retarget_stdin.h"
