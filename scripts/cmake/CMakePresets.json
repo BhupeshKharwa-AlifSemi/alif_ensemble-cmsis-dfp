@@ -29,7 +29,7 @@
                 "COMPILER": "GCC"
             },
             "environment": {
-                "COMPILER_BIN_PATH": "/mnt/d/Programs/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/",
+                "COMPILER_BIN_PATH": "$env{ARMGCC_PATH}/bin",
                 "PATH": "$env{COMPILER_BIN_PATH}${pathListSep}$penv{PATH}"
             }
         },
@@ -41,7 +41,7 @@
             "cacheVariables": {
                 "CPU": "M55",
                 "RTSS": "HP",
-                "BOARD_REV": "B0",
+                "BOARD_REV": "B4",
                 "BOOT": "TCM",
                 "BOARD_NAME": "DevKit-e7",
                 "DEVICE": "AE722F80F55D5",
@@ -59,12 +59,10 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             },
             "environment": {
-                "COMPILER_BIN_PATH": "/opt/arm/developmentstudio-2022.0/sw/ARMCompiler6.18/bin",
-                "ARM_PRODUCT_DEF": "/opt/arm/developmentstudio-2022.0/sw/mappings/gold.elmap",
-                "ARMLMD_LICENSE_FILE": "27000@10.10.2.99",
-                "CMSIS_PACK_PATH": "$env{HOME}/Arm/Packs/ARM/CMSIS/6.0.0",
-                "CMSIS_COMPILER_PATH": "$env{HOME}/Arm/Packs/ARM/CMSIS-Compiler/2.1.0",
-                "SE_TOOLS":"$env{HOME}/se/build/images"
+                "COMPILER_BIN_PATH": "$env{ARMCLANG_PATH}/bin",
+                "CMSIS_PACK_PATH": "$env{CMSIS_CORE_PACK_PATH}",
+                "CMSIS_COMPILER_PATH": "$env{CMSIS_COMPILER_PACK_PATH}",
+                "SE_TOOLS_IMAGE_DIR":"$env{SE_TOOLS}/build/images"
             }
         }
     ],
