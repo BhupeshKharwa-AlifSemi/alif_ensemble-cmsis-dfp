@@ -1,74 +1,20 @@
 #! armclang -E --target=arm-arm-none-eabi -mcpu=cortex-m55 -xc
 ; command above MUST be in first line (no comment above!)
-#include "app_mem_regions.h"
-/*
-;-------- <<< Use Configuration Wizard in Context Menu >>> -------------------
-*/
 
-/* MRAM code storage for M55-HP */
+#include "app_mem_regions.h"
+
 #define __ROM_BASE      APP_MRAM_HP_BASE
 #define __ROM_SIZE      APP_MRAM_HP_SIZE
-/* On chip RAM Regions */
-#define SRAM0_BASE                0x02000000
-#define SRAM0_SIZE                0x00400000    /* 4MB */
-#define SRAM1_BASE                0x08000000
-#define SRAM1_SIZE                0x00280000    /* 2.5MB */
-#define SRAM2_BASE                0x50000000
-#define SRAM2_SIZE                0x00040000    /* 256KB */
-#define SRAM3_BASE                0x50800000
-#define SRAM3_SIZE                0x00100000    /* 1MB */
-#define SRAM4_BASE                0x58000000
-#define SRAM4_SIZE                0x00040000    /* 256KB */
-#define SRAM5_BASE                0x58800000
-#define SRAM5_SIZE                0x00040000    /* 256KB */
-#define SRAM6_A_BASE              0x62000000
-#define SRAM6_A_SIZE              0x00100000    /* 1MB */
-#define SRAM6_B_BASE              0x62400000
-#define SRAM6_B_SIZE              0x00100000    /* 1MB */
-#define SRAM7_BASE                0x63000000
-#define SRAM7_SIZE                0x00080000    /* 512KB */
-#define SRAM8_BASE                0x63200000
-#define SRAM8_SIZE                0x00200000    /* 2MB */
-#define SRAM9_A_BASE              0x60000000
-#define SRAM9_A_SIZE              0x00040000    /* 256KB */
-#define SRAM9_B_BASE              0x60040000
-#define SRAM9_B_SIZE              0x00080000    /* 512KB */
 
-/*--------------------- ITCM Configuration ----------------------------------
-; <h> ITCM Configuration
-;   <o0> ITCM Base Address <0x0-0xFFFFFFFF:8>
-;   <o1> ITCM Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
- *----------------------------------------------------------------------------*/
-/* SRAM2 is mapped as ITCM in M55-HP */
-#define __ITCM_BASE      0x00000000
-#define __ITCM_SIZE      SRAM2_SIZE
+#define __ITCM_BASE     APP_ITCM_BASE
+#define __ITCM_SIZE     APP_HP_ITCM_SIZE
 
-/*--------------------- DTCM Configuration ---------------------------
-; <h> DTCM Configuration
-;   <o0> DTCM Base Address    <0x0-0xFFFFFFFF:8>
-;   <o1> DTCM Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
- *----------------------------------------------------------------------------*/
-/* SRAM3 is mapped as DTCM in M55-HP */
-#define __RAM_BASE      0x20000000
-#define __RAM_SIZE      SRAM3_SIZE
+#define __RAM_BASE      APP_DTCM_BASE
+#define __RAM_SIZE      APP_HP_DTCM_SIZE
 
-/*--------------------- Stack / Heap Configuration ---------------------------
-; <h> Stack / Heap Configuration
-;   <o0> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-;   <o1> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-;   <o2> App Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
- *----------------------------------------------------------------------------*/
-#define __STACK_SIZE    0x00002000
-#define __HEAP_SIZE     0x00004000
+#define __STACK_SIZE    APP_HP_STACK_SIZE
+#define __HEAP_SIZE     APP_HP_HEAP_SIZE
 #define __APP_HEAP_SIZE 0x00008000
-
-/*
-;------------- <<< end of configuration section >>> ---------------------------
-*/
-
 
 /*----------------------------------------------------------------------------
   User Stack & Heap boundary definition
@@ -77,15 +23,12 @@
 #define __HEAP_BASE     (AlignExpr(+0, 8))           /* starts after RW_RAM section, 8 byte aligned */
 #define __APP_HEAP_BASE (AlignExpr(+0, 8))           /* starts after HEAP, 8 byte aligned */
 
-
 /*----------------------------------------------------------------------------
   Scatter File Definitions definition
  *----------------------------------------------------------------------------*/
 
 #define __RW_BASE       __RAM_BASE
 #define __RW_SIZE      (__RAM_SIZE - __STACK_SIZE - __HEAP_SIZE - __APP_HEAP_SIZE)
-
-#define TGU_BLOCK_SIZE  16384
 
 LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
   ER_ROM_VECTORS  (AlignExpr(__ROM_BASE, 2048))  {   ; Vector Table
@@ -137,7 +80,7 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
   ARM_LIB_STACK __STACK_TOP EMPTY -__STACK_SIZE {   ; Reserve empty region for stack
   }
 
-  RW_SRAM0 SRAM0_BASE SRAM0_SIZE  {  ; Update sections as needed
+  RW_SRAM0 APP_SRAM0_BASE APP_SRAM0_SIZE  {  ; Update sections as needed
    * (.bss.lcd_crop_and_interpolate_buf)  ; LCD crop and intrepolate image processing buffer.
    * (.bss.lcd_frame_buf)                 ; LCD frame Buffer.
    * (.bss.camera_frame_buf)              ; Camera Frame Buffer
@@ -151,31 +94,7 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
    * power for these regions before adding contents.
    */
 
-  RW_SRAM1 SRAM1_BASE SRAM1_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM4 SRAM4_BASE SRAM4_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM5 SRAM5_BASE SRAM5_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM6_A SRAM6_A_BASE SRAM6_A_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM6_B SRAM6_B_BASE SRAM6_B_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM7 SRAM7_BASE SRAM7_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM8 SRAM8_BASE SRAM8_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM9_A SRAM9_A_BASE SRAM9_A_SIZE  {  ; Update sections as needed
-
-  }
-  RW_SRAM9_B SRAM9_B_BASE SRAM9_B_SIZE  {  ; Update sections as needed
+  RW_SRAM1 APP_SRAM1_BASE APP_SRAM1_SIZE  {  ; Update sections as needed
 
   }
 
