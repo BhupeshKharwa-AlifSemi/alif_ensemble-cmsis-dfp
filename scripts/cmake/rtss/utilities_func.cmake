@@ -55,6 +55,23 @@ macro (GET_MACRO_VALUE      header      macro_name      macro_val   varMsg)
 
 endmacro ()
 
+# Get Macro value, (Note: It works only for real number of Macros)
+macro (GET_MACRO_VAL    headerFileName      macro_name      macro_val)
+
+    file (STRINGS ${headerFileName}  file_content)
+    FOREACH(arg ${file_content})
+        string(REGEX MATCHALL "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]+[0-9]+[ \t]*.*" foundDefines "${arg}")
+
+        if (foundDefines)
+            string(REGEX MATCH "[ \t]+[0-9]+" tmp "${foundDefines}")
+            string(REGEX MATCH "[0-9]+" tmp "${tmp}")
+
+            set(${macro_val}     ${tmp})
+        endif (foundDefines)
+    endforeach()
+
+endmacro ()
+
 # Change Macro value
 macro (CHANGE_MACRO_VAL     check_def   header_file     change_val    return_val    exactStr)
     set (${return_val}              0)

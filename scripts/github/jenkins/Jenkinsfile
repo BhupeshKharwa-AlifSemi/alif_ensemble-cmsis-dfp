@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    options {
+        skipDefaultCheckout(true)
+    }
+    stages {
+        stage('Install Dependencies') { 
+            steps {
+                script {
+                    sh """#!/bin/bash -xe
+                    echo -e "✔️ None."
+                    """
+                }
+            }
+        }
+        stage('Environment') {
+            steps {
+                script {
+                    sh """#!/bin/bash -xe
+                        printenv
+                        echo -e "✔️ Displayed all environment setting."
+                    """
+                }
+            }
+        }
+        stage('checkout') {
+            steps {
+                script {
+                    sh '''
+
+                    if [ -d ensemble-cmsis-dfp_DEV ]; then 
+                        echo "Deleting older repo..."
+                        rm -rf ensemble-cmsis-dfp_DEV
+                    fi
+
+                    echo -e "✔️ Checkout Repo 'ensemble-cmsis-dfp_DEV' branch '$CHANGE_BRANCH' '$BRANCH_NAME'."
+                    git clone org-115832732@github.com:AlifSemiDev/ensemble-cmsis-dfp_DEV.git
+                    echo -e "✔️ Cloning is completed."
+                    cd ensemble-cmsis-dfp_DEV/scripts/cmake
+                    chmod -Rv 777 *.sh
+                    ./run.sh
+                    '''
+                }
+            }
+        }
+    }
+}

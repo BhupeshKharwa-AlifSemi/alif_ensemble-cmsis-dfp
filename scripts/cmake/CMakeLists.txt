@@ -112,6 +112,10 @@ include("${USER_CMAKE_SCRIPT_DIR}/toolchains/compiler_config.cmake")
 # Including Device related cmake
 include (${DEVICE_CMAKE_DIR}/device.cmake)
 
+set(CMAKE_TEMP_FOLDER       "${CMAKE_BINARY_DIR}/.temp")
+file(MAKE_DIRECTORY         ${CMAKE_TEMP_FOLDER})
+#execute_process(COMMAND     attrib +h   ${CMAKE_TEMP_FOLDER})
+
 # Mark the language as C so that CMake doesn't try to test the C++
 # cross-compiler's ability to compile a simple program because that will fail
 project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
@@ -144,9 +148,6 @@ endif()
 if( stdin_def_cnt OR (stdout_def_cnt GREATER_EQUAL 2) OR stderr_def_cnt OR stdin_echo_def_cnt)
     if(${ENABLE_USART})
         set(RETARGET_EN_NO_SEMIHOSTING        ON)
-        # Collect all retargeting source files
-        file(GLOB_RECURSE   RETARGET_IO_SRCS    "${RETARGET_SRC_DIR}/retarget_io/source/*.c")
-        list(APPEND         RETARGET_IO_SRCS    "${RETARGET_IO_SRC}")
     else()
         message(STATUS     "[WARNING]${Yellow}RETARGETTING IS ENABLED BUT UART DRIVER IS NOT ENABLED ${ColourReset}")
     endif()
@@ -168,6 +169,48 @@ else()
     message (FATAL_ERROR "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}")
 
 endif ()
+
+if(${RETARGET_EN_NO_SEMIHOSTING})
+    # Collect all retargeting source files
+    file(GLOB_RECURSE   RETARGET_IO_SRCS    "${RETARGET_SRC_DIR}/retarget_io/source/*.c")
+    list(APPEND         RETARGET_IO_SRCS    "${RETARGET_IO_SRC}")
+
+    set(TMP_FILE2               "${CMAKE_TEMP_FOLDER}/.tmp2")
+
+    if (EXISTS "${TMP_FILE2}")
+        file(READ       ${TMP_FILE2}       PREV_RETARGET_CFG)
+    else()
+        set(PREV_RETARGET_CFG              "")
+    endif()
+
+    GET_MACRO_VAL(${RETARGET_SRC_DIR}/retarget_io/config/retarget_config.h    PRINTF_UART_CONSOLE      uart_console_num)
+
+    if( "${uart_console_num}" STREQUAL "LP")
+        set(BLOCKING_MODE_FLAG          RTE_${uart_console_num}UART_BLOCKING_MODE_ENABLE)
+    else()
+        set(BLOCKING_MODE_FLAG          RTE_UART${uart_console_num}_BLOCKING_MODE_ENABLE)
+    endif()
+
+    GET_MACRO_VAL("${DEVICE_SKU_CONFIG}/RTE_Device.h"   ${BLOCKING_MODE_FLAG}     uart_blocking_status)
+
+    if( NOT(${uart_blocking_status}))
+        message(STATUS      "🕵️‍♂️SINCE RE-TARGETTING IS ENABLED , ENABLING UART POLLING_MODE")
+        CHANGE_MACRO_VAL("#define ${BLOCKING_MODE_FLAG}       0"
+            "${DEVICE_SKU_CONFIG}/RTE_Device.h"     "#define ${BLOCKING_MODE_FLAG}       1"    uart_blocking_status_ret    ON)
+    endif()
+
+    if( NOT ("${BLOCKING_MODE_FLAG}" STREQUAL "${PREV_RETARGET_CFG}"))
+        if( NOT ("" STREQUAL "${PREV_RETARGET_CFG}"))
+            message(STATUS    " --------------- RETARGET CONFIG CHANGED --------------------")
+        endif()
+
+        CHANGE_MACRO_VAL("#define ${PREV_RETARGET_CFG}       1"
+            "${DEVICE_SKU_CONFIG}/RTE_Device.h"     "#define ${PREV_RETARGET_CFG}       0"    uart_blocking_status_ret    ON)
+        file(WRITE      ${TMP_FILE2}    "${BLOCKING_MODE_FLAG}")
+    else()
+        message(STATUS      "🕵️‍♂️FORCEFULLY ENABLED UART POLLING_MODE")
+    endif()
+endif()
 
 #Remove Dependancy
 resolve_dependancy()
@@ -218,10 +261,6 @@ else ()
     message ("<--- All ${TOTAL_NUM_OF_APPLICATION} applications will build -->")
 
 endif()
-
-set(CMAKE_TEMP_FOLDER       "${CMAKE_BINARY_DIR}/.temp")
-file(MAKE_DIRECTORY         ${CMAKE_TEMP_FOLDER})
-#execute_process(COMMAND     attrib +h   ${CMAKE_TEMP_FOLDER})
 
 set(TMP_FILE                "${CMAKE_TEMP_FOLDER}/.tmp" )
 set(TMP_FILE1               "${CMAKE_TEMP_FOLDER}/.tmp1")
