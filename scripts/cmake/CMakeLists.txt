@@ -340,6 +340,38 @@ endforeach()
 message("")
 file(APPEND ${TMP_FILE} "\n${INVALID_TESTAPP_CNT}")
 
+# Replace multiple spaces with a single space
+string(REGEX REPLACE " + " " " REFINED_LINKER_CMD       "${LINKER_CMD}")
+
+# Convert the string into a CMake list (splitting by spaces)
+string(REPLACE  " "     ";"     LINKER_FLAGS            "${REFINED_LINKER_CMD}")
+
+if(EXISTS ${LINKER_SCRIPT_FILE})
+    execute_process(
+        COMMAND ${CMAKE_C_COMPILER} ${LINKER_FLAGS} ${LINKER_INC_PATH} ${LINKER_SCRIPT_FILE} -o ${CMAKE_LINKER_SCRIPT}
+        RESULT_VARIABLE LINKER_COMMAND_RESULT
+        OUTPUT_VARIABLE LINKER_COMMAND_OUTPUT
+        ERROR_VARIABLE  LINKER_COMMAND_ERROR
+        #COMMAND_ECHO STDOUT
+    )
+
+    # Check if the command was successful
+    if(LINKER_COMMAND_RESULT EQUAL 0)
+        message(STATUS "✅ ${Green} ${CMAKE_LINKER_SCRIPT} ${ColourReset} LINKER FILE GENERATED SUCCESSFULLY "
+            "USING ${Cyan}${LINKER_SCRIPT_FILE} ${ColourReset} ${COMMAND_OUTPUT}")
+        if ((COMPILER STREQUAL ARMCLANG) AND EXISTS ${LINKER_SCRIPT_FILE} )
+            file(REMOVE ${LINKER_SCRIPT_FILE})
+        endif()
+    else()
+        message(FATAL_ERROR "❌ ${Red}${CMAKE_LINKER_SCRIPT} ${ColourReset} FAILED TO GENERATE LINKER FILE FROM "
+            "${Cyan}${LINKER_SCRIPT_FILE} ${ColourReset} ${COMMAND_ERROR}")
+    endif()
+
+else()
+    message(FATAL_ERROR             "${Red}🚨 LINKER FILE NOT FOUND ...${ColourReset}")
+
+endif()
+
 #--------------------------------------------------------------------------------------------------------
 enable_testing()
 

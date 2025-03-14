@@ -190,6 +190,7 @@ macro (BUILD_PROJECT)
         target_link_options(${EXECUTABLE} PRIVATE  -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
         target_link_libraries(${EXECUTABLE} PRIVATE m)
         set_target_properties(${EXECUTABLE} PROPERTIES OUTPUT_NAME ${EXECUTABLE}.elf)
+
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
            COMMAND echo "${EXECUTABLE}" >> "${TMP_FILE1}"
@@ -442,4 +443,3 @@ function(eval_flags final_res operation)
     set(${final_res}        ${res}          PARENT_SCOPE)
 
 endfunction()
-

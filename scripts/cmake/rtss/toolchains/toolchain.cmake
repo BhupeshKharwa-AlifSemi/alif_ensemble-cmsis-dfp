@@ -56,10 +56,17 @@ elseif(COMPILER STREQUAL GCC)
     set (CMAKE_ASM_FLAGS                "${ASM_FLAGS} ${HW_FLAGS} -fdata-sections ")
 
     # Tell linker that reset interrupt handler is our entry point
-    add_link_options(-Wl,--gc-sections -Xlinker -print-memory-usage)
+    add_link_options(-Wl,--gc-sections)
 
     # Link Options
-    add_link_options(-T${CMAKE_LINKER_SCRIPT} ${HW_FLAGS} -march=${ARCH} -mfpu=${FPU})
+    add_link_options(
+        ${HW_FLAGS}
+        -march=${ARCH}
+        -mfpu=${FPU}
+        -Xlinker
+        -print-memory-usage
+        -T${CMAKE_LINKER_SCRIPT})
+
     add_compile_options(-fdiagnostics-color=always)
 
     if(NOT (${RETARGET_EN_NO_SEMIHOSTING}))
