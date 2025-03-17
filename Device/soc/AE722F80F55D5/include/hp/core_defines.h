@@ -85,6 +85,20 @@
 #define MHU_RTSS_NS_RX_BASE         MHU_M55HE_M55HP_1_RX_BASE
 #define MHU_RTSS_NS_TX_BASE         MHU_M55HP_M55HE_1_TX_BASE
 
+/* ----------  Local MHU IRQ Aliases  ---------- */
+#define MHU_APSS_S_RX_IRQHandler    MHU_A32_M55HP_0_RX_IRQHandler
+#define MHU_APSS_S_TX_IRQHandler    MHU_M55HP_A32_0_TX_IRQHandler
+#define MHU_APSS_NS_RX_IRQHandler   MHU_A32_M55HP_1_RX_IRQHandler
+#define MHU_APSS_NS_TX_IRQHandler   MHU_M55HP_A32_1_TX_IRQHandler
+#define MHU_SESS_S_RX_IRQHandler    MHU_SECPU_M55HP_0_RX_IRQHandler
+#define MHU_SESS_S_TX_IRQHandler    MHU_M55HP_SECPU_0_TX_IRQHandler
+#define MHU_SESS_NS_RX_IRQHandler   MHU_SECPU_M55HP_1_RX_IRQHandler
+#define MHU_SESS_NS_TX_IRQHandler   MHU_M55HP_SECPU_1_TX_IRQHandler
+#define MHU_RTSS_S_RX_IRQHandler    MHU_M55HE_M55HP_0_RX_IRQHandler
+#define MHU_RTSS_S_TX_IRQHandler    MHU_M55HP_M55HE_0_TX_IRQHandler
+#define MHU_RTSS_NS_RX_IRQHandler   MHU_M55HE_M55HP_1_RX_IRQHandler
+#define MHU_RTSS_NS_TX_IRQHandler   MHU_M55HP_M55HE_1_TX_IRQHandler
+
 #define MHU_APSS_S_RX_IRQ_IRQn      MHU_A32_M55HP_0_RX_IRQ_IRQn
 #define MHU_APSS_S_TX_IRQ_IRQn      MHU_M55HP_A32_0_TX_IRQ_IRQn
 #define MHU_APSS_NS_RX_IRQ_IRQn     MHU_A32_M55HP_1_RX_IRQ_IRQn
@@ -97,6 +111,14 @@
 #define MHU_RTSS_S_TX_IRQ_IRQn      MHU_M55HP_M55HE_0_TX_IRQ_IRQn
 #define MHU_RTSS_NS_RX_IRQ_IRQn     MHU_M55HE_M55HP_1_RX_IRQ_IRQn
 #define MHU_RTSS_NS_TX_IRQ_IRQn     MHU_M55HP_M55HE_1_TX_IRQ_IRQn
+
+
+/* ----------  Local NPU IRQ Aliases  ---------- */
+#define NPULOCAL_IRQHandler         NPU_HP_IRQHandler
+
+#define NPULOCAL_IRQ_IRQn           NPU_HP_IRQ_IRQn
+
+#define NPULOCAL_BASE               NPU_HP_BASE
 
 #define DMALOCAL_SEC_BASE           DMA1_SEC_BASE
 #define DMALOCAL_NS_BASE            DMA1_NS_BASE
