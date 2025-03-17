@@ -11,10 +11,6 @@
             "displayName": "Armclang Build Config",
             "inherits": "default",
             "binaryDir": "${sourceDir}/build/${presetName}",
-            "cacheVariables": {
-                "RTSS": "HE",
-                "TEST_APP": "ALL"
-            },
             "environment": {
                 "PATH": "$env{COMPILER_BIN_PATH}${pathListSep}$penv{PATH}"
             }
@@ -25,7 +21,6 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "inherits": "default",
             "cacheVariables": {
-                "RTSS": "HE",
                 "COMPILER": "GCC"
             },
             "environment": {
