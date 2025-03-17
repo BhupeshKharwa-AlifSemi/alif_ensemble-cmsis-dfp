@@ -97,18 +97,6 @@ static inline void gpio_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
 }
 
 /**
-  \fn          static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
-  \brief       GPIO set value as low using bit manipulation.
-  \param       gpio     Pointer to the GPIO register map
-  \param       pin_no   pin number
-  \return      none
-*/
-static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
-{
-    gpio->GPIO_BIT_MAN_CTRL_W1C = (1 << pin_no);
-}
-
-/**
   \fn          static inline void gpio_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
   \brief       GPIO set value as high.
   \param       gpio     Pointer to the GPIO register map
@@ -118,6 +106,31 @@ static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
 static inline void gpio_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DR |= (1 << pin_no);
+}
+
+/**
+  \fn          static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
+  \brief       GPIO toggle current value.
+  \param       gpio     Pointer to the GPIO register map
+  \param       pin_no   pin number
+  \return      none
+*/
+static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
+{
+    gpio->GPIO_SWPORTA_DR ^= (1 << pin_no);
+}
+
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+/**
+  \fn          static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
+  \brief       GPIO set value as low using bit manipulation.
+  \param       gpio     Pointer to the GPIO register map
+  \param       pin_no   pin number
+  \return      none
+*/
+static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
+{
+    gpio->GPIO_BIT_MAN_CTRL_W1C = (1 << pin_no);
 }
 
 /**
@@ -133,18 +146,6 @@ static inline void gpio_bit_man_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
 }
 
 /**
-  \fn          static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
-  \brief       GPIO toggle current value.
-  \param       gpio     Pointer to the GPIO register map
-  \param       pin_no   pin number
-  \return      none
-*/
-static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
-{
-    gpio->GPIO_SWPORTA_DR ^= (1 << pin_no);
-}
-
-/**
   \fn          static inline void gpio_bit_man_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
   \brief       GPIO toggle current value using bit manipulation.
   \param       gpio     Pointer to the GPIO register map
@@ -155,6 +156,7 @@ static inline void gpio_bit_man_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_BIT_MAN_CTRL_W1F = (1 << pin_no);
 }
+#endif
 
 /**
   \fn          static inline bool gpio_get_value (GPIO_Type *gpio, uint8_t pin_no)
