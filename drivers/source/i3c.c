@@ -10,6 +10,7 @@
 
 #include "i3c.h"
 #include "string.h"
+#include "sys_utils.h"
 
 
 /**
@@ -154,6 +155,43 @@ static void i3c_set_rx_buf_thld(I3C_Type *i3c, const uint16_t len)
     }
 
     i3c->I3C_DATA_BUFFER_THLD_CTRL = temp;
+}
+
+/**
+  \fn           static void i3c_bus_reset(I3C_Type *i3c,
+  \                                       const uint32_t core_clk,
+  \                                       const uint32_t scl_timeout_cnt,
+  \                                       const uint8_t bus_rst_type)
+  \brief        Performs bus reset
+  \param[in]    i3c              : Pointer to i3c register set structure
+  \param[in]    core_clk         : core clock
+  \param[in]    scl_timeout_cnt  : SCL Timeout count in microsec
+  \param[in]    bus_type         : bus reset type
+  \return
+*/
+static void i3c_bus_reset(I3C_Type *i3c, const uint32_t core_clk,
+                          const uint32_t scl_timeout_cnt,
+                          const uint8_t bus_rst_type)
+{
+    uint32_t scl_timing;
+    /* Calculate core clk period */
+    uint32_t core_period = DIV_ROUND_UP(REF_CLK_RATE, core_clk);
+    uint32_t rst_ctrl    = i3c->I3C_RESET_CTRL;
+
+    /* set SCL Low Master Extended Timeout Register. */
+    scl_timing = DIV_ROUND_UP(CONVERT_US_TO_NS(scl_timeout_cnt), core_period);
+    i3c->I3C_SCL_LOW_MST_EXT_TIMEOUT = I3C_SCL_LOW_MST_EXT_TIMEOUT_COUNT(scl_timing);
+
+    if(bus_rst_type == I3C_BUS_RST_HDR_EXIT)
+    {
+        rst_ctrl &= ~I3C_RESET_CTRL_BUS_RESET_TYPE_SCL_LOW_PAT;
+    }
+    else
+    {
+        rst_ctrl |= I3C_RESET_CTRL_BUS_RESET_TYPE_SCL_LOW_PAT;
+    }
+    /* Resets the bus */
+    i3c->I3C_RESET_CTRL = (rst_ctrl | I3C_RESET_CTRL_BUS_RESET);
 }
 
 /**
@@ -914,6 +952,52 @@ void i3c_master_get_dct(I3C_Type *i3c,
             break;
         }
     }
+}
+
+/**
+  \fn           void i3c_master_bus_reset(I3C_Type *i3c, const uint32_t core_clk,
+  \                                       const uint32_t scl_timeout_cnt,
+  \                                       const uint8_t bus_rst_type)
+  \brief        Resets the bus as a master
+  \param[in]    i3c              : Pointer to i3c register set structure
+  \param[in]    core_clk         : core clock
+  \param[in]    scl_timeout_cnt  : SCL Timeout count in microsec
+  \param[in]    bus_type         : bus reset type
+  \return       none
+*/
+void i3c_master_bus_reset(I3C_Type *i3c, const uint32_t core_clk,
+                          const uint32_t scl_timeout_cnt,
+                          const uint8_t bus_rst_type)
+{
+    /* Enable Bus Reset interrupt */
+    i3c_enable_intr(i3c, I3C_INTR_STATUS_EN_BUS_RESET_DONE_STS_EN);
+
+    /* Resets the bus */
+    i3c_bus_reset(i3c, core_clk, scl_timeout_cnt, bus_rst_type);
+}
+
+/**
+  \fn           void i3c_master_bus_reset_blocking(I3C_Type *i3c, const uint32_t core_clk,
+  \                                                const uint32_t scl_timeout_cnt,
+  \                                                const uint8_t bus_rst_type)
+  \brief        Resets the bus as a master in blocking mode
+  \param[in]    i3c              : Pointer to i3c register set structure
+  \param[in]    core_clk         : core clock
+  \param[in]    scl_timeout_cnt  : SCL Timeout count in microsec
+  \param[in]    bus_type         : bus reset type
+  \return       none
+*/
+void i3c_master_bus_reset_blocking(I3C_Type *i3c, const uint32_t core_clk,
+                                  const uint32_t scl_timeout_cnt,
+                                  const uint8_t bus_rst_type)
+{
+    while(!(i3c->I3C_PRESENT_STATE & I3C_PRESENT_STATE_MASTER_IDLE));
+
+    /* Resets the bus */
+    i3c_bus_reset(i3c, core_clk, scl_timeout_cnt, bus_rst_type);
+
+    /* wait unless bus reset done */
+    while(i3c->I3C_RESET_CTRL & I3C_RESET_CTRL_BUS_RESET);
 }
 
 /**
@@ -1705,6 +1789,16 @@ void i3c_master_irq_handler(I3C_Type *i3c, i3c_xfer_t *xfer)
             default:
                 break;
         }
+    }
+
+    /* Clear the bus reset status */
+    if(status & I3C_INTR_STATUS_BUS_RESET_DONE_STS)
+    {
+        /* Disable Bus Reset interrupt */
+        i3c_disable_intr(i3c, I3C_INTR_STATUS_EN_BUS_RESET_DONE_STS_EN);
+
+        i3c->I3C_INTR_STATUS |= I3C_INTR_STATUS_BUS_RESET_DONE_STS;
+        xfer->status |= (I3C_XFER_STATUS_DONE | I3C_XFER_STATUS_BUS_RESET_DONE);
     }
 }
 

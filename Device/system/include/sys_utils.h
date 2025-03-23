@@ -80,6 +80,8 @@ extern "C" {
 #define REG32_TOGGLE_BIT(src, m)            (src ^=   BIT(m))
 #define REG64_TOGGLE_BIT(src, m)            (src ^= BIT64(m))
 
+#define CONVERT_US_TO_NS(n)                 (n * 1000U)
+
 // Function documentation
 
 /**

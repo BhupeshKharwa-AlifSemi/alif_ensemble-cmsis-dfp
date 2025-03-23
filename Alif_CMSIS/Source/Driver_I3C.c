@@ -15,7 +15,6 @@
 
 /* Project Includes */
 #include "Driver_I3C_Private.h"
-#include "i3c.h"
 #include "sys_ctrl_i3c.h"
 #include "sys_clocks.h"
 
@@ -25,7 +24,7 @@
 #error "I3C is not enabled in the RTE_Device.h"
 #endif
 
-#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 3) /* driver version */
+#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 9) /* driver version */
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion =
@@ -1546,6 +1545,8 @@ static int32_t I3Cx_Control(I3C_RESOURCES *i3c,
     uint8_t retry_cnt                 = 0U;
     ARM_I3C_SLV_PID    *hal_pid;
     i3c_slave_pid_t    slv_pid;
+    uint8_t loc_var;
+    uint32_t scl_timeout_cnt;
 
     if (i3c->state.powered == 0U)
         return ARM_DRIVER_ERROR;
@@ -1739,6 +1740,31 @@ static int32_t I3Cx_Control(I3C_RESOURCES *i3c,
             slv_pid.mipi_mfg_id = hal_pid->mipi_mfg_id;
 
             i3c_slave_set_pid(i3c->regs, slv_pid);
+            break;
+
+        case I3C_MASTER_BUS_RESET:
+            scl_timeout_cnt = ((arg >> I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Pos) &
+                                I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Msk);
+            if(arg & I3C_BUS_RESET_HDR_EXIT)
+            {
+                loc_var = I3C_BUS_RST_HDR_EXIT;
+            }
+            else
+            {
+                loc_var = I3C_BUS_RST_SCL_TIMED;
+            }
+#if RTE_I3C_BLOCKING_MODE_ENABLE
+            if(i3c->blocking_mode)
+            {
+                i3c_master_bus_reset_blocking(i3c->regs, i3c->core_clk,
+                                              scl_timeout_cnt, loc_var);
+            }
+            else
+#endif
+            {
+                i3c_master_bus_reset(i3c->regs, i3c->core_clk,
+                                     scl_timeout_cnt, loc_var);
+            }
             break;
 
         default:
@@ -2115,6 +2141,11 @@ static void I3Cx_HandleSuccess(I3C_RESOURCES *i3c,
     {
         /* mark event as Slave dynamic address assignment done. */
         *event = ARM_I3C_EVENT_SLV_DYN_ADDR_ASSGN;
+    }
+    else if(xfer->status & I3C_XFER_STATUS_BUS_RESET_DONE)
+    {
+        /* mark event as bus reset is done */
+        *event = ARM_I3C_EVENT_BUS_RESET_DONE;
     }
 
 #if RTE_I3C_DMA_ENABLE

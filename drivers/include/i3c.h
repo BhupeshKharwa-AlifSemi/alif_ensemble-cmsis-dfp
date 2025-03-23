@@ -31,6 +31,10 @@ extern "C" {
  * (\ref register DEVICE_ADDR_TABLE_POINTER) */
 #define I3C_MAX_DEVS                      8U
 
+/* Macros for Bus Reset type */
+#define I3C_BUS_RST_SCL_TIMED             0U
+#define I3C_BUS_RST_HDR_EXIT              1U
+
 /* Clock rates and periods */
 #define I3C_BUS_I2C_FM_PLUS_SCL_RATE      1000000
 #define I3C_BUS_I2C_FM_SCL_RATE           400000
@@ -197,6 +201,8 @@ extern "C" {
 #define I3C_IBI_MR_REQ_REJECT_MR_REQ_REJECT             GENMASK(31, 0)
 #define I3C_IBI_SIR_REQ_REJECT_SIR_REQ_REJECT           GENMASK(31, 0)
 
+#define I3C_RESET_CTRL_BUS_RESET                        BIT(31)
+#define I3C_RESET_CTRL_BUS_RESET_TYPE_SCL_LOW_PAT       GENMASK(30, 29)
 #define I3C_RESET_CTRL_IBI_QUEUE_RST                    BIT(5)
 #define I3C_RESET_CTRL_RX_FIFO_RST                      BIT(4)
 #define I3C_RESET_CTRL_TX_FIFO_RST                      BIT(3)
@@ -368,6 +374,9 @@ extern "C" {
 #define I3C_BUS_IDLE_TIME_NS                            1000000U
 #define I3C_BUS_IDLE_TIMING_BUS_IDLE_TIME(x)            ((x) & GENMASK(19, 0))
 
+/* SCL Low Master Extended Timeout is 1ms */
+#define I3C_SCL_LOW_MST_EXT_TIMEOUT_COUNT(x)            ((x) & GENMASK(25, 0))
+
 #define I3C_SEC_DEV_CHAR_TABLE1_STATIC_ADDR_Pos         1U
 #define I3C_SEC_DEV_CHAR_TABLE1_STATIC_ADDR_Msk                 \
         GENMASK(7, I3C_SEC_DEV_CHAR_TABLE1_STATIC_ADDR_Pos)
@@ -436,7 +445,8 @@ typedef enum _I3C_XFER_STATUS
     I3C_XFER_STATUS_BUSOWNER_UPDATED    = (1UL << 16), /**< Transfer status Busowner updated               */
     I3C_XFER_STATUS_SLV_CCC_UPDATED     = (1UL << 17), /**< Transfer status slave CCC updated              */
     I3C_XFER_STATUS_IBI_SLV_INTR_REQ    = (1UL << 18), /**< Transfer status IBI Slave Intr request received*/
-    I3C_XFER_STATUS_DEFSLV_LIST         = (1UL << 19)  /**< Transfer status Defslvs received               */
+    I3C_XFER_STATUS_DEFSLV_LIST         = (1UL << 19),  /**< Transfer status Defslvs received               */
+    I3C_XFER_STATUS_BUS_RESET_DONE      = (1UL << 20)  /**< Transfer status Bus reset done                 */
 } I3C_XFER_STATUS;
 
 /* brief I3C Transfer types */
@@ -1356,6 +1366,36 @@ void i3c_sec_master_get_dct(I3C_Type *i3c,
 void i3c_master_get_dct(I3C_Type *i3c,
                         i3c_dev_prime_info_t *data,
                         const uint8_t addr);
+
+/**
+  \fn           void i3c_master_bus_reset(I3C_Type *i3c, const uint32_t core_clk,
+  \                                       const uint32_t scl_timeout_cnt,
+  \                                       const uint8_t bus_rst_type)
+  \brief        Resets the bus as a master
+  \param[in]    i3c              : Pointer to i3c register set structure
+  \param[in]    core_clk         : core clock
+  \param[in]    scl_timeout_cnt  : SCL Timeout count in microsec
+  \param[in]    bus_type         : bus reset type
+  \return       none
+*/
+void i3c_master_bus_reset(I3C_Type *i3c, const uint32_t core_clk,
+                          const uint32_t scl_timeout_cnt,
+                          const uint8_t bus_rst_type);
+
+/**
+  \fn           void i3c_master_bus_reset_blocking(I3C_Type *i3c, const uint32_t core_clk,
+  \                                                const uint32_t scl_timeout_cnt,
+  \                                                const uint8_t bus_rst_type)
+  \brief        Resets the bus as a master in blocking mode
+  \param[in]    i3c              : Pointer to i3c register set structure
+  \param[in]    core_clk         : core clock
+  \param[in]    scl_timeout_cnt  : SCL Timeout count in microsec
+  \param[in]    bus_type         : bus reset type
+  \return       none
+*/
+void i3c_master_bus_reset_blocking(I3C_Type *i3c, const uint32_t core_clk,
+                                   const uint32_t scl_timeout_cnt,
+                                   const uint8_t bus_rst_type);
 
 /**
   \fn           void i3c_master_tx_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)

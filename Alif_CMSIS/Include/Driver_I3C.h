@@ -35,6 +35,7 @@ extern "C"
 #define I3C_MASTER_SETUP_SIR_ACCEPTANCE                 (1UL << 10) ///< Accept/Reject the SIR from slaves; arg: 1-Accept, 0-Reject
 #define I3C_SLAVE_SET_IBI_SIR                           (1UL << 11) ///< Set IBI Slave interrupt Request
 #define I3C_SLAVE_SET_PID                               (1UL << 12) ///< Set MIPI I3C Slave's 48-bit Provisional ID
+#define I3C_MASTER_BUS_RESET                            (1UL << 13) ///< Reset the bus; arg: ref "I3C Control arguments: For Bus Reset arguments"
 
 /* I3C Control Codes: Bus mode arguments */
 #define I3C_BUS_SLOW_MODE                               (0x00UL)    ///< Slow bus mode for pure i3c devices - For slave addressing
@@ -50,6 +51,13 @@ extern "C"
 #define I3C_SLAVE_NACK_RETRY_COUNT(x)                   ((x << I3C_SLAVE_NACK_RETRY_COUNT_Pos) & I3C_SLAVE_NACK_RETRY_COUNT_Msk) ///< x: 0-3
 #define I3C_SLAVE_ADDR(x)                               (x & (0x7FU))
 
+/* I3C Control arguments: For Bus Reset arguments */
+#define I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Pos         8U
+#define I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Msk         0x3FFFFU
+#define I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT(x)          ((x & I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Msk) << I3C_BUS_RESET_SCL_LOW_TIMEOUT_COUNT_Pos) // Bus reset scl low timeout cnt: in microsecs
+#define I3C_BUS_RESET_SCL_TIMED                         (0x00UL)    ///< Bus reset type is Timed Reset
+#define I3C_BUS_RESET_HDR_EXIT                          (0x01UL)    ///< Bus reset type is HDR exit pattern
+
 #define I3C_BUS_MAX_DEVS                                0x8
 
 /****** I3C Event *****/
@@ -63,6 +71,7 @@ extern "C"
 #define ARM_I3C_EVENT_SLAVE_CCC_UPDATED                 (1UL << 7)  ///< Slave CCC updated by master
 #define ARM_I3C_EVENT_IBI_SLV_INTR_REQ                  (1UL << 8)  ///< Slave requested through SIR
 #define ARM_I3C_EVENT_SLAVE_LIST                        (1UL << 9)  ///< Targets info rcvd through DEFSLVS CCC. Applicable only for secondary masters
+#define ARM_I3C_EVENT_BUS_RESET_DONE                    (1UL << 10) ///< Bus reset is done(Available only for Master mode)
 
 /****** I3C Error Status codes *****/
 #define ARM_I3C_LEC_NO_ERROR                            (0U)             ///< Last error code: No error
