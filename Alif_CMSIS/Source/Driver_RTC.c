@@ -23,8 +23,8 @@
 
 #if defined(RTE_Drivers_RTC)
 
-#if !(RTE_RTC0)
-    #error "RTC0 is not enabled in the RTE_Device.h"
+#if !((RTE_RTC0) || (RTE_RTC1))
+    #error "RTC is not enabled in the RTE_Device.h"
 #endif
 
 #define ARM_RTC_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /* driver version */
@@ -127,7 +127,7 @@ static int32_t LPRTC_PowerControl (LPRTC_RESOURCES *LPRTC_RES, ARM_POWER_STATE s
             lprtc_counter_wrap_disable (LPRTC_RES->regs);
 
             /* disable LPRTC clocks */
-            disable_lprtc_clk();
+            disable_lprtc_clk(LPRTC_RES->inst);
 
             /* Reset lprtc power state. */
             LPRTC_RES->state.powered = 0;
@@ -147,7 +147,7 @@ static int32_t LPRTC_PowerControl (LPRTC_RESOURCES *LPRTC_RES, ARM_POWER_STATE s
             }
 
             /* enable LPRTC clocks */
-            enable_lprtc_clk();
+            enable_lprtc_clk(LPRTC_RES->inst);
 
             /* disable LPRTC counter wrap. */
             lprtc_counter_wrap_disable (LPRTC_RES->regs);
@@ -349,10 +349,11 @@ static void RTC_IRQHandler (LPRTC_RESOURCES *LPRTC_RES)
 
 /* RTC0 device configuration */
 static LPRTC_RESOURCES RTC0 = {
-    .regs                      = (LPRTC_Type*) LPRTC_BASE,
+    .regs                      = (LPRTC_Type*) LPRTC0_BASE,
     .cb_event                  = NULL,
     .irq_num                   = (IRQn_Type) LPRTC0_IRQ_IRQn,
     .irq_priority              = RTE_RTC0_IRQ_PRI,
+    .inst                      = LPRTC0_INSTANCE
 };
 
 /* Function Name: RTC0_Initialize */
@@ -410,6 +411,74 @@ ARM_DRIVER_RTC Driver_RTC0 =
     RTC0_LoadCounter
 };
 #endif /* End of RTE_RTC0 */
+
+/* RTC1 Driver Instance */
+#if (RTE_RTC1)
+
+/* RTC1 device configuration */
+static LPRTC_RESOURCES RTC1 = {
+    .regs                      = (LPRTC_Type*) LPRTC1_BASE,
+    .cb_event                  = NULL,
+    .irq_num                   = (IRQn_Type) LPRTC1_IRQ_IRQn,
+    .irq_priority              = RTE_RTC1_IRQ_PRI,
+    .inst                      = LPRTC1_INSTANCE
+};
+
+/* Function Name: RTC1_Initialize */
+static int32_t RTC1_Initialize (ARM_RTC_SignalEvent_t cb_event)
+{
+    return (LPRTC_Initialize (&RTC1, cb_event));
+}
+
+/* Function Name: RTC1_Uninitialize */
+static int32_t RTC1_Uninitialize (void)
+{
+    return (LPRTC_Uninitialize (&RTC1));
+}
+
+/* Function Name: RTC1_PowerControl */
+static int32_t RTC1_PowerControl(ARM_POWER_STATE state)
+{
+    return (LPRTC_PowerControl(&RTC1, state));
+}
+
+/* Function Name: RTC1_Control */
+static int32_t RTC1_Control(uint32_t control, uint32_t arg)
+{
+    return (LPRTC_Control(&RTC1, control, arg));
+}
+
+/* Function Name: RTC1_ReadCounter */
+static int32_t RTC1_ReadCounter (uint32_t *val)
+{
+    return (LPRTC_ReadCounter (&RTC1, val));
+}
+
+/* Function Name: RTC1_LoadCounter */
+static int32_t RTC1_LoadCounter (uint32_t loadval)
+{
+    return (LPRTC_LoadCounter (&RTC1, loadval));
+}
+
+/* Function Name: RTC1_IRQHandler */
+void LPRTC1_IRQHandler (void)
+{
+    RTC_IRQHandler (&RTC1);
+}
+
+extern ARM_DRIVER_RTC Driver_RTC1;
+ARM_DRIVER_RTC Driver_RTC1 =
+{
+    RTC_GetVersion,
+    RTC_GetCapabilities,
+    RTC1_Initialize,
+    RTC1_Uninitialize,
+    RTC1_PowerControl,
+    RTC1_Control,
+    RTC1_ReadCounter,
+    RTC1_LoadCounter
+};
+#endif /* End of RTE_RTC1 */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
 

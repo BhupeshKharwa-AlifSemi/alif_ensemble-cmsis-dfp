@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include "RTE_Device.h"
 #include "soc.h"
+#include "soc_features.h"
 
 #define CANFD_CLK_SRC_38P4MHZ_CLK           38400000U                        /* 38.4 MHz */
 #define CANFD_CLK_SRC_160MHZ_CLK            160000000U                       /* 160 MHz  */

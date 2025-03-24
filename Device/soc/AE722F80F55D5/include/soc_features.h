@@ -13,6 +13,7 @@
 
 /* Cores */
 #define SOC_FEAT_HAS_CORE_M55_HP        (1)
+#define SOC_FEAT_HAS_CORE_M55_HE        (1)
 #define SOC_FEAT_HAS_CORE_A32_0         (1)
 #define SOC_FEAT_HAS_CORE_A32_1         (1)
 

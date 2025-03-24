@@ -12,7 +12,8 @@
   -->
 
   <releases>
-     <release version="2.0.0-alpha"  tag="v2.0.0-alpha" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-alpha/AlifSemiconductor.Ensemble.2.0.0-alpha.pack" date="2025-03-11">
+     <release version="2.0.0-alpha1"  tag="v2.0.0-alpha1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-alpha1/AlifSemiconductor.Ensemble.2.0.0-alpha1.pack" date="2025-03-26">
+      - Add E1C Support
       - Restructured DFP
       - Add Csolution Examples
      </release>
@@ -662,6 +663,92 @@
           <feature type="GLCD" n="1" m="1280.800" name="Display Parallel Interface"/>
           <feature type="Other" n="1" name="MIPI DSI"/>
         </device>
+
+      </subFamily>
+
+      <!-- ToDo : Add E1C subfamily-->
+      <subFamily DsubFamily="E1C">
+        <!-- ******************************  E1C  ******************************* -->
+
+        <!-- Device processor attributes -->
+        <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
+         <!-- DebugConfig for E1 -->
+        <debugconfig sdf="Debug/SDF/E1/Ensemble E1.sdf" dormant="true"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
+        <!-- Cortex-M55 Access Ports -->
+        <accessportV2 __apid="0" address="0x00300000"/>
+        <!-- Documents -->
+        <book name="https://alifsemi.com/download/ADTS0008" title="E1C Datasheet"/>
+        <book name="https://alifsemi.com/download/AHRM0008" title="E1C HWRM"/>
+        <book name="https://alifsemi.com/download/ASRM0001" title="Software Reference Manual"/>
+        <!-- Device properties, header files and preprocessor defines -->
+        <feature type="XTAL" n="38400000" name="High-Frequency Crystal Oscillator"/>
+        <feature type="IntRC" n="76800000" name="High-Frequency Internal RC Oscillator"/>
+        <feature type="PLL" n="1" name="Internal PLL with 3 clock outputs"/>
+        <feature type="PowerMode" n="5" name="GO, READY, IDLE, STANDBY, STOP"/>
+        <feature type="PowerOther" n="1" name="POR"/>
+        <feature type="PowerOther" n="1" name="BOR"/>
+        <!--Security-->
+        <feature type="CoreOther" n="1" name="Full Secure Enclave"/>
+        <feature type="CoreOther" n="2" name="CRC Calculation Unit"/>
+        <!--External Memory-->
+        <feature type="ComOther" n="1" name="Cryptographic Octal SPI (OSPI)"/>
+        <feature type="SDIO" n="1" m="8" name="SD/eMMC/SDIO Interface"/>
+        <!-- Serial Connectivity   -->
+        <feature type="UART" n="6" m="2500000" name="UART Interface"/>
+        <feature type="UART" n="1" m="1000000" name="Low Power UART Interface"/>
+        <feature type="SPI" n="4" m="50000000" name="SPI Interface"/>
+        <feature type="SPI" n="1" m="20000000" name="Low Power SPI Interface"/>
+        <feature type="I2C" n="4" name="Inter-Integrated Circuit (I2C)"/>
+        <feature type="I2C" n="1" name="Low Power Inter-Integrated Circuit (LPI2C)"/>
+        <feature type="ComOther" n="1" name="MIPI I3C"/>
+        <!--High Speed Connectivity-->
+        <feature type="USBOTG" n="1" name="USB 2.0 Host and Device (DRD) with PHY"/>
+        <!--Camera-->
+        <feature type="Camera" n="1" m="8" name="Low Power Camera Parallel Interface"/>
+        <!--Audio-->
+        <feature type="I2S" n="4" name="Inter-IC Sound (I2S)"/>
+        <feature type="I2S" n="1" name="Low Power Inter-IC Sound (I2S)"/>
+        <feature type="ComOther" n="1" m="8" name="Pulse Density Modulation (PDM) Microphone Interface"/>
+        <feature type="ComOther" n="1" m="8" name="Low Power Pulse Density Modulation (LPPDM) Microphone Interface"/>
+        <!--Timers-->
+        <feature type="Timer" n="8" m="32" name="Universal Timer"/>
+        <feature type="Timer" n="2" m="32" name="Low Power Timer"/>
+        <feature type="TimerOther" n="4" m="32" name="Quadrature Encoding Counter"/>
+        <feature type="TimerOther" n="1" m="32" name="Real-Time Counter"/>
+        <feature type="TimerOther" n="2" m="32" name="Low Power Real-Time Counter"/>
+        <feature type="WDT" n="1" name="Local Watchdog Timer"/>
+        <!-- Analog -->
+        <feature type="TempSens" n="1" name="Temperature Sensor"/>
+        <feature type="ADC" n="2" m="12" name="6 Single-ended or 3 Differential Input ADC, SAR"/>
+        <feature type="ADC" n="1" m="24" name="4 Differential Input ADC, Sigma-Delta"/>
+        <feature type="DAC" n="1" m="12" name="Digital-to-Analog Converter"/>
+        <feature type="AnalogOther" n="2" name="High-Speed Comparator"/>
+        <feature type="AnalogOther" n="1" name="Low Power Comparator"/>
+        <!--GPIO-->
+        <feature type="IOs" n="120" name="General Purpose I/Os, 1.8 V tolerant"/>
+        <feature type="IOs" n="8" name="General Purpose Flex I/Os, selectable 1.8 V or 3.3 V tolerant"/>
+        <!--Operation Range-->
+        <feature type="VCC" n="1.71" m="4.2"/>
+        <feature type="Temp" n="-40" m="105"/>
+
+         <device Dname="AE1C1F4051920PH">
+          <!-- On-chip NVM Region -->
+          <memory name="MRAM" start="0x80000000" size="0x0018C000" access="rx" default="1"/>
+
+
+          <!-- On-Chip RAM Regions 2MB -->
+          <memory name="SRAM4" start="0x58000000" size="0x00080000" access="rwx" default="1"/>
+          <memory name="SRAM5" start="0x58800000" size="0x00180000" access="rwx" default="1"/>
+          <compile Pname="M55_HE" header="Device/core/common/include/alif.h" define="RTSS_HE"/>
+          <debug Pname="M55_HE" __apid="1"/>
+          <feature type="BGA" n="194" name="FBGA Package"/>
+          <feature type="CoreOther" n="1" name="Neural Processing Unit (NPU) Ethos-U55 HE"/>
+          <feature type="CAN" n="2" name="CAN-FD Controller"/>
+          <feature type="Other" n="1" name="2D Graphics Processing Unit (GPU2D)"/>
+          <feature type="GLCD" n="1" m="1280.800" name="Display Parallel Interface"/>
+          <feature type="Other" n="1" name="MIPI DSI"/>
+        </device>
       </subFamily>
     </family>
 
@@ -818,6 +905,12 @@
       <accept Pname="M55_HE" Dname="AE101F*"/>
     </condition>
 
+    <condition id="E1C">
+      <description>Alif Semiconductor E1C device</description>
+      <require Dvendor="Alif Semiconductor:165"/>
+      <accept Pname="M55_HE" Dname="AE1C1F*"/>
+    </condition>
+
     <condition id="CMSIS-Core">
       <description>Generic Alif Semiconductor M55_HP device startup and depends on CMSIS Core</description>
       <require Cclass="CMSIS" Cgroup="CORE"/>
@@ -830,6 +923,18 @@
       <accept Dvendor="Alif Semiconductor:165" Dname="AE512F80*"/>
       <accept Dvendor="Alif Semiconductor:165" Dname="AE302F*"/>
       <accept Dvendor="Alif Semiconductor:165" Dname="AE101F*"/>
+      <accept Dvendor="Alif Semiconductor:165" Dname="AE1C1F*"/>
+    </condition>
+
+    <condition id="E7">
+    <description>Common Templates for HP and HE Core</description>
+      <accept condition="M55_HP CMSIS-Core"/>
+      <accept condition="M55_HE CMSIS-Core"/>
+    </condition>
+
+    <condition id="SoC AE1C1F4051920">
+    <description>Alif Semiconductor SoC AE1C1F4051920 device</description>
+      <require Dname="AE1C1F4051920*"/>
     </condition>
 
     <condition id="SoC AE722F80F55D5">
@@ -919,7 +1024,7 @@
     <condition id="OSPI XIP UTILITY">
       <description>Requirement OSPI XIP utility </description>
       <require condition="Ensemble"/>
-      <require Cclass="Device" Cgroup="OSPI FLASH XIP" Csub="core"/>
+      <require Cclass="BSP" Cgroup="OSPI FLASH XIP" Csub="core"/>
     </condition>
     <condition id="Camera Sensor Driver">
       <description>Requirement for Camera SENSOR Driver</description>
@@ -1010,6 +1115,7 @@
         <file category="linkerScript" name="Device/core/rtss_hp/linker/linker_gnu_tcm.ld.src" version="2.0.0" attr="config" condition="GCC_HP"/>
 
         <file category="header" name="Device/core/rtss_he/config/core_config.h" version="2.0.0" attr="config" condition="M55_HE CMSIS-Core"/>
+        <file category="header" name="Device/core/rtss_he/config/core_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <!-- linker Script for HE -->
         <file category="linkerScript" name="Device/core/rtss_he/linker/linker_ac6_mram.sct" version="2.0.0" attr="config" condition="ARMCC6_HE"/>
         <file category="linkerScript" name="Device/core/rtss_he/linker/linker_ac6_tcm.sct" version="2.0.0" attr="config" condition="ARMCC6_HE"/>
@@ -1017,113 +1123,113 @@
         <file category="linkerScript" name="Device/core/rtss_he/linker/linker_gnu_tcm.ld.src" version="2.0.0" attr="config" condition="GCC_HE"/>
 
         <!-- Baremetal Common Templates for HP and HE Core -->
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Baremetal.c" attr="template" select="ADC Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Click_Board_Baremetal.c" attr="template" select="ADC Click Board Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Ext_Trigger_Baremetal.c" attr="template" select="ADC External Trigger Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_NormalMode.c" attr="template" select="CANFD Data Transfer Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_BlockingMode.c" attr="template" select="CANFD Polling Mode Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CDC200_Baremetal.c" attr="template" select="CDC200 Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CMP_baremetal.c" attr="template" select="CMP Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CRC_baremetal.c" attr="template" select="CRC Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Dac_baremetal.c" attr="template" select="DAC Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/dma_testmemcpy.c" attr="template" select="DMA Mem-Mem Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/DPHY_Loopback_Test_Baremetal.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/DPHY_Loopback_test.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/GT911_Baremetal.c" attr="template" select="GT911 Touch Screen Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/HWSEM_Baremetal.c" attr="template" select="HWSEM Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/i2c_baremetal.c" attr="template" select="I2C Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/i2c_using_i3c_Baremetal.c" attr="template" select="I2C using I3C Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/mix_bus_i2c_i3c_baremetal.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I2S_Baremetal.c" attr="template" select="I2S Baremetal Demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I3C_Baremetal_masterside.c" attr="template" select="I3C Master Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I3C_Baremetal_slaveside.c" attr="template" select="I3C Slave Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ICM42670P_Baremetal.c" attr="template" select="ICM42670P 3-axis accelerometer Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LED_blink_baremetal.c" attr="template" select="LED Blinky Baremetal Demo"/>
-        <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LED_Breathe_Baremetal.c" attr="template" select="LED PWM Baremtal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LPTimer_Baremetal.c" attr="template" select="LPTIMER Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LVGL_baremetal.c" attr="template" select="LVGL Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/lv_port_disp.c" attr="template" select="LVGL Baremetal Demo"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Baremetal.c" attr="template" select="ADC Baremetal Demo"  condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Click_Board_Baremetal.c" attr="template" select="ADC Click Board Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Ext_Trigger_Baremetal.c" attr="template" select="ADC External Trigger Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_NormalMode.c" attr="template" select="CANFD Data Transfer Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CANFD_BlockingMode.c" attr="template" select="CANFD Polling Mode Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CDC200_Baremetal.c" attr="template" select="CDC200 Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CMP_baremetal.c" attr="template" select="CMP Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/CRC_baremetal.c" attr="template" select="CRC Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Dac_baremetal.c" attr="template" select="DAC Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/dma_testmemcpy.c" attr="template" select="DMA Mem-Mem Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/DPHY_Loopback_Test_Baremetal.c" attr="template" select="DPHY Loopback Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/DPHY_Loopback_test.c" attr="template" select="DPHY Loopback Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/GT911_Baremetal.c" attr="template" select="GT911 Touch Screen Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/HWSEM_Baremetal.c" attr="template" select="HWSEM Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/i2c_baremetal.c" attr="template" select="I2C Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/i2c_using_i3c_Baremetal.c" attr="template" select="I2C using I3C Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/mix_bus_i2c_i3c_baremetal.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I2S_Baremetal.c" attr="template" select="I2S Baremetal Demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I3C_Baremetal_masterside.c" attr="template" select="I3C Master Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/I3C_Baremetal_slaveside.c" attr="template" select="I3C Slave Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ICM42670P_Baremetal.c" attr="template" select="ICM42670P 3-axis accelerometer Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LED_blink_baremetal.c" attr="template" select="LED Blinky Baremetal Demo" condition="E7"/>
+        <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LED_Breathe_Baremetal.c" attr="template" select="LED PWM Baremtal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LPTimer_Baremetal.c" attr="template" select="LPTIMER Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/LVGL_baremetal.c" attr="template" select="LVGL Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/lv_port_disp.c" attr="template" select="LVGL Baremetal Demo" condition="E7"/>
         <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/MRAM_Baremetal.c" attr="template" select="MRAM Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/PDM_baremetal.c" attr="template" select="PDM Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Potentiometer_Baremetal.c" attr="template" select="Potentiometer Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_pm_baremetal.c" attr="template" select="Power Management Baremetal Demo"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/PDM_baremetal.c" attr="template" select="PDM Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/ADC_Potentiometer_Baremetal.c" attr="template" select="Potentiometer Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_pm_baremetal.c" attr="template" select="Power Management Baremetal Demo" condition="E7"/>
         <!--<file category="source" name="Boards/DevKit-e7/Templates/Baremetal/QEC_Baremetal.c" attr="template" select="QEC Baremetal Demo"/>-->
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SDIO_Baremetal.c" attr="template" select="SDIO Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SD_Baremetal.c" attr="template" select="SDMMC Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/diskio.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/diskio.h" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ff.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffconf.h" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ff.h" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffsystem.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffunicode.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SD_fatFS_Baremetal.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/TSENS_Baremetal.c" attr="template" select="TSENS Baremetal Demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/Common/Include/temperature.h" attr="template" select="TSENS Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/UART2_Baremetal.c" attr="template" select="UART2 Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/UART4_Baremetal.c" attr="template" select="UART4 Baremetal Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Utimer_Baremetal.c" attr="template" select="UTIMER Baremetal Demo"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SDIO_Baremetal.c" attr="template" select="SDIO Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SD_Baremetal.c" attr="template" select="SDMMC Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/diskio.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/diskio.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ff.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffconf.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ff.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffsystem.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/FatFS/ffunicode.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Demo_SD_fatFS_Baremetal.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/TSENS_Baremetal.c" attr="template" select="TSENS Baremetal Demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/Common/Include/temperature.h" attr="template" select="TSENS Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/UART2_Baremetal.c" attr="template" select="UART2 Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/UART4_Baremetal.c" attr="template" select="UART4 Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/Utimer_Baremetal.c" attr="template" select="UTIMER Baremetal Demo" condition="E7"/>
         <file category="source" name="Boards/DevKit-e7/Templates/Baremetal/WDT_Baremetal.c" attr="template" select="WDT Baremetal Demo"/>
 
 	<!--  FreeRTOS templates -->
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_testApp.c" attr="template" select="ADC FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Click_Board_testapp.c" attr="template" select="ADC Click Board FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Ext_Trigger_testapp.c" attr="template" select="ADC External Trigger FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Potentiometer_testapp.c" attr="template" select="ADC Potentiometer FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/arx3A0_camera_sensor_testApp.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
-        <file category="header"	name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.h" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_NormalMode.c" attr="template" select="CANFD Data transfer FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/cdc_testApp.c" attr="template" select="CDC200 FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CMP_testApp.c" attr="template" select="CMP FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CRC_testApp.c" attr="template" select="CRC FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/DAC_testapp.c" attr="template" select="DAC FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/dma_testmemcpy.c" attr="template" select="DMA MEM-MEM FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/gt911_touchscreen_testApp.c" attr="template" select="GT911 Touch Screen FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/HWSEM_FreeRTOS.c" attr="template" select="HWSEM FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2c_testApp.c" attr="template" select="I2C FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2c_using_i3c_testApp.c" attr="template" select="I2C using I3C FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/mix_bus_i2c_i3c_testApp.c" attr="template" select="I2C I3C Mix Bus FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i3c_masterside_testapp.c" attr="template" select="I3C Master FreeRTOS Demo"/>
-	    <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i3c_slaveside_testapp.c" attr="template" select="I3C Slave FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LED_Blinky_testapp.c" attr="template" select="LED Blinky FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LED_Breathe_app.c" attr="template" select="LED PWM FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LPTimer_testApp.c" attr="template" select="LPTIMER FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/MRAM_FreeRTOS.c" attr="template" select="MRAM FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/MW_app.c" attr="template" select="Microwire FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/mt9m114_camera_sensor_testapp.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.h" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/Flash_ISSI_FreeRTOS_app.c" attr="template" select="OSPI Flash FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/parallel_display_testApp.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/PDM_testApp.c" attr="template" select="PDM FreeRTOS Demo"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_testApp.c" attr="template" select="ADC FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Click_Board_testapp.c" attr="template" select="ADC Click Board FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Ext_Trigger_testapp.c" attr="template" select="ADC External Trigger FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/ADC_Potentiometer_testapp.c" attr="template" select="ADC Potentiometer FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/arx3A0_camera_sensor_testApp.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="header"	name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.h" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_NormalMode.c" attr="template" select="CANFD Data transfer FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/cdc_testApp.c" attr="template" select="CDC200 FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CMP_testApp.c" attr="template" select="CMP FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/CRC_testApp.c" attr="template" select="CRC FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/DAC_testapp.c" attr="template" select="DAC FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/dma_testmemcpy.c" attr="template" select="DMA MEM-MEM FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/gt911_touchscreen_testApp.c" attr="template" select="GT911 Touch Screen FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/HWSEM_FreeRTOS.c" attr="template" select="HWSEM FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2c_testApp.c" attr="template" select="I2C FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2c_using_i3c_testApp.c" attr="template" select="I2C using I3C FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/mix_bus_i2c_i3c_testApp.c" attr="template" select="I2C I3C Mix Bus FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i3c_masterside_testapp.c" attr="template" select="I3C Master FreeRTOS Demo" condition="E7"/>
+	    <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i3c_slaveside_testapp.c" attr="template" select="I3C Slave FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LED_Blinky_testapp.c" attr="template" select="LED Blinky FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LED_Breathe_app.c" attr="template" select="LED PWM FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LPTimer_testApp.c" attr="template" select="LPTIMER FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/MRAM_FreeRTOS.c" attr="template" select="MRAM FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/MW_app.c" attr="template" select="Microwire FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/mt9m114_camera_sensor_testapp.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/bayer2rgb/bayer.h" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/Flash_ISSI_FreeRTOS_app.c" attr="template" select="OSPI Flash FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/parallel_display_testApp.c" attr="template" select="Parallel Display FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/PDM_testApp.c" attr="template" select="PDM FreeRTOS Demo" condition="E7"/>
         <!--<file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/QEC_app.c" attr="template" select="QEC FreeRTOS Demo"/>-->
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/rtc_testApp.c" attr="template" select="RTC FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/SPI0_SPI1_app.c" attr="template" select="SPI FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/uart2_testapp.c" attr="template" select="UART2 FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/uart4_testapp.c" attr="template" select="UART4 FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/UTIMER_app.c" attr="template" select="UTIMER FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/TSENS_testapp.c" attr="template" select="TSENS FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo"/>
-        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2s_testapp.c" attr="template" select="I2S FreeRTOS Demo"/>
-        <file category="header" name="Boards/DevKit-e7/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/rtc_testApp.c" attr="template" select="RTC FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/SPI0_SPI1_app.c" attr="template" select="SPI FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/uart2_testapp.c" attr="template" select="UART2 FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/uart4_testapp.c" attr="template" select="UART4 FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/UTIMER_app.c" attr="template" select="UTIMER FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/TSENS_testapp.c" attr="template" select="TSENS FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/i2s_testapp.c" attr="template" select="I2S FreeRTOS Demo" condition="E7"/>
+        <file category="header" name="Boards/DevKit-e7/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo" condition="E7"/>
 	<!--  LWIP templates -->
         <file category="source" name="Boards/DevKit-e7/Templates/lwip/httpd/fs.c" attr="template" select="LWIP httpd Demo"/>
         <file category="source" name="Boards/DevKit-e7/Templates/lwip/httpd/httpd.c" attr="template" select="LWIP httpd Demo"/>
@@ -1137,6 +1243,46 @@
         <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LPPDM_testApp.c" attr="template" select="LPPDM FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LPSPI_SPI_app.c" attr="template" select="LPSPI FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/DevKit-e7/Templates/FreeRTOS/LPUART_testapp.c" attr="template" select="LPUART FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
+
+        <!-- Baremetal Templates for E1C  -->
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_NormalMode.c" attr="template" select="CANFD Data Transfer Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_BlockingMode.c" attr="template" select="CANFD Polling Mode Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CMP_baremetal.c" attr="template" select="CMP Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CRC_baremetal.c" attr="template" select="CRC Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/diskio.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/diskio.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ff.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffconf.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ff.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffsystem.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffunicode.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Demo_SD_fatFS_Baremetal.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Dac_baremetal.c" attr="template" select="DAC Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/i2c_baremetal.c" attr="template" select="I2C Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/i2c_using_i3c_Baremetal.c" attr="template" select="I2C using I3C Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/mix_bus_i2c_i3c_baremetal.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo" condition="E1C"/>
+       <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/I3C_Baremetal_masterside.c" attr="template" select="I3C Master Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/I3C_Baremetal_slaveside.c" attr="template" select="I3C Slave Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LED_blink_baremetal.c" attr="template" select="LED Blinky Baremetal Demo" condition="E1C"/>
+        <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LED_Breathe_Baremetal.c" attr="template" select="LED PWM Baremtal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPI2C_Baremetal.c" attr="template" select="LPI2C Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPPDM_baremetal.c" attr="template" select="LPPDM Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPSPI_SPI_baremetal.c" attr="template" select="LPSPI Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPTimer_Baremetal.c" attr="template" select="LPTIMER Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/UART2_Baremetal.c" attr="template" select="UART2 Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Utimer_Baremetal.c" attr="template" select="UTIMER Baremetal Demo" condition="E1C"/>
+
+
        </files>
      </component>
 
@@ -1146,8 +1292,18 @@
         <file category="include" name="Device/soc/AE722F80F55D5/include/" />
         <file category="header" name="Device/soc/AE722F80F55D5/config/app_mem_regions.h" version="2.0.0" attr="config" />
         <file category="header" name="Device/soc/AE722F80F55D5/config/RTE_Device.h" version="2.0.0" attr="config" />
-        <file category="include" name="Device/soc/AE722F80F55D5/include/hp/" condition="M55_HP CMSIS-Core"/>
-        <file category="include" name="Device/soc/AE722F80F55D5/include/he/" condition="M55_HE CMSIS-Core"/>
+        <file category="include" name="Device/soc/AE722F80F55D5/include/rtss_hp/" condition="M55_HP CMSIS-Core"/>
+        <file category="include" name="Device/soc/AE722F80F55D5/include/rtss_he/" condition="M55_HE CMSIS-Core"/>
+      </files>
+    </component>
+
+    <component Cclass="Device" Cgroup="SKU"  Cvariant="AE1C1F4051920" Cversion="2.0.0" condition="SoC AE1C1F4051920">
+     <description>SOC Variant</description>
+      <files>
+        <file category="include" name="Device/soc/AE1C1F4051920/include/" />
+        <file category="header" name="Device/soc/AE1C1F4051920/config/app_mem_regions.h" version="2.0.0" attr="config" />
+        <file category="header" name="Device/soc/AE1C1F4051920/config/RTE_Device.h" version="2.0.0" attr="config" />
+        <file category="include" name="Device/soc/AE1C1F4051920/include/rtss_he/" condition="E1C"/>
       </files>
     </component>
 
@@ -1155,7 +1311,7 @@
     <component Cclass="CMSIS Driver" Cgroup="GPIO" Cversion="1.0.0" Capiversion="1.0.0" condition="Ensemble CMSIS_Driver">
       <description>GPIO driver for Alif Semiconductor SOC</description>
       <RTE_Components_h>
-        #define RTE_Drivers_GPIO0   1           /* Driver GPIO0 */
+        #define RTE_Drivers_GPIO   1           /* Driver GPIO */
       </RTE_Components_h>
       <files>
         <file category="source" name="Alif_CMSIS/Source/Driver_GPIO.c"/>
@@ -1203,6 +1359,7 @@
        <file category="header" name="Alif_CMSIS/Source/Driver_I2C_Private.h"/>
        <file category="source" name="drivers/source/i2c.c"/>
        <file category="header" name="drivers/include/i2c.h"/>
+       <file category="header" name="Alif_CMSIS/Include/Driver_I2C_EX.h"/>
      </files>
    </component>
 
@@ -1257,7 +1414,7 @@
     <component Cclass="Device" Cgroup="SOC Peripherals" Csub="GPIO" Cversion="2.0.0" condition="Ensemble CMSIS_Driver">
       <description>GPIO Driver for Alif Semiconductor SOC</description>
       <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
-        #define RTE_Drivers_GPIO              /* Driver GPIO */
+        #define RTE_Drivers_IO              /* Driver GPIO */
       </RTE_Components_h>
       <files>
         <file category="source" name="Alif_CMSIS/Source/Driver_IO.c"/>
@@ -1349,6 +1506,7 @@
 		<file category="header" name="drivers/include/spi.h"/>
 		<file category="header" name="drivers/include/sys_ctrl_spi.h"/>
 		<file category="source" name="drivers/source/spi.c"/>
+		<file category="header" name="Alif_CMSIS/Include/Driver_SPI_EX.h"/>
       </files>
     </component>
 
@@ -1696,6 +1854,7 @@
         <file category="header" name="drivers/include/canfd.h"/>
         <file category="header" name="drivers/include/sys_ctrl_canfd.h"/>
         <file category="source" name="drivers/source/canfd.c"/>
+        <file category="header" name="Alif_CMSIS/Include/Driver_CAN_EX.h"/>
       </files>
     </component>
 
@@ -1860,6 +2019,7 @@
       <description>Retarget STDIN to UART</description>
       <files>
         <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
+        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stdin_USART.c"/>
       </files>
     </component>
@@ -1867,6 +2027,7 @@
       <description>Retarget STDOUT to UART</description>
       <files>
         <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
+        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stdout_USART.c"/>
       </files>
     </component>
@@ -1874,6 +2035,7 @@
       <description>Retarget STDERR to UART</description>
       <files>
         <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
+        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stderr_USART.c"/>
       </files>
     </component>

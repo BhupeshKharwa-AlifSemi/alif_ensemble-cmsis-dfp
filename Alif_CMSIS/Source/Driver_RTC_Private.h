@@ -32,6 +32,16 @@ extern "C"
 #include "Driver_RTC.h"
 #include "rtc.h"
 
+/**
+ * enum LPRTC_INSTANCE.
+ * LPRTC instances.
+ */
+typedef enum _LPRTC_INSTANCE
+{
+    LPRTC0_INSTANCE,
+    LPRTC1_INSTANCE
+} LPRTC_INSTANCE;
+
 /** \brief LPRTC Driver states. */
 typedef volatile struct _LPRTC_DRIVER_STATE {
     uint32_t initialized : 1; /* Driver Initialized*/
@@ -47,6 +57,7 @@ typedef struct _LPRTC_RESOURCES {
     LPRTC_DRIVER_STATE        state;           /* LPRTC Driver state                 */
     IRQn_Type                 irq_num;         /* LPRTC interrupt vector number      */
     uint16_t                  irq_priority;    /* LPRTC interrupt priority           */
+    LPRTC_INSTANCE            inst;            /* LPRTC instances                    */
 }LPRTC_RESOURCES;
 
 #ifdef  __cplusplus

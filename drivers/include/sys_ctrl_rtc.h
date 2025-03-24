@@ -35,9 +35,17 @@ extern "C"
   \param        none
   \return       none
 */
-static inline void enable_lprtc_clk (void)
+static inline void enable_lprtc_clk (LPRTC_INSTANCE inst)
 {
+#if SOC_FEAT_HAS_LPRTC1
+	if (inst == LPRTC0_INSTANCE) {
+		VBAT->RTCA_CLK_EN |= RTC_CLK_ENABLE;
+	} else {
+		VBAT->RTCB_CLK_EN |= RTC_CLK_ENABLE;
+	}
+#else
     VBAT->RTC_CLK_EN |= RTC_CLK_ENABLE;
+#endif
 }
 
 /**
@@ -46,9 +54,17 @@ static inline void enable_lprtc_clk (void)
   \param        none
   \return       none
 */
-static inline void disable_lprtc_clk (void)
+static inline void disable_lprtc_clk (LPRTC_INSTANCE inst)
 {
+#if SOC_FEAT_HAS_LPRTC1
+	if (inst == LPRTC0_INSTANCE) {
+		VBAT->RTCA_CLK_EN &= RTC_CLK_ENABLE;
+	} else {
+		VBAT->RTCB_CLK_EN &= RTC_CLK_ENABLE;
+	}
+#else
     VBAT->RTC_CLK_EN &= ~RTC_CLK_ENABLE;
+#endif
 }
 
 #ifdef __cplusplus

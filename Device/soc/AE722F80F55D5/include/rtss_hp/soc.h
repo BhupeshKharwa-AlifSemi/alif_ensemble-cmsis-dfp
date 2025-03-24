@@ -3058,7 +3058,7 @@ typedef struct {                                /*!< (@ 0xE000E100) M55HP_NVIC_S
 #define M55HP_CFG_BASE              0x400F0000UL
 #define WDT_HP_CTRL_BASE            0x40100000UL
 #define WDT_HP_REFRESH_BASE         0x40101000UL
-#define LPRTC_BASE                  0x42000000UL
+#define LPRTC0_BASE                  0x42000000UL
 #define LPTIMER_BASE                0x42001000UL
 #define LPGPIO_BASE                 0x42002000UL
 #define LPGPIO_CTRL_BASE            0x42007000UL
@@ -3213,7 +3213,7 @@ typedef struct {                                /*!< (@ 0xE000E100) M55HP_NVIC_S
 #define M55HP_CFG                   ((M55HP_CFG_Type*)         M55HP_CFG_BASE)
 #define WDT_HP_CTRL                 ((WDT_HP_CTRL_Type*)       WDT_HP_CTRL_BASE)
 #define WDT_HP_REFRESH              ((WDT_HP_CTRL_Type*)       WDT_HP_REFRESH_BASE)
-#define LPRTC                       ((LPRTC_Type*)             LPRTC_BASE)
+#define LPRTC0                      ((LPRTC_Type*)             LPRTC0_BASE)
 #define LPTIMER                     ((LPTIMER_Type*)           LPTIMER_BASE)
 #define LPGPIO                      ((GPIO_Type*)              LPGPIO_BASE)
 #define LPGPIO_CTRL                 ((LPGPIO_CTRL_Type*)       LPGPIO_CTRL_BASE)
