@@ -388,6 +388,7 @@ function(get_rte_macros)
     GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_CSI2                   ENABLE_MIPI_CSI2        "Enable/disable MIPI CSI2 Driver.")
     GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI                    ENABLE_MIPI_DSI         "Enable/disable MIPI DSI Driver.")
     GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CPI                         ENABLE_CPI              "Enable/disable CPI Driver.")
+    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_GPIO                        ENABLE_GPIO             "Enable/disable GPIO Driver.")
 
     GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN            ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
     GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT           ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")

@@ -92,6 +92,8 @@
 #define RTE_Drivers_MIPI_DSI                          1           /* Driver MIPI DSI                          */
 /* AlifSemiconductor::Device.SOC Peripherals.CPI */
 #define RTE_Drivers_CPI                               1           /* Driver CPI                               */
+/* AlifSemiconductor::CMSIS Driver.GPIO */
+#define RTE_Drivers_GPIO                              1           /* Driver GPIO                              */
 
 //#define RTE_CMSIS_Compiler_STDIN                                  /* Enable STDIN  Control                    */
 #if defined (RTE_CMSIS_Compiler_STDIN)

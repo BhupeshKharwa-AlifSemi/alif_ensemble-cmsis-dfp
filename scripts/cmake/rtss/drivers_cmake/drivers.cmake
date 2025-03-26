@@ -170,4 +170,7 @@ target_sources(${DRIVER_LIB} PRIVATE
     #CPI Driver
     $<$<BOOL:${ENABLE_CPI}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/cpi.c>
     $<$<BOOL:${ENABLE_CPI}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_CPI.c>
+
+    #GPIO Driver
+    $<$<BOOL:${ENABLE_GPIO}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_GPIO.c>
 )
