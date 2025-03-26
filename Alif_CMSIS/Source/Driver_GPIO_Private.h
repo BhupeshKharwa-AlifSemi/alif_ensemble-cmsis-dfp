@@ -197,8 +197,8 @@ extern void LPGPIO_IRQ5Handler (void);
 extern void LPGPIO_IRQ6Handler (void);
 extern void LPGPIO_IRQ7Handler (void);
 
-// GPIO0 Driver access structure
-extern ARM_DRIVER_GPIO Driver_GPIO0;
+// GPIO Driver access structure
+extern ARM_DRIVER_GPIO Driver_GPIO;
 
 #ifdef  __cplusplus
 }

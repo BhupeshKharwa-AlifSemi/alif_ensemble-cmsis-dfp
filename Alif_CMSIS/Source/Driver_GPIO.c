@@ -26,6 +26,7 @@
 #include "pinconf.h"
 #include "gpio.h"
 
+#if defined(RTE_Drivers_GPIO)
 
 // Pin mapping
 //   0 ..   7: P0_0..7  (GPIO0)
@@ -500,7 +501,7 @@ static uint32_t GPIO_GetInput (ARM_GPIO_Pin_t pin) {
 
 
 // GPIO Driver access structure
-ARM_DRIVER_GPIO Driver_GPIO0 = {
+ARM_DRIVER_GPIO Driver_GPIO = {
   GPIO_Setup,
   GPIO_SetDirection,
   GPIO_SetOutputMode,
@@ -509,3 +510,5 @@ ARM_DRIVER_GPIO Driver_GPIO0 = {
   GPIO_SetOutput,
   GPIO_GetInput
 };
+
+#endif /* RTE_Drivers_GPIO */
