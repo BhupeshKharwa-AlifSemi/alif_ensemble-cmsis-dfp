@@ -235,11 +235,11 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
                 gpio_bit_man_set_value_low (GPIO->reg_base, pin_no);
             }
             else
+#endif
             {
                 /**< Set LOW(0) to the pin >*/
                 gpio_set_value_low (GPIO->reg_base, pin_no);
             }
-#endif
             break;
         }
         case GPIO_PIN_OUTPUT_STATE_HIGH:
@@ -251,11 +251,11 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
                 gpio_bit_man_set_value_high (GPIO->reg_base, pin_no);
             }
             else
+#endif
             {
                 /**< Set HIGH(1) to the pin >*/
                 gpio_set_value_high (GPIO->reg_base, pin_no);
             }
-#endif
             break;
         }
         case GPIO_PIN_OUTPUT_STATE_TOGGLE:
@@ -267,11 +267,11 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
                 gpio_bit_man_toggle_value (GPIO->reg_base, pin_no);
             }
             else
+#endif
             {
                 /**< Toggle pin value >*/
                 gpio_toggle_value (GPIO->reg_base, pin_no);
             }
-#endif
             break;
         }
         default:
