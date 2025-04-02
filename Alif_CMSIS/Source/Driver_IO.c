@@ -76,7 +76,10 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             }
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            disable_gpio_clk(GPIO->gpio_id);
+            if (GPIO->gpio_id != LPGPIO_INSTANCE)
+            {
+                disable_gpio_clk(GPIO->gpio_id);
+            }
 #endif
 
             GPIO->state.powered = 0;
@@ -90,7 +93,10 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             }
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            enable_gpio_clk(GPIO->gpio_id);
+            if (GPIO->gpio_id != LPGPIO_INSTANCE)
+            {
+                enable_gpio_clk(GPIO->gpio_id);
+            }
 #endif
 
             /* mask the interrupt */
