@@ -39,7 +39,7 @@
 /*Audio samples */
 #include "i2s_samples.h"
 
-#if (!defined(RTE_Driver_WM8904))
+#if (!defined(RTE_Drivers_WM8904))
 #error "WM8904 codec driver not configured in RTE_Components.h"
 #endif
 
@@ -187,12 +187,14 @@ void DAC_Init(void)
         goto error_codec_power;
     }
 
+    #if 0
     status = wm8904->Play();
     if(status)
     {
         printf("WM8904 codec play failed status = %" PRId32 "\n", status);
         goto error_codec_control;
     }
+    #endif
 
     /* Verify the I2S API version for compatibility */
     version = i2s_dac->GetVersion();
@@ -488,7 +490,7 @@ int32_t Receiver(void)
 */
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();

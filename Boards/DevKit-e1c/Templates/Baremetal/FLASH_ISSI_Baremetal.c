@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "pinconf.h"
 #include "Driver_Flash.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -183,7 +183,7 @@ int main ()
     ARM_DRIVER_VERSION version;
     ARM_FLASH_INFO *flash_info;
 
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)

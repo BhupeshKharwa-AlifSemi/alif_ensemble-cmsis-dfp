@@ -25,6 +25,14 @@
 #include "sys_ctrl_aes.h"
 #include "soc.h"
 #include "sys_clocks.h"
+#include "RTE_Device.h"
+
+#include "RTE_Components.h"
+#include CMSIS_device_header
+
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
+#include "sys_ctrl_ospi.h"
+#endif
 
 /**
   \fn          int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
@@ -52,11 +60,17 @@ int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
         ospi = (OSPI_Type *) OSPI0_BASE;
         aes  = (AES_Type *) AES0_BASE;
     }
+#ifdef RTE_OSPI1
     else
     {
         ospi = (OSPI_Type *) OSPI1_BASE;
         aes  = (AES_Type *) AES1_BASE;
     }
+#endif
+
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
+    enable_ospi_clk();
+#endif
 
     ospi_set_ddr_drive_edge(ospi, config->ddr_drive_edge);
 
@@ -73,7 +87,9 @@ int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
     /* Initialize OSPI hyperbus xip configuration */
     ospi_hyperbus_xip_init(ospi, config->wait_cycles);
 
+#if SOC_FEAT_OSPI_HAS_XIP_SER
     ospi_control_xip_ss(ospi, config->slave_select, SPI_SS_STATE_ENABLE);
+#endif
 
     aes_enable_xip(aes);
 

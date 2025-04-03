@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include "Driver_UTIMER.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include "pinconf.h"
 
 #include "RTE_Components.h"
@@ -42,8 +42,8 @@
 #define GPIO0_PIN3                     3
 
 /* UTIMER0 Driver instance */
-extern ARM_DRIVER_UTIMER DRIVER_UTIMER0;
-ARM_DRIVER_UTIMER *ptrUTIMER = &DRIVER_UTIMER0;
+extern ARM_DRIVER_UTIMER Driver_UTIMER0;
+ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
 /* GPIO0 Driver instance */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO0);
@@ -783,7 +783,7 @@ error_capture_mode_uninstall:
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();

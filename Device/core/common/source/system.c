@@ -52,7 +52,6 @@
   #include <mpu.h>
 #endif
 
-#include "app_mem_regions.h"
 #include "sys_utils.h"
 #include "sys_clocks.h"
 

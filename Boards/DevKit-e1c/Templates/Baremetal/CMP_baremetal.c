@@ -30,9 +30,9 @@
  ******************************************************************************/
 
 /* System Includes */
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 #include <stdio.h>
-#include "system_utils.h"
+#include "sys_utils.h"
 #include "pinconf.h"
 #include "Driver_UTIMER.h"
 
@@ -421,7 +421,7 @@ error_uninitialize:
 /* Define main entry point */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();

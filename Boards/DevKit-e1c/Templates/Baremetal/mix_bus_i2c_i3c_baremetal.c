@@ -36,11 +36,11 @@
 
 /* Project Includes */
 #include "Driver_I3C.h"
-#include "system_utils.h"
+#include "sys_utils.h"
 
 /* PINMUX Driver */
 #include "pinconf.h"
-#include "Driver_GPIO.h"
+#include "Driver_IO.h"
 
 #include "RTE_Device.h"
 #include "RTE_Components.h"

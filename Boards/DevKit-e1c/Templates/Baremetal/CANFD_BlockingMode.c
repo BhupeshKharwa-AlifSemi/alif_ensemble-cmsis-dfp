@@ -401,7 +401,7 @@ uninitialise_canfd:
  */
 int main()
 {
-#if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();

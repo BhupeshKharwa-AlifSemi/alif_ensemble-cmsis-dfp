@@ -26,7 +26,7 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-#if (defined(RTE_WM8904_CODEC) && defined(RTE_Driver_WM8904))
+#if (defined(RTE_WM8904_CODEC) && defined(RTE_Drivers_WM8904))
 
 static uint8_t volatile drv_state = 0;
 

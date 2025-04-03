@@ -31,8 +31,8 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-extern ARM_DRIVER_LPTIMER DRIVER_LPTIMER0;
-ARM_DRIVER_LPTIMER *ptrDrv = &DRIVER_LPTIMER0;
+extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
+ARM_DRIVER_LPTIMER *ptrDrv = &Driver_LPTIMER0;
 
 #define LPTIMER_CHANNEL_0    0
 
@@ -152,7 +152,7 @@ error_uninstall:
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();

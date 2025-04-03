@@ -529,6 +529,14 @@ __WEAK_ISR   void IRQ469_Handler         (void);
 __WEAK_ISR   void IRQ470_Handler         (void);
 __WEAK_ISR   void IRQ471_Handler         (void);
 __WEAK_ISR   void IRQ472_Handler         (void);
+__WEAK_ISR   void IRQ473_Handler         (void);
+__WEAK_ISR   void IRQ474_Handler         (void);
+__WEAK_ISR   void IRQ475_Handler         (void);
+__WEAK_ISR   void IRQ476_Handler         (void);
+__WEAK_ISR   void IRQ477_Handler         (void);
+__WEAK_ISR   void IRQ478_Handler         (void);
+__WEAK_ISR   void IRQ479_Handler         (void);
+
 
 
 extern uint32_t __INITIAL_SP;
@@ -539,7 +547,7 @@ extern uint32_t __INITIAL_SP;
 #endif
 
 extern const VECTOR_TABLE_Type __VECTOR_TABLE[];
-const VECTOR_TABLE_Type __VECTOR_TABLE[] __VECTOR_TABLE_ATTRIBUTE = {
+const VECTOR_TABLE_Type __VECTOR_TABLE[496] __VECTOR_TABLE_ATTRIBUTE = {
     (VECTOR_TABLE_Type) &__INITIAL_SP,  //     Initial Stack Pointer
     Reset_Handler,                  // -15 Reset Handler
     NMI_Handler,                    // -14 NMI Handler
@@ -1030,6 +1038,13 @@ const VECTOR_TABLE_Type __VECTOR_TABLE[] __VECTOR_TABLE_ATTRIBUTE = {
     IRQ470_Handler,
     IRQ471_Handler,
     IRQ472_Handler,
+    IRQ473_Handler,
+    IRQ474_Handler,
+    IRQ475_Handler,
+    IRQ476_Handler,
+    IRQ477_Handler,
+    IRQ478_Handler,
+    IRQ479_Handler
 };
 
 #if defined ( __GNUC__ )

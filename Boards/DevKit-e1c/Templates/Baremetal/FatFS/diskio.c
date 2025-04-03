@@ -11,6 +11,7 @@
 #include "diskio.h"        /* Declarations of disk functions */
 #include "string.h"
 #include "stdio.h"
+#include "sys_utils.h"
 
 /* Definitions of physical drive number for each drive */
 #define DEV_MMC        0    /* Example: Map MMC/SD card to physical drive 1 */
@@ -23,15 +24,11 @@ static sd_handle_t *pHsd = &Hsd;
 
 /* Interrupt Handler callback */
 volatile uint32_t dma_done_irq;
-void sd_cb(uint32_t status)
+void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 {
-    if(status == RES_OK)
+    if(xfer_status)
         dma_done_irq = 1;
-    else
-        printf("Invalid Xfer status...:%d\n",status);
 }
-extern unsigned char media_memory;
-volatile uint8_t *dma_buff = &media_memory;
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
@@ -68,10 +65,6 @@ DSTATUS disk_initialize(BYTE drivenum)//FATFS *p_sd_card, char *MEDIA_NAME, void
     if(status)
         return STA_NOINIT;
 
-    /*dummy read */
-    memset((void *)dma_buff, '\0', sizeof(media_memory));
-    p_SD_Driver->disk_read(0, 1, dma_buff);
-
     sys_busy_loop_us(2000);
 
     return RES_OK;
@@ -94,13 +87,11 @@ DRESULT disk_read (
 
     dma_done_irq = 0;
 
-    result = p_SD_Driver->disk_read(sector, count, dma_buff);
+    result = p_SD_Driver->disk_read(sector, count, buff);
 
     while(!dma_done_irq);
 
-    RTSS_InvalidateDCache_by_Addr((volatile void *)dma_buff, count * SDMMC_BLK_SIZE_512_Msk);
-
-    memcpy(buff, (const void *)dma_buff, count * SDMMC_BLK_SIZE_512_Msk);
+    RTSS_InvalidateDCache_by_Addr((volatile void *)buff, count * SDMMC_BLK_SIZE_512_Msk);
 
     return RES_OK;
 }
@@ -124,9 +115,7 @@ DRESULT disk_write (
     dma_done_irq = 0;
     RTSS_CleanDCache_by_Addr((volatile void *)buff, count * SDMMC_BLK_SIZE_512_Msk);
 
-    memcpy((void*)dma_buff, buff, count * SDMMC_BLK_SIZE_512_Msk);
-
-    if( p_SD_Driver->disk_write(sector, count, (volatile uint8_t *)dma_buff) != SD_DRV_STATUS_OK )
+    if( p_SD_Driver->disk_write(sector, count, (volatile uint8_t *)buff) != SD_DRV_STATUS_OK )
         res = RES_ERROR;
 
     while(!dma_done_irq);

@@ -1276,6 +1276,7 @@
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo" condition="E1C"/>
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo" condition="E1C"/>
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo" condition="E1C"/>
+        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E1C"/>
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo" condition="E1C"/>
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo" condition="E1C"/>
         <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo" condition="E1C"/>
@@ -1892,7 +1893,7 @@
     <component Cclass="BSP" Cgroup="OSPI FLASH XIP" Csub="core" Cversion="2.0.0" condition="Ensemble CMSIS_Driver">
       <description>OSPI XIP Mode setup for ISSI flash on Alif Semiconductor SOC</description>
       <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
-        #define RTE_OSPI_XIP_CORE              /* OSPI XIP CORE */
+        #define RTE_Drivers_ISSI_FLASH_XIP_CORE              /* OSPI XIP CORE */
       </RTE_Components_h>
       <files>
         <file category="include" name="ospi_xip/include/"/>
@@ -1908,7 +1909,7 @@
     <component Cclass="BSP" Cgroup="OSPI FLASH XIP" Csub="utility" Cversion="2.0.0" condition="OSPI XIP UTILITY">
       <description>OSPI XIP Mode setup utility for Alif DevKit-E7</description>
       <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
-        #define RTE_OSPI_XIP_UTILITY              /* OSPI XIP SETUP utility*/
+        #define RTE_Drivers_ISSI_FLASH_XIP_UTILITY              /* OSPI XIP SETUP utility*/
       </RTE_Components_h>
       <files>
         <file category="source" name="ospi_xip/app/app_issi_flash.c"/>
@@ -1918,7 +1919,7 @@
     <component Cclass="BSP" Cgroup="OSPI HYPERRAM XIP" Cversion="2.0.0" condition="Ensemble CMSIS_Driver">
       <description>OSPI XIP Mode setup for ISSI HyperRAM Device on Alif Semiconductor SOC</description>
       <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
-        #define RTE_OSPI_XIP_HYPERRAM        /* OSPI XIP HYPERRAM */
+        #define RTE_Drivers_XIP_HYPERRAM        /* OSPI XIP HYPERRAM */
       </RTE_Components_h>
       <files>
 	<file category="header" name="drivers/include/ospi_hyperram_xip.h"/>

@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "Driver_UTIMER.h"
 #include "pinconf.h"
+#include "sys_utils.h"
 
 #include "RTE_Components.h"
 #include CMSIS_device_header
@@ -52,8 +53,8 @@
 #define UT_CHANNEL_GREEN_LED          2U
 
 /* UTIMER0 Driver instance */
-extern ARM_DRIVER_UTIMER DRIVER_UTIMER0;
-ARM_DRIVER_UTIMER *ptrUTIMER = &DRIVER_UTIMER0;
+extern ARM_DRIVER_UTIMER Driver_UTIMER0;
+ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
 /**
  * @function    void utimer_led_cb_func(uint8_t event)
@@ -259,7 +260,7 @@ static void led_breathe_app (void)
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom) 
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
     ret = stdout_init();
