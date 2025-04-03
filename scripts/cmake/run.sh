@@ -12,6 +12,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 BROWN='\033[0;37m'
 HIGH_CYAN='\033[38;5;45m'
+HIGH_YELLOW='\033[38;5;11m'
 
 total_start_time=$SECONDS
 final_result=0
@@ -29,7 +30,7 @@ EXISTING_TEST_PRESETS=$(cmake --list-presets=test | grep -oP '"\K[^"]+(?=")')
 
 # Get all configure presets
 EXISTING_WORKFLOW_PRESETS=$(cmake --list-presets=workflow |  grep -oP '"\K[^"]+(?=")')
-    
+
 if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     start_time=$SECONDS
 
@@ -127,7 +128,7 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     #build_num_args=$(echo "$build_param" | grep -o " " | wc -l)
 
     # Print output
-    #echo "config_param : $config_param" 
+    #echo "config_param : $config_param"
     #echo "build  param : $build_param"
     #echo "Test   param : $preset_param"
 
@@ -143,8 +144,8 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     # In below array (list) of configuration
     # Format : CONFIGURATION,BUILD_SETTING
     declare -a cfg_build_presets=(
-        "armclang,armclang_build"
-        "gcc,gcc_build"
+        "armclang,armclang_build,armclang_build_test"
+        "gcc,gcc_build,gcc_build_test"
     )
 
     # Check if str is empty AND num is greater than zero
@@ -162,21 +163,21 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
 
             IFS=',' read -ra preset_param_array <<< "$preset_param"
 
-            if [[ $EXISTING_CONFIGURE_PRESETS =~ "${preset_param_array[0]}" ]]; then 
-                selected_cfg_preset=${preset_param_array[0]} 
-            else 
+            if [[ $EXISTING_CONFIGURE_PRESETS =~ "${preset_param_array[0]}" ]]; then
+                selected_cfg_preset=${preset_param_array[0]}
+            else
                 echo -e "${RED}Didn't find ${BLUE} ${preset_param_array[0]} ${RED}config preset in list ${BLUE}" {$EXISTING_CONFIGURE_PRESETS} "${NC}"
             fi
 
-            if [[ $EXISTING_BUILD_PRESETS  =~ "${preset_param_array[1]}" ]]; then 
-                selected_build_preset=${preset_param_array[1]} 
-            else 
+            if [[ $EXISTING_BUILD_PRESETS  =~ "${preset_param_array[1]}" ]]; then
+                selected_build_preset=${preset_param_array[1]}
+            else
                 echo -e "${RED}Didn't find ${BLUE} ${preset_param_array[1]} ${RED}config preset in list ${BLUE}" {$EXISTING_BUILD_PRESETS} "${NC}"
             fi
 
-            if [[ $EXISTING_TEST_PRESETS  =~ "${preset_param_array[2]}" ]]; then 
-                selected_test_preset=${preset_param_array[2]} 
-            else 
+            if [[ $EXISTING_TEST_PRESETS  =~ "${preset_param_array[2]}" ]]; then
+                selected_test_preset=${preset_param_array[2]}
+            else
                 echo -e "${RED}Didn't find ${BLUE} ${preset_param_array[2]} ${RED}config preset in list ${BLUE}" {$EXISTING_TEST_PRESETS} "${NC}"
             fi
         fi
@@ -190,10 +191,10 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         test_ctest_result=0
 
         if [[ "$fresh_build_flag" -gt 0 ]]; then
-            cmake -E time cmake --fresh --preset=$selected_cfg_preset $config_param       || {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
+            cmake -E time cmake --fresh --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
             cmake --build --clean-first --preset=$selected_build_preset $build_param -- --|| {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" BUILD-CONFIG FAILED \n ${NC}"; }
         else
-            cmake -E time cmake  --preset=$selected_cfg_preset $config_param       || {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
+            cmake -E time cmake  --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
             cmake --build --preset=$selected_build_preset $build_param -- --|| {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" BUILD-CONFIG FAILED \n ${NC}"; }
         fi
 
@@ -210,13 +211,17 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         for setting in "${cfg_build_presets[@]}";
             do
             start_time=$SECONDS
-            CONFIGURE_PRESETS="${setting%%,*}"
-            BUILD_PRESETS="${setting##*,}"
+            #CONFIGURE_PRESETS="${setting%%,*}"
+            #BUILD_PRESETS="${setting##*,}"
+            IFS=',' read -r CONFIGURE_PRESETS BUILD_PRESETS TEST_PRESETS <<< "$setting"
 
             #echo "  Repo name   : $repoName   Branch Name : $branchName"
-            echo -e "\n\nRunning CMake with configuration preset: ${GREEN} \"$CONFIGURE_PRESETS\" ${NC} and build preset ${HIGH_CYAN} \"$BUILD_PRESETS\" ${NC}"
-            cmake -E time cmake --fresh --preset=$CONFIGURE_PRESETS $config_param
-            cmake --build  --preset=$BUILD_PRESETS $build_param
+            echo -e "\n\nRunning CMake with configuration preset: ${GREEN} \"$CONFIGURE_PRESETS\" ${NC} and build preset ${HIGH_CYAN} \"$BUILD_PRESETS\" ${NC} + test preset ${HIGH_YELLOW} \"$TEST_PRESETS\" ${NC}"
+            cmake -E time cmake --fresh --preset=$CONFIGURE_PRESETS $config_param || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
+            cmake --build  --preset=$BUILD_PRESETS $build_param -- --|| {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" BUILD-CONFIG FAILED \n ${NC}"; }
+            ctest --preset $TEST_PRESETS || { test_ctest_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" TEST-CONFIG FAILED \n ${NC}" ; }
+
+            final_result=$((config_cmake_result + build_cmake_result + test_ctest_result))
             elapsed_1=$(( SECONDS - start_time ))
             eval "echo Elapsed time : $(date -ud "@$elapsed_1" +'$((%s/3600/24)) days %H hr %M min %S sec')"
         done
@@ -226,8 +231,11 @@ else
 
     # Loop through each preset and run configure & build
     for WORKFLOW_PRESET in $EXISTING_WORKFLOW_PRESETS; do
+        start_time=$SECONDS
         echo -e "\n\nRunning CMake with workflow preset: ${GREEN} \"$WORKFLOW_PRESET\" ${NC}"
         cmake --workflow --fresh --preset $WORKFLOW_PRESET
+        elapsed_1=$(( SECONDS - start_time ))
+        eval "echo Elapsed time : $(date -ud "@$elapsed_1" +'$((%s/3600/24)) days %H hr %M min %S sec')"
     done
 
 fi

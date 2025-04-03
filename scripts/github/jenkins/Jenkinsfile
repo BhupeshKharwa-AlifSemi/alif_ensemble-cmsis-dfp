@@ -28,6 +28,8 @@ pipeline {
                 script {
                     sh '''
 
+                    $ARMCLANG_PATH/../../bin/armlm activate --server http://10.10.60.10:7070 --product HWSKT-EAC0
+
                     if [ -d ensemble-cmsis-dfp_DEV ]; then
                         echo "Deleting older repo..."
                         rm -rf ensemble-cmsis-dfp_DEV

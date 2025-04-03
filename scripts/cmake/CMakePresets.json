@@ -41,7 +41,6 @@
                 "BOARD_NAME": "DevKit-e7",
                 "DEVICE": "AE722F80F55D5",
                 "COMPILER": "ARMCLANG",
-                "DEVICE_SERIES": "E7",
                 "OS": "NONE",
                 "TEST_APP": "ALL"
             }

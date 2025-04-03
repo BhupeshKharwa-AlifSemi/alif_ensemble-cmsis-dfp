@@ -26,10 +26,10 @@
 #define RTE_Drivers_ADC                               1           /* Driver ADC                               */
 /* AlifSemiconductor::Device.SOC Peripherals.CANFD */
 #define RTE_Drivers_CANFD                             1           /* Driver CANFD                             */
-/* AlifSemiconductor::Device.SOC Peripherals.CDC211 */
+/* AlifSemiconductor::Device.SOC Peripherals.CDC200 */
 #define RTE_Drivers_CDC200                            1           /* Driver CDC200                            */
-/* AlifSemiconductor::BSP.External peripherals.ILI9816E LCD panel  */
-#define RTE_Drivers_MIPI_DSI_ILI9806E_PANEL           1           /* Driver ILI9816E LCD panel                */
+/* AlifSemiconductor::BSP.External peripherals.ILI9806E LCD panel  */
+#define RTE_Drivers_MIPI_DSI_ILI9806E_PANEL           1           /* Driver ILI9806E LCD panel                */
 /* AlifSemiconductor::BSP.External peripherals.ILI6122 LCD panel   */
 #define RTE_Drivers_CDC_ILI6122_PANEL                 1           /* Driver ILI6122  LCD panel                */
 /* AlifSemiconductor::BSP.External peripherals.ILI6122 LCD panel   */
@@ -44,6 +44,8 @@
 #define RTE_Drivers_SD                                1           /* Driver SD                                */
 /* AlifSemiconductor::Device.SOC Peripherals.OSPI Controller */
 #define RTE_Drivers_OSPI                              1           /* Driver OSPI                              */
+/* AlifSemiconductor::BSP.OSPI Hyper RAM XIP     */
+#define RTE_Drivers_XIP_HYPERRAM                      1           /* Driver Hyper RAM XIP                     */
 /* AlifSemiconductor::BSP.External peripherals.OSPI Flash ISSI     */
 #define RTE_Drivers_ISSI_FLASH                        1           /* Driver Flash ISSI                        */
 /* AlifSemiconductor::CMSIS Driver.Touchscreen.GT911 */
@@ -84,8 +86,8 @@
 #define RTE_Drivers_CAMERA                            1           /* Driver CAMREA Controller                 */
 /* AlifSemiconductor::CMSIS Driver.SOC Peripherals.CAMERA Sensor MT9M114 */
 #define RTE_Drivers_CAMERA_SENSOR_MT9M114             1           /* Driver CAMREA Sensor                     */
-/* AlifSemiconductor::BSP.External peripherals.CAMERA Sensor ARX3A1 */
-#define RTE_Drivers_CAMERA_SENSOR_ARX3A1              1           /* Driver CAMERA Sensor                     */
+/* AlifSemiconductor::BSP.External peripherals.CAMERA Sensor ARX3A0 */
+#define RTE_Drivers_CAMERA_SENSOR_ARX3A0              1           /* Driver CAMERA Sensor                     */
 /* AlifSemiconductor::Device.SOC Peripherals.MIPI CSI2 */
 #define RTE_Drivers_MIPI_CSI2                         1           /* Driver MIPI CSI2                         */
 /* AlifSemiconductor::Device.SOC Peripherals.MIPI DSI */
@@ -94,6 +96,8 @@
 #define RTE_Drivers_CPI                               1           /* Driver CPI                               */
 /* AlifSemiconductor::CMSIS Driver.GPIO */
 #define RTE_Drivers_GPIO                              1           /* Driver GPIO                              */
+/* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
+#define RTE_Drivers_WM8904                            1           /* Driver WM8904                            */
 
 //#define RTE_CMSIS_Compiler_STDIN                                  /* Enable STDIN  Control                    */
 #if defined (RTE_CMSIS_Compiler_STDIN)

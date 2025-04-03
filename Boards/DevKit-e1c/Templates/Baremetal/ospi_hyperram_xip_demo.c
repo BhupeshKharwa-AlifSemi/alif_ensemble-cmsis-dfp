@@ -133,7 +133,7 @@ static int32_t pinmux_setup()
         return -1;
     }
 
-  ret = pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_2,
+    ret = pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_2,
                     PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
 
     if (ret)

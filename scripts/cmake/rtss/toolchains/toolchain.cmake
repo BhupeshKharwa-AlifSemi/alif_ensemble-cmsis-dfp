@@ -4,6 +4,10 @@ add_definitions (-D${CPU}_${RTSS})
 add_definitions (-D${DEVICE})
 add_definitions (-DRTSS_${RTSS})
 
+if(${ENABLE_E1C_DEVKIT})
+    add_definitions (-DM55_HE_E1C)
+endif()
+
 # Defines needed for threadX
 if (OS STREQUAL THREADX)
     add_definitions (-DTX_SINGLE_MODE_SECURE)

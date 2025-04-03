@@ -21,7 +21,7 @@ include_directories (${DRIVERS_INC})
 
 #To avoid misconfiguration
 if(${ENABLE_MIPI_DSI_ILI9806E_PANEL} AND ${ENABLE_CDC_ILI6122E_PANEL} AND ${ENABLE_MIPI_DSI_ILI9488E_PANEL})
-    message(STATUS        "${Blue}📢 [INFO] ALL LCD ILI9806E ILI6122E ILI6122E IS ENABLED, Make sure only one should be enabled ${ColourReset}")
+    message(STATUS        "${Blue}📢[INFO] ALL LCD ILI9806E ILI6122E ILI6122E IS ENABLED, Make sure only one should be enabled ${ColourReset}")
 endif()
 
 set(LP_DOMAIN_EN        OFF)
@@ -39,9 +39,9 @@ target_sources(${DRIVER_LIB} PRIVATE
     $<$<BOOL:${ENABLE_MHU}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/mhu_receiver.c>
     $<$<BOOL:${ENABLE_MHU}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/mhu_sender.c>
 
-    #Pin Config 
+    #Pin Config
     $<$<BOOL:${ENABLE_PIN_CONF}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/pinconf.c>
-    
+
     #UART Driver
     $<$<BOOL:${ENABLE_USART}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/uart.c>
     $<$<BOOL:${ENABLE_USART}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_USART.c>
@@ -85,8 +85,10 @@ target_sources(${DRIVER_LIB} PRIVATE
 
     #OSPI Driver
     $<$<BOOL:${ENABLE_OSPI}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/ospi.c>
-    $<$<BOOL:${ENABLE_OSPI}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/ospi_hyperram_xip.c>
     $<$<BOOL:${ENABLE_OSPI}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_OSPI.c>
+
+    #Hyper RAM XIP Driver
+    $<$<BOOL:${ENABLE_XIP_HYPERRAM}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/ospi_hyperram_xip.c>
 
     #ISSI FLASH Driver ENABLE_ISSI_FLASH
     $<$<BOOL:${ENABLE_ISSI_FLASH}>:${ALIF_COMPONENTS_SRC_DIR}/IS25WX256.c>
@@ -173,4 +175,8 @@ target_sources(${DRIVER_LIB} PRIVATE
 
     #GPIO Driver
     $<$<BOOL:${ENABLE_GPIO}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_GPIO.c>
+
+    #WM8904 Driver
+    $<$<BOOL:${ENABLE_WM8904}>:${ALIF_COMPONENTS_SRC_DIR}/WM8904_codec_i2c.c>
+    $<$<BOOL:${ENABLE_WM8904}>:${ALIF_COMPONENTS_SRC_DIR}/WM8904_driver.c>
 )

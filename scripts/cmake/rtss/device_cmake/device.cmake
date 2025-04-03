@@ -1,6 +1,14 @@
 # Basic Input check Starts -------------------------------
 if (DEV_FAMILY STREQUAL "E")
-    set (RTE_COMP_DIR   "${CMAKE_SOURCE_DIR}/Include_RTE_Comp/ensemble")
+    if("${BOARD_NAME}" STREQUAL "DevKit-e7")
+        set(RTE_COMP_DIR   "${CMAKE_SOURCE_DIR}/Include_RTE_Comp/ensemble/e7")
+        set(ENABLE_E7_DEVKIT    ON      CACHE   BOOL    "Enable/disable E7 Devkit.")
+        set(ENABLE_E1C_DEVKIT   OFF     CACHE   BOOL    "Enable/disable E1C Devkit.")
+    elseif("${BOARD_NAME}" STREQUAL "DevKit-e1c")
+        set(RTE_COMP_DIR   "${CMAKE_SOURCE_DIR}/Include_RTE_Comp/ensemble/e1c")
+        set(ENABLE_E7_DEVKIT    OFF     CACHE   BOOL    "Enable/disable E7 Devkit.")
+        set(ENABLE_E1C_DEVKIT   ON      CACHE   BOOL    "Enable/disable E1C Devkit.")
+    endif()
 else ()
     message (FATAL_ERROR "${Red}\n Unknown Device Family \n${ColourReset}")
 endif ()
@@ -16,10 +24,6 @@ if (NOT( (BOOT STREQUAL TCM) OR (BOOT STREQUAL MRAM)))
     message(FATAL_ERROR  "${Red}\n BOOT MODE IS NOT GIVEN OR \"${BOOT}\" BOOT IS INVALID BOOT MODE ... !!!\n${ColourReset}")
 endif ()
 
-if ((${DEVICE_SERIES} STREQUAL "E1" ) AND (${RTSS} STREQUAL HP))
-    message(FATAL_ERROR  "${Red}\n ${DEVICE_SERIES}-SERIES (DEVICE : ${DEVICE}) DOESN'T HAVE ${RTSS} SUB-SYSTEM \n"
-         " (Please run \"setup_user_env.sh\" to see device options) ... !!!\n${ColourReset}")
-endif ()
 # Basic Input check Ends ---------------------------------
 
 string(TOLOWER          ${RTSS}             rtss)
@@ -72,7 +76,7 @@ set (DEVICE_CORE_CONFIG_DIR     "${DEVICE_CORE_PATH}/config")
 set (DEVICE_SYSTEM_INC          "${DEVICE_PATH}/system/include")
 set (DEVICE_SYSTEM_SRC          "${DEVICE_PATH}/system/source")
 set (DEVICE_SKU_CONFIG          "${DEVICE_SKU_DIR}/config")
-set (DEVICE_SKU_INC             "${DEVICE_SKU_DIR}/include/${rtss}")
+set (DEVICE_SKU_INC             "${DEVICE_SKU_DIR}/include/${RTSS_SPECIFIC_DIR}")
 set (OUTPUT_DIR                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE INTERNAL "")
 set (DEVICE_INC                 "${DEVICE_COMMON_INC};${DEVICE_CORE_CONFIG_DIR};${DEVICE_SYSTEM_INC};"
                                 "${DEVICE_SKU_DIR}/include/;${DEVICE_SKU_CONFIG};${DEVICE_SKU_INC}")
