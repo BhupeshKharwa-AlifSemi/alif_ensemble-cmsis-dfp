@@ -26,18 +26,35 @@ pipeline {
         stage('checkout') {
             steps {
                 script {
-                    sh '''
+                    sh '''#!/bin/bash
 
-                    $ARMCLANG_PATH/../../bin/armlm activate --server http://10.10.60.10:7070 --product HWSKT-EAC0
+                    repo_name="ensemble-cmsis-dfp_DEV"
+                    license_status=$($ARMCLANG_PATH/../../bin/armlm inspect)
 
-                    if [ -d ensemble-cmsis-dfp_DEV ]; then
-                        echo "Deleting older repo..."
-                        rm -rf ensemble-cmsis-dfp_DEV
+                    case "$license_status" in
+                      *"No licenses found"*)
+                        $ARMCLANG_PATH/../../bin/armlm activate --server http://10.10.60.10:7070 --product HWSKT-EAC0
+                        ;;
+                      *)
+                        echo "ARM License is available."
+                        ;;
+                    esac
+
+                    if [ -d $repo_name ]; then
+                        echo -e "Deleting older repo $repo_name..."
+                        rm -rf $repo_name
                     fi
 
-                    echo -e "✔️ Checkout Repo 'ensemble-cmsis-dfp_DEV' branch '$CHANGE_BRANCH' '$BRANCH_NAME'."
-                    git clone org-115832732@github.com:AlifSemiDev/ensemble-cmsis-dfp_DEV.git
-                    cd ensemble-cmsis-dfp_DEV
+                    CURR_OS=("NONE")
+                    CURR_COMPILER=("armclang" "gcc")
+                    CURR_DEV=("AE722F80F55D5" "AE1C1F4051920")
+                    CURR_RTSS=("HE" "HP")
+                    CURR_BOOT=("TCM" "MRAM")
+                    total_cmakeError=0
+
+                    echo -e "✔️ Checkout Repo 'ensemble-cmsis-dfp_DEV' main branch CHANGE_BRANCH: '$CHANGE_BRANCH' BRANCH_NAME: '$BRANCH_NAME'"
+                    git clone org-115832732@github.com:AlifSemiDev/$repo_name.git
+                    cd $repo_name
                     echo -e "✔️ Cloning is completed."
                     git log -4
                     echo -e "✔️ Checkout branch $CHANGE_BRANCH."
@@ -46,13 +63,44 @@ pipeline {
                     echo -e "✔️ Checkout is completed."
                     cd scripts/cmake
                     chmod -Rv 777 *.sh
-                    ./run.sh
-                    ./run.sh -p -c --fresh -DBOOT=MRAM            -b --clean-only
-                    ./run.sh -p -c --fresh -DRTSS=HE              -b --clean-only
-                    ./run.sh -p -c --fresh -DBOOT=MRAM -DRTSS=HE  -b --clean-only
-                    ./run.sh -p gcc,gcc_build,gcc_build_test -c --fresh -DBOOT=MRAM            -b --clean-only
-                    ./run.sh -p gcc,gcc_build,gcc_build_test -c --fresh -DRTSS=HE              -b --clean-only
-                    ./run.sh -p gcc,gcc_build,gcc_build_test -c --fresh -DBOOT=MRAM -DRTSS=HE  -b --clean-only
+
+                    total_cfg_run_cnt=0
+                    skipped_cfg_run_cnt=0
+                    actual_cfg_run_cnt=0
+
+                    for comp in ${!CURR_COMPILER[@]}
+                    do
+                        for bootType in ${!CURR_BOOT[@]}
+                        do
+                            for rtssType in ${!CURR_RTSS[@]}
+                            do
+                                for devName in ${!CURR_DEV[@]}
+                                do
+                                    for osName in ${!CURR_OS[@]}
+                                    do
+                                        echo "===================================================================================="
+                                        total_cfg_run_cnt=$((total_cfg_run_cnt + 1))
+                                        echo "Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]}  ${CURR_RTSS[rtssType]}"
+
+                                        if [ "${CURR_DEV[devName]}" = "AE1C1F4051920" ] && [ "${CURR_RTSS[rtssType]}" = "HP" ]; then
+                                            echo -e "${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
+                                            skipped_cfg_run_cnt=$((skipped_cfg_run_cnt + 1))
+                                            continue
+                                        fi
+
+                                        actual_cfg_run_cnt=$((actual_cfg_run_cnt + 1))
+                                        ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
+                                        tmp=$?
+                                        total_cmakeError=$((total_cmakeError + tmp))
+                                        echo -e " Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
+                                        echo "===================================================================================="
+                                    done
+                                done
+                            done
+                        done
+                    done
+                    echo -e " Total Run: ($actual_cfg_run_cnt/$total_cfg_run_cnt), skipped: $skipped_cfg_run_cnt"
+                    exit $total_cmakeError
                     '''
                 }
             }

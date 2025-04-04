@@ -38,7 +38,6 @@
                 "RTSS": "HP",
                 "BOARD_REV": "B4",
                 "BOOT": "TCM",
-                "BOARD_NAME": "DevKit-e7",
                 "DEVICE": "AE722F80F55D5",
                 "COMPILER": "ARMCLANG",
                 "OS": "NONE",

@@ -154,9 +154,10 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         if [[ -z "$preset_param" ]]; then
             echo -e "⚠️ ${YELLOW}WARNING: Since no preset is selected, default will be selected  !!!${NC}"
             #Select Proper combination of config-build-test
-            selected_cfg_preset=${cfg_build_presets[0]%%,*}
-            selected_build_preset=${cfg_build_presets[0]##*,}
-            selected_test_preset="armclang_build_test"
+            IFS=',' read -ra cfg_build_presets_array <<< "$cfg_build_presets"
+            selected_cfg_preset=${cfg_build_presets_array[0]}
+            selected_build_preset=${cfg_build_presets_array[1]}
+            selected_test_preset=${cfg_build_presets_array[2]}
         else
             # Set IFS (Internal Field Separator) to comma (config,build,test)
             echo -e "${CYAN}📢 [INFO]: please make sure preset should be in order of CONFIG,BUILD,TEST PRESET !!!${NC}"
@@ -191,16 +192,19 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         test_ctest_result=0
 
         if [[ "$fresh_build_flag" -gt 0 ]]; then
-            cmake -E time cmake --fresh --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
+            cmake -E time cmake --fresh --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; } && \
             cmake --build --clean-first --preset=$selected_build_preset $build_param -- --|| {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" BUILD-CONFIG FAILED \n ${NC}"; }
         else
-            cmake -E time cmake  --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; }
+            cmake -E time cmake  --preset=$selected_cfg_preset $config_param       || {  config_cmake_result=$?; echo -e "\n ${RED} \"$selected_cfg_preset\" CONFIG FAILED \n ${NC}"  ; } && \
             cmake --build --preset=$selected_build_preset $build_param -- --|| {  build_cmake_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" BUILD-CONFIG FAILED \n ${NC}"; }
         fi
 
-        ctest --preset $selected_test_preset || { test_ctest_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" TEST-CONFIG FAILED \n ${NC}" ; }
+        final_result=$((config_cmake_result + build_cmake_result))
+        if [[ "$final_result" == 0 ]]; then
+            ctest --preset $selected_test_preset || { test_ctest_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" TEST-CONFIG FAILED \n ${NC}" ; }
+        fi
 
-        final_result=$((config_cmake_result + build_cmake_result + test_ctest_result))
+        final_result=$((final_result + test_ctest_result))
 
         elapsed_1=$(( SECONDS - start_time ))
         eval "echo Elapsed time : $(date -ud "@$elapsed_1" +'$((%s/3600/24)) days %H hr %M min %S sec')"

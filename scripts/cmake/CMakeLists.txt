@@ -81,6 +81,23 @@ else ()
     message (FATAL_ERROR "${Red}DEFINE PROPER DEVICE NAME ${ColourReset}")
 endif()
 
+string(SUBSTRING    ${DEVICE}   1   2   ABBREVIATION_DEV_NAME)
+
+if ("${ABBREVIATION_DEV_NAME}" STREQUAL "E1")
+    string(SUBSTRING    ${DEVICE}   3   1   TMP)
+
+    if("${TMP}" STREQUAL "C")
+        string(SUBSTRING    ${DEVICE}   1   3   ABBREVIATION_DEV_NAME)
+    endif()
+endif()
+
+string(TOLOWER          ${ABBREVIATION_DEV_NAME}             abbreviation_dev_name)
+set(BOARD_NAME          "DevKit-${abbreviation_dev_name}")
+
+if( ("${BOARD_NAME}" STREQUAL "DevKit-e1c") AND ("${RTSS}" STREQUAL "HP") )
+    message(FATAL_ERROR     "\n E1C Board doesn't have HP sub-system ${ColourReset}")
+endif()
+
 # Setting the Toolchain path
 set(CMAKE_TOOLCHAIN_FILE    "${USER_CMAKE_SCRIPT_DIR}/toolchains/toolchain.cmake")
 
