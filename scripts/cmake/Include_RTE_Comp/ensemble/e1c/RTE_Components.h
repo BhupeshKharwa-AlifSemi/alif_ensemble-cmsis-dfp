@@ -58,38 +58,16 @@
 #define RTE_Drivers_UTIMER                            1           /* Driver UTIMER                            */
 /* AlifSemiconductor::Device.SOC Peripherals.I2C */
 #define RTE_Drivers_I2C                               1           /* Driver I2C                               */
-
 /* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
 #define RTE_Drivers_WM8904                            1           /* Driver WM8904                            */
-
-//#define RTE_CMSIS_Compiler_STDIN                                  /* Enable STDIN  Control                    */
-#if defined (RTE_CMSIS_Compiler_STDIN)
-    //#define STDIN_ECHO                              1           /* Enable Local ECHO after entering input   */
-    //#define RTE_CMSIS_Compiler_STDIN_Breakpoint                 /* All STDIN call will be redirected to BKPT*/
-    //#define RTE_CMSIS_Compiler_STDIN_ITM                        /* All STDIN call will be redirected to ITM */
-    //#define RTE_CMSIS_Compiler_STDIN_Custom                       /* All STDIN call will be redirected to custom functions */
-#endif  /* RTE_CMSIS_Compiler_STDIN */
-
-#if (STDIN_ECHO == 1)
-    #define RTE_CMSIS_Compiler_STDOUT                             /* Enable STDOUT                            */
-#endif  /*STDIN_ECHO */
-
-//#define RTE_CMSIS_Compiler_STDOUT                                 /* Enable STDOUT  Control                   */
-#if defined(RTE_CMSIS_Compiler_STDOUT)
-    //#define STDOUT_CR_LF                                        /* Append CR at end on STDOUT               */
-    //#define RTE_CMSIS_Compiler_STDOUT_Breakpoint                /* All STDOUT call will be redirected to BKPT*/
-    //#define RTE_CMSIS_Compiler_STDOUT_Event_Recorder            /* All STDOUT call will be redirected to EVR */
-    //#define RTE_CMSIS_Compiler_STDOUT_ITM                       /* All STDOUT call will be redirected to ITM */
-    //#define RTE_CMSIS_Compiler_STDOUT_Custom                      /* All STDOUT call will be redirected to Custom */
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
-
-//#define RTE_CMSIS_Compiler_STDERR                                 /* Enable STDERR  Control                    */
-#if defined (RTE_CMSIS_Compiler_STDERR)
-    //#define STDERR_CR_LF                                        /* Append CR-LF at end on STDERR             */
-    //#define RTE_CMSIS_Compiler_STDERR_Breakpoint                /* All STDERR call will be redirected to BKPT*/
-    //#define RTE_CMSIS_Compiler_STDERR_Event_Recorder            /* All STDERR call will be redirected to EVR */
-    //#define RTE_CMSIS_Compiler_STDERR_ITM                       /* All STDERR call will be redirected to ITM */
-    //#define RTE_CMSIS_Compiler_STDERR_Custom                      /* All STDERR call will be redirected to user*/
-#endif /* RTE_CMSIS_Compiler_STDERR_Custom */
+/* AlifSemiconductor::Device.SOC STDIN Retargetting */
+/*#define RTE_CMSIS_Compiler_STDIN */
+/*#define RTE_CMSIS_Compiler_STDIN_Custom               1           // All STDIN call will be redirected to custom functions */
+/* AlifSemiconductor::Device.SOC STDOUT Retargetting */
+/*#define RTE_CMSIS_Compiler_STDOUT */
+/*#define RTE_CMSIS_Compiler_STDOUT_Custom              1           // All STDOUT call will be redirected to custom functions*/
+/* AlifSemiconductor::Device.SOC STDERR Retargetting */
+/*#define RTE_CMSIS_Compiler_STDERR */
+/*#define RTE_CMSIS_Compiler_STDERR_Custom              1           // All STDERR call will be redirected to custom functions*/
 
 #endif /* RTE_COMPONENTS_H */

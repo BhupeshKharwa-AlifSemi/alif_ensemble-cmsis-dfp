@@ -131,29 +131,17 @@ include (${DEVICE_CMAKE_DIR}/device.cmake)
 
 set(CMAKE_TEMP_FOLDER       "${CMAKE_BINARY_DIR}/.temp")
 file(MAKE_DIRECTORY         ${CMAKE_TEMP_FOLDER})
+set(TMP_CFG_FILE            "${CMAKE_TEMP_FOLDER}/.cfg" )
 #execute_process(COMMAND     attrib +h   ${CMAKE_TEMP_FOLDER})
-
-# Mark the language as C so that CMake doesn't try to test the C++
-# cross-compiler's ability to compile a simple program because that will fail
-project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
-        VERSION 2.0.0
-        DESCRIPTION "COLLECTION_OF_ALIF_TESTAPPS "
-        LANGUAGES C ASM)
 
 get_rte_macros()
 
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN      stdin_def_cnt)
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT     stdout_def_cnt)
-IS_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR     stderr_def_cnt)
-IS_MACRO_DEF("${RTEcomponentFile}"   STDIN_ECHO                    stdin_echo_def_cnt)
-
-message("")
-message (STATUS "📌 SELECTED COMPILER        --> ${HCyan}${COMPILER}${ColourReset}")
-message (STATUS "📌 SELECTED DEVICE          --> ${HCyan}${DEVICE}${ColourReset}")
-message (STATUS "📌 SELECTED CORE            --> ${HCyan}${CPU} (${RTSS}, Rev-${BOARD_REV})${ColourReset}")
-message (STATUS "📌 SELECTED BOOT            --> ${HCyan}${BOOT}${ColourReset}")
-message (STATUS "📌 SELECTED BOARD           --> ${HCyan}${BOARD_NAME}${ColourReset}")
-message (STATUS "📌 SELECTED DEVICE FAMILY   --> ${HCyan}${DEVICE_FAMILY_NAME} ${ColourReset}")
+set(MSG           "-- 📌 SELECTED COMPILER        --> ${HCyan}${COMPILER}${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED DEVICE          --> ${HCyan}${DEVICE}${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED CORE            --> ${HCyan}${CPU} (${RTSS}, Rev-${BOARD_REV})${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED BOOT            --> ${HCyan}${BOOT}${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED BOARD           --> ${HCyan}${BOARD_NAME}${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED DEVICE FAMILY   --> ${HCyan}${DEVICE_FAMILY_NAME} ${ColourReset}\n")
 
 # Checking if Test app name is given
 if(${TEST_APP} STREQUAL "ALL")
@@ -162,7 +150,8 @@ else()
     set(EN_APP_FLAG        1    CACHE INTERNAL "")      # If Test App name is given, then make the flag high
 endif()
 
-if( stdin_def_cnt OR (stdout_def_cnt GREATER_EQUAL 2) OR stderr_def_cnt OR stdin_echo_def_cnt)
+if( ${ENABLE_STDIN} OR ${ENABLE_STDOUT} OR ${ENABLE_STDERR})
+
     if(${ENABLE_USART})
         set(RETARGET_EN_NO_SEMIHOSTING        ON)
     else()
@@ -171,21 +160,36 @@ if( stdin_def_cnt OR (stdout_def_cnt GREATER_EQUAL 2) OR stderr_def_cnt OR stdin
 endif()
 
 if(${RETARGET_EN_NO_SEMIHOSTING})
-    message (STATUS "📌 SELECTED STANDARD I/O    --> ${HCyan}UART${ColourReset}")
+    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}UART${ColourReset}")
 else()
-    message (STATUS "📌 SELECTED STANDARD I/O    --> ${HCyan}DEBUGGER CONSOLE${ColourReset}")
+    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}DEBUGGER CONSOLE${ColourReset}")
 endif()
+
+# Mark the language as C so that CMake doesn't try to test the C++
+# cross-compiler's ability to compile a simple program because that will fail
+project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
+        VERSION 2.0.0
+        DESCRIPTION "COLLECTION_OF_ALIF_TESTAPPS "
+        LANGUAGES C ASM)
+
+message("")
+message(${MSG})
+file(WRITE          ${TMP_CFG_FILE}     "${MSG}\n")
 
 # Directory paths of OS cmake files
 if (OS STREQUAL NONE)
+    set(OS_CMAKE_FILE           "${OS_CMAKE_DIR}/baremetal.cmake")
     message (STATUS "📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
-    include (${OS_CMAKE_DIR}/baremetal.cmake)
+    file(APPEND          ${TMP_CFG_FILE}     "-- 📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
 
 else()
     # OS is not proper
+    file(APPEND          ${TMP_CFG_FILE}     "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}\n")
     message (FATAL_ERROR "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}")
 
 endif ()
+
+include (${OS_CMAKE_FILE})
 
 if(${RETARGET_EN_NO_SEMIHOSTING})
     # Collect all retargeting source files
@@ -200,7 +204,7 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         set(PREV_RETARGET_CFG              "")
     endif()
 
-    GET_MACRO_VAL(${RETARGET_SRC_DIR}/retarget_io/config/retarget_config.h    PRINTF_UART_CONSOLE      uart_console_num)
+    GET_MACRO_VALUE(${RETARGET_SRC_DIR}/retarget_io/config/retarget_config.h    PRINTF_UART_CONSOLE      uart_console_num)
 
     if( "${uart_console_num}" STREQUAL "LP")
         set(BLOCKING_MODE_FLAG          RTE_${uart_console_num}UART_BLOCKING_MODE_ENABLE)
@@ -208,7 +212,7 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         set(BLOCKING_MODE_FLAG          RTE_UART${uart_console_num}_BLOCKING_MODE_ENABLE)
     endif()
 
-    GET_MACRO_VAL("${DEVICE_SKU_CONFIG}/RTE_Device.h"   ${BLOCKING_MODE_FLAG}     uart_blocking_status)
+    GET_MACRO_VALUE("${DEVICE_SKU_CONFIG}/RTE_Device.h"   ${BLOCKING_MODE_FLAG}     uart_blocking_status)
 
     if( NOT(${uart_blocking_status}))
         message(STATUS      "🕵️‍♂️SINCE RE-TARGETTING IS ENABLED , ENABLING UART POLLING_MODE")
@@ -221,7 +225,7 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
             message(STATUS    " --------------- RETARGET CONFIG CHANGED --------------------")
         endif()
 
-        CHANGE_MACRO_VAL("#define ${PREV_RETARGET_CFG}       1"
+        CHANGE_MACRO_VAL("#define ${PREV_RETARGET_CFG}        1"
             "${DEVICE_SKU_CONFIG}/RTE_Device.h"     "#define ${PREV_RETARGET_CFG}       0"    uart_blocking_status_ret    ON)
         file(WRITE      ${TMP_FILE2}    "${BLOCKING_MODE_FLAG}")
     else()

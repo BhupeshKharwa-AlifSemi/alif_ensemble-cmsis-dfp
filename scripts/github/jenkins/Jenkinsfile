@@ -25,6 +25,7 @@ pipeline {
         }
         stage('checkout') {
             steps {
+                cleanWs()
                 script {
                     sh '''#!/bin/bash
 
@@ -52,21 +53,39 @@ pipeline {
                     CURR_BOOT=("TCM" "MRAM")
                     total_cmakeError=0
 
-                    echo -e "✔️ Checkout Repo 'ensemble-cmsis-dfp_DEV' main branch CHANGE_BRANCH: '$CHANGE_BRANCH' BRANCH_NAME: '$BRANCH_NAME'"
+                    echo -e "⏳ Checkout Repo 'ensemble-cmsis-dfp_DEV' main branch CHANGE_BRANCH: '$CHANGE_BRANCH' BRANCH_NAME: '$BRANCH_NAME'"
                     git clone org-115832732@github.com:AlifSemiDev/$repo_name.git
                     cd $repo_name
-                    echo -e "✔️ Cloning is completed."
+                    echo -e "✅ Cloning is completed."
                     git log -4
-                    echo -e "✔️ Checkout branch $CHANGE_BRANCH."
+                    echo -e "\n\n✔️ Checkout branch $CHANGE_BRANCH."
                     git checkout $CHANGE_BRANCH
                     git log -4
-                    echo -e "✔️ Checkout is completed."
+                    echo -e "☑️ Checkout is completed."
+
+                    git format-patch -1
+                    export CODE_BASE=$PWD
+                    cp -rv $VALIDATION_SCRIPT_DIR/* scripts/
+                    log=$(./scripts/checkpatch.pl --patch *.patch)
+                    echo "$log"
+                    result=$(echo "$log" | grep ".patch total:")
+                    echo "$result"
+                    errors=$(echo "${result}"   | sed -n "s/.*: \\([0-9]\\+\\) errors.*/\\1/p")
+                    warnings=$(echo "${result}" | sed -n "s/.*errors, \\([0-9]\\+\\) warnings.*/\\1/p")
+                    echo "🎯Checkpatch has Errors: $errors Warnings: $warnings"
+
                     cd scripts/cmake
+                    tmp=$?
+                    if [ "$tmp" -ne 0 ] ; then
+                        echo -e "🚫Error: $tmp ❗ cmake script is not available"
+                    fi
                     chmod -Rv 777 *.sh
 
                     total_cfg_run_cnt=0
                     skipped_cfg_run_cnt=0
                     actual_cfg_run_cnt=0
+                    fail_cfg_run_cnt=0
+                    success_cfg_run_cnt=0
 
                     for comp in ${!CURR_COMPILER[@]}
                     do
@@ -80,10 +99,10 @@ pipeline {
                                     do
                                         echo "===================================================================================="
                                         total_cfg_run_cnt=$((total_cfg_run_cnt + 1))
-                                        echo "Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]}  ${CURR_RTSS[rtssType]}"
+                                        echo " 🚩Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]}  ${CURR_RTSS[rtssType]}"
 
                                         if [ "${CURR_DEV[devName]}" = "AE1C1F4051920" ] && [ "${CURR_RTSS[rtssType]}" = "HP" ]; then
-                                            echo -e "${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
+                                            echo -e "🚨${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
                                             skipped_cfg_run_cnt=$((skipped_cfg_run_cnt + 1))
                                             continue
                                         fi
@@ -92,18 +111,44 @@ pipeline {
                                         ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
                                         tmp=$?
                                         total_cmakeError=$((total_cmakeError + tmp))
-                                        echo -e " Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
+                                        echo -e "🚫Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
+                                        if [ "$tmp" -ne 0 ] ; then
+                                            fail_cfg_run_cnt=$((fail_cfg_run_cnt + 1))
+                                        fi
                                         echo "===================================================================================="
                                     done
                                 done
                             done
                         done
                     done
-                    echo -e " Total Run: ($actual_cfg_run_cnt/$total_cfg_run_cnt), skipped: $skipped_cfg_run_cnt"
+                    echo -e "\n"
+                    echo -e "  🏆Check-Patch Result =>  Error: $errors, Warnings: $warnings"
+                    echo -e "  🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
+                    echo -e "  🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
+                    total_cmakeError=$((total_cmakeError + errors))
                     exit $total_cmakeError
                     '''
                 }
             }
+        }
+    }
+    post {
+        failure {
+            echo 'Build failed. Sending email...'
+            emailext (
+                subject: "🚨 Jenkins Job Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: """
+                    <p>Build failed for job: <b>${env.CHANGE_URL}</b></p>
+                    <p>Build Number: <b>${env.BUILD_NUMBER}</b></p>
+                    <p>View details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                to: "${env.DEFAULT_OWNER_EMAILS}",
+                mimeType: 'text/html'
+            )
+        }
+
+        success {
+            echo 'Build succeeded.'
         }
     }
 }

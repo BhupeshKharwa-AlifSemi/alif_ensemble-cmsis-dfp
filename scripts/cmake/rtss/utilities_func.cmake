@@ -1,40 +1,10 @@
-# MACRO to add all directories in result
-# argv[0] - result variable, argv[1] - add relative paths, set "" if you don't want it
-# argv[2] - path to folder with folders
-macro (SUBDIRLIST firstdir curdir)
-    file(GLOB ENDF6_SRC_TOP RELATIVE ${curdir} ${curdir}/*)
-    file(GLOB ENDF6_SRC_SUBS RELATIVE ${curdir}/ ${curdir}/**/**)
-
-    set(children ${ENDF6_SRC_TOP} ${ENDF6_SRC_SUBS})
-
-    set(dirlist "${firstdir}")
-
-    foreach (child ${children})
-        if (IS_DIRECTORY ${curdir}/${child})
-            list (APPEND dirlist ${curdir}/${child})
-        endif ()
-    endforeach ()
-
-    set(result ${dirlist})
-
-    foreach (subdir ${result})
-        include_directories(${subdir})
-    endforeach ()
-endmacro ()
-
-# Checking for Macro Definition in given header file
-macro (CHECK_DEF    check_def   header_file     return_val)
-    file (READ "${header_file}" header)
-    string (REGEX MATCH "${check_def}" MACRODEF "${header}")    # The string should be exactly as present in the file, including the spaces/tabs
-    if (MACRODEF)
-        set (${return_val}              1)
-    else ()
-        set (${return_val}              0)
-    endif (MACRODEF)
-endmacro ()
-
-# Get Macro value, (Note: It works only for real number of Macros)
-macro (GET_MACRO_VALUE      header      macro_name      macro_val   varMsg)
+# MACRO DEF_BOOL_VAR_BASED_ON_MACRO to read macro value (integer value 0-9) and if it is non
+#       zero value it will define another boolean variable which cmake build can be used
+# argv[0] - header file content
+# argv[1] - marco name which will be searched
+# argv[2] - another variable of boolean type which will be ON or OFF based on 2nd argument
+# argv[3] - description of 3rd argument
+macro (DEF_BOOL_VAR_BASED_ON_MACRO      header      macro_name      macro_val   varMsg)
 
     FOREACH(arg ${header})
         string(REGEX MATCHALL "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]+[0-9]+[ \t]*.*" foundDefines "${arg}")
@@ -54,12 +24,16 @@ macro (GET_MACRO_VALUE      header      macro_name      macro_val   varMsg)
 
     if(NOT DEFINED ${macro_val})
         set(${macro_val}    OFF     CACHE   BOOL    ${varMsg})
+        add_definitions(-U${macro_name})
     endif()
 
 endmacro ()
 
-# Get Macro value, (Note: It works only for real number of Macros)
-macro (GET_MACRO_VAL    headerFileName      macro_name      macro_val)
+# MACRO GET_MACRO_VALUE to get macro value (integer value 0-9)
+# argv[0] - header file name with path
+# argv[1] - marco name which will be searched
+# argv[2] - macro value (integer 0-9) which will read for given macro name
+macro (GET_MACRO_VALUE    headerFileName      macro_name      macro_val)
 
     file (STRINGS ${headerFileName}  file_content)
     FOREACH(arg ${file_content})
@@ -75,15 +49,20 @@ macro (GET_MACRO_VAL    headerFileName      macro_name      macro_val)
 
 endmacro ()
 
-# Change Macro value
-macro (CHANGE_MACRO_VAL     check_def   header_file     change_val    return_val    exactStr)
+# MACRO CHANGE_MACRO_VAL to read macro value (integer value 0-9) and change that macro value
+# argv[0] - marco name which will be searched
+# argv[1] - header file name with path
+# argv[2] - change value which will be updated if that macro is found
+# argv[3] - return value. If value is updated it will return 1 otherwise 0
+# argv[4] - flag which will used to exact match or tolerance of space/tabs.
+macro (CHANGE_MACRO_VAL     macro_name   header_file     change_val    return_val    exactStr)
     set (${return_val}              0)
     file (READ      "${header_file}"     header_content)
 
     if(${exactStr})
-        set(matchCriteria       "${check_def}")
+        set(matchCriteria       "${macro_name}")
     else()
-        set(matchCriteria    "[ |\\t]*#(define|DEFINE)+[ |\\t]+${check_def}[ |\\t]+")
+        set(matchCriteria    "[ |\\t]*#(define|DEFINE)+[ |\\t]+${macro_name}[ |\\t]+")
     endif()
 
     # The string should be exactly as present in the file, including the spaces/tabs
@@ -97,7 +76,7 @@ macro (CHANGE_MACRO_VAL     check_def   header_file     change_val    return_val
             string (REPLACE "${macrodef}" "${macrodef}${change_val}" changed_header_content "${header_content}")
         endif()
 
-        if(NOT "${changed_header_content}" STREQUAL "${check_def}")
+        if(NOT "${changed_header_content}" STREQUAL "${macro_name}")
             file(WRITE      "${header_file}"        "${changed_header_content}")
             set (${return_val}              1)
         endif()
@@ -105,7 +84,13 @@ macro (CHANGE_MACRO_VAL     check_def   header_file     change_val    return_val
 
 endmacro ()
 
-# Change Macro value (special which contain ())
+# MACRO CHANGE_SPEC_MACRO_VAL to read and change the macro value(special which contain ())
+# argv[0] - 1st parameter
+# argv[1] - 2nd parameter
+# argv[2] - 3rd parameter
+# argv[3] - header file name with path
+# argv[4] - change value which will be updated if that macro is found
+# argv[5] - return value. If value is updated it will return 1 otherwise 0
 macro (CHANGE_SPEC_MACRO_VAL    prm1  prm2  prm3  fileNameWithPath    change_val    return_val)
     set(${return_val}              0)
 
@@ -126,7 +111,10 @@ macro (CHANGE_SPEC_MACRO_VAL    prm1  prm2  prm3  fileNameWithPath    change_val
 
 endmacro ()
 
-# Backup_file_creation
+# MACRO SAVE_ORIG_FILE to create backup file of original file
+# argv[0] - header file name with path which need to modify
+# argv[1] - back-up file name with path
+# argv[2] - return value. If changed it will return 1 otherwise 0.
 macro (SAVE_ORIG_FILE   fileNameWithPath    newFileNameWithPath     return_val)
     set(${return_val}              0)
     file(READ  ${fileNameWithPath}   file_content)
@@ -145,8 +133,13 @@ macro (SAVE_ORIG_FILE   fileNameWithPath    newFileNameWithPath     return_val)
 
 endmacro ()
 
-# Know Macro define or not
-macro (IS_MACRO_DEF     header     macro_name  macro_def_cnt)
+# MACRO GET_MACRO_DEF_CNT will get count of occuration of given macro in header file
+#                    (excluding comments i.e. // #define MARCO /* #define MACRO will be not counted,
+#                    only #define MACRO will be counted
+# argv[0] - header file name with path
+# argv[1] - macro name which will be searched in given header file
+# argv[2] - it will return number number of times it occurs in given header file excluding comments
+macro (GET_MACRO_DEF_CNT     header     macro_name  macro_def_cnt)
     set(tmp    0)
     FOREACH(arg ${header})
         string(REGEX MATCHALL   "^[ \t]*#(define|DEFINE)[ \t]*([^a-zA-Z0-9_]|^)${macro_name}([^a-zA-Z0-9_]|$)[ \t]*"  foundDefines    "${arg}")
@@ -206,6 +199,8 @@ macro (BUILD_PROJECT)
 
     elseif (COMPILER STREQUAL ARMCLANG)
 
+        target_link_options(${EXECUTABLE} PRIVATE  --list=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
+
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
            COMMAND  echo "${EXECUTABLE}" >> "${TMP_FILE1}"
@@ -258,7 +253,10 @@ macro (BUILD_PROJECT)
 
 endmacro (BUILD_PROJECT)
 
-# Get Git Parameters
+# MACRO GET_GIT_PARAMS will get git parameters
+# argv[0] - repo name with path
+# argv[1] - branch Name
+# argv[2] - message type i.e. VERBOSE or FATAL_ERROR or etc.
 macro (GET_GIT_PARAMS repoPath branchName messageType )
 
     string(REGEX REPLACE "[ \t]+$" "" my_repo_withpath ${repoPath})
@@ -298,7 +296,11 @@ macro (GET_GIT_PARAMS repoPath branchName messageType )
 
 endmacro ()
 
-# Define a macro to move an item from one list to another
+# MACRO RM_ENTRY will define a macro to move an item from one list to another
+# argv[0] - src_list i.e source list
+# argv[1] - dst_list i.e destination list
+# argv[2] - element name which will be removed from source list and have in destination list
+# argv[3] - flag to decide removed item will be added in destination list or not
 macro(RM_ENTRY      src_list dst_list       elementName_to_remove       update_dst_flag)
     get_filename_component(F_NAME   ${elementName_to_remove}    NAME_WE)
     list(REMOVE_ITEM    ${src_list}     ${elementName_to_remove})
@@ -307,7 +309,11 @@ macro(RM_ENTRY      src_list dst_list       elementName_to_remove       update_d
     endif()
 endmacro()
 
-# Custom Error Check Function
+# MACRO ERR_CHECK_MSG will custom error check function
+# argv[0] - message type i.e. VERBOSE or FATAL_ERROR or etc.
+# argv[1] - variable which needs to check whether exist or not
+# argv[2] - msg_key which will be used to message identifier i.e [ERROR] or [WARNING] or etc
+# argv[3] - msg_color which will be used to print message in that color
 macro(ERR_CHECK_MSG     msg_type    var_to_check   msg_key  msg_color)
     if(NOT ${var_to_check})
         message(${msg_type}     "${${msg_color}}${msg_key} IS NOT ASSIGNED TO ANY VALUE...${ColourReset}")
@@ -316,7 +322,10 @@ macro(ERR_CHECK_MSG     msg_type    var_to_check   msg_key  msg_color)
     endif()
 endmacro()
 
-# Convert Preset Cache/Enviroment into cmake variable Function
+# MACRO CONVERT_PRESET_VAR_TO_CMAKE_VAR will convert preset cache/enviroment into cmake variable function
+# argv[0] - presetVar is preset/enviroment variable
+# argv[1] - cmakeVar is variable which cmake build system will use
+# argv[2] - presetVarType describe the variable is preset or enviroment type
 macro(CONVERT_PRESET_VAR_TO_CMAKE_VAR     presetVar    cmakeVar   presetVarType)
     if(DEFINED ${presetVarType}{${presetVar}})
         set(${cmakeVar}         $${presetVarType}{${presetVar}})
@@ -325,7 +334,11 @@ macro(CONVERT_PRESET_VAR_TO_CMAKE_VAR     presetVar    cmakeVar   presetVarType)
     endif()
 endmacro()
 
-# Add files in variable conditionally and prepare statistics
+# MACRO COND_FILE_ADD will add files in variable conditionally and prepare statistics
+# argv[0] - fileNameWithPath file name with path
+# argv[1] - cond if this condition is true, given file will be added
+# argv[2] - cmake variable which will be appended with given file if condition is true.
+# argv[3] - type of given file i.e "test-apps" or "dependency".
 macro(COND_FILE_ADD     fileNameWithPath    cond    testApp   typeOfFile)
     #message(STATUS        "${Yellow}⚠️[WARNING] ${fileNameWithPath} is not defined in preset ${${cond}} ${ColourReset}")
 
@@ -349,57 +362,75 @@ macro(COND_FILE_ADD     fileNameWithPath    cond    testApp   typeOfFile)
 
 endmacro()
 
+# FUNCTION get_rte_macros will read all defined macros in given file i.e. RTE_components.h
 function(get_rte_macros)
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MHU         ENABLE_MHU          "Enable/disable MHU Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MHU         ENABLE_MHU          "Enable/disable MHU Driver.")
 
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_LL_PINCONF  ENABLE_PIN_CONF     "Enable/disable PinPAD and PinMux Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_USART       ENABLE_USART        "Enable/disable USART Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_IO          ENABLE_IO           "Enable/disable IO Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_LL_PINCONF  ENABLE_PIN_CONF     "Enable/disable PinPAD and PinMux Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_USART       ENABLE_USART        "Enable/disable USART Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_IO          ENABLE_IO           "Enable/disable IO Driver.")
 
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_ADC                        ENABLE_ADC       "Enable/disable ADC Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CANFD                      ENABLE_CANFD     "Enable/disable CANFD commands.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CDC200                     ENABLE_CDC200    "Enable/disable CDC200 Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI_ILI9806E_PANEL    ENABLE_MIPI_DSI_ILI9806E_PANEL   "Enable/disable MIPI DSI ILI9806E_PANEL Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CDC_ILI6122_PANEL          ENABLE_CDC_ILI6122E_PANEL        "Enable/disable CDC ILI6122_PANEL Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI_ILI9488_PANEL     ENABLE_MIPI_DSI_ILI9488E_PANEL   "Enable/disable MIPI DSI ILI9488E_PANEL Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CMP             ENABLE_CMP          "Enable/disable Comparator Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CRC             ENABLE_CRC          "Enable/disable CRC Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_DAC             ENABLE_DAC          "Enable/disable DAC Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_SD              ENABLE_SD           "Enable/disable SD Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_OSPI            ENABLE_OSPI         "Enable/disable OSPI Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_XIP_HYPERRAM    ENABLE_XIP_HYPERRAM "Enable/disable XIP Hyper RAM Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_ISSI_FLASH      ENABLE_ISSI_FLASH   "Enable/disable ISSI FLASH Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_GT911           ENABLE_GT911        "Enable/disable GT911 Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_HWSEM           ENABLE_HWSEM        "Enable/disable Hardware Semaphores Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_SAI             ENABLE_I2S          "Enable/disable I2S Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_I3C             ENABLE_I3C          "Enable/disable I3C Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_ICM42670P       ENABLE_ICM42670P    "Enable/disable ICM42670P Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_LPI2C           ENABLE_LPI2C        "Enable/disable LPI2C Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_PDM             ENABLE_PDM          "Enable/disable PDM Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_SPI             ENABLE_SPI          "Enable/disable SPI Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_LPTIMER         ENABLE_LPTIMER      "Enable/disable LPTIMER Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MRAM            ENABLE_MRAM         "Enable/disable MRAM Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_RTC             ENABLE_RTC          "Enable/disable RTC Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_UTIMER          ENABLE_UTIMER       "Enable/disable UTIMER Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_WDT             ENABLE_WDT          "Enable/disable WDT Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_WIFI            ENABLE_WIFI         "Enable/disable WIFI Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_DMA             ENABLE_DMA          "Enable/disable DMA Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_I2C             ENABLE_I2C          "Enable/disable I2C Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_ADC                        ENABLE_ADC       "Enable/disable ADC Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CANFD                      ENABLE_CANFD     "Enable/disable CANFD commands.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CDC200                     ENABLE_CDC200    "Enable/disable CDC200 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI_ILI9806E_PANEL    ENABLE_MIPI_DSI_ILI9806E_PANEL   "Enable/disable MIPI DSI ILI9806E_PANEL Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CDC_ILI6122_PANEL          ENABLE_CDC_ILI6122E_PANEL        "Enable/disable CDC ILI6122_PANEL Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI_ILI9488_PANEL     ENABLE_MIPI_DSI_ILI9488E_PANEL   "Enable/disable MIPI DSI ILI9488E_PANEL Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CMP             ENABLE_CMP          "Enable/disable Comparator Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CRC             ENABLE_CRC          "Enable/disable CRC Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_DAC             ENABLE_DAC          "Enable/disable DAC Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_SD              ENABLE_SD           "Enable/disable SD Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_OSPI            ENABLE_OSPI         "Enable/disable OSPI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_XIP_HYPERRAM    ENABLE_XIP_HYPERRAM "Enable/disable XIP Hyper RAM Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_ISSI_FLASH      ENABLE_ISSI_FLASH   "Enable/disable ISSI FLASH Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_GT911           ENABLE_GT911        "Enable/disable GT911 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_HWSEM           ENABLE_HWSEM        "Enable/disable Hardware Semaphores Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_SAI             ENABLE_I2S          "Enable/disable I2S Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_I3C             ENABLE_I3C          "Enable/disable I3C Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_ICM42670P       ENABLE_ICM42670P    "Enable/disable ICM42670P Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_LPI2C           ENABLE_LPI2C        "Enable/disable LPI2C Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_PDM             ENABLE_PDM          "Enable/disable PDM Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_SPI             ENABLE_SPI          "Enable/disable SPI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_LPTIMER         ENABLE_LPTIMER      "Enable/disable LPTIMER Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MRAM            ENABLE_MRAM         "Enable/disable MRAM Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_RTC             ENABLE_RTC          "Enable/disable RTC Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_UTIMER          ENABLE_UTIMER       "Enable/disable UTIMER Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WDT             ENABLE_WDT          "Enable/disable WDT Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WIFI            ENABLE_WIFI         "Enable/disable WIFI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_DMA             ENABLE_DMA          "Enable/disable DMA Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_I2C             ENABLE_I2C          "Enable/disable I2C Driver.")
 
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CAMERA                      ENABLE_CAMERA           "Enable/disable Camera Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CAMERA_SENSOR_MT9M114       ENABLE_MT9M114_CAMERA   "Enable/disable Camera MT9M114 Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CAMERA_SENSOR_ARX3A0        ENABLE_ARX3A0_CAMERA    "Enable/disable Camera ARX3A0 Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_CSI2                   ENABLE_MIPI_CSI2        "Enable/disable MIPI CSI2 Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI                    ENABLE_MIPI_DSI         "Enable/disable MIPI DSI Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_CPI                         ENABLE_CPI              "Enable/disable CPI Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_GPIO                        ENABLE_GPIO             "Enable/disable GPIO Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_Drivers_WM8904                      ENABLE_WM8904           "Enable/disable WM8904 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CAMERA                      ENABLE_CAMERA           "Enable/disable Camera Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CAMERA_SENSOR_MT9M114       ENABLE_MT9M114_CAMERA   "Enable/disable Camera MT9M114 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CAMERA_SENSOR_ARX3A0        ENABLE_ARX3A0_CAMERA    "Enable/disable Camera ARX3A0 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MIPI_CSI2                   ENABLE_MIPI_CSI2        "Enable/disable MIPI CSI2 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI                    ENABLE_MIPI_DSI         "Enable/disable MIPI DSI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CPI                         ENABLE_CPI              "Enable/disable CPI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_GPIO                        ENABLE_GPIO             "Enable/disable GPIO Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WM8904                      ENABLE_WM8904           "Enable/disable WM8904 Driver.")
 
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN            ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
-    GET_MACRO_VALUE("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT           ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN_Custom         ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT_Custom        ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR_Custom        ENABLE_STDERR   "Enable/disable retarget STDERR Driver.")
+
+    if(${ENABLE_STDIN})
+        add_definitions(-DRTE_CMSIS_Compiler_STDIN)
+    endif()
+
+    if(${ENABLE_STDOUT})
+        add_definitions(-DRTE_CMSIS_Compiler_STDOUT)
+        message("======================================================")
+    endif()
+
+    if(${ENABLE_STDERR})
+        add_definitions(-DRTE_CMSIS_Compiler_STDERR)
+    endif()
 
 endfunction()
 
+# MACRO RESOLVE_TESTAPP_DEPENDANCY will remove or handle all dependency for given testapp and macro
+# argv[0] - testAppNameWithPath testapp file name with path
+# argv[1] - macro_name which will be validated and add given testapp with needed macros
 macro(RESOLVE_TESTAPP_DEPENDANCY testAppNameWithPath macro_name)
 
     set(${macro_name}    OFF  PARENT_SCOPE)
@@ -416,13 +447,18 @@ macro(RESOLVE_TESTAPP_DEPENDANCY testAppNameWithPath macro_name)
     endif()
 endmacro()
 
+# FUNCTION resolve_dependancy will remove or handle all dependency
 function(resolve_dependancy)
     if(NOT ${ENABLE_UTIMER})
         RESOLVE_TESTAPP_DEPENDANCY(${BARE_METAL_APP_DIR}/ADC_Ext_Trigger_Baremetal.c    ENABLE_UTIMER)
     endif()
 endfunction()
 
-
+# FUNCTION eval_flags will evaluate all given flags based on given operation
+# argv[0] - final_res it will contain final output/flag after performing all operations
+# argv[1] - operation it will be logical operation given by user (AND/OR/NOR etc)
+# Note: It will read 'n' number of flags so no restrication of number of flags. any number of flags can be given
+# Limitation: Only one type of operation can be performed. For 2nd type of operation need to call again this function
 function(eval_flags final_res operation)
 
     set(res             ON)

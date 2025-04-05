@@ -200,9 +200,9 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         fi
 
         final_result=$((config_cmake_result + build_cmake_result))
-        if [[ "$final_result" == 0 ]]; then
-            ctest --preset $selected_test_preset || { test_ctest_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" TEST-CONFIG FAILED \n ${NC}" ; }
-        fi
+        #if [[ "$final_result" == 0 ]]; then
+        ctest --preset $selected_test_preset || { test_ctest_result=$?; echo -e "\n ${RED} \"$selected_build_preset\" TEST-CONFIG FAILED \n ${NC}" ; }
+        #fi
 
         final_result=$((final_result + test_ctest_result))
 
