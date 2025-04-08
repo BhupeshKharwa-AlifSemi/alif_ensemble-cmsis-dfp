@@ -1079,20 +1079,18 @@
 
 // <e> LPSPI (Low Power Serial Peripheral Interface) [Driver_LPSPI]
 // <i> Configuration settings for Driver_LPSPI in component ::Drivers:SPI
-#if defined(M55_HE) || defined (M55_HE_E1C)
 
 #define RTE_LPSPI    1
 
 #ifdef RTE_LPSPI
 
-#ifndef DEVICE_FEATURE_LPSPI_MASTER_ONLY
+
 // <o> LPSPI mode configuration
 //    <0=> SLAVE
 //    <1=> MASTER
 // <i> Configure LPSPI mode.
 // <i> Default: 1
 #define RTE_LPSPI_CONFIG_MASTER_SLAVE            1
-#endif
 
 // <o> LPSPI IRQ priority <0-255>
 // <i> Defines Interrupt priority for LPSPI.
@@ -1211,7 +1209,6 @@
 // <i> Default: 0
 #define RTE_LPSPI_DMA_IRQ_PRI                    0
 #endif  //RTE_LPSPI
-#endif //M55_HE
 
 // </e> LPSPI (Low Power Serial Peripheral Interface) [Driver_LPSPI]
 // </h> SPI (Serial Peripheral Interface)
@@ -1521,7 +1518,6 @@
 
 // <e> LPI2S (Low Power Integrated Interchip Sound) [Driver_SAILP]
 // <i> Configuration settings for Driver_SAILP in component ::Drivers:SAI
-#if defined(M55_HE) || defined (M55_HE_E1C)
 
 #define RTE_LPI2S     1
 
@@ -1614,7 +1610,6 @@
 
 #endif //RTE_LPI2S_DMA_ENABLE
 #endif //RTE_LPI2S
-#endif //defined(M55_HE)
 
 // </e> LPI2S (Low Power Integrated Interchip Sound) [Driver_SAILP]
 // </h> I2S (Integrated Interchip Sound)
@@ -2018,9 +2013,7 @@
 
 // <e> LPUART (Low-Power Universal asynchronous receiver transmitter) [Driver_USARTLP]
 // <i> Configuration settings for Driver_USARTLP in component ::Drivers:USART
-#if defined(M55_HE) || defined (M55_HE_E1C)
 #define RTE_LPUART   1
-#endif
 
 #if RTE_LPUART
 
@@ -3496,7 +3489,6 @@
 #endif
 // </e> CMP1 (Analog Comparator) [Driver_CMP1]
 
-#if defined(M55_HE) || defined (M55_HE_E1C)
 // <e> LPCMP (Low Power Analog Comparator) [Driver_LPCMP]
 // <i> Configuration settings for Driver_LPCMP in component ::Drivers:LPCMP
 #define RTE_LPCMP      1
@@ -3545,7 +3537,7 @@
 
 #endif
 // </e> LPCMP (Low Power Analog Comparator) [Driver_LPCMP]
-#endif //defined(M55_HE)
+
 // </h> CMP (Analog Comparator)
 
 // <h> I2C (Inter Integrated Circuit)
@@ -3625,7 +3617,6 @@
 
 // <e> LPI2C (Low Power Inter-Integrated Circuit) [Driver_LPI2C]
 // <i> Configuration settings for Driver_LPI2C in component ::Drivers:LPI2C
-#if defined(M55_HE) || defined (M55_HE_E1C)
 #define RTE_LPI2C   1
 #if RTE_LPI2C
 
@@ -3641,13 +3632,11 @@
 
 #endif
 // </e> LPI2C (Low Power Inter-Integrated Circuit) [Driver_LPI2C]
-#endif //defined(M55_HE)
 // </h>
 
 
 // <e> DMA2 (Direct Memory Access Controller) [Driver_DMA2]
 // <i> Configuration settings for Driver_DMA2 in component ::Drivers:DMA
-#if defined(M55_HE) || defined (M55_HE_E1C)
 
 #define RTE_DMA2      1
 #if RTE_DMA2
@@ -3671,7 +3660,6 @@
 #define RTE_DMA2_BOOT_PERIPH_NS_STATE 0
 #endif
 
-#endif
 // </e> DMA2 (Direct Memory Access Controller) [Driver_DMA2]
 
 // <h> GPIO (general purpose input and output)
@@ -4648,7 +4636,6 @@
 
 // </h> GPIO (general purpose input and output)
 
-#if defined(M55_HE) || defined (M55_HE_E1C)
 // <h> LPPDM(Low Power Pulse Density Modulation)
 // <e> LPPDM (Low Power Pulse density modulation) [Driver_LPPDM]
 // <i> Configuration settings for Driver_LPPDM in component ::Drivers:LPPDM
@@ -4681,7 +4668,7 @@
 #endif
 #endif
 // </e> LPPDM (Low Power Pulse density modulation) [Driver_LPPDM]
-#endif //defined(M55_HE)
+
 // </h> LPPDM (Low Power Pulse density modulation)
 
 // <h> CANFD (Controller Area Network - Fast Mode)

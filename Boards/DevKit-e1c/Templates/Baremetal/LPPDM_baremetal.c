@@ -42,10 +42,6 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-#if !defined(M55_HE_E1C)
-#error "This Demo application works only on M55_HE_E1C"
-#endif
-
 #define ENABLE              1
 #define DISABLE             0
 
