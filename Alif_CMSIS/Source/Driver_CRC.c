@@ -760,6 +760,13 @@ static int32_t CRC_Compute (const void *data_in, uint32_t len, uint32_t *data_ou
                                 CRC->transfer.aligned_len,
                                 CRC->transfer.data_out);
 
+#if SOC_FEAT_CRC_RESULT_REFLECT_ENABLE
+    if((control_val & CRC_REFLECT ) && ((control_val & CRC_32C) == CRC_32C))
+    {
+        *CRC->transfer.data_out = crc_bit_reflect(*CRC->transfer.data_out);
+    }
+#endif
+
             crc_calculate_32bit_unaligned_sw(CRC->regs, &CRC->transfer);
         }
 

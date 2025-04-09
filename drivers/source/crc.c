@@ -157,10 +157,6 @@ void crc_calculate_32bit(CRC_Type *crc, const void *data_in,
     /* Store the CRC aligned output */
     *data_out = (crc->CRC_OUT);
 
-    if((control_val & CRC_REFLECT ) && ((control_val & CRC_32C) == CRC_32C))
-    {
-        *data_out = crc_bit_reflect(*data_out);
-    }
 }
 
 /**
