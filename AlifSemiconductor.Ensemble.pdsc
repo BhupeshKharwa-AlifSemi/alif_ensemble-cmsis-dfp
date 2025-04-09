@@ -1292,7 +1292,7 @@
       <files>
         <file category="include" name="Device/soc/AE722F80F55D5/include/" />
         <file category="header" name="Device/soc/AE722F80F55D5/config/app_mem_regions.h" version="2.0.0" attr="config" />
-        <file category="header" name="Device/soc/AE722F80F55D5/config/RTE_Device.h" version="2.0.0" attr="config" />
+        <file category="header" name="Device/soc/AE722F80F55D5/rte/RTE_Device.h" version="2.0.0" attr="config" />
         <file category="include" name="Device/soc/AE722F80F55D5/include/rtss_hp/" condition="M55_HP CMSIS-Core"/>
         <file category="include" name="Device/soc/AE722F80F55D5/include/rtss_he/" condition="M55_HE CMSIS-Core"/>
       </files>
@@ -1303,7 +1303,7 @@
       <files>
         <file category="include" name="Device/soc/AE1C1F4051920/include/" />
         <file category="header" name="Device/soc/AE1C1F4051920/config/app_mem_regions.h" version="2.0.0" attr="config" />
-        <file category="header" name="Device/soc/AE1C1F4051920/config/RTE_Device.h" version="2.0.0" attr="config" />
+        <file category="header" name="Device/soc/AE1C1F4051920/rte/RTE_Device.h" version="2.0.0" attr="config" />
         <file category="include" name="Device/soc/AE1C1F4051920/include/rtss_he/" condition="E1C"/>
       </files>
     </component>
