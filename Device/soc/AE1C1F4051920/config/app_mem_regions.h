@@ -75,11 +75,11 @@
 //   <q> Boot from OSPI
 //   <i> Enable XIP from OSPI
 #define APP_BOOT_OSPI_FLASH 0
-//   <o> RTSS HE Base address <0xC0000000-0xDFFFFFFF:8>
+//   <o> RTSS HE Base address <0xB0000000-0xBFFFFFFF:8>
 //   <i> Defines base address of RTSS HE application memory region.
-//   <i> Default: 0xC0000000
-#define APP_OSPI_FLASH_HE_BASE 0xC0000000
-//   <o> RTSS HE Region size [bytes] <0x0-0x20000000:8>
+//   <i> Default: 0xB0000000
+#define APP_OSPI_FLASH_HE_BASE 0xB0000000
+//   <o> RTSS HE Region size [bytes] <0x0-0x10000000:8>
 //   <i> Defines size of RTSS HE application memory region.
 //   <i> Default: 0x00200000
 #define APP_OSPI_FLASH_HE_SIZE 0x00200000
