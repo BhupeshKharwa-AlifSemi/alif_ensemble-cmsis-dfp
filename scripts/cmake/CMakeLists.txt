@@ -129,7 +129,7 @@ include("${USER_CMAKE_SCRIPT_DIR}/toolchains/compiler_config.cmake")
 # Including Device related cmake
 include (${DEVICE_CMAKE_DIR}/device.cmake)
 
-set(CMAKE_TEMP_FOLDER       "${CMAKE_BINARY_DIR}/.temp")
+set(CMAKE_TEMP_FOLDER       "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/.temp")
 file(MAKE_DIRECTORY         ${CMAKE_TEMP_FOLDER})
 set(TMP_CFG_FILE            "${CMAKE_TEMP_FOLDER}/.cfg" )
 #execute_process(COMMAND     attrib +h   ${CMAKE_TEMP_FOLDER})
