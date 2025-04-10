@@ -12,7 +12,8 @@
   -->
 
   <releases>
-     <release version="2.0.0-alpha1"  tag="v2.0.0-alpha1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-alpha1/AlifSemiconductor.Ensemble.2.0.0-alpha1.pack" date="2025-03-26">
+     <release version="2.0.0-alpha2"  tag="v2.0.0-alpha2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-alpha2/AlifSemiconductor.Ensemble.2.0.0-alpha2.pack" date="2025-04-09">
+      - Add Eagle Support
       - Add E1C Support
       - Restructured DFP
       - Add Csolution Examples
@@ -95,6 +96,111 @@
         </block>
         </sequence>
       </sequences>
+
+      <subFamily DsubFamily="E8">
+        <!-- ******************************  E8  ******************************* -->
+        <!-- Device processor attributes -->
+        <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="400000000" Pname="M55_HP"/>
+        <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
+        <!-- DebugConfig for E8 -->
+        <debugconfig sdf="Debug/SDF/E8/Ensemble E8.sdf" dormant="true"/>
+        <!-- On-chip NVM Region -->
+        <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
+        <!-- On-Chip RAM Regions 9.75MB -->
+        <memory name="SRAM0" start="0x02000000" size="0x00400000" access="rwx" default="1"/>
+        <memory name="SRAM1" start="0x08000000" size="0x00400000" access="rwx" default="1"/>
+        <memory name="SRAM2" start="0x50000000" size="0x00040000" access="rwx" default="1"/>
+        <memory name="SRAM3" start="0x50800000" size="0x00100000" access="rwx" default="1"/>
+        <memory name="SRAM4" start="0x58000000" size="0x00040000" access="rwx" default="1"/>
+        <memory name="SRAM5" start="0x58800000" size="0x00040000" access="rwx" default="1"/>
+
+        <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
+        <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
+        <!-- Cortex-M55 Access Ports -->
+        <accessportV2 __apid="0" address="0x00200000"/>
+        <accessportV2 __apid="1" address="0x00300000"/>
+        <!-- Documents -->
+
+        <!-- Device properties, header files and preprocessor defines -->
+        <feature type="XTAL" n="38400000" name="High-Frequency Crystal Oscillator"/>
+        <feature type="IntRC" n="76800000" name="High-Frequency Internal RC Oscillator"/>
+        <feature type="PLL" n="3" name="Internal High-Speed PLL + Low Power PLL + Audio PLL"/>
+        <feature type="PowerMode" n="5" name="GO, READY, IDLE, STANDBY, STOP"/>
+        <feature type="PowerOther" n="1" name="POR"/>
+        <feature type="PowerOther" n="1" name="BOR"/>
+        <!--Security-->
+        <feature type="CoreOther" n="1" name="Full Secure Enclave"/>
+        <feature type="CoreOther" n="1" name="Neural Processing Unit (NPU) Ethos-U55 HP"/>
+        <feature type="CoreOther" n="1" name="Neural Processing Unit (NPU) Ethos-U55 HE"/>
+        <feature type="CoreOther" n="1"  name="Neural Processing Unit (NPU) Ethos-U85"/>
+        <feature type="CoreOther" n="2" name="CRC Calculation Unit"/>
+        <!--External Memory-->
+        <feature type="ComOther" n="2" name="Cryptographic Octal SPI (OSPI)"/>
+        <feature type="SDIO" n="1" m="8" name="SD/eMMC/SDIO Interface"/>
+        <!-- Serial Connectivity   -->
+        <feature type="UART" n="8" m="2500000" name="UART Interface"/>
+        <feature type="UART" n="1" m="1000000" name="Low Power UART Interface"/>
+        <feature type="SPI" n="4" m="50000000" name="SPI Interface"/>
+        <feature type="SPI" n="1" m="20000000" name="Low Power SPI Interface"/>
+        <feature type="I2C" n="4" name="Inter-Integrated Circuit (I2C)"/>
+        <feature type="I2C" n="2" name="Low Power Inter-Integrated Circuit (LPI2C)"/>
+        <feature type="ComOther" n="1" name="MIPI I3C"/>
+        <feature type="ComOther" n="1" name="Low Power MIPI I3C"/>
+        <feature type="CAN" n="1" name="CAN-FD Controller"/>
+        <!--High Speed Connectivity-->
+        <feature type="USBOTG" n="1" name="USB 2.0 Host and Device (DRD) with PHY"/>
+        <feature type="ETH" n="1" m="100000000" name="Ethernet Media Access Controller (ETH)"/>
+        <!--Graphics-->
+        <feature type="Other" n="1" name="2D Graphics Processing Unit (GPU2D)"/>
+        <!--Display-->
+        <feature type="GLCD" n="1" m="1280.800" name="Display Parallel Interface"/>
+        <feature type="Other" n="1" m="5000000000" name="MIPI DSI"/>
+        <!--Camera-->
+        <feature type="Camera" n="1" m="16" name="Camera Parallel Interface"/>
+        <feature type="Camera" n="1" m="8" name="Low Power Camera Parallel Interface"/>
+        <feature type="Other" n="1" m="5000000000" name="MIPI CSI"/>
+        <feature type="Other" n="1" name="ISP Acceleration Unit"/>
+        <feature type="Other" n="1" name="JPEG Encoder"/>
+        <!--Audio-->
+        <feature type="I2S" n="4" name="Inter-IC Sound (I2S)"/>
+        <feature type="I2S" n="1" name="Low Power Inter-IC Sound (I2S)"/>
+        <feature type="ComOther" n="1" m="8" name="Pulse Density Modulation (PDM) Microphone Interface"/>
+        <feature type="ComOther" n="1" m="8" name="Low Power Pulse Density Modulation (LPPDM) Microphone Interface"/>
+        <!--Timers-->
+        <feature type="Timer" n="12" m="32" name="Universal Timer"/>
+        <feature type="Timer" n="4" m="32" name="Low Power Timer"/>
+        <feature type="TimerOther" n="4" m="32" name="Quadrature Encoding Counter"/>
+        <feature type="TimerOther" n="1" m="32" name="Real-Time Counter"/>
+        <feature type="WDT" n="2" name="Local Watchdog Timer"/>
+        <!-- Analog -->
+        <feature type="TempSens" n="1" name="Temperature Sensor"/>
+        <feature type="ADC" n="3" m="12" name="6 Single-ended or 3 Differential Input ADC, SAR"/>
+        <feature type="ADC" n="1" m="24" name="4 Differential Input ADC, Sigma-Delta"/>
+        <feature type="DAC" n="2" m="12" name="Digital-to-Analog Converter"/>
+        <feature type="AnalogOther" n="4" name="High-Speed Comparator"/>
+        <feature type="AnalogOther" n="1" name="Low Power Comparator"/>
+        <!--GPIO-->
+        <feature type="IOs" n="8" name="General Purpose *Flex* I/Os, 1.8 V or 3.3 V selectable"/>
+        <!--Operation Range-->
+        <feature type="VCC" n="1.75" m="4.8"/>
+        <feature type="Temp" n="-40" m="75"/>
+        <device Dname="AE822FA0E5597BS0">
+          <compile Pname="M55_HP" header="Device/core/common/include/alif.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/common/include/alif.h" define="RTSS_HE"/>
+          <debug svd="Debug/SVD/AE822FA0E5597BS0_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
+          <debug svd="Debug/SVD/AE822FA0E5597BS0_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
+          <feature type="IOs" n="136" name="General Purpose I/Os, 1.8V"/>
+          <feature type="CSP" n="216" name="WLCSP Package"/>
+        </device>
+        <device Dname="AE822FA0E5597LS0">
+          <compile Pname="M55_HP" header="Device/core/common/include/alif.h" define="RTSS_HP"/>
+          <compile Pname="M55_HE" header="Device/core/common/include/alif.h" define="RTSS_HE"/>
+          <debug svd="Debug/SVD/AE822FA0E5597BS0_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
+          <debug svd="Debug/SVD/AE822FA0E5597BS0_CM55_HE_View.svd" Pname="M55_HE" __apid="1"/>
+          <feature type="IOs" n="120" name="General Purpose I/Os, 1.8V"/>
+          <feature type="BGA" n="194" name="FBGA Package"/>
+        </device>
+      </subFamily>
 
       <subFamily DsubFamily="E7">
         <!-- ******************************  E7  ******************************* -->
@@ -892,6 +998,7 @@
     <condition id="M55_HP CMSIS-Core">
       <description>Generic Alif Semiconductor M55_HP device startup and depends on CMSIS Core</description>
       <require Dvendor="Alif Semiconductor:165"/>
+      <accept Pname="M55_HP" Dname="AE822FA0*"/>
       <accept Pname="M55_HP" Dname="AE722F80*"/>
       <accept Pname="M55_HP" Dname="AE512F80*"/>
       <accept Pname="M55_HP" Dname="AE302F*"/>
@@ -899,6 +1006,7 @@
     <condition id="M55_HE CMSIS-Core">
       <description>Generic Alif Semiconductor M55_HP device startup and depends on CMSIS Core</description>
       <require Dvendor="Alif Semiconductor:165"/>
+      <accept Pname="M55_HE" Dname="AE822FA0*"/>
       <accept Pname="M55_HE" Dname="AE722F80*"/>
       <accept Pname="M55_HE" Dname="AE512F80*"/>
       <accept Pname="M55_HE" Dname="AE302F*"/>
@@ -919,6 +1027,7 @@
     <condition id="Ensemble">
       <description>Alif Semiconductor Ensemble Series devices</description>
       <require Dvendor="Alif Semiconductor:165"/>
+      <accept Dvendor="Alif Semiconductor:165" Dname="AE822FA0*"/>
       <accept Dvendor="Alif Semiconductor:165" Dname="AE722F80*"/>
       <accept Dvendor="Alif Semiconductor:165" Dname="AE512F80*"/>
       <accept Dvendor="Alif Semiconductor:165" Dname="AE302F*"/>
@@ -930,6 +1039,10 @@
     <description>Common Templates for HP and HE Core</description>
       <accept condition="M55_HP CMSIS-Core"/>
       <accept condition="M55_HE CMSIS-Core"/>
+    </condition>
+    <condition id="SoC AE822FA0E5597">
+    <description>Alif Semiconductor SoC AE822FA0E5597 device</description>
+    <require Dname="AE822FA0E5597*"/>
     </condition>
 
     <condition id="SoC AE1C1F4051920">
@@ -1286,6 +1399,17 @@
 
        </files>
      </component>
+
+     <component Cclass="Device" Cgroup="SKU"  Cvariant="AE822FA0E5597" Cversion="2.0.0" condition="SoC AE822FA0E5597">
+     <description>SOC Variant</description>
+      <files>
+        <file category="include" name="Device/soc/AE822FA0E5597/include/" />
+        <file category="header" name="Device/soc/AE822FA0E5597/config/app_mem_regions.h" version="2.0.0" attr="config" />
+        <file category="header" name="Device/soc/AE822FA0E5597/rte/RTE_Device.h" version="2.0.0" attr="config" />
+        <file category="include" name="Device/soc/AE822FA0E5597/include/rtss_hp/" condition="M55_HP CMSIS-Core"/>
+        <file category="include" name="Device/soc/AE822FA0E5597/include/rtss_he/" condition="M55_HE CMSIS-Core"/>
+      </files>
+    </component>
 
      <component Cclass="Device" Cgroup="SKU"  Cvariant="AE722F80F55D5" Cversion="2.0.0" condition="SoC AE722F80F55D5">
      <description>SOC Variant</description>

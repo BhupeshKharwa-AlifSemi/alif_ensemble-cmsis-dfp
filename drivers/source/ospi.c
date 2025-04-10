@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include "ospi.h"
+#include "soc_features.h"
 
 /**
   \fn          void ospi_set_mode(OSPI_Type *ospi, SPI_MODE mode)
@@ -186,6 +187,7 @@ void ospi_control_ss(OSPI_Type *ospi, uint8_t slave, SPI_SS_STATE state)
     ospi_enable(ospi);
 }
 
+#if SOC_FEAT_OSPI_HAS_XIP_SER
 /**
   \fn          void ospi_control_xip_ss(OSPI_Type *ospi, uint8_t slave, SPI_SS_STATE state)
   \brief       Control the XIP slave select line
@@ -208,7 +210,7 @@ void ospi_control_xip_ss(OSPI_Type *ospi, uint8_t slave, SPI_SS_STATE state)
     }
     ospi_enable(ospi);
 }
-
+#endif
 
 /**
   \fn          void ospi_send(OSPI_Type *spi, ospi_transfer_t *transfer)
@@ -608,3 +610,4 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
     (void) ospi->OSPI_RXUICR;
     (void) ospi->OSPI_ICR;
 }
+
