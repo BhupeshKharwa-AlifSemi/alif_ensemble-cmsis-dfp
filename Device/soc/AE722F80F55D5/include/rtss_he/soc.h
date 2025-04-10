@@ -139,7 +139,7 @@
     MHU_M55HE_M55HP_1_TX_IRQ_IRQn=  44,           /*!< 44 Interrupt                                                              */
     LPUART_IRQ_IRQn           =  45,              /*!< 45 LPUART interrupt request                                               */
     LPSPI_IRQ_IRQn            =  46,              /*!< 46 LPSPI interrupt request                                                */
-    LPI2C_IRQ_IRQn            =  47,              /*!< 47 LPI2C interrupt request                                                */
+    LPI2C0_IRQ_IRQn           =  47,              /*!< 47 LPI2C interrupt request                                                */
     LPI2S_IRQ_IRQn            =  48,              /*!< 48 LPI2S interrupt request                                                */
     LPPDM_IRQ_IRQn            =  49,              /*!< 49 LPPDM combined (OR-ed) interrupt of the following requests
                                                        : Warning interrupt request (WARN_IRQ) Error interrupt
@@ -3060,7 +3060,7 @@
   #define LPCPI_BASE                  0x43003000UL
   #define M55HE_CFG_BASE              0x43007000UL
   #define LPUART_BASE                 0x43008000UL
-  #define LPI2C_BASE                  0x43009000UL
+  #define LPI2C0_BASE                 0x43009000UL
   #define UTIMER_BASE                 0x48000000UL
   #define ETH_BASE                    0x48100000UL
   #define SDMMC_BASE                  0x48102000UL
@@ -3214,7 +3214,7 @@
   #define LPCPI                       ((CPI_Type*)               LPCPI_BASE)
   #define M55HE_CFG                   ((M55HE_CFG_Type*)         M55HE_CFG_BASE)
   #define LPUART                      ((UART_Type*)              LPUART_BASE)
-  #define LPI2C                       ((LPI2C_Type*)             LPI2C_BASE)
+  #define LPI2C0                      ((LPI2C_Type*)             LPI2C0_BASE)
   #define UTIMER                      ((UTIMER_Type*)            UTIMER_BASE)
   #define ETH                         ((ETH_Type*)               ETH_BASE)
   #define SDMMC                       ((SDMMC_Type*)             SDMMC_BASE)

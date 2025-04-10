@@ -19,10 +19,10 @@
 /* 1 Mega bits */
 #define LPI2C_1_MEGA_BIT 1000000
 
-#if !RTE_LPI2C_BUS_SPEED
+#if !RTE_LPI2C0_BUS_SPEED
     #error "Invalid LPI2C Bitrate"
 #else
-    #define LPI2C_1BYTE_TIME (DIV_ROUND_UP(LPI2C_1_MEGA_BIT, RTE_LPI2C_BUS_SPEED) * 8)
+    #define LPI2C_1BYTE_TIME (DIV_ROUND_UP(LPI2C_1_MEGA_BIT, RTE_LPI2C0_BUS_SPEED) * 8)
 #endif
 
 /* Driver Version */
@@ -295,19 +295,19 @@ static ARM_I2C_STATUS ARM_LPI2C_GetStatus(const LPI2C_RESOURCES *LPI2C_RES)
 }
 
 /* LPI2C Driver Instance */
-#if (RTE_LPI2C)
+#if (RTE_LPI2C0)
 
 /* LPI2C Driver Resources */
-static LPI2C_RESOURCES LPI2C_RES =
+static LPI2C_RESOURCES LPI2C0_RES =
 {
-  .regs         = (LPI2C_TYPE *)LPI2C_BASE,
-  .irq_num      = (IRQn_Type)LPI2C_IRQ_IRQn,
-  .irq_priority = (uint32_t)RTE_LPI2C_IRQ_PRIORITY
+  .regs         = (LPI2C_TYPE *)LPI2C0_BASE,
+  .irq_num      = (IRQn_Type)LPI2C0_IRQ_IRQn,
+  .irq_priority = (uint32_t)RTE_LPI2C0_IRQ_PRIORITY
 };
 
-void LPI2C_IRQHandler(void)
+void LPI2C0_IRQHandler(void)
 {
-  LPI2C_RESOURCES *res = &LPI2C_RES;
+  LPI2C_RESOURCES *res = &LPI2C0_RES;
 
   LPI2C_XFER_INFO_T *transfer = &(res->transfer);
 
@@ -323,23 +323,23 @@ void LPI2C_IRQHandler(void)
   }
 }
 
-static int32_t LPI2C_Initialize (ARM_I2C_SignalEvent_t cb_event)
+static int32_t LPI2C0_Initialize (ARM_I2C_SignalEvent_t cb_event)
 {
-  return ARM_LPI2C_Initialize(cb_event, &LPI2C_RES);
+  return ARM_LPI2C_Initialize(cb_event, &LPI2C0_RES);
 }
 
-static int32_t LPI2C_Uninitialize(void)
+static int32_t LPI2C0_Uninitialize(void)
 {
-  return ARM_LPI2C_Uninitialize(&LPI2C_RES);
+  return ARM_LPI2C_Uninitialize(&LPI2C0_RES);
 }
 
-static int32_t LPI2C_PowerControl(ARM_POWER_STATE state)
+static int32_t LPI2C0_PowerControl(ARM_POWER_STATE state)
 {
-  return ARM_LPI2C_PowerControl(state, &LPI2C_RES);
+  return ARM_LPI2C_PowerControl(state, &LPI2C0_RES);
 }
 
-static int32_t LPI2C_MasterTransmit(uint32_t addr, const uint8_t *data,
-                                   uint32_t num, bool xfer_pending)
+static int32_t LPI2C0_MasterTransmit(uint32_t addr, const uint8_t *data,
+                                     uint32_t num, bool xfer_pending)
 {
     ARG_UNUSED(addr);
     ARG_UNUSED(data);
@@ -349,8 +349,8 @@ static int32_t LPI2C_MasterTransmit(uint32_t addr, const uint8_t *data,
   return ARM_DRIVER_ERROR;
 }
 
-static int32_t LPI2C_MasterReceive(uint32_t addr, uint8_t *data,
-                                  uint32_t num, bool xfer_pending)
+static int32_t LPI2C0_MasterReceive(uint32_t addr, uint8_t *data,
+                                    uint32_t num, bool xfer_pending)
 {
 
     ARG_UNUSED(addr);
@@ -361,49 +361,49 @@ static int32_t LPI2C_MasterReceive(uint32_t addr, uint8_t *data,
     return ARM_DRIVER_ERROR;
 }
 
-static int32_t LPI2C_SlaveTransmit(const uint8_t *data, uint32_t num)
+static int32_t LPI2C0_SlaveTransmit(const uint8_t *data, uint32_t num)
 {
-  return (ARM_LPI2C_SlaveTransmit(&LPI2C_RES, data, num));
+  return (ARM_LPI2C_SlaveTransmit(&LPI2C0_RES, data, num));
 }
 
-static int32_t LPI2C_SlaveReceive(uint8_t *data, uint32_t num)
+static int32_t LPI2C0_SlaveReceive(uint8_t *data, uint32_t num)
 {
-  return (ARM_LPI2C_SlaveReceive(&LPI2C_RES, data, num));
+  return (ARM_LPI2C_SlaveReceive(&LPI2C0_RES, data, num));
 }
 
-static int32_t LPI2C_GetDataCount(void)
+static int32_t LPI2C0_GetDataCount(void)
 {
-  return (ARM_LPI2C_GetDataCount(&LPI2C_RES));
+  return (ARM_LPI2C_GetDataCount(&LPI2C0_RES));
 }
 
-static int32_t LPI2C_Control(uint32_t control, uint32_t arg)
+static int32_t LPI2C0_Control(uint32_t control, uint32_t arg)
 {
     ARG_UNUSED(control);
     ARG_UNUSED(arg);
     return ARM_DRIVER_ERROR;
 }
 
-static ARM_I2C_STATUS LPI2C_GetStatus(void)
+static ARM_I2C_STATUS LPI2C0_GetStatus(void)
 {
-  return (ARM_LPI2C_GetStatus(&LPI2C_RES));
+  return (ARM_LPI2C_GetStatus(&LPI2C0_RES));
 }
 
 /* LPI2C Driver Control Block */
-extern ARM_DRIVER_I2C Driver_LPI2C;
-ARM_DRIVER_I2C Driver_LPI2C = {
+extern ARM_DRIVER_I2C Driver_LPI2C0;
+ARM_DRIVER_I2C Driver_LPI2C0 = {
   ARM_I2C_GetVersion,
   ARM_I2C_GetCapabilities,
-  LPI2C_Initialize,
-  LPI2C_Uninitialize,
-  LPI2C_PowerControl,
-  LPI2C_MasterTransmit,
-  LPI2C_MasterReceive,
-  LPI2C_SlaveTransmit,
-  LPI2C_SlaveReceive,
-  LPI2C_GetDataCount,
-  LPI2C_Control,
-  LPI2C_GetStatus
+  LPI2C0_Initialize,
+  LPI2C0_Uninitialize,
+  LPI2C0_PowerControl,
+  LPI2C0_MasterTransmit,
+  LPI2C0_MasterReceive,
+  LPI2C0_SlaveTransmit,
+  LPI2C0_SlaveReceive,
+  LPI2C0_GetDataCount,
+  LPI2C0_Control,
+  LPI2C0_GetStatus
 };
 
-#endif /*(RTE_LPI2C)*/
-#endif /* RTE_Drivers_LPI2C */
+#endif /*(RTE_LPI2C0)*/
+#endif /* RTE_Drivers_LPI2C0 */

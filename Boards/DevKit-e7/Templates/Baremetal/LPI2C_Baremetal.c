@@ -45,8 +45,8 @@
 extern ARM_DRIVER_I2C Driver_I2C0;
 static ARM_DRIVER_I2C *I2C_mstdrv = &Driver_I2C0;
 
-extern ARM_DRIVER_I2C Driver_LPI2C;
-static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C;
+extern ARM_DRIVER_I2C Driver_LPI2C0;
+static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C0;
 
 volatile uint32_t mst_cb_status = 0;
 volatile uint32_t slv_cb_status = 0;
