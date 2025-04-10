@@ -212,7 +212,7 @@ static int32_t ReadStatusReg (uint8_t command, uint8_t *stat)
     }
 
     /* Send command and receive register value */
-    status = ptrOSPI->Transfer (&cmd[0], &cmd[1], 2U);
+    status = ptrOSPI->Transfer (&cmd[0], &cmd[1], 1U);
     if (status != ARM_DRIVER_OK)
     {
         return ARM_DRIVER_ERROR;
