@@ -55,8 +55,8 @@
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 /* UTIMER0 Driver instance */
-extern ARM_DRIVER_UTIMER DRIVER_UTIMER0;
-ARM_DRIVER_UTIMER *pxUTIMERDrv = &DRIVER_UTIMER0;
+extern ARM_DRIVER_UTIMER Driver_UTIMER0;
+ARM_DRIVER_UTIMER *pxUTIMERDrv = &Driver_UTIMER0;
 
 /* Macro for ADC12 and ADC24 */
 #define ADC12    1
