@@ -1546,8 +1546,9 @@ static void UART_IRQHandler(UART_RESOURCES *uart)
      * application is already received then mark the transaction as complete
      * even if there is RX timeout.
      */
-    if( (transfer->status & UART_TRANSFER_STATUS_RECEIVE_COMPLETE) ||
-            (transfer->rx_total_num == transfer->rx_curr_cnt) )
+    if((uart->status.rx_busy == UART_STATUS_BUSY)                  &&
+      ((transfer->status & UART_TRANSFER_STATUS_RECEIVE_COMPLETE)  ||
+       (transfer->rx_total_num == transfer->rx_curr_cnt)))
     {
         /* clear transfer status */
         transfer->status = UART_TRANSFER_STATUS_NONE;
