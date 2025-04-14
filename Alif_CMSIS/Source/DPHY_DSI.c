@@ -453,6 +453,12 @@ int32_t DSI_DPHY_Initialize (uint32_t frequency,  uint8_t n_lanes)
         return ARM_DRIVER_OK;
     }
 
+    if(MIPI_DSI_DPHY_PLL_Lock() == (DSI_PLL_STATUS) DPHY_PLL_STATUS_PLL_LOCK)
+    {
+        dsi_init_status = DPHY_INIT_STATUS_INITIALIZED;
+        return ARM_DRIVER_OK;
+    }
+
     DPHY_PowerEnable();
 
     ret = DPHY_MasterSetup(frequency, n_lanes);
