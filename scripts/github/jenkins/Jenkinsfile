@@ -48,7 +48,7 @@ pipeline {
 
                     CURR_OS=("NONE")
                     CURR_COMPILER=("armclang" "gcc")
-                    CURR_DEV=("AE722F80F55D5" "AE1C1F4051920")
+                    CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597")
                     CURR_RTSS=("HE" "HP")
                     CURR_BOOT=("TCM" "MRAM")
                     total_cmakeError=0

@@ -94,6 +94,12 @@ endif()
 string(TOLOWER          ${ABBREVIATION_DEV_NAME}             abbreviation_dev_name)
 set(BOARD_NAME          "DevKit-${abbreviation_dev_name}")
 
+if(${ABBREVIATION_DEV_NAME} STREQUAL "E8")
+    message(STATUS     "${Yellow} E7 TestApps have been selected for E8 device ${ColourReset}")
+    set(BOARD_NAME     "DevKit-e7")
+endif()
+
+
 if( ("${BOARD_NAME}" STREQUAL "DevKit-e1c") AND ("${RTSS}" STREQUAL "HP") )
     message(FATAL_ERROR     "\n E1C Board doesn't have HP sub-system ${ColourReset}")
 endif()

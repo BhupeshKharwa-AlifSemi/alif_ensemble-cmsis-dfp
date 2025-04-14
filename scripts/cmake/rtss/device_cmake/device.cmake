@@ -1,6 +1,6 @@
 # Basic Input check Starts -------------------------------
 if (DEV_FAMILY STREQUAL "E")
-    if("${BOARD_NAME}" STREQUAL "DevKit-e7")
+    if("${BOARD_NAME}" STREQUAL "DevKit-e7" OR "${BOARD_NAME}" STREQUAL "DevKit-e8")
         set(RTE_COMP_DIR   "${CMAKE_SOURCE_DIR}/Include_RTE_Comp/ensemble/e7")
         set(ENABLE_E7_DEVKIT    ON      CACHE   BOOL    "Enable/disable E7 Devkit.")
         set(ENABLE_E1C_DEVKIT   OFF     CACHE   BOOL    "Enable/disable E1C Devkit.")
