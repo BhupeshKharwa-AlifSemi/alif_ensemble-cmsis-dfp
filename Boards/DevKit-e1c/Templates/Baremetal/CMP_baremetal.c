@@ -306,12 +306,14 @@ static void CMP_demo_entry()
         printf("CMP pinmux failed\n");
     }
 
+#if (CMP_INSTANCE == HSCMP)
     /* Initialize the configurations for LED0_R */
     if(led_init())
     {
         printf("Error: LED initialization failed\n");
         return;
     }
+#endif
 
     version = CMPdrv->GetVersion();
     printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);
@@ -330,7 +332,7 @@ static void CMP_demo_entry()
         goto error_uninitialize;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
     /* Prescaler function for the comparator */
     ret = CMPdrv->Control(ARM_CMP_PRESCALER_CONTROL, SAMPLING_RATE);
     if(ret != ARM_DRIVER_OK){
@@ -355,7 +357,7 @@ static void CMP_demo_entry()
 
     while(loop_count --)
     {
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
         /* Toggle the LED0_R */
         if(led_toggle())
         {
@@ -368,7 +370,7 @@ static void CMP_demo_entry()
         while(call_back_event == 0);
         call_back_event = 0;
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
         /* Introducing a delay to stabilize input voltage for comparator measurement*/
         sys_busy_loop_us(100000);
 

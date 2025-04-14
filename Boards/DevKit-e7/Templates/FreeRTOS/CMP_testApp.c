@@ -61,7 +61,7 @@
 #define CMP14_PORT                      14
 #define CMP_OUTPIN                      7
 
-#define NUM_TAPS                        5      /* Number of filter taps     */
+#define NUM_TAPS                        3  /* Filter taps: choose between 3 and 8 */
 
 #define LPCMP                0
 #define HSCMP                1
@@ -530,12 +530,14 @@ static void CMP_demo_Thread_entry(void *pvParameters)
     version = CMPdrv->GetVersion();
     printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);
 
+#if (CMP_INSTANCE == HSCMP)
     /* Initialize the configurations for LED0_R */
     if(led_init())
     {
         printf("Error: LED initialization failed\n");
         return;
     }
+#endif
 
     /* Initialize the Comparator driver */
     slRet = CMPdrv->Initialize(CMP_filter_callback);
@@ -551,7 +553,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         goto error_uninitialize;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 
 #if CMP_WINDOW_CONTROL
     /* Start CMP using window control */
@@ -584,7 +586,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         goto error_poweroff;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
     /* Set flag to wake up utimer task */
     xReturned = xTaskNotify(utimer_compare_xHandle,UTIMER_TASK_START,
@@ -602,12 +604,14 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     while(ucLoop_count --)
     {
+#if (CMP_INSTANCE == HSCMP)
         /* Toggle the LED0_R */
         if(led_toggle())
         {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_poweroff;
         }
+#endif
 
         /* wait for CMP callback */
         xReturned = xTaskNotifyWait(NULL, CMP_CALLBACK_EVENT_SUCCESS, NULL, portMAX_DELAY);
@@ -616,6 +620,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
             goto error_poweroff;
         }
 
+#if (CMP_INSTANCE == HSCMP)
         vTaskDelay(xDelay);
 
         /* Check the status of the CMP output pin */
@@ -636,9 +641,10 @@ static void CMP_demo_Thread_entry(void *pvParameters)
             printf("ERROR: Status detection is failed\n");
             goto error_poweroff;
         }
+#endif
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
     /* Disable CMP window control */
     slRet = CMPdrv->Control(ARM_CMP_WINDOW_CONTROL_DISABLE, ARM_CMP_WINDOW_CONTROL_SRC_0);

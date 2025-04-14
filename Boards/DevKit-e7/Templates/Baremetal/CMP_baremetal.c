@@ -57,7 +57,7 @@
 #define CMP14_PORT                      14
 #define CMP_OUTPIN                      7
 
-#define NUM_TAPS                        5      /* Number of filter taps     */
+#define NUM_TAPS                        3  /* Filter taps: choose between 2 and 8 */
 
 #define LPCMP                0
 #define HSCMP                1
@@ -452,12 +452,14 @@ static void CMP_demo_entry()
         printf("CMP pinmux failed\n");
     }
 
+#if (CMP_INSTANCE == HSCMP)
     /* Initialize the configurations for LED0_R */
     if(led_init())
     {
         printf("Error: LED initialization failed\n");
         return;
     }
+#endif
 
     version = CMPdrv->GetVersion();
     printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);
@@ -476,7 +478,7 @@ static void CMP_demo_entry()
         goto error_uninitialize;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 
 #if CMP_WINDOW_CONTROL
     /* Start CMP using window control */
@@ -510,7 +512,7 @@ static void CMP_demo_entry()
         goto error_poweroff;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
     /* Generating pulse from Utimer */
     utimer_compare_mode_app();
@@ -519,17 +521,20 @@ static void CMP_demo_entry()
 
     while(loop_count --)
     {
+#if (CMP_INSTANCE == HSCMP)
         /* Toggle the LED0_R */
         if(led_toggle())
         {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_poweroff;
         }
+#endif
 
         /* wait for the call back event */
         while(call_back_event == 0);
         call_back_event = 0;
 
+#if (CMP_INSTANCE == HSCMP)
         /* Introducing a delay to stabilize input voltage for comparator measurement*/
         sys_busy_loop_us(100000);
 
@@ -551,9 +556,10 @@ static void CMP_demo_entry()
             printf("ERROR: Status detection is failed\n");
             goto error_poweroff;
         }
+#endif
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
     /* Disable CMP window control */
     ret = CMPdrv->Control(ARM_CMP_WINDOW_CONTROL_DISABLE, ARM_CMP_WINDOW_CONTROL_SRC_0);
