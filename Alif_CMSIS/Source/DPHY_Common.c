@@ -74,8 +74,10 @@ uint8_t MIPI_DPHY_Read (uint16_t address, DPHY_MODE_CFG mode)
     }
     else
     {
+#if RTE_MIPI_CSI2
         test_ctrl0 = (uint32_t *)PHY_CSI_TEST_CTRL0_BASE;
         test_ctrl1 = (uint32_t *)PHY_CSI_TEST_CTRL1_BASE;
+#endif
     }
 
     /*Ensure that t(r)x_testclk and t(r)x_testen is set to low*/
@@ -144,8 +146,10 @@ void MIPI_DPHY_Write (uint16_t address, uint8_t data, DPHY_MODE_CFG mode)
     }
     else
     {
+#if RTE_MIPI_CSI2
         test_ctrl0 = (uint32_t *)PHY_CSI_TEST_CTRL0_BASE;
         test_ctrl1 = (uint32_t *)PHY_CSI_TEST_CTRL1_BASE;
+#endif
     }
 
     /*Ensure that t(r)x_testclk and t(r)x_testen is set to low*/

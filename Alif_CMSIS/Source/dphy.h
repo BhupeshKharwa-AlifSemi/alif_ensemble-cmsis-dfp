@@ -19,6 +19,7 @@
 
 #ifndef DPHY_H_
 #define DPHY_H_
+#include "RTE_Device.h"
 
 /*DPHY TX register index*/
 #define dphy4txtester_DIG_RDWR_TX_SYS_3               (0x004U)
@@ -96,8 +97,10 @@
 #define PHY_TESTEN_Msk                                (1U << PHY_TESTEN_Pos)
 
 /*DPHY Test control base*/
+#if RTE_MIPI_CSI2
 #define PHY_CSI_TEST_CTRL0_BASE                       (CSI_BASE + 0x50)
 #define PHY_CSI_TEST_CTRL1_BASE                       (CSI_BASE + 0x54)
+#endif
 #define PHY_DSI_TEST_CTRL0_BASE                       (DSI_BASE + 0xB4)
 #define PHY_DSI_TEST_CTRL1_BASE                       (DSI_BASE + 0xB8)
 
