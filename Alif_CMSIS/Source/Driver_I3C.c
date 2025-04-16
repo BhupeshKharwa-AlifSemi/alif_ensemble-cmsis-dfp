@@ -1818,7 +1818,7 @@ static int32_t I3Cx_Initialize(I3C_RESOURCES         *i3c,
         return ARM_DRIVER_ERROR;
 #endif
 
-    i3c->core_clk = GetSystemAPBClock();
+    i3c->core_clk = get_i3c_core_clock();
 
     i3c->xfer.xfer_cmd.speed      = I3C_SPEED_SDR0;
     /* set the state as initialized. */

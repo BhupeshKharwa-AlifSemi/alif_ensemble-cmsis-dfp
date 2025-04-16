@@ -112,4 +112,6 @@
 
 #define SOC_FEAT_CRC_RESULT_REFLECT_ENABLE  (1)
 
+#define SOC_FEAT_I3C_CORE_CLK_AXI       (0)
+
 #endif /* SOC_FEATURES_H */
