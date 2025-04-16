@@ -27,6 +27,10 @@
 
 #if defined(RTE_Drivers_DMA)
 
+#if ((RTE_DMA1) || (RTE_DMA2))
+#define RTE_DMALOCAL 1
+#endif
+
 #if !((RTE_DMA0) || (RTE_DMALOCAL))
     #error "DMA is not enabled in the RTE_Device.h"
 #endif
@@ -37,11 +41,6 @@ static const ARM_DRIVER_VERSION DriverVersion = {
         ARM_DMA_API_VERSION,
         ARM_DMA_DRV_VERSION
 };
-
-#if ((RTE_DMA1) || (RTE_DMA2))
-#define RTE_DMALOCAL 1
-#endif
-
 
 /* ----------  Local DMA Driver Access Struct Alias & RTE alias  ---------- */
 #if defined(RTSS_HP)
