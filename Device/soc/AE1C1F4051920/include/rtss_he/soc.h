@@ -2172,6 +2172,26 @@
     __IOM uint32_t  I3C_DEV_ADDR_TABLE_LOC1;      /*!< (@ 0x00000280) Device Address Table Location 1 Register                   */
   } I3C_Type;                                     /*!< Size = 644 (0x284)                                                        */
 
+  /* =========================================================================================================================== */
+  /* ================                                          EVTRTR0                                          ================ */
+  /* =========================================================================================================================== */
+
+
+  /**
+    * @brief EVTRTR0 (EVTRTR0)
+    */
+
+  typedef struct {                                /*!< (@ 0x49035000) EVTRTR0 Structure                                          */
+      __IOM uint32_t  EVTRTR_DMA_CTRL[32];         /*!< (@ 0x00000000) DMA/Event Router Control and Status Register
+                                                                      (n)                                                        */
+      __IOM uint32_t  EVTRTR_DMA_REQ_CTRL;         /*!< (@ 0x00000080) DMA Request Control Register                               */
+      __IM  uint32_t  RESERVED[3];
+      __IOM uint32_t  EVTRTR_DMA_ACK_TYPE0;        /*!< (@ 0x00000090) DMA Handshake Type Register 0                              */
+      __IOM uint32_t  EVTRTR_DMA_ACK_TYPE1;        /*!< (@ 0x00000094) DMA Handshake Type Register 1                              */
+      __IOM uint32_t  EVTRTR_DMA_ACK_TYPE2;        /*!< (@ 0x00000098) DMA Handshake Type Register 2                              */
+      __IOM uint32_t  EVTRTR_DMA_ACK_TYPE3;        /*!< (@ 0x0000009C) DMA Handshake Type Register 3                              */
+    } EVTRTR_Type;
+
   
   /* =========================================================================================================================== */
   /* ================                                           CANFD                                           ================ */
