@@ -95,6 +95,25 @@
           DAP_Delay(500000);  // Delay for 500ms
         </block>
         </sequence>
+
+        <sequence name="ResetSystem">
+          <block>
+            Sequence("DisableWarmResetHandshake");
+          </block>
+          <block>
+            // System Control Space (SCS) offset as defined in Armv6-M/Armv7-M.
+
+            __var SCS_Addr   = 0xE000E000;
+            __var AIRCR_Addr = SCS_Addr + 0xD0C;
+            __var DHCSR_Addr = SCS_Addr + 0xDF0;
+
+            // Execute SYSRESETREQ via AIRCR
+            Write32(AIRCR_Addr, 0x05FA0004);
+          </block>
+
+          <!-- Reset Recovery: Wait for DHCSR.S_RESET_ST bit to clear on read -->
+          <control while="(Read32(DHCSR_Addr) &amp; 0x02000000)" timeout="500000"/>
+        </sequence>
       </sequences>
 
       <subFamily DsubFamily="E8">
@@ -104,6 +123,19 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
         <!-- DebugConfig for E8 -->
         <debugconfig sdf="Debug/SDF/E8/Ensemble E8.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
         <!-- On-chip NVM Region -->
         <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
         <!-- On-Chip RAM Regions 9.75MB -->
@@ -209,6 +241,19 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
         <!-- DebugConfig for E7 -->
         <debugconfig sdf="Debug/SDF/E7/Ensemble E7.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
         <!-- On-chip NVM Region -->
         <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
         <!-- On-Chip RAM Regions 13.5MB-->
@@ -321,6 +366,19 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
         <!-- DebugConfig for E5 -->
         <debugconfig sdf="Debug/SDF/E5/Ensemble E5.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
         <!-- On-chip NVM Region -->
         <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
@@ -548,6 +606,19 @@
        <device Dname="AE302F80F55D5AE">
         <!-- DebugConfig for E3 -->
         <debugconfig sdf="Debug/SDF/E3/Ensemble E3.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
 		  <!-- On-chip NVM Region -->
           <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
@@ -574,6 +645,19 @@
        <device Dname="AE302F80F5582AE">
             <!-- DebugConfig for E3 -->
           <debugconfig sdf="Debug/SDF/E3/Ensemble E3.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
                    <!-- On-chip NVM Region -->
           <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
@@ -597,6 +681,19 @@
         <device Dname="AE302F80F55D5LE">
          <!-- DebugConfig for E3 -->
         <debugconfig sdf="Debug/SDF/E3/Ensemble E3.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
 		  <!-- On-chip NVM Region -->
           <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
@@ -625,6 +722,19 @@
         <device Dname="AE302F80F5582LE">
           <!-- DebugConfig for E3 -->
           <debugconfig sdf="Debug/SDF/E3/Ensemble E3.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HP">
+            <block>
+              Write32(0x1A600024, 0);
+            </block>
+          </sequence>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
 		  <!-- On-chip NVM Region -->
           <memory name="MRAM" start="0x80000000" size="0x00580000" access="rx" default="1"/>
 
@@ -694,6 +804,14 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
          <!-- DebugConfig for E1 -->
         <debugconfig sdf="Debug/SDF/E1/Ensemble E1.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00300000"/>
@@ -780,6 +898,14 @@
         <processor Dcore="Cortex-M55" DcoreVersion="r1p0" Dfpu="DP_FPU" Dmpu="MPU" Dmve="FP_MVE" Ddsp="DSP" Dtz="TZ" Dendian="Little-endian" Dclock="160000000" Pname="M55_HE"/>
          <!-- DebugConfig for E1 -->
         <debugconfig sdf="Debug/SDF/E1/Ensemble E1.sdf" dormant="true"/>
+        <!-- Debug sequences -->
+        <sequences>
+          <sequence name="DisableWarmResetHandshake" Pname="M55_HE">
+            <block>
+              Write32(0x1A601024, 0);
+            </block>
+          </sequence>
+        </sequences>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00300000"/>
