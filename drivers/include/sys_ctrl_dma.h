@@ -48,6 +48,7 @@ extern "C"
 #endif
 #define HE_DMA_SEL_PDM_DMA0                 (1U << 16)                      /* Select DMA0 for LPPDM           */
 #define HE_DMA_SEL_I2S_DMA0                 (1U << 12)                      /* Select DMA0 for LPI2S           */
+#define HE_DMA_SEL_I3C_DMA0                 (1U << 9)                       /* Select DMA0 for LPI3C           */
 #define HE_DMA_SEL_LPSPI_Pos                (4)                             /* Pos to Select DMA0 for LPSPI    */
 #define HE_DMA_SEL_LPSPI_Msk                (0x3U << HE_DMA_SEL_LPSPI_Pos)  /* Mask to Select DMA0 for LPSPI   */
 #define HE_DMA_SEL_LPSPI_DMA2               (0x0U << HE_DMA_SEL_LPSPI_Pos)  /* Select DMA2 for LPSPI           */
@@ -114,6 +115,11 @@ static inline void lppdm_select_dma0(void)
 static inline void lpi2s_select_dma0(void)
 {
     M55HE_CFG->HE_DMA_SEL |= HE_DMA_SEL_I2S_DMA0;
+}
+
+static inline void lpi3c_select_dma0(void)
+{
+    M55HE_CFG->HE_DMA_SEL |= HE_DMA_SEL_I3C_DMA0;
 }
 
 static inline void lpspi_select_dma0(uint8_t group)

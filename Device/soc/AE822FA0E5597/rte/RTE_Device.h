@@ -1663,6 +1663,7 @@
 #endif
 // </e> CDC200 (cdc200) [Driver_CDC200]
 
+// <h> I3C (Improved Inter Integrated Circuit)
 // <e> I3C (Improved Inter-Integrated Circuit) [Driver_I3C]
 // <i> Configuration settings for Driver_I3C in component ::Drivers:I3C
 #define RTE_I3C                             1
@@ -1715,6 +1716,58 @@
 
 #endif
 // </e> I3C (Improved Inter-Integrated Circuit) [Driver_I3C]
+
+// <e> LPI3C (Low Power Improved Inter-Integrated Circuit) [Driver_LPI3C]
+// <i> Configuration settings for Driver_LPI3C in component ::Drivers:LPI3C
+#if defined(RTSS_HE)
+#define RTE_LPI3C                             1
+
+#if RTE_LPI3C
+
+// <o> LPI3C IRQ priority <0-255>
+// <i> Defines LPI3C  Interrupt priority
+// <i> Default: 0
+#define RTE_LPI3C_IRQ_PRI                     0
+
+// <o> LPI3C DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for LPI3C
+// <i> Default: DISABLE
+#define RTE_LPI3C_DMA_ENABLE                  0
+
+#if RTE_LPI3C_DMA_ENABLE
+// <o> LPI3C DMA Selection
+//    <0=> DMA2(M55-HE)
+//    <1=> DMA0
+// <i> Defines Select DMA0 for LPI3C. By default DMA0 will be considered
+// <i> Default: DMA0
+#define RTE_LPI3C_SELECT_DMA0                 1
+
+// <o> LPI3C DMA IRQ priority <0-255>
+// <i> Defines LPI3C DMA Interrupt priority
+// <i> Default: 0
+#define RTE_LPI3C_DMA_IRQ_PRI                 0
+#endif
+// <o> LPI3C blocking mode enable
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines Blocking mode support for LPI3C
+// <i> Default: DISABLE
+#define RTE_LPI3C_BLOCKING_MODE_ENABLE        0
+
+// <o> LPI3C Slave I2C/I3C Adaptive mode Enable
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines whether LPI3C Slave starts with I2C mode or not.
+// <i> It is for for enabling some features for I2C/I3C mode
+// <i> Default: DISABLE
+#define RTE_LPI3C_SLAVE_ADAPTIVE_MODE_ENABLE  0
+
+#endif
+#endif
+// </e> LPI3C (Low Power Improved Inter-Integrated Circuit) [Driver_LPI3C]
+// </h>
 
 // <e> IMU (Initial Measurement Unit) [Driver_IMU]
 // <i> Configuration settings for Driver_IMU in component ::Drivers:IMU

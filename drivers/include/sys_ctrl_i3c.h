@@ -15,6 +15,14 @@
 #include "soc_features.h"
 #include "sys_clocks.h"
 
+#if (RTE_LPI3C)
+#define HE_CLK_ENA_I3C_CKEN     (1 << 14)
+#endif
+
+#if (RTE_I3C)
+#define I3C_CTRL_DMA_SEL_DMA2   (1 << 24)
+#define I3C_CTRL_CKEN           (1 << 0)
+#endif
 /**
   \fn          static inline void enable_i3c_clock(void)
   \brief       Enables I3C clock
@@ -22,7 +30,13 @@
 */
 static inline void enable_i3c_clock(void)
 {
-    CLKCTL_PER_SLV->I3C_CTRL |= (1 << 0);
+#if (RTE_LPI3C)
+    M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_I3C_CKEN;
+#endif
+
+#if (RTE_I3C)
+    CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_CKEN;
+#endif
 }
 
 /**
@@ -32,7 +46,13 @@ static inline void enable_i3c_clock(void)
 */
 static inline void disable_i3c_clock(void)
 {
-    CLKCTL_PER_SLV->I3C_CTRL &= ( ~(1 << 0) );
+#if (RTE_LPI3C)
+    M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_I3C_CKEN;
+#endif
+
+#if (RTE_I3C)
+    CLKCTL_PER_SLV->I3C_CTRL &= ~I3C_CTRL_CKEN;
+#endif
 }
 
 /**
@@ -42,7 +62,9 @@ static inline void disable_i3c_clock(void)
 */
 static inline void select_i3c_dma2(void)
 {
-    CLKCTL_PER_SLV->I3C_CTRL |= (1 << 24);
+#if (RTE_I3C)
+    CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_DMA_SEL_DMA2;
+#endif
 }
 
 /**

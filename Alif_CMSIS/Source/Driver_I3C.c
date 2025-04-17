@@ -24,7 +24,7 @@
 #error "I3C is not enabled in the RTE_Device.h"
 #endif
 
-#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 9) /* driver version */
+#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 10) /* driver version */
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion =
@@ -1917,7 +1917,9 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
             {
                 select_i3c_dma2();
             }
-            /* else: default DMA0 is selected. */
+            /* else: DMA0 is selected.
+             * For LPI3C, DMA selection is done in DMA driver
+             */
 
             /* Enable i3c DMA */
             i3c_dma_enable(i3c->regs);
@@ -2469,6 +2471,206 @@ ARM_DRIVER_I3C Driver_I3C =
     I3C_GetSlvsInfo
 };
 #endif /* RTE_I3C */
+
+/* LPI3C Driver Instance */
+#if (RTE_LPI3C)
+
+#if RTE_LPI3C_DMA_ENABLE
+static void LPI3C_DMACallback(uint32_t event, int8_t peri_num);
+static I3C_DMA_HW_CONFIG LPI3Cx_DMA_HW_CONFIG =
+{
+    .dma_rx =
+    {
+        .dma_drv        = &ARM_Driver_DMA_(LPI3C_DMA),
+        .dma_periph_req = LPI3C_DMA_RX_PERIPH_REQ,
+        .evtrtr_cfg =
+        {
+            .instance = LPI3C_DMA,
+            .group    = LPI3C_DMA_GROUP,
+            .channel  = LPI3C_DMA_RX_PERIPH_REQ,
+            .enable_handshake = LPI3C_DMA_HANDSHAKE_ENABLE,
+        },
+    },
+    .dma_tx =
+    {
+        .dma_drv        = &ARM_Driver_DMA_(LPI3C_DMA),
+        .dma_periph_req = LPI3C_DMA_TX_PERIPH_REQ,
+        .evtrtr_cfg =
+        {
+            .instance = LPI3C_DMA,
+            .group    = LPI3C_DMA_GROUP,
+            .channel  = LPI3C_DMA_TX_PERIPH_REQ,
+            .enable_handshake = LPI3C_DMA_HANDSHAKE_ENABLE,
+        },
+
+    },
+};
+#endif /* RTE_LPI3C_DMA_ENABLE */
+
+/* LPI3C Device Resources */
+static I3C_RESOURCES LPI3C_RES =
+{
+    .regs              = (I3C_Type *)LPI3C_BASE,
+    .cb_event          = (void*)0,
+    .xfer              = {
+                          .xfer_cmd = {0},
+                          .tx_len   = 0,
+                          .rx_len   = 0,
+                          .tx_buf   = (void*)0,
+                          .rx_buf   = (void*)0,
+                          .status   = I3C_XFER_STATUS_NONE,
+                          .error    = 0,
+                          .addr_len = 0
+                         },
+    .status            = {0},
+    .state             = {0},
+#if RTE_LPI3C_BLOCKING_MODE_ENABLE
+    .blocking_mode     = true,
+#endif
+    .adaptive_mode     = RTE_LPI3C_SLAVE_ADAPTIVE_MODE_ENABLE,
+    .irq               = (IRQn_Type) LPI3C_IRQ_IRQn,
+    .irq_priority      = RTE_LPI3C_IRQ_PRI,
+
+#if RTE_LPI3C_DMA_ENABLE
+    .dma_cb            = LPI3C_DMACallback,
+    .dma_cfg           = &LPI3Cx_DMA_HW_CONFIG,
+    .dma_irq_priority  = RTE_LPI3C_DMA_IRQ_PRI,
+#endif
+
+};
+
+#if RTE_LPI3C_DMA_ENABLE
+/**
+  \fn          static void  LPI3C_DMACallback (uint32_t event, int8_t peri_num)
+  \param[in]   event     Event from DMA
+  \param[in]   peri_num  Peripheral number
+  \brief       Callback function from DMA for LPI3C
+*/
+static void LPI3C_DMACallback(uint32_t event, int8_t peri_num)
+{
+    I3Cx_DMACallback(event, peri_num, &LPI3C_RES);
+}
+#endif /* RTE_LPI3C_DMA_ENABLE */
+
+void LPI3C_IRQHandler(void)
+{
+    I3Cx_IRQHandler(&LPI3C_RES);
+}
+
+/* wrapper functions for LPI3C */
+static ARM_I3C_STATUS LPI3C_GetStatus(void)
+{
+    return I3Cx_GetStatus(&LPI3C_RES);
+}
+
+static ARM_I3C_DEVICE_INFO LPI3C_GetDeviceInfo(void)
+{
+    return I3Cx_GetDeviceInfo(&LPI3C_RES);
+}
+
+static int32_t LPI3C_Initialize(ARM_I3C_SignalEvent_t cb_event)
+{
+    return (I3Cx_Initialize(&LPI3C_RES, cb_event));
+}
+
+static int32_t LPI3C_Uninitialize(void)
+{
+    return (I3Cx_Uninitialize(&LPI3C_RES));
+}
+
+static int32_t LPI3C_PowerControl(ARM_POWER_STATE state)
+{
+    return (I3Cx_PowerControl(&LPI3C_RES, state));
+}
+
+static int32_t LPI3C_MasterTransmit(uint8_t addr, const uint8_t *data, uint16_t len)
+{
+    return (I3Cx_MasterTransmit(&LPI3C_RES, addr, data, len));
+}
+
+static int32_t LPI3C_MasterReceive(uint8_t addr, uint8_t *data, uint16_t len)
+{
+    return (I3Cx_MasterReceive(&LPI3C_RES, addr, data, len));
+}
+
+static int32_t LPI3C_SlaveTransmit(const uint8_t *data, uint16_t len)
+{
+    return (I3Cx_SlaveTransmit(&LPI3C_RES, data, len));
+}
+
+static int32_t LPI3C_SlaveReceive(uint8_t *data, uint16_t len)
+{
+    return (I3Cx_SlaveReceive(&LPI3C_RES, data, len));
+}
+
+static int32_t LPI3C_MasterSendCommand(ARM_I3C_CMD *ccc)
+{
+    return (I3Cx_MasterSendCommand(&LPI3C_RES, ccc));
+}
+
+static int32_t LPI3C_Control(uint32_t control, uint32_t arg)
+{
+    return (I3Cx_Control(&LPI3C_RES, control, arg));
+}
+
+static int32_t LPI3C_MasterAssignDA(ARM_I3C_CMD *addr_cmd)
+{
+    return (I3Cx_MasterAssignDA(&LPI3C_RES, addr_cmd));
+}
+
+static int32_t LPI3C_AttachSlvdev(const ARM_I3C_DEVICE_TYPE dev_type,
+                                const uint8_t addr)
+{
+    return (I3Cx_AttachSlvDev(&LPI3C_RES, dev_type, addr));
+}
+
+static int32_t LPI3C_Detachdev(uint8_t addr)
+{
+    return (I3Cx_Detachdev(&LPI3C_RES, addr));
+}
+
+static int32_t LPI3C_GetSlaveList(uint8_t* addr_list,
+                            uint8_t* count)
+{
+    return I3Cx_GetSlaveList(&LPI3C_RES, addr_list, count);
+}
+
+static int32_t LPI3C_GetSlaveDynamicAddr(const uint8_t static_addr,
+                                       uint8_t *dynamic_addr)
+{
+    return I3Cx_GetSlaveDynamicAddr(&LPI3C_RES, static_addr, dynamic_addr);
+}
+
+static int32_t LPI3C_GetSlvsInfo(void* data, const uint8_t value)
+{
+    return I3Cx_GetSlvsInfo(&LPI3C_RES, data, value);
+}
+
+/* I3CLP Driver Control Block */
+extern ARM_DRIVER_I3C Driver_I3CLP;
+ARM_DRIVER_I3C Driver_I3CLP =
+{
+    I3C_GetVersion,
+    I3C_GetCapabilities,
+    LPI3C_GetStatus,
+    LPI3C_GetDeviceInfo,
+    LPI3C_Initialize,
+    LPI3C_Uninitialize,
+    LPI3C_PowerControl,
+    LPI3C_MasterTransmit,
+    LPI3C_MasterReceive,
+    LPI3C_SlaveTransmit,
+    LPI3C_SlaveReceive,
+    LPI3C_Control,
+    LPI3C_MasterSendCommand,
+    LPI3C_MasterAssignDA,
+    LPI3C_AttachSlvdev,
+    LPI3C_Detachdev,
+    LPI3C_GetSlaveList,
+    LPI3C_GetSlaveDynamicAddr,
+    LPI3C_GetSlvsInfo
+};
+#endif /* RTE_LPI3C */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
 #endif /* defined(RTE_Drivers_I3C) */

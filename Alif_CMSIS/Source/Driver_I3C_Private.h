@@ -24,7 +24,7 @@ extern "C"
 #include "i3c.h"
 
 /* Check if DMA Support is enable? */
-#if RTE_I3C_DMA_ENABLE
+#if (RTE_I3C_DMA_ENABLE || RTE_LPI3C_DMA_ENABLE)
 #define I3C_DMA_ENABLE  1
 #else
 #define I3C_DMA_ENABLE  0
