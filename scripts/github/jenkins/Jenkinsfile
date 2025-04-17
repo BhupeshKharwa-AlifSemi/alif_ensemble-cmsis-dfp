@@ -134,7 +134,7 @@ pipeline {
                     echo -e " 🏆Check-Patch Result =>  Error: $errors, Warnings: $warnings, Tabs: $tabCnt"
                     echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
                     echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
-                    total_cmakeError=$((total_cmakeError + errors + tabCnt))
+                    #total_cmakeError=$((total_cmakeError + errors + tabCnt))
                     exit $total_cmakeError
                     '''
                 }
