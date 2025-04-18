@@ -17,11 +17,11 @@
  * @brief    Baremetal code for analog Comparator.
  *              - CMP0 instance is used - in RTE_Device.h we set the input muxes
  *              - Input A is set by RTE_CMP0_SEL_POSITIVE
- *              - Input A is set to RTE_CMP0_POSITIVE_PIN_PO_00 (analog pin P0_0)
+ *              - Input A is set to RTE_CMP0_POSITIVE_PIN PO_06 (analog pin P0_6)
  *              - Input B is set by RTE_CMP0_SEL_NEGATIVE
  *              - Input B is set to RTE_CMP_NEGATIVE_DAC6(which provide 0.9v)
  *              Hardware setup (1 wires needed):
- *              - Connect P0_0(+ve pin) to P4_7(GPIO output) and DAC6 is set as negative
+ *              - Connect P0_6(+ve pin) to P4_7(GPIO output) and DAC6 is set as negative
  *                pin,check CMP0 output in the pin P8_0 using saleae logic analyzer.
  *              - If +ve input is greater than -ve input, interrupt will be generated,
  *                and the output will be high.
@@ -110,12 +110,12 @@ static int32_t cmp_pinmux_config(void)
         return ERROR;
 
     /* CMP0_IN0 input to the positive terminal of HSCMP0 */
-    status = pinconf_set(PORT_0, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
     if(status)
         return ERROR;
 
     /* CMP1_IN0 input to the positive terminal of HSCMP1 */
-    status = pinconf_set(PORT_0, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(status)
         return ERROR;
 

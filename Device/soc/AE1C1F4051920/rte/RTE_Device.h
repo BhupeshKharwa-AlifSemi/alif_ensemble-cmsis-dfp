@@ -3410,8 +3410,8 @@
 //     <3=> PIN_P0_4
 // <i> Defines:select input to the positive terminal of comparator;
 // <i> 00 = P0_0; 01 = P0_6; 10 = P1_4; 11 = P0_4
-// Default : 0
-#define RTE_CMP0_SEL_POSITIVE        0
+// Default : 1
+#define RTE_CMP0_SEL_POSITIVE        1
 
 // <o> Select negative terminal
 //     <0=> PIN_P2_0
@@ -3458,8 +3458,8 @@
 //     <3=> PIN_P0_5
 // <i> Defines:select input to the positive terminal of comparator;
 // <i> 00 = P0_1; 01 = P0_7; 10 = P1_5; 11 = P0_5
-// Default : 0
-#define RTE_CMP1_SEL_POSITIVE        0
+// Default : 1
+#define RTE_CMP1_SEL_POSITIVE        1
 
 // <o> Select negative terminal
 //     <0=> PIN_P2_0
