@@ -13,6 +13,7 @@
 
 #include "Driver_I2C_EX.h"
 #include "i2c.h"
+#include "sys_ctrl_i2c.h"
 
 /**** system includes ****/
 #include "RTE_Device.h"
@@ -20,7 +21,8 @@
 #include CMSIS_device_header
 
 #if (RTE_I2C0_DMA_ENABLE || RTE_I2C1_DMA_ENABLE ||  \
-     RTE_I2C2_DMA_ENABLE || RTE_I2C3_DMA_ENABLE)
+     RTE_I2C2_DMA_ENABLE || RTE_I2C3_DMA_ENABLE ||  \
+     RTE_LPI2C1_DMA_ENABLE)
 #define I2C_DMA_ENABLE  1
 #else
 #define I2C_DMA_ENABLE  0
@@ -65,13 +67,14 @@ typedef struct _I2C_RESOURCES
     uint8_t                 mode;               /* current working mode as master or slave */
     uint8_t                 wr_mode_info;       /* Write-Read combined mode - Bit0 - On/Off, Bits7-4 - Tar reg addr size */
 #if I2C_DMA_ENABLE
-    const bool              dma_enable;         /* I2C dma enable */
-    const uint32_t          dma_irq_priority;   /* DMA IRQ priority number */
-    ARM_DMA_SignalEvent_t   dma_cb;             /* I2S DMA Callback */
-    I2C_DMA_HW_CONFIG       *dma_cfg;           /* DMA Controller configuration */
+    const bool              dma_enable;         /* I2C dma enable                          */
+    const uint32_t          dma_irq_priority;   /* DMA IRQ priority number                 */
+    ARM_DMA_SignalEvent_t   dma_cb;             /* I2S DMA Callback                        */
+    I2C_DMA_HW_CONFIG       *dma_cfg;           /* DMA Controller configuration            */
 #endif
-    uint8_t                 tx_fifo_threshold;  /* Tx Fifo Buffer threshold */
-    uint8_t                 rx_fifo_threshold;  /* Rx Fifo Buffer threshold */
+    uint8_t                 tx_fifo_threshold;  /* Tx Fifo Buffer threshold                */
+    uint8_t                 rx_fifo_threshold;  /* Rx Fifo Buffer threshold                */
+    const I2C_INSTANCE      instance;           /* I2C Instance number                     */
 } I2C_RESOURCES;
 
 #define I2C_SLAVE_MODE                              (0)          /* Indicate that the device working as slave */

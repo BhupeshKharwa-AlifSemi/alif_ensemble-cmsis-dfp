@@ -922,6 +922,10 @@ static int32_t DMA_PowerControl(ARM_POWER_STATE state, DMA_RESOURCES *DMA)
 #if RTE_LPI3C_SELECT_DMA0
             lpi3c_select_dma0();
 #endif
+
+#if RTE_LPI2C1_SELECT_DMA0
+            lpi2c1_select_dma0();
+#endif
             dma0_enable_periph_clk();
             evtrtr0_enable_dma_req();
 

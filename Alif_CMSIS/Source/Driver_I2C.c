@@ -15,10 +15,9 @@
 
 /* system includes */
 #include "Driver_I2C_Private.h"
-#include "sys_clocks.h"
 
 /* Driver version */
-#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 4)
+#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 5)
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -285,9 +284,6 @@ static int32_t ARM_I2C_Initialize(ARM_I2C_SignalEvent_t cb_event,
     I2C->tar_addr &= I2C_7BIT_ADDRESS_MASK;
     I2C->slv_addr &= I2C_7BIT_ADDRESS_MASK;
 
-    /* Disable device before init it */
-    i2c_disable(I2C->regs);
-
     I2C->transfer.err_state = I2C_ERR_NONE;
     I2C->transfer.next_cond = I2C_MODE_STOP;
 
@@ -297,8 +293,8 @@ static int32_t ARM_I2C_Initialize(ARM_I2C_SignalEvent_t cb_event,
     /* set the user callback event. */
     I2C->cb_event = cb_event;
 
-    /* Get the SYST_PCLK */
-    I2C->clk = GetSystemAPBClock();
+    /* Get the I2C core clock */
+    I2C->clk = get_i2c_core_clock();
 
     /* set the flag as initialized. */
     I2C->state.initialized = 1;
@@ -346,8 +342,6 @@ static int32_t ARM_I2C_Uninitialize(I2C_RESOURCES *I2C)
         I2C->dma_cfg->dma_tx.dma_handle = -1;
     }
 #endif
-
-    i2c_disable(I2C->regs);
 
     /* initialize all variables to 0 */
 
@@ -407,6 +401,10 @@ static int32_t ARM_I2C_PowerControl(ARM_POWER_STATE state, I2C_RESOURCES *I2C)
         {
             return ARM_DRIVER_OK;
         }
+
+        enable_i2c_clock(I2C->instance);
+        /* Disable device before initializing it */
+        i2c_disable(I2C->regs);
 
         /* Disable all interrupts */
         i2c_master_disable_tx_interrupt(I2C->regs);
@@ -493,6 +491,10 @@ static int32_t ARM_I2C_PowerControl(ARM_POWER_STATE state, I2C_RESOURCES *I2C)
 
         /* Clearing pending */
         NVIC_ClearPendingIRQ(I2C->irq_num);
+
+        /* Disable device before de-initializing it */
+        i2c_disable(I2C->regs);
+        disable_i2c_clock(I2C->instance);
 
         I2C->state.powered = 0;
         break;
@@ -1374,13 +1376,14 @@ static I2C_RESOURCES I2C0_RES =
     .irq_num               = (IRQn_Type)I2C0_IRQ_IRQn,
     .irq_priority          = (uint32_t)RTE_I2C0_IRQ_PRIORITY,
 #if RTE_I2C0_DMA_ENABLE
-    .dma_enable          = RTE_I2C0_DMA_ENABLE,
-    .dma_irq_priority    = RTE_I2C0_DMA_IRQ_PRI,
-    .dma_cb              = I2C0_DMACallback,
-    .dma_cfg             = &I2C0_DMA_HW_CONFIG,
+    .dma_enable            = RTE_I2C0_DMA_ENABLE,
+    .dma_irq_priority      = RTE_I2C0_DMA_IRQ_PRI,
+    .dma_cb                = I2C0_DMACallback,
+    .dma_cfg               = &I2C0_DMA_HW_CONFIG,
 #endif
     .tx_fifo_threshold     = RTE_I2C0_TX_FIFO_THRESHOLD,
-    .rx_fifo_threshold     = RTE_I2C0_RX_FIFO_THRESHOLD
+    .rx_fifo_threshold     = RTE_I2C0_RX_FIFO_THRESHOLD,
+    .instance              = I2C_INSTANCE_0
 };
 
 static int32_t I2C0_Initialize(ARM_I2C_SignalEvent_t cb_event)
@@ -1507,13 +1510,14 @@ static I2C_RESOURCES I2C1_RES =
     .irq_num               = (IRQn_Type)I2C1_IRQ_IRQn,
     .irq_priority          = (uint32_t)RTE_I2C1_IRQ_PRIORITY,
 #if RTE_I2C1_DMA_ENABLE
-    .dma_enable          = RTE_I2C1_DMA_ENABLE,
-    .dma_irq_priority    = RTE_I2C1_DMA_IRQ_PRI,
-    .dma_cb              = I2C1_DMACallback,
-    .dma_cfg             = &I2C1_DMA_HW_CONFIG,
+    .dma_enable            = RTE_I2C1_DMA_ENABLE,
+    .dma_irq_priority      = RTE_I2C1_DMA_IRQ_PRI,
+    .dma_cb                = I2C1_DMACallback,
+    .dma_cfg               = &I2C1_DMA_HW_CONFIG,
 #endif
     .tx_fifo_threshold     = RTE_I2C1_TX_FIFO_THRESHOLD,
-    .rx_fifo_threshold     = RTE_I2C1_RX_FIFO_THRESHOLD
+    .rx_fifo_threshold     = RTE_I2C1_RX_FIFO_THRESHOLD,
+    .instance              = I2C_INSTANCE_1
 };
 
 static int32_t I2C1_Initialize(ARM_I2C_SignalEvent_t cb_event)
@@ -1640,13 +1644,14 @@ static I2C_RESOURCES I2C2_RES =
     .irq_num               = (IRQn_Type)I2C2_IRQ_IRQn,
     .irq_priority          = (uint32_t)RTE_I2C2_IRQ_PRIORITY,
 #if RTE_I2C2_DMA_ENABLE
-    .dma_enable          = RTE_I2C2_DMA_ENABLE,
-    .dma_irq_priority    = RTE_I2C2_DMA_IRQ_PRI,
-    .dma_cb              = I2C2_DMACallback,
-    .dma_cfg             = &I2C2_DMA_HW_CONFIG,
+    .dma_enable            = RTE_I2C2_DMA_ENABLE,
+    .dma_irq_priority      = RTE_I2C2_DMA_IRQ_PRI,
+    .dma_cb                = I2C2_DMACallback,
+    .dma_cfg               = &I2C2_DMA_HW_CONFIG,
 #endif
     .tx_fifo_threshold     = RTE_I2C2_TX_FIFO_THRESHOLD,
-    .rx_fifo_threshold     = RTE_I2C2_RX_FIFO_THRESHOLD
+    .rx_fifo_threshold     = RTE_I2C2_RX_FIFO_THRESHOLD,
+    .instance              = I2C_INSTANCE_2
 };
 
 static int32_t I2C2_Initialize(ARM_I2C_SignalEvent_t cb_event)
@@ -1772,13 +1777,14 @@ static I2C_RESOURCES I2C3_RES =
     .irq_num               = (IRQn_Type)I2C3_IRQ_IRQn,
     .irq_priority          = (uint32_t)RTE_I2C3_IRQ_PRIORITY,
 #if RTE_I2C3_DMA_ENABLE
-    .dma_enable          = RTE_I2C3_DMA_ENABLE,
-    .dma_irq_priority    = RTE_I2C3_DMA_IRQ_PRI,
-    .dma_cb              = I2C3_DMACallback,
-    .dma_cfg             = &I2C3_DMA_HW_CONFIG,
+    .dma_enable            = RTE_I2C3_DMA_ENABLE,
+    .dma_irq_priority      = RTE_I2C3_DMA_IRQ_PRI,
+    .dma_cb                = I2C3_DMACallback,
+    .dma_cfg               = &I2C3_DMA_HW_CONFIG,
 #endif
     .tx_fifo_threshold     = RTE_I2C3_TX_FIFO_THRESHOLD,
-    .rx_fifo_threshold     = RTE_I2C3_RX_FIFO_THRESHOLD
+    .rx_fifo_threshold     = RTE_I2C3_RX_FIFO_THRESHOLD,
+    .instance              = I2C_INSTANCE_3
 };
 
 static int32_t I2C3_Initialize(ARM_I2C_SignalEvent_t cb_event)
@@ -1863,4 +1869,137 @@ ARM_DRIVER_I2C Driver_I2C3 = {
 };
 #endif /* RTE_I2C3 */
 
+/* LPI2C1 Driver Instance */
+#if (RTE_LPI2C1)
+
+#if RTE_LPI2C1_DMA_ENABLE
+static void LPI2C1_DMACallback(uint32_t event, int8_t peri_num);
+
+static I2C_DMA_HW_CONFIG LPI2C1_DMA_HW_CONFIG = {
+    .dma_rx =
+    {
+        .dma_drv        = &ARM_Driver_DMA_(LPI2C1_DMA),
+        .dma_periph_req = LPI2C1_DMA_RX_PERIPH_REQ,
+        .evtrtr_cfg =
+        {
+             .instance = LPI2C1_DMA,
+             .group    = LPI2C1_DMA_GROUP,
+             .channel  = LPI2C1_DMA_RX_PERIPH_REQ,
+             .enable_handshake = LPI2C1_DMA_HANDSHAKE_ENABLE,
+        },
+    },
+    .dma_tx =
+    {
+        .dma_drv        = &ARM_Driver_DMA_(LPI2C1_DMA),
+        .dma_periph_req = LPI2C1_DMA_TX_PERIPH_REQ,
+        .evtrtr_cfg =
+        {
+             .instance = LPI2C1_DMA,
+             .group    = LPI2C1_DMA_GROUP,
+             .channel  = LPI2C1_DMA_TX_PERIPH_REQ,
+             .enable_handshake = LPI2C1_DMA_HANDSHAKE_ENABLE,
+        },
+
+    },
+};
+#endif
+
+/* LPI2C1 Driver Resources */
+static I2C_RESOURCES LPI2C1_RES =
+{
+    .regs                  = (I2C_Type *)LPI2C1_BASE,
+    .irq_num               = (IRQn_Type)LPI2C1_IRQ_IRQn,
+    .irq_priority          = (uint32_t)RTE_LPI2C1_IRQ_PRIORITY,
+#if RTE_LPI2C1_DMA_ENABLE
+    .dma_enable            = RTE_LPI2C1_DMA_ENABLE,
+    .dma_irq_priority      = RTE_LPI2C1_DMA_IRQ_PRI,
+    .dma_cb                = LPI2C1_DMACallback,
+    .dma_cfg               = &LPI2C1_DMA_HW_CONFIG,
+#endif
+    .tx_fifo_threshold     = RTE_LPI2C1_TX_FIFO_THRESHOLD,
+    .rx_fifo_threshold     = RTE_LPI2C1_RX_FIFO_THRESHOLD,
+    .instance              = I2C_INSTANCE_LP_1
+};
+
+static int32_t LPI2C1_Initialize(ARM_I2C_SignalEvent_t cb_event)
+{
+    return ARM_I2C_Initialize(cb_event, &LPI2C1_RES);
+}
+
+static int32_t LPI2C1_Uninitialize(void)
+{
+    return ARM_I2C_Uninitialize(&LPI2C1_RES);
+}
+
+static int32_t LPI2C1_PowerControl(ARM_POWER_STATE state)
+{
+    return ARM_I2C_PowerControl(state, &LPI2C1_RES);
+}
+
+static int32_t LPI2C1_MasterTransmit(uint32_t addr, const uint8_t *data,
+                                     uint32_t num,  bool xfer_pending)
+{
+    return ARM_I2C_MasterTransmit(&LPI2C1_RES, addr, data, num, xfer_pending);
+}
+
+static int32_t LPI2C1_MasterReceive(uint32_t addr, uint8_t *data,
+                                    uint32_t num, bool xfer_pending)
+{
+    return (ARM_I2C_MasterReceive(&LPI2C1_RES, addr, data, num, xfer_pending));
+}
+
+static int32_t LPI2C1_SlaveTransmit(const uint8_t *data, uint32_t num)
+{
+    return (ARM_I2C_SlaveTransmit(&LPI2C1_RES, data, num));
+}
+
+static int32_t LPI2C1_SlaveReceive(uint8_t *data, uint32_t num)
+{
+    return (ARM_I2C_SlaveReceive(&LPI2C1_RES, data, num));
+}
+
+static int32_t LPI2C1_GetDataCount(void)
+{
+    return (ARM_I2C_GetDataCount(&LPI2C1_RES));
+}
+
+static int32_t LPI2C1_Control(uint32_t control, uint32_t arg)
+{
+    return (ARM_I2C_Control(&LPI2C1_RES, control, arg));
+}
+
+static ARM_I2C_STATUS LPI2C1_GetStatus(void)
+{
+    return (ARM_I2C_GetStatus(&LPI2C1_RES));
+}
+
+void LPI2C1_IRQHandler(void)
+{
+    I2C_IRQHandler(&LPI2C1_RES);
+}
+
+#if RTE_LPI2C1_DMA_ENABLE
+static void LPI2C1_DMACallback(uint32_t event, int8_t peri_num)
+{
+    I2C_DMACallback(event, peri_num, &LPI2C1_RES);
+}
+#endif
+
+/* I2CLP1 Driver Control Block */
+extern ARM_DRIVER_I2C Driver_I2CLP1;
+ARM_DRIVER_I2C Driver_I2CLP1 = {
+    ARM_I2C_GetVersion,
+    ARM_I2C_GetCapabilities,
+    LPI2C1_Initialize,
+    LPI2C1_Uninitialize,
+    LPI2C1_PowerControl,
+    LPI2C1_MasterTransmit,
+    LPI2C1_MasterReceive,
+    LPI2C1_SlaveTransmit,
+    LPI2C1_SlaveReceive,
+    LPI2C1_GetDataCount,
+    LPI2C1_Control,
+    LPI2C1_GetStatus
+};
+#endif /* RTE_LPI2C1 */
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

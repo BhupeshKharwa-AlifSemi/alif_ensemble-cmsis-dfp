@@ -8493,8 +8493,53 @@
 
 #endif
 // </e> LPI2C0(Low Power Inter-Integrated Circuit) [Driver_LPI2C0]
+
+// <e> LPI2C (Low Power Inter Integrated Circuit) [Driver_LPI2C1]
+// <i> Configuration settings for Driver_LPI2C1 in component ::Drivers:LPI2C1
+#define RTE_LPI2C1                     1
+
+#if RTE_LPI2C1
+
+// <o> LPI2C1 IRQ priority <0-255>
+// <i> Defines Interrupt priority for LPI2C1.
+// <i> Default: 0
+#define RTE_LPI2C1_IRQ_PRIORITY        0
+
+// <o> LPI2C1 TX FIFO threshold <0-31>
+// <i> Defines TX FIFO threshold for LPI2C1.
+// <i> Default: 16
+#define RTE_LPI2C1_TX_FIFO_THRESHOLD   16
+
+// <o> LPI2C1 RX FIFO threshold <0-31>
+// <i> Defines RX FIFO threshold for LPI2C1.
+// <i> Default: 16
+#define RTE_LPI2C1_RX_FIFO_THRESHOLD   16
+
+// <o> LPI2C1 DMA ENABLE
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines DMA feature for LPI2C1
+// <i> Default: DISABLE
+#define RTE_LPI2C1_DMA_ENABLE          0
+#if RTE_LPI2C1_DMA_ENABLE
+
+// <o> LPI2C1 DMA Selection
+//    <0=> DMA2(M55-HE)
+//    <1=> DMA0
+// <i> Defines Select DMA0 for LPI2C1. By default DMA0 will be considered
+// <i> Default: DMA0
+#define RTE_LPI2C1_SELECT_DMA0         1
+
+// <o> LPI2C1 DMA IRQ priority <0-255>
+// <i> Defines LPI2C1 DMA Interrupt priority
+// <i> Default: 0
+#define RTE_LPI2C1_DMA_IRQ_PRI         0
+#endif
+
+#endif
+// </e> LPI2C (Low Power Inter Integrated Circuit) [Driver_LPI2C1]
 #endif //defined(RTSS_HE)
-// </h>
+// </h> I2C (Inter Integrated Circuit)
 
 // <e> DMA0 (Direct Memory Access Controller) [Driver_DMA0]
 // <i> Configuration settings for Driver_DMA0 in component ::Drivers:DMA
