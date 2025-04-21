@@ -15,56 +15,77 @@
 #include "soc_features.h"
 #include "sys_clocks.h"
 
-#if (RTE_LPI3C)
-#define HE_CLK_ENA_I3C_CKEN     (1 << 14)
-#endif
+/**
+ * enum I3C_INSTANCE
+ * I3C instances
+ */
+typedef enum _I3C_INSTANCE
+{
+    I3C_INSTANCE_0,                       /**< I3C instance - 0       */
+    I3C_INSTANCE_LP_0                     /**< I3C instance - LP - 0  */
+} I3C_INSTANCE;
 
-#if (RTE_I3C)
+
+#define HE_CLK_ENA_I3C_CKEN     (1 << 14)
 #define I3C_CTRL_DMA_SEL_DMA2   (1 << 24)
 #define I3C_CTRL_CKEN           (1 << 0)
-#endif
 /**
-  \fn          static inline void enable_i3c_clock(void)
+  \fn          static inline void enable_i3c_clock(const I3C_INSTANCE inst)
   \brief       Enables I3C clock
+  \param       inst : I3C instance number
   \return      none
 */
-static inline void enable_i3c_clock(void)
+static inline void enable_i3c_clock(const I3C_INSTANCE inst)
 {
-#if (RTE_LPI3C)
-    M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_I3C_CKEN;
-#endif
+    switch(inst)
+    {
+        case I3C_INSTANCE_0:
+            CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_CKEN;
+            break;
 
-#if (RTE_I3C)
-    CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_CKEN;
-#endif
+        case I3C_INSTANCE_LP_0:
+            M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_I3C_CKEN;
+            break;
+
+        default:
+            break;
+    }
 }
 
 /**
-  \fn          static inline void disable_i3c_clock(void)
+  \fn          static inline void disable_i3c_clock(const I3C_INSTANCE inst)
   \brief       Disables I3C clock
+  \param       inst : I3C instance number
   \return      none
 */
-static inline void disable_i3c_clock(void)
+static inline void disable_i3c_clock(const I3C_INSTANCE inst)
 {
-#if (RTE_LPI3C)
-    M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_I3C_CKEN;
-#endif
+    switch(inst)
+    {
+        case I3C_INSTANCE_0:
+            CLKCTL_PER_SLV->I3C_CTRL &= ~I3C_CTRL_CKEN;
+            break;
 
-#if (RTE_I3C)
-    CLKCTL_PER_SLV->I3C_CTRL &= ~I3C_CTRL_CKEN;
-#endif
+        case I3C_INSTANCE_LP_0:
+            M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_I3C_CKEN;
+            break;
+
+        default:
+            break;
+    }
 }
 
 /**
-  \fn          static inline void select_i3c_dma2(void)
+  \fn          static inline void select_i3c_dma2(const I3C_INSTANCE inst)
   \brief       Selects DMA2 for communication
+  \param       inst : I3C instance number
   \return      none
 */
-static inline void select_i3c_dma2(void)
+static inline void select_i3c_dma2(const I3C_INSTANCE inst)
 {
-#if (RTE_I3C)
-    CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_DMA_SEL_DMA2;
-#endif
+    if (inst == I3C_INSTANCE_0) {
+        CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_DMA_SEL_DMA2;
+    }
 }
 
 /**

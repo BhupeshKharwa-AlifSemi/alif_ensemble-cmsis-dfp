@@ -22,6 +22,7 @@ extern "C"
 
 #include "Driver_I3C.h"
 #include "i3c.h"
+#include "sys_ctrl_i3c.h"
 
 /* Check if DMA Support is enable? */
 #if (RTE_I3C_DMA_ENABLE || RTE_LPI3C_DMA_ENABLE)
@@ -74,11 +75,6 @@ typedef struct _I3C_RESOURCES
 {
     I3C_Type               *regs;            /* Pointer to i3c regs                                */
     ARM_I3C_SignalEvent_t  cb_event;         /* Pointer to call back function                      */
-
-#if I3C_DMA_ENABLE
-    ARM_DMA_SignalEvent_t  dma_cb;           /* Pointer to DMA  Callback                           */
-#endif
-
     uint32_t               core_clk;         /* i3c core clock frequency                           */
     I3C_SLAVE_DAT_TYPE     slave_dat;        /* i3c slave devices address local information        */
     i3c_xfer_t             xfer;             /* i3c transfer structure                             */
@@ -90,12 +86,12 @@ typedef struct _I3C_RESOURCES
     bool                   adaptive_mode;    /* I3C slave I2C/I3C adaptive mode                    */
     IRQn_Type              irq;              /* i3c interrupt number                               */
     uint32_t               irq_priority;     /* i3c interrupt priority                             */
-
+    const I3C_INSTANCE     instance;         /* I3C Instance number                                */
 #if I3C_DMA_ENABLE
+    ARM_DMA_SignalEvent_t  dma_cb;           /* Pointer to DMA  Callback                           */
     I3C_DMA_HW_CONFIG     *dma_cfg;          /* DMA Controller configuration                       */
     const uint32_t         dma_irq_priority; /* DMA IRQ priority number                            */
 #endif
-
 }I3C_RESOURCES;
 
 

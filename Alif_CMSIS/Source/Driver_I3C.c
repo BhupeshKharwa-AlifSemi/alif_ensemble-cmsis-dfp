@@ -15,16 +15,14 @@
 
 /* Project Includes */
 #include "Driver_I3C_Private.h"
-#include "sys_ctrl_i3c.h"
-#include "sys_clocks.h"
 
 #if defined(RTE_Drivers_I3C)
 
-#if !(RTE_I3C)
+#if !(RTE_I3C || RTE_LPI3C)
 #error "I3C is not enabled in the RTE_Device.h"
 #endif
 
-#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 10) /* driver version */
+#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 11) /* driver version */
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion =
@@ -1891,7 +1889,7 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
 
             /* i3c EXPMST0 control configuration:
              *  Disable i3c clock. */
-            disable_i3c_clock();
+            disable_i3c_clock(i3c->instance);
 
             /* Reset the power state. */
             i3c->state.enabled   = 0U;
@@ -1909,13 +1907,13 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
 
             /* i3c EXPMST0 control configuration:
              *  Enable i3c clock. */
-            enable_i3c_clock();
+            enable_i3c_clock(i3c->instance);
 
 #if I3C_DMA_ENABLE
             /* if DMA2 is selected? */
             if(i3c->dma_cfg->dma_tx.evtrtr_cfg.instance == 2)
             {
-                select_i3c_dma2();
+                select_i3c_dma2(i3c->instance);
             }
             /* else: DMA0 is selected.
              * For LPI3C, DMA selection is done in DMA driver
@@ -2330,7 +2328,7 @@ static I3C_RESOURCES i3c =
     .adaptive_mode     = RTE_I3C_SLAVE_ADAPTIVE_MODE_ENABLE,
     .irq               = (IRQn_Type) I3C_IRQ_IRQn,
     .irq_priority      = RTE_I3C_IRQ_PRI,
-
+    .instance          = I3C_INSTANCE_0,
 #if RTE_I3C_DMA_ENABLE
     .dma_cb            = I3C_DMACallback,
     .dma_cfg           = &I3Cx_DMA_HW_CONFIG,
@@ -2530,7 +2528,7 @@ static I3C_RESOURCES LPI3C_RES =
     .adaptive_mode     = RTE_LPI3C_SLAVE_ADAPTIVE_MODE_ENABLE,
     .irq               = (IRQn_Type) LPI3C_IRQ_IRQn,
     .irq_priority      = RTE_LPI3C_IRQ_PRI,
-
+    .instance          = I3C_INSTANCE_LP_0,
 #if RTE_LPI3C_DMA_ENABLE
     .dma_cb            = LPI3C_DMACallback,
     .dma_cfg           = &LPI3Cx_DMA_HW_CONFIG,
