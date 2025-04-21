@@ -26,6 +26,7 @@
 #include CMSIS_device_header
 #include "pinconf.h"
 #include "Driver_CAN.h"
+#include "sys_utils.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
