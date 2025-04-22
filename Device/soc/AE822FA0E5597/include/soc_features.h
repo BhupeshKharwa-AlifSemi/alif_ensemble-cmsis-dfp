@@ -114,4 +114,6 @@
 
 #define SOC_FEAT_I3C_CORE_CLK_AXI       (0)
 
+#define SOC_FEAT_I2C_HAS_RESTART_CAP    (1)
+
 #endif /* SOC_FEATURES_H */

@@ -44,6 +44,9 @@ extern "C"
 #define I2C_IC_STATUS_MASTER_ACT                    (0x20)      /* (1 << 5) */
 #define I2C_IC_STATUS_SLAVE_ACT                     (0x40)      /* (1 << 6) */
 
+/* Perform a Restart/Stop request */
+#define I2C_IC_DATA_CMD_RESTART                     (1 << 10)
+#define I2C_IC_DATA_CMD_STOP                        (1 << 9)
 /* Perform a write request */
 #define I2C_IC_DATA_CMD_WRITE_REQ                   (0)
 /* Perform a read request */
@@ -80,9 +83,9 @@ extern "C"
 #define I2C_IC_INTR_STAT_RX_UNDER                   (1 << 0)    /* raw interrupt status */
 
 /* Interrupt enable mask as master */
-#define I2C_IC_INT_MST_TX_ENABLE                    (I2C_IC_INTR_STAT_TX_EMPTY| \
-                                                     I2C_IC_INTR_STAT_TX_OVER | \
-                                                     I2C_IC_INTR_STAT_TX_ABRT | \
+#define I2C_IC_INT_MST_TX_ENABLE                    (I2C_IC_INTR_STAT_TX_EMPTY | \
+                                                     I2C_IC_INTR_STAT_TX_OVER  | \
+                                                     I2C_IC_INTR_STAT_TX_ABRT  | \
                                                      I2C_IC_INTR_STAT_STOP_DET)
 
 #define I2C_IC_INT_DMA_MST_TX_ENABLE                (I2C_IC_INTR_STAT_TX_OVER  | \
@@ -102,8 +105,8 @@ extern "C"
                                                      I2C_IC_INTR_STAT_TX_ABRT  | \
                                                      I2C_IC_INTR_STAT_STOP_DET)
 /* Interrupt enable mask as slave */
-#define I2C_IC_INT_SLV_TX_ENABLE                    (I2C_IC_INTR_STAT_RD_REQ  | \
-                                                     I2C_IC_INTR_STAT_TX_ABRT | \
+#define I2C_IC_INT_SLV_TX_ENABLE                    (I2C_IC_INTR_STAT_RD_REQ   | \
+                                                     I2C_IC_INTR_STAT_TX_ABRT  | \
                                                      I2C_IC_INTR_STAT_STOP_DET)
 
 #define I2C_IC_INT_DMA_SLV_TX_ENABLE                (I2C_IC_INTR_STAT_TX_ABRT  | \
@@ -276,6 +279,7 @@ typedef enum _I2C_TRANSFER_STATUS {
 /* i2c Transfer Information (Run-Time) */
 typedef struct i2c_transfer_info
 {
+  bool                          xfer_pending;     /* Transfer pending (no STOP) pending for interrupt only                   */
   const uint8_t                *tx_buf;           /* Pointer to out data buffer                                              */
   uint32_t                      tx_total_num;     /* Total number of data to be send                                         */
   volatile uint32_t             tx_curr_cnt;      /* current Number of data sent from total num                              */

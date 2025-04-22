@@ -17,7 +17,7 @@
 #include "Driver_I2C_Private.h"
 
 /* Driver version */
-#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 5)
+#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 6)
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -287,8 +287,9 @@ static int32_t ARM_I2C_Initialize(ARM_I2C_SignalEvent_t cb_event,
     I2C->transfer.err_state = I2C_ERR_NONE;
     I2C->transfer.next_cond = I2C_MODE_STOP;
 
-    I2C->transfer.tx_over = 0U;
-    I2C->transfer.rx_over = 0;
+    I2C->transfer.tx_over      = 0U;
+    I2C->transfer.rx_over      = 0U;
+    I2C->transfer.xfer_pending = 0U;
 
     /* set the user callback event. */
     I2C->cb_event = cb_event;
@@ -359,6 +360,7 @@ static int32_t ARM_I2C_Uninitialize(I2C_RESOURCES *I2C)
     I2C->transfer.rx_curr_tx_index     = 0U;
     I2C->transfer.rx_over              = 0U;
 
+    I2C->transfer.xfer_pending         = 0U;
     I2C->transfer.next_cond            = I2C_MODE_STOP;
     I2C->transfer.err_state            = I2C_ERR_NONE;
     I2C->transfer.curr_stat            = I2C_TRANSFER_NONE;
@@ -537,9 +539,13 @@ static int32_t ARM_I2C_MasterTransmit(I2C_RESOURCES *I2C,
     if (I2C->state.powered == 0)
         return ARM_DRIVER_ERROR;
 
+#if SOC_FEAT_I2C_HAS_RESTART_CAP
+    I2C->transfer.xfer_pending = xfer_pending;
+#else
     /* Error when RESTART is requested */
     if (xfer_pending)
         return ARM_DRIVER_ERROR_UNSUPPORTED;
+#endif
 
     /* addr 7bit addr: 0x7F , 10bit addr: 0x3FF */
     if ((data == NULL) || (num == 0U) ||
@@ -630,7 +636,8 @@ static int32_t ARM_I2C_MasterTransmit(I2C_RESOURCES *I2C,
         I2C->transfer.tx_buf        = (const uint8_t *)data;
         I2C->transfer.tx_total_num  = num;
 
-        /* Enabling the tx interrupt */
+        /* Clear all interrupts and enable master tx interrupt */
+        i2c_clear_all_interrupt(I2C->regs);
         i2c_master_enable_tx_interrupt(I2C->regs);
     }
 
@@ -670,9 +677,13 @@ static int32_t ARM_I2C_MasterReceive(I2C_RESOURCES *I2C,
     if (I2C->state.powered == 0)
         return ARM_DRIVER_ERROR;
 
+#if SOC_FEAT_I2C_HAS_RESTART_CAP
+    I2C->transfer.xfer_pending = xfer_pending;
+#else
     /* Error when RESTART is requested */
     if (xfer_pending)
         return ARM_DRIVER_ERROR_UNSUPPORTED;
+#endif
 
     /* addr 7bit addr: 0x7F , 10bit addr: 0x3FF */
     if ((data == NULL) || (num == 0U) || ((addr & (~ARM_I2C_ADDRESS_10BIT)) > 0x3FF))
@@ -759,7 +770,8 @@ static int32_t ARM_I2C_MasterReceive(I2C_RESOURCES *I2C,
         else
 #endif
         {
-            /* Enabling the rx interrupt */
+            /* Clear all interrupts and enable master rx interrupt */
+            i2c_clear_all_interrupt(I2C->regs);
             i2c_master_enable_rx_interrupt(I2C->regs);
         }
     }
@@ -878,7 +890,8 @@ static int32_t ARM_I2C_SlaveTransmit(I2C_RESOURCES *I2C,
         I2C->transfer.tx_buf        = (const uint8_t *)data;
         I2C->transfer.tx_total_num  = num;
 
-        /* Enabling the tx interrupt */
+        /* Clear all interrupts and enable slave tx interrupt */
+        i2c_clear_all_interrupt(I2C->regs);
         i2c_slave_enable_tx_interrupt(I2C->regs);
     }
 
@@ -986,7 +999,8 @@ static int32_t ARM_I2C_SlaveReceive(I2C_RESOURCES *I2C,
         I2C->transfer.rx_buf        = (uint8_t *)data;
         I2C->transfer.rx_total_num  = num;
 
-        /* Enabling the rx interrupt */
+        /* Clear all interrupts and enable slave rx interrupt */
+        i2c_clear_all_interrupt(I2C->regs);
         i2c_slave_enable_rx_interrupt(I2C->regs);
     }
     return ARM_DRIVER_OK;

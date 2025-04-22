@@ -8343,8 +8343,8 @@
 
 // <o> I2C0 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C0.
-// <i> Default: 16
-#define RTE_I2C0_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C0_RX_FIFO_THRESHOLD   0
 
 // <o> I2C0 DMA ENABLE
 //    <0=> DISABLE
@@ -8380,8 +8380,8 @@
 
 // <o> I2C1 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C1.
-// <i> Default: 16
-#define RTE_I2C1_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C1_RX_FIFO_THRESHOLD   0
 
 // <o> I2C1 DMA ENABLE
 //    <0=> DISABLE
@@ -8417,8 +8417,8 @@
 
 // <o> I2C2 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C2.
-// <i> Default: 16
-#define RTE_I2C2_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C2_RX_FIFO_THRESHOLD   0
 
 // <o> I2C2 DMA ENABLE
 //    <0=> DISABLE
@@ -8455,8 +8455,8 @@
 
 // <o> I2C3 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C3.
-// <i> Default: 16
-#define RTE_I2C3_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C3_RX_FIFO_THRESHOLD   0
 
 // <o> I2C3 DMA ENABLE
 //    <0=> DISABLE
@@ -8512,8 +8512,8 @@
 
 // <o> LPI2C1 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for LPI2C1.
-// <i> Default: 16
-#define RTE_LPI2C1_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_LPI2C1_RX_FIFO_THRESHOLD   0
 
 // <o> LPI2C1 DMA ENABLE
 //    <0=> DISABLE
@@ -9095,7 +9095,7 @@
 // <i> Defines Interrupt priority for GPIO5_PIN7.
 // <i> Default: 0
 #define RTE_GPIO5_PIN7_IRQ_PRIORITY     0
-#endif 
+#endif
 // </e> GPIO5
 
 // <e> GPIO6
@@ -9609,7 +9609,7 @@
 // <i> Defines Interrupt priority for GPIO11_PIN7.
 // <i> Default: 0
 #define RTE_GPIO11_PIN7_IRQ_PRIORITY     0
-#endif 
+#endif
 // </e> GPIO11
 
 // <e> GPIO12

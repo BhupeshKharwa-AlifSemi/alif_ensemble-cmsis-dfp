@@ -436,10 +436,10 @@ void i2c_slave_init(I2C_Type *i2c, uint32_t slave_addr,
  */
 void i2c_master_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
 {
-
     uint32_t i2c_int_status; /* i2c interrupt status */
-    uint16_t xmit_data = 0;
+    uint16_t xmit_data   = 0;
     static bool tx_abort = false;
+    bool exit            = false;
 
     i2c_int_status = (i2c->I2C_INTR_STAT);
 
@@ -488,24 +488,40 @@ void i2c_master_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
     {
         if (transfer->tx_buf)
         {
-            while (i2c_tx_ready(i2c))
+            do
             {
-                xmit_data = (uint16_t)(transfer->tx_buf[transfer->tx_curr_cnt])
+                xmit_data = (uint16_t)(transfer->tx_buf[transfer->tx_curr_cnt++])
                             | I2C_IC_DATA_CMD_WRITE_REQ;
-
-                transfer->tx_curr_cnt++;
-                transfer->curr_cnt = transfer->tx_curr_cnt;
-
-
-                /* Updating transmitting data to FIFO */
-                i2c->I2C_DATA_CMD = xmit_data;
 
                 /* Transmitted all the bytes */
                 if (transfer->tx_curr_cnt >= transfer->tx_total_num)
                 {
+                    xmit_data |= ((transfer->xfer_pending) ? 0U : I2C_IC_DATA_CMD_STOP);
+                    exit = true;
+                }
+
+                /* Updating transmitting data to FIFO */
+                i2c->I2C_DATA_CMD = xmit_data;
+
+                transfer->curr_cnt = transfer->tx_curr_cnt;
+            } while (i2c_tx_ready(i2c) && (!exit));
+
+            if (exit)
+            {
+                if (transfer->xfer_pending)
+                {
+                    /* transmitted all the bytes, disable tx
+                     * interrupts as restart is requested */
+                    i2c_master_disable_tx_interrupt(i2c);
+
+                    transfer->curr_stat = I2C_TRANSFER_NONE;
+                    /* mark event as master receive complete successfully. */
+                    transfer->status |= I2C_TRANSFER_STATUS_DONE;
+                }
+                else
+                {
                     /* transmitted all the bytes, Mask the TX_EMPTY interrupt */
                     i2c_mask_interrupt(i2c, I2C_IC_INTR_STAT_TX_EMPTY);
-                    break;
                 }
             }
         }
@@ -555,6 +571,7 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
     uint32_t i2c_int_status; /* i2c interrupt status */
     uint16_t xmit_data = 0;
     static bool tx_abort = false;
+    bool exit            = false;
 
     i2c_int_status = (i2c->I2C_INTR_STAT);
 
@@ -603,7 +620,6 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
         {
             if(transfer->wr_mode)
             {
-                transfer->wr_mode = false;
                 while(i2c_tx_ready(i2c))
                 {
                     xmit_data = (uint16_t)(transfer->tx_buf[transfer->tx_curr_cnt++])
@@ -613,29 +629,37 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
 
                     if (transfer->tx_curr_cnt >= transfer->tx_total_num)
                     {
+                        transfer->wr_mode = false;
                         break;
                     }
                 }
             }
             do {
-                i2c->I2C_DATA_CMD = I2C_IC_DATA_CMD_READ_REQ;
+                xmit_data = I2C_IC_DATA_CMD_READ_REQ;
 
                 /* completed sending all the read commands? */
                 if (++transfer->rx_curr_tx_index >= transfer->rx_total_num)
                 {
-                    /* added all the read commands to FIFO.
-                     * now we have to read from i2c so disable TX interrupt. */
-                    i2c_mask_interrupt(i2c, I2C_IC_INTR_STAT_TX_EMPTY);
-                    break;
+                    xmit_data |= ((transfer->xfer_pending) ?
+                                   0U : I2C_IC_DATA_CMD_STOP);
+                    exit = true;
                 }
 
-                /* Updating transmitting data to FIFO */
-            } while (i2c_tx_ready(i2c));
+                /* Updating data to FIFO */
+                i2c->I2C_DATA_CMD = xmit_data;
+            } while (i2c_tx_ready(i2c) && (!exit));
+
+            if (exit)
+            {
+                /* added all the bytes, Mask the TX_EMPTY interrupt */
+                i2c_mask_interrupt(i2c, I2C_IC_INTR_STAT_TX_EMPTY);
+            }
         }
+
         /* Checks if transmitted all the read condition,
          *  waiting for i2c to receive data from slave.
          * IC_INTR_STAT_RX_FULL set when i2c receives reaches
-         * or goes above RX_TL threshold (0 in our case) */
+         * or goes above RX_TL threshold */
         if(i2c_int_status & I2C_IC_INTR_STAT_RX_FULL)
         {
             while (i2c_rx_ready(i2c))
@@ -650,9 +674,21 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
                 /* received all the bytes */
                 if (transfer->rx_curr_cnt >= transfer->rx_total_num)
                 {
-                    /* received all the bytes disable the RX interrupt
-                     * and update callback event. */
-                    i2c_mask_interrupt(i2c, I2C_IC_INTR_STAT_RX_FULL);
+                    if (transfer->xfer_pending)
+                    {
+                        /* read all required bytes. disable the rx interrupt */
+                        i2c_master_disable_rx_interrupt(i2c);
+
+                        transfer->curr_stat = I2C_TRANSFER_NONE;
+                        /* mark event as master receive complete successfully. */
+                        transfer->status |= I2C_TRANSFER_STATUS_DONE;
+                    }
+                    else
+                    {
+                        /* received all the bytes disable the RX interrupt
+                         * and update callback event. */
+                        i2c_mask_interrupt(i2c, I2C_IC_INTR_STAT_RX_FULL);
+                    }
                     break;
                 }
             }
@@ -776,6 +812,13 @@ void i2c_slave_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
 
                    if (transfer->tx_curr_cnt >= transfer->tx_total_num)
                    {
+                       /* transmitted all the bytes, disable the transmit interrupt */
+                       i2c_slave_disable_tx_interrupt(i2c);
+
+                       transfer->curr_stat = I2C_TRANSFER_NONE;
+
+                       /* mark event as slave transmit complete successfully. */
+                       transfer->status |= I2C_TRANSFER_STATUS_DONE;
                        break;
                    }/* (xmit_end) */
 
@@ -803,7 +846,7 @@ void i2c_slave_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
     }
 
     /* Checks for stop condition */
-    if(i2c_int_status & I2C_IC_INTR_STAT_STOP_DET)
+    if (i2c_int_status & I2C_IC_INTR_STAT_STOP_DET)
     {
         /* transmitted all the bytes, disable the transmit interrupt */
         i2c_slave_disable_tx_interrupt(i2c);
@@ -846,6 +889,12 @@ void i2c_slave_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
             /* received all the bytes? */
             if (transfer->rx_curr_cnt >= transfer->rx_total_num)
             {
+                transfer->curr_stat = I2C_TRANSFER_NONE;
+                /* mark event as Slave Receive complete successfully. */
+                transfer->status |= I2C_TRANSFER_STATUS_DONE;
+
+                /* Disable the RX interrupt */
+                i2c_slave_disable_rx_interrupt(i2c);
                 break;
             }/* received all the bytes */
 

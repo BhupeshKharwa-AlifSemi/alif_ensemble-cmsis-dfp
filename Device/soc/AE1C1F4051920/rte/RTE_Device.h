@@ -3558,8 +3558,8 @@
 
 // <o> I2C0 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C0.
-// <i> Default: 16
-#define RTE_I2C0_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C0_RX_FIFO_THRESHOLD   0
 
 // <o> I2C0 DMA ENABLE
 //    <0=> DISABLE
@@ -3595,8 +3595,8 @@
 
 // <o> I2C1 RX FIFO threshold <0-31>
 // <i> Defines RX FIFO threshold for I2C1.
-// <i> Default: 16
-#define RTE_I2C1_RX_FIFO_THRESHOLD   16
+// <i> Default: 0
+#define RTE_I2C1_RX_FIFO_THRESHOLD   0
 
 // <o> I2C1 DMA ENABLE
 //    <0=> DISABLE
