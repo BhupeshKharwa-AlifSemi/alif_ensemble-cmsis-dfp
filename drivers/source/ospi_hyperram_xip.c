@@ -72,6 +72,8 @@ int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
     enable_ospi_clk();
 #endif
 
+    ospi_set_dfs(ospi, config->dfs);
+
     ospi_set_ddr_drive_edge(ospi, config->ddr_drive_edge);
 
     ospi_set_bus_speed(ospi, config->bus_speed, clk);
