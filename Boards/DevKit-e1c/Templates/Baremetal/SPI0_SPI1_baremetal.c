@@ -66,19 +66,19 @@ static int32_t pinmux_config(void)
         printf("ERROR: Failed to configure PINMUX for SPI0_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");
@@ -86,7 +86,7 @@ static int32_t pinmux_config(void)
     }
 
     /* pinmux configurations for SPI1 pins (using C version pins) */
-    ret = pinconf_set(PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI1_MISO_PIN\n");
