@@ -78,7 +78,6 @@
 #define SOC_FEAT_HAS_BLE                           (0)
 
 #define SOC_FEAT_USB_EP_TOTAL                      (8)
-#define SOC_FEAT_USB_EP_IN_MAX                     (4)
 
 #define SOC_FEAT_LPSPI_HAS_MASTER_SLAVE            (0)
 
