@@ -338,6 +338,15 @@ static void I2C_demo(void)
     mst_cb_status = 0;
     slv_cb_status = 0;
 
+    /* I2C Slave Transmit */
+    I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF,
+                              SLV_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Slave Transmit failed\n");
+        goto error_poweroff;
+    }
+
     /* I2C Master Receive */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
     ret = I2C_MstDrv->MasterReceive((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
@@ -351,17 +360,6 @@ static void I2C_demo(void)
     if (ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: I2C Master Receive failed\n");
-        goto error_poweroff;
-    }
-
-    sys_busy_loop_us(1000);
-
-    /* I2C Slave Transmit */
-    I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF,
-                              SLV_BYTE_TO_TRANSMIT);
-    if (ret != ARM_DRIVER_OK)
-    {
-        printf("\r\n Error: I2C Slave Transmit failed\n");
         goto error_poweroff;
     }
 

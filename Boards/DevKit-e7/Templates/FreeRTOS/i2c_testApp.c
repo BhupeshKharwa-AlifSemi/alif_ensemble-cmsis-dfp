@@ -36,10 +36,12 @@
 
 #include "Driver_I2C.h"
 #include "pinconf.h"
+#include "sys_utils.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+#include "event_groups.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
@@ -82,6 +84,8 @@ static ARM_DRIVER_I2C *I2C_SlvDrv = &Driver_I2C0;
 
 /* Task handle */
 static TaskHandle_t i2c_xHandle;
+/* Event group Handle */
+static EventGroupHandle_t i2c_event_group;
 
 #if (RTE_I2C0_DMA_ENABLE || RTE_I2C1_DMA_ENABLE)
     #define I2C_DMA_ENABLED     1
@@ -194,8 +198,8 @@ static void i2c_mst_transfer_callback(uint32_t event)
     if (event & ARM_I2C_EVENT_TRANSFER_DONE)
     {
         /* Transfer or receive is finished */
-        xResult = xTaskNotifyFromISR(i2c_xHandle, I2C_MST_TRANSFER_DONE,
-                           eSetBits, &xHigherPriorityTaskWoken);
+        xResult = xEventGroupSetBitsFromISR(i2c_event_group, I2C_MST_TRANSFER_DONE,
+                                            &xHigherPriorityTaskWoken);
 
         if (xResult == pdTRUE)
         {
@@ -218,8 +222,8 @@ static void i2c_slv_transfer_callback(uint32_t event)
     if (event & ARM_I2C_EVENT_TRANSFER_DONE)
     {
         /* Transfer or receive is finished */
-        xResult = xTaskNotifyFromISR(i2c_xHandle, I2C_SLV_TRANSFER_DONE,
-                           eSetBits, &xHigherPriorityTaskWoken);
+        xResult = xEventGroupSetBitsFromISR(i2c_event_group, I2C_SLV_TRANSFER_DONE,
+                                            &xHigherPriorityTaskWoken);
 
         if (xResult == pdTRUE)
         {
@@ -265,7 +269,7 @@ static void I2C_Thread(void *pvParameters)
 {
     int ret                      = 0;
     ARM_DRIVER_VERSION version;
-    uint32_t task_notified_value = 0;
+    EventBits_t events           = 0;
     ARG_UNUSED(pvParameters);
 
     printf("\r\n >>> I2C demo Thread starting up!!! <<< \r\n");
@@ -333,8 +337,6 @@ static void I2C_Thread(void *pvParameters)
         printf("\r\n Error: I2C Slave Receive failed\n");
         goto error_poweroff;
     }
-    /* delay */
-    vTaskDelay(1);
 
     /* I2C Master Transmit */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
@@ -351,27 +353,15 @@ static void I2C_Thread(void *pvParameters)
         printf("\r\n Error: I2C Master Transmit failed\n");
         goto error_poweroff;
     }
-    while(pdTRUE)
-    {
-        /* wait for master/slave callback. */
-        if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
-                            portMAX_DELAY) != pdFALSE)
-        {
-            /* Checks if both callbacks are successful */
-            if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
-            {
-                xTaskNotifyStateClear(NULL);
-            }
-            else
-            {
-                task_notified_value = 0;
-                break;
-            }
-        }
-    }
 
-    /* 3ms delay */
-    vTaskDelay(3);
+    /* wait for 2-way communication to complete */
+    events = xEventGroupWaitBits(i2c_event_group, I2C_TWO_WAY_TRANSFER_DONE,
+                                 pdTRUE, pdTRUE, portMAX_DELAY);
+
+    if (events != I2C_TWO_WAY_TRANSFER_DONE)
+    {
+        printf("Error: Master transmit/slave receive failed \n");
+    }
 
     /* Compare received data. */
 #if I2C_DMA_ENABLED
@@ -386,6 +376,14 @@ static void I2C_Thread(void *pvParameters)
     }
 
     printf("\n---------Master receive/slave transmit---------\n");
+
+    /* I2C Slave Transmit */
+    ret = I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK)
+    {
+        printf("\r\n Error: I2C Slave Transmit failed\n");
+        goto error_poweroff;
+    }
 
     /* I2C Master Receive */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
@@ -403,38 +401,14 @@ static void I2C_Thread(void *pvParameters)
         goto error_poweroff;
     }
 
-    /* 1ms delay */
-    vTaskDelay(1);
+    /* wait for 2-way communication to complete */
+    events = xEventGroupWaitBits(i2c_event_group, I2C_TWO_WAY_TRANSFER_DONE,
+                                 pdTRUE, pdTRUE, portMAX_DELAY);
 
-    /* I2C Slave Transmit */
-    ret = I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
-    if (ret != ARM_DRIVER_OK)
+    if (events != I2C_TWO_WAY_TRANSFER_DONE)
     {
-        printf("\r\n Error: I2C Slave Transmit failed\n");
-        goto error_poweroff;
+        printf("Error: Master receive/slave transmit failed \n");
     }
-
-    while(pdTRUE)
-    {
-         /* wait for master/slave callback. */
-         if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
-                             portMAX_DELAY) != pdFALSE)
-         {
-             /* Checks if both callbacks are successful */
-             if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
-             {
-                 xTaskNotifyStateClear(NULL);
-             }
-             else
-             {
-                 task_notified_value = 0;
-                 break;
-             }
-         }
-    }
-
-    /* 3ms delay */
-    vTaskDelay(3);
 
     /* Compare received data. */
 #if I2C_DMA_ENABLED
@@ -516,6 +490,9 @@ int main(void)
       vTaskDelete(i2c_xHandle);
       return -1;
    }
+
+   /* Create an event group */
+   i2c_event_group = xEventGroupCreate();
 
    /* Start thread execution */
    vTaskStartScheduler();
