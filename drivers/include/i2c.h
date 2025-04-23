@@ -52,6 +52,9 @@ extern "C"
 /* Perform a read request */
 #define I2C_IC_DATA_CMD_READ_REQ                    (1 << 8)
 
+/* i2c master 10 bit addr support */
+#define I2C_IC_CON_10BITADDR_MASTER                 (1 << 4)
+
 /* Speed modes of IC_CON */
 #define I2C_IC_CON_SPEED_MASK                       (0x6)
 #define I2C_IC_CON_SPEED_STANDARD                   (0x2)

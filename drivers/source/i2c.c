@@ -309,7 +309,8 @@ void i2c_set_target_addr(I2C_Type *i2c, const uint32_t address,
     if (addr_mode == I2C_10BIT_ADDRESS)
     {
         /* Configuring master to 10 Bit addressing mode*/
-        ic_tar_reg |= I2C_MASTER_10BIT_ADDR_MODE ;
+        ic_tar_reg   |= I2C_MASTER_10BIT_ADDR_MODE ;
+        i2c->I2C_CON |= I2C_IC_CON_10BITADDR_MASTER;
 
         if (cur_state == I2C_TRANSFER_MST_RX)
         {
@@ -324,7 +325,8 @@ void i2c_set_target_addr(I2C_Type *i2c, const uint32_t address,
     else
     {
         /* Configuring master to 7 Bit addressing mode*/
-        ic_tar_reg &= (~I2C_MASTER_10BIT_ADDR_MODE);
+        ic_tar_reg   &= (~I2C_MASTER_10BIT_ADDR_MODE);
+        i2c->I2C_CON &= (~I2C_IC_CON_10BITADDR_MASTER);
     }
     /* update the 10bit(0-9) of the ic_tar target register as per our address. */
     i2c->I2C_TAR = ic_tar_reg;
