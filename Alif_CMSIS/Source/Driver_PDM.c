@@ -22,6 +22,7 @@
 /* Project Includes */
 #include "Driver_PDM_Private.h"
 #include "sys_ctrl_pdm.h"
+#include "sys_utils.h"
 
 #if defined(RTE_Drivers_PDM)
 
