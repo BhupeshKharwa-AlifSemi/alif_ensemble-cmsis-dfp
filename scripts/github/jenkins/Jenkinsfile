@@ -1,8 +1,15 @@
+def allRecipientEmails = ""
 pipeline {
     agent any
+
+    environment {
+        REPO_NAME='ensemble-cmsis-dfp_DEV'
+    }
+
     options {
         skipDefaultCheckout(true)
     }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -13,7 +20,8 @@ pipeline {
                 }
             }
         }
-        stage('Environment') {
+
+        stage('Display Environment Variables') {
             steps {
                 script {
                     sh """#!/bin/bash -xe
@@ -26,141 +34,216 @@ pipeline {
         stage('checkout') {
             steps {
                 cleanWs()
+
                 script {
-                    sh '''#!/bin/bash
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh '''#!/bin/bash
+                        set -xe
+                        license_status=$($ARMCLANG_PATH/../../bin/armlm inspect)
 
-                    repo_name="ensemble-cmsis-dfp_DEV"
-                    license_status=$($ARMCLANG_PATH/../../bin/armlm inspect)
+                        case "$license_status" in
+                          *"No licenses found"*)
+                            $ARMCLANG_PATH/../../bin/armlm activate --server http://10.10.60.10:7070 --product HWSKT-EAC0
+                            ;;
+                          *)
+                            echo "ARM License is available."
+                            ;;
+                        esac
 
-                    case "$license_status" in
-                      *"No licenses found"*)
-                        $ARMCLANG_PATH/../../bin/armlm activate --server http://10.10.60.10:7070 --product HWSKT-EAC0
-                        ;;
-                      *)
-                        echo "ARM License is available."
-                        ;;
-                    esac
+                        CURR_OS=("NONE")
+                        CURR_COMPILER=("armclang" "gcc")
+                        CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597")
+                        CURR_RTSS=("HE" "HP")
+                        CURR_BOOT=("TCM" "MRAM")
+                        total_cmakeError=0
+                        
+                        if [ -d $REPO_NAME ]; then
+                            echo -e "Deleting older repo $REPO_NAME..."
+                            rm -rf $REPO_NAME
+                        fi
+                        
+                        echo -e "⏳ Checkout Repo 'ensemble-cmsis-dfp_DEV' main branch CHANGE_BRANCH: '$CHANGE_BRANCH' BRANCH_NAME: '$BRANCH_NAME'"
+                        git clone org-115832732@github.com:AlifSemiDev/$REPO_NAME.git
+                        
+                        if [ ! -d ${REPO_NAME} ] ; then
+                            echo -e "🚫Error: ${REPO_NAME} not found ...\n"
+                            exit -1
+                        fi
 
-                    if [ -d $repo_name ]; then
-                        echo -e "Deleting older repo $repo_name..."
-                        rm -rf $repo_name
-                    fi
+                        echo "single ${REPO_NAME}..."
+                        cd ${REPO_NAME} || { echo -e "🚫Error: ${REPO_NAME} folder/dir not found."; exit 1; }
+                        echo "both ${REPO_NAME}..."
 
-                    CURR_OS=("NONE")
-                    CURR_COMPILER=("armclang" "gcc")
-                    CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597")
-                    CURR_RTSS=("HE" "HP")
-                    CURR_BOOT=("TCM" "MRAM")
-                    total_cmakeError=0
+                        commitCnt=$(git rev-list --count origin/main..HEAD)
+                        commits=$(git log -n ${commitCnt} --pretty=format:"%H")
+                        for commit in $commits; do
+                            commit_author_name=$(git show -s --format="%an" "$commit")
+                            commit_author_email=$(git show -s --format="%ae" "$commit")
+                            commit_body=$(git show -s --format="%b" "$commit")
+                            commit_subject=$(git show -s --format="%s" "$commit")
+                            commit_complete_msg=$(git show -s --format="%B" "$commit")
+                        done
 
-                    echo -e "⏳ Checkout Repo 'ensemble-cmsis-dfp_DEV' main branch CHANGE_BRANCH: '$CHANGE_BRANCH' BRANCH_NAME: '$BRANCH_NAME'"
-                    git clone org-115832732@github.com:AlifSemiDev/$repo_name.git
-                    cd $repo_name
-                    echo -e "✅ Cloning is completed."
-                    git log -4
-                    echo -e "\n\n✔️ Checkout branch $CHANGE_BRANCH."
-                    git checkout $CHANGE_BRANCH
-                    git log -4
-                    echo -e "☑️ Checkout is completed."
+                        totalCommitCnt=$(git rev-list --count origin/main)
+                        if [[ "$totalCommitCnt" < "$commitCnt" ]] ; then
+                            checkGitLog=${commitCnt}
+                        else
+                            checkGitLog=6
+                        fi
 
-                    git format-patch -1
-                    export CODE_BASE=$PWD
-                    cp -rv $VALIDATION_SCRIPT_DIR/* scripts/
-                    grep -rnP "\t" *.patch | sed $'s/\t/→/g'
-                    tabCnt=$(grep -roP "\t" *.patch  | wc -l)
-                    echo -e "Total tabs: $tabCnt"
-                    log=$(./scripts/checkpatch.pl --patch *.patch --ignore CODE_INDENT,TABS)
-                    echo "$log"
-                    result=$(echo "$log" | grep ".patch total:")
-                    echo "$result"
-                    errors=$(echo "${result}"   | sed -n "s/.*: \\([0-9]\\+\\) errors.*/\\1/p")
-                    warnings=$(echo "${result}" | sed -n "s/.*errors, \\([0-9]\\+\\) warnings.*/\\1/p")
-                    echo "🎯Checkpatch has Errors: $errors Warnings: $warnings"
+                        git log -${checkGitLog}
+                        echo -e "☑️ git operation is completed."
 
-                    cd scripts/cmake
-                    tmp=$?
-                    if [ "$tmp" -ne 0 ] ; then
-                        echo -e "🚫Error: $tmp ❗ cmake script is not available"
-                    fi
-                    chmod -Rv 777 *.sh
+                        git format-patch -${commitCnt}
 
-                    total_cfg_run_cnt=0
-                    skipped_cfg_run_cnt=0
-                    actual_cfg_run_cnt=0
-                    fail_cfg_run_cnt=0
-                    success_cfg_run_cnt=0
+                        grep -rnP "\t" *.patch | sed $'s/\t/→/g'
+                        tabCnt=$(grep -roP "\t" *.patch  | wc -l)
+                        echo -e "Total tabs: $tabCnt"
 
-                    for comp in ${!CURR_COMPILER[@]}
-                    do
-                        for bootType in ${!CURR_BOOT[@]}
+                        firstCommit=$(git log -n 1 --pretty=format:"%H")
+                        commit_author_name=$(git show -s --format="%an" "$firstCommit")
+                        commit_author_email=$(git show -s --format="%ae" "$firstCommit")
+                        commit_body=$(git show -s --format="%b" "$firstCommit" | tail -n +1 | awk '!/^[A-Za-z-]+:/ {print}' | sed '/^$/d')
+
+                        if [[ "$commit_author_name" == "Jenkins" || "$commit_author_email" == "nobody@nowhere" || "$commit_body" == "*Merge commit '$firstCommit' into HEAD*" ]] ; then
+                            rebaseNeeded=1
+                        else
+                            rebaseNeeded=0
+                        fi
+
+                        if [[ "$rebaseNeeded" -eq 1 ]] ; then
+                            export CODE_BASE=$PWD
+                            if [[ -z "$VALIDATION_SCRIPT_DIR" ]] ; then
+                                cp -rv $VALIDATION_SCRIPT_DIR/* scripts/
+                            else
+                                echo -e "🚫Error: VALIDATION_SCRIPT_DIR is null"
+                            fi
+
+                            if [[ -f "./scripts/checkpatch.pl" ]] ; then
+                                log=$(./scripts/checkpatch.pl --patch *.patch --ignore CODE_INDENT,TABS)
+                                echo "$log"
+                                result=$(echo "$log" | grep ".patch total:")
+                                echo "$result"
+                                errors=$(echo "${result}"   | sed -n "s/.*: \\([0-9]\\+\\) errors.*/\\1/p")
+                                warnings=$(echo "${result}" | sed -n "s/.*errors, \\([0-9]\\+\\) warnings.*/\\1/p")
+                                echo "🎯Checkpatch has Errors: $errors Warnings: $warnings"
+                            else
+                                echo -e "🚫Error: checkpatch.pl file not found"
+                            fi
+                        fi
+
+                        cd scripts/cmake || { echo -e "🚫Error: scripts/cmake folder/ dir not found."; exit 1; }
+                        tmp=$?
+                        if [ "$tmp" -ne 0 ] ; then
+                            echo -e "🚫Error: $tmp ❗ cmake script is not available"
+                        fi
+                        chmod -Rv 777 *.sh
+
+                        total_cfg_run_cnt=0
+                        skipped_cfg_run_cnt=0
+                        actual_cfg_run_cnt=0
+                        fail_cfg_run_cnt=0
+                        success_cfg_run_cnt=0
+
+                        for comp in ${!CURR_COMPILER[@]}
                         do
-                            for rtssType in ${!CURR_RTSS[@]}
+                            for bootType in ${!CURR_BOOT[@]}
                             do
-                                for devName in ${!CURR_DEV[@]}
+                                for rtssType in ${!CURR_RTSS[@]}
                                 do
-                                    for osName in ${!CURR_OS[@]}
+                                    for devName in ${!CURR_DEV[@]}
                                     do
-                                        echo "===================================================================================="
-                                        if [ -d build ]; then
-                                            echo -e "Deleting Build directory..."
-                                            rm -rf $repo_name
-                                        fi
+                                        for osName in ${!CURR_OS[@]}
+                                        do
+                                            echo "===================================================================================="
+                                            if [ -d build ]; then
+                                                echo -e "Deleting Build directory..."
+                                                rm -rf build
+                                            fi
 
-                                        total_cfg_run_cnt=$((total_cfg_run_cnt + 1))
-                                        echo "🚩 Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]}  ${CURR_RTSS[rtssType]}"
+                                            total_cfg_run_cnt=$((total_cfg_run_cnt + 1))
+                                            echo "🚩 Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]}  ${CURR_RTSS[rtssType]}"
 
-                                        if [ "${CURR_DEV[devName]}" = "AE1C1F4051920" ] && [ "${CURR_RTSS[rtssType]}" = "HP" ]; then
-                                            echo -e "🚨 ${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
-                                            skipped_cfg_run_cnt=$((skipped_cfg_run_cnt + 1))
-                                            continue
-                                        fi
+                                            if [ "${CURR_DEV[devName]}" = "AE1C1F4051920" ] && [ "${CURR_RTSS[rtssType]}" = "HP" ]; then
+                                                echo -e "🚨 ${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
+                                                skipped_cfg_run_cnt=$((skipped_cfg_run_cnt + 1))
+                                                continue
+                                            fi
 
-                                        actual_cfg_run_cnt=$((actual_cfg_run_cnt + 1))
-                                        ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
+                                            actual_cfg_run_cnt=$((actual_cfg_run_cnt + 1))
+                                            ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
 
-                                        tmp=$?
-                                        total_cmakeError=$((total_cmakeError + tmp))
-                                        echo -e "🚫Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
-                                        if [ "$tmp" -ne 0 ] ; then
-                                            fail_cfg_run_cnt=$((fail_cfg_run_cnt + 1))
-                                        fi
-                                        echo "===================================================================================="
+                                            tmp=$?
+                                            total_cmakeError=$((total_cmakeError + tmp))
+                                            echo -e "🚫Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
+                                            if [ "$tmp" -ne 0 ] ; then
+                                                fail_cfg_run_cnt=$((fail_cfg_run_cnt + 1))
+                                            fi
+                                            echo "===================================================================================="
+                                        done
                                     done
                                 done
                             done
                         done
-                    done
-                    echo -e "\n"
-                    echo -e " 🏆Check-Patch Result =>  Error: $errors, Warnings: $warnings, Tabs: $tabCnt"
-                    echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
-                    echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
-                    #total_cmakeError=$((total_cmakeError + errors + tabCnt))
-                    exit $total_cmakeError
-                    '''
+                        echo -e "\n"
+                        echo -e " 🏆Git Rebase Needed  =>  ${rebaseNeeded}"
+                        echo -e " 🏆Check-Patch Result =>  Error: $errors, Warnings: $warnings, Tabs: $tabCnt"
+                        echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
+                        echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
+                        #total_cmakeError=$((total_cmakeError + errors + tabCnt))
+                        exit $total_cmakeError
+                        '''
+                    }
+                }
+            }
+        }
+        stage('Get PR Authors') {
+            steps {
+                script {
+                    allRecipientEmails = sh(
+                        script: '''
+                            cd ${REPO_NAME}
+                            set -xe
+                            commitCnt=$(git rev-list --count origin/main..HEAD)
+
+                            # Get all author emails for this PR
+                            culpritEmails=$(git log -n $commitCnt --pretty=format:'%ae' | sort | uniq | paste -sd";" -)
+
+                            # Replace all commas with semicolons
+                            defaultEmails=$(echo "$DEFAULT_OWNER_EMAILS" | tr ',' ';')
+
+                            all_emails="$culpritEmails;$defaultEmails"
+                            echo "$all_emails" | tr ';' '\n' | grep -v '^$' | sort -u | paste -sd ";" -
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    echo "📤 Mail will be sent to: [${allRecipientEmails}]..."
                 }
             }
         }
     }
     post {
         failure {
-            echo '🚫 Build failed. Sending email...'
-            emailext (
-                subject: "🚨 Jenkins Job Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: """
-                    <p>Build failed for job: <b>${env.CHANGE_URL}</b></p>
-                    <p>Build Number: <b>${env.BUILD_NUMBER}</b></p>
-                    <p>View details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                to: "${env.DEFAULT_OWNER_EMAILS}",
-                mimeType: 'text/html'
-            )
+            echo "🚫 Build failed. Sending email..."
+            script {
+                emailext (
+                    subject: "🚨 Jenkins Job Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: """
+                       <p>Build failed for job: <b>${env.CHANGE_URL}</b></p>
+                       <p>Build Number: <b>${env.BUILD_NUMBER}</b></p>
+                       <p>View details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    """,
+                    to: "${allRecipientEmails}",
+                    mimeType: 'text/html'
+                )
+            }
         }
 
         success {
             echo 'Build succeeded.'
         }
 
-        always {
+        cleanup {
             echo "Cleaning up workspace..."
             deleteDir()
         }
