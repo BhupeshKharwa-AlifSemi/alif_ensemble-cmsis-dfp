@@ -65,7 +65,7 @@ static int32_t pinmux_config(void)
 {
     int32_t ret = 0U;
 
-    ret = pinconf_set(PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_7,
                       PADCTRL_READ_ENABLE );
     if(ret)
     {
