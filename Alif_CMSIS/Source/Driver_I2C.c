@@ -17,7 +17,7 @@
 #include "Driver_I2C_Private.h"
 
 /* Driver version */
-#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 6)
+#define ARM_I2C_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 7)
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
@@ -584,6 +584,9 @@ static int32_t ARM_I2C_MasterTransmit(I2C_RESOURCES *I2C,
 
     I2C_SetTargetAddress(I2C, addr);
 
+    /* Clear all interrupts */
+    i2c_clear_all_interrupt(I2C->regs);
+
 #if I2C_DMA_ENABLE
     if(I2C->dma_enable)
     {
@@ -636,8 +639,7 @@ static int32_t ARM_I2C_MasterTransmit(I2C_RESOURCES *I2C,
         I2C->transfer.tx_buf        = (const uint8_t *)data;
         I2C->transfer.tx_total_num  = num;
 
-        /* Clear all interrupts and enable master tx interrupt */
-        i2c_clear_all_interrupt(I2C->regs);
+        /* enable master tx interrupt */
         i2c_master_enable_tx_interrupt(I2C->regs);
     }
 
@@ -722,6 +724,9 @@ static int32_t ARM_I2C_MasterReceive(I2C_RESOURCES *I2C,
     I2C->transfer.rx_over          = 0U;
     I2C->transfer.curr_stat        = I2C_TRANSFER_MST_RX;
 
+    /* Clear all interrupts */
+    i2c_clear_all_interrupt(I2C->regs);
+
     if(I2C->wr_mode_info & I2C_WRITE_READ_MODE_EN)
     {
         /* fill the i2c transfer structure required for Write-Read xfer */
@@ -731,6 +736,7 @@ static int32_t ARM_I2C_MasterReceive(I2C_RESOURCES *I2C,
         I2C->transfer.tx_curr_cnt      = 0U;
         I2C->transfer.wr_mode          = true;
         I2C_SetTargetAddress(I2C, addr);
+        /* enable master rx interrupt */
         i2c_master_enable_rx_interrupt(I2C->regs);
     }
     else
@@ -770,8 +776,7 @@ static int32_t ARM_I2C_MasterReceive(I2C_RESOURCES *I2C,
         else
 #endif
         {
-            /* Clear all interrupts and enable master rx interrupt */
-            i2c_clear_all_interrupt(I2C->regs);
+            /* enable master rx interrupt */
             i2c_master_enable_rx_interrupt(I2C->regs);
         }
     }
@@ -839,6 +844,9 @@ static int32_t ARM_I2C_SlaveTransmit(I2C_RESOURCES *I2C,
     I2C->transfer.tx_over        = 0U;
     I2C->transfer.curr_stat      = I2C_TRANSFER_SLV_TX;
 
+    /* Clear all interrupts */
+    i2c_clear_all_interrupt(I2C->regs);
+
 #if I2C_DMA_ENABLE
     if(I2C->dma_enable)
     {
@@ -890,8 +898,7 @@ static int32_t ARM_I2C_SlaveTransmit(I2C_RESOURCES *I2C,
         I2C->transfer.tx_buf        = (const uint8_t *)data;
         I2C->transfer.tx_total_num  = num;
 
-        /* Clear all interrupts and enable slave tx interrupt */
-        i2c_clear_all_interrupt(I2C->regs);
+        /* enable slave tx interrupt */
         i2c_slave_enable_tx_interrupt(I2C->regs);
     }
 
@@ -957,6 +964,9 @@ static int32_t ARM_I2C_SlaveReceive(I2C_RESOURCES *I2C,
     I2C->transfer.curr_stat      = I2C_TRANSFER_SLV_RX;
     I2C->transfer.rx_over = 0U;
 
+    /* Clear all interrupts */
+    i2c_clear_all_interrupt(I2C->regs);
+
 #if I2C_DMA_ENABLE
     if(I2C->dma_enable)
     {
@@ -999,8 +1009,7 @@ static int32_t ARM_I2C_SlaveReceive(I2C_RESOURCES *I2C,
         I2C->transfer.rx_buf        = (uint8_t *)data;
         I2C->transfer.rx_total_num  = num;
 
-        /* Clear all interrupts and enable slave rx interrupt */
-        i2c_clear_all_interrupt(I2C->regs);
+        /* enable slave rx interrupt */
         i2c_slave_enable_rx_interrupt(I2C->regs);
     }
     return ARM_DRIVER_OK;
@@ -1167,7 +1176,7 @@ static int32_t ARM_I2C_Control(I2C_RESOURCES  *I2C,
 
     case ARM_I2C_MODE_WRITE_READ:
         /* Write-Read combined mode selection */
-        if(ARM_I2C_WRITE_READ_MODE(arg))
+        if(arg & ARM_I2C_WRITE_READ_MODE_EN)
         {
             I2C->wr_mode_info  = I2C_WRITE_READ_MODE_EN;
             I2C->wr_mode_info |= I2C_WRITE_READ_TAR_REG_ADDR_SIZE
