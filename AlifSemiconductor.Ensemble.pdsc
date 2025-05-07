@@ -268,6 +268,11 @@
         <memory name="SRAM7" start="0x63000000" size="0x00080000" access="rwx" default="1"/>
         <memory name="SRAM8" start="0x63200000" size="0x00200000" access="rwx" default="1"/>
         <memory name="SRAM9" start="0x60000000" size="0x000C0000" access="rwx" default="1"/>
+        <!-- On-Chip RAM Aliases -->
+        <memory name="ITCM_HP" start="0x00000000" size="0x00040000" access="rwx" alias="SRAM2" Pname="M55_HP"/>
+        <memory name="DTCM_HP" start="0x20000000" size="0x00100000" access="rwx" alias="SRAM3" Pname="M55_HP"/>
+        <memory name="ITCM_HE" start="0x00000000" size="0x00040000" access="rwx" alias="SRAM4" Pname="M55_HE"/>
+        <memory name="DTCM_HE" start="0x20000000" size="0x00040000" access="rwx" alias="SRAM5" Pname="M55_HE"/>
 
         <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
