@@ -3486,6 +3486,7 @@ typedef struct {                                /*!< (@ 0xE000E100) M55HP_NVIC_S
 #define LPRTC0_BASE                  0x42000000UL
 #define LPTIMER_BASE                0x42001000UL
 #define LPGPIO_BASE                 0x42002000UL
+#define LPCMP_BASE                  0x42003000UL
 #define BOR_BOD_BASE                0x42004000UL
 #define LPGPIO_CTRL_BASE            0x42007000UL
 #define LPSPI0_BASE                 0x43000000UL
@@ -3652,6 +3653,7 @@ typedef struct {                                /*!< (@ 0xE000E100) M55HP_NVIC_S
 #define LPRTC0                      ((LPRTC_Type*)             LPRTC0_BASE)
 #define LPTIMER                     ((LPTIMER_Type*)           LPTIMER_BASE)
 #define LPGPIO                      ((GPIO_Type*)              LPGPIO_BASE)
+#define LPCMP                       ((LPCMP_Type*)             LPCMP_BASE)
 #define BOR_BOD                     ((BOR_BOD_Type*)           BOR_BOD_BASE)
 #define LPGPIO_CTRL                 ((LPGPIO_CTRL_Type*)       LPGPIO_CTRL_BASE)
 #define LPSPI0                      ((LPSPI_Type*)             LPSPI0_BASE)
