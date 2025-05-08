@@ -51,6 +51,7 @@ debug_print_function_t drv_debug_print_fn;
  ******************************************************************************/
 
 /**
+ * @fn int32_t SERVICES_wait_ms(uint32_t)
  * @brief Public interface for SERVICES delay function
  * @param wait_time_ms
  * @note  User must supply this implementation for their platform. This is a
@@ -159,6 +160,7 @@ void TEST_init(uint32_t services_handle)
 {
   /* keep sending heartbeat services requests until one succeeds */
   int retry_count = SERVICES_synchronize_with_se(services_handle);
+
   TEST_print(services_handle, "SERVICES_synchronize_with_se() returned %d\n",
              retry_count);
 

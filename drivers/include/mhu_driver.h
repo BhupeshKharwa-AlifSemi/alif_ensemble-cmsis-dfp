@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "mhu.h"
+#include "soc.h"
 
 /*******************************************************************************
  *  M A C R O   D E F I N E S
