@@ -40,8 +40,8 @@ static void Analog_Config(void)
     /* Analog configuration Vbat register2 */
     enable_analog_peripherals();
 
-    /* Analog configuration comparator register2 */
-    configure_analog_peripherals();
+    /* Enables ADC voltage reference and internal buffer for ADC operation */
+    enable_adc_ref_voltage();
 }
 
 /*

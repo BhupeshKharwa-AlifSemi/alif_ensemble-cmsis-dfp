@@ -71,8 +71,8 @@ static void AnalogConfig(uint8_t instance)
 {
     if(instance != CMP_INSTANCE_LP)
     {
-        /* Analog configuration comparator register2 */
-        configure_analog_peripherals();
+        /* Enable DAC6 as a negative input reference for HSCMP */
+        enable_dac6_ref_voltage();
     }
 
     /* Analog configuration Vbat register2 */

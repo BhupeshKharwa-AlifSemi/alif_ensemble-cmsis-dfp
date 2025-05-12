@@ -54,8 +54,8 @@ static void Analog_Config(void)
     /* Analog configuration Vbat register2 */
     enable_analog_peripherals();
 
-    /* Analog configuration comparator register2 */
-    configure_analog_peripherals();
+    /* Enables DAC12 voltage reference and internal buffer for DAC operation */
+    enable_dac12_ref_voltage();
 }
 
 /**
