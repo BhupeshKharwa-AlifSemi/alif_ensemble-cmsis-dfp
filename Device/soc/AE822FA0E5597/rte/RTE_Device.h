@@ -1578,16 +1578,6 @@
 // <i> default: 5
 #define RTE_ACTIVE_TOUCH_POINTS               5
 
-// <o> RTE_GT911_TOUCH_I2C_INSTANCE
-// <i> Defines GT911 Touchscreen i2c instance
-//     <0=>   I2C0
-//     <1=>   I2C1
-//     <2=>   I2C2
-//     <3=>   I2C3
-//     <4=>   I2C OVER I3C
-// <i> Default: 1
-#define RTE_GT911_TOUCH_I2C_INSTANCE          1
-
 // <o> RTE_GT911_TOUCH_I2C_SLAVE_ADDRESS_SEL
 // <i> Defines GT911 Touchscreen i2c slave address selection
 //     <0x14=>   I2C_SLAVE_ADDRESS_HEX_14

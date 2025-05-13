@@ -464,35 +464,12 @@
 // <i> default: 5
 #define RTE_ACTIVE_TOUCH_POINTS         5
 
-// <o> GT911 Touch screen reset pin GPIO port number range <0-15>
-// <i> Defines GT911 Touch screen reset pin GPIO port number.
-// <i> Default: 4
-#define RTE_GT911_TOUCH_RESET_GPIO_PORT 4
-
-// <o> GT911 Touch screen reset pin number range <0-7>
-// <i> Defines GT911 Touch screen reset pin number.
-// <i> Default: 0
-#define RTE_GT911_TOUCH_RESET_PIN_NO    0
-
-// <o> GT911 Touch screen INT pin GPIO port number range <0-15>
-// <i> Defines GT911 Touch screen INT pin GPIO port number.
-// <i> Default: 9
-#define RTE_GT911_TOUCH_INT_GPIO_PORT   9
-
-// <o> GT911 Touch screen INT pin number range <0-7>
-// <i> Defines GT911 Touch screen INT pin number.
-// <i> Default: 4
-#define RTE_GT911_TOUCH_INT_PIN_NO      4
-
-// <o RTE_GT911_TOUCH_I2C_INSTANCE> Select GT911 Touchscreen i2c instance
-// <i> Defines GT911 Touchscreen i2c instance
-//     <0=>   I2C0
-//     <1=>   I2C1
-//     <2=>   I2C2
-//     <3=>   I2C3
-//     <I3C=> I2C OVER I3C
-// <i> Default: 1
-#define RTE_GT911_TOUCH_I2C_INSTANCE    1
+// <o> RTE_GT911_TOUCH_I2C_SLAVE_ADDRESS_SEL
+// <i> Defines GT911 Touchscreen i2c slave address selection
+//     <0x14=>   I2C_SLAVE_ADDRESS_HEX_14
+//     <0x5D=>   I2C_SLAVE_ADDRESS_HEX_5D
+// <i> Default: 0x14
+#define RTE_GT911_TOUCH_I2C_SLAVE_ADDRESS_SEL     0x14
 #endif
 
 #endif

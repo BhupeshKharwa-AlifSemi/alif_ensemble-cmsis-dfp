@@ -112,7 +112,7 @@ const struct pinconf board_pinconf[] = {
 
     /* P2_3 on pin N8. Functions: [0]: >>>GPIO2_3<<<, [1]: OSPI0_RXDS_C, [2]: LPUART_CTS_A, [3]: I2S1_WS_SLV_A, [4]: LPI2C_SDA_B, [5]: LPCAM_XVCLK_B, [6]: ANA_S11, [7]: CX_MWS_SYNC */
     /* Selected: GPIO2_3 */
-    {PORT_2, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+    {PORT_2, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P2_4 on pin N7. Functions: [0]: GPIO2_4, [1]: UART3_RX_A, [2]: >>>I2S0_SDI_B<<<, [3]: I2C0_SCL_B, [4]: FAULT0_B, [5]: CAN0_TXD_A, [6]: >>>ANA_S12<<<, [7]: CX_MWS_TX */
     /* Selected:  I2S0_SDI_B */
