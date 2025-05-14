@@ -22,7 +22,7 @@
 #error "I3C is not enabled in the RTE_Device.h"
 #endif
 
-#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 11) /* driver version */
+#define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 12) /* driver version */
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion =
@@ -925,13 +925,17 @@ static int I3Cx_MasterTransmit(I3C_RESOURCES *i3c,  uint8_t  addr,
     i3c->xfer.xfer_cmd.data_len   = len;
     i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE)
-    i3c->xfer.tx_buf              = data;
-    i3c->xfer.tx_cur_cnt          = 0U;
-#else
-    i3c->xfer.tx_buf              = NULL;
-    i3c->xfer.tx_cur_cnt          = len;
+#if (I3C_DMA_ENABLE)
+    if (i3c->dma_enable) {
+        i3c->xfer.tx_buf          = NULL;
+        i3c->xfer.tx_cur_cnt      = len;
+    }
+    else
 #endif
+    {
+        i3c->xfer.tx_buf          = data;
+        i3c->xfer.tx_cur_cnt      = 0U;
+    }
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
     if(i3c->blocking_mode)
@@ -953,16 +957,20 @@ static int I3Cx_MasterTransmit(I3C_RESOURCES *i3c,  uint8_t  addr,
 #endif
     {
 #if I3C_DMA_ENABLE
-        i3c_setup_tx(i3c->regs, 0);
-        ret = I3C_DMA_Start_TX(i3c, data, len);
-        if(ret)
-        {
-            return ARM_DRIVER_ERROR;
+        if (i3c->dma_enable) {
+            i3c_setup_tx(i3c->regs, 0);
+            ret = I3C_DMA_Start_TX(i3c, data, len);
+            if(ret)
+            {
+                return ARM_DRIVER_ERROR;
+            }
         }
-#else
-        /* Invoke master send api */
-        i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
+        else
 #endif
+        {
+            /* Invoke master send api */
+            i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
+        }
     }
     return ARM_DRIVER_OK;
 }
@@ -1015,13 +1023,17 @@ static int I3Cx_MasterReceive(I3C_RESOURCES *i3c,  uint8_t  addr,
 
     i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE)
-    i3c->xfer.rx_buf              = data;
-    i3c->xfer.rx_cur_cnt          = 0U;
-#else
-    i3c->xfer.rx_buf              = NULL;
-    i3c->xfer.rx_cur_cnt          = len;
+#if (I3C_DMA_ENABLE)
+    if (i3c->dma_enable) {
+        i3c->xfer.rx_buf          = NULL;
+        i3c->xfer.rx_cur_cnt      = len;
+    }
+    else
 #endif
+    {
+        i3c->xfer.rx_buf          = data;
+        i3c->xfer.rx_cur_cnt      = 0U;
+    }
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
     if(i3c->blocking_mode)
@@ -1043,16 +1055,20 @@ static int I3Cx_MasterReceive(I3C_RESOURCES *i3c,  uint8_t  addr,
 #endif
     {
 #if I3C_DMA_ENABLE
-        i3c_setup_rx(i3c->regs, 0);
-        ret = I3C_DMA_Start_RX(i3c, data, len);
-        if(ret)
-        {
-            return ARM_DRIVER_ERROR;
+        if (i3c->dma_enable) {
+            i3c_setup_rx(i3c->regs, 0);
+            ret = I3C_DMA_Start_RX(i3c, data, len);
+            if(ret)
+            {
+                return ARM_DRIVER_ERROR;
+            }
         }
-#else
-        /* Invoke master send api */
-        i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
+        else
 #endif
+        {
+            /* Invoke master receive api */
+            i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
+        }
     }
     return ARM_DRIVER_OK;
 }
@@ -1100,13 +1116,17 @@ static int I3Cx_SlaveTransmit(I3C_RESOURCES *i3c,
     i3c->xfer.tx_len            = len;
     i3c->xfer.xfer_cmd.cmd_type = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE)
-    i3c->xfer.tx_buf            = data;
-    i3c->xfer.tx_cur_cnt        = 0U;
-#else
-    i3c->xfer.tx_buf            = NULL;
-    i3c->xfer.tx_cur_cnt        = len;
+#if (I3C_DMA_ENABLE)
+    if (i3c->dma_enable) {
+        i3c->xfer.tx_buf        = NULL;
+        i3c->xfer.tx_cur_cnt    = len;
+    }
+    else
 #endif
+    {
+        i3c->xfer.tx_buf        = data;
+        i3c->xfer.tx_cur_cnt    = 0U;
+    }
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
     if(i3c->blocking_mode)
@@ -1126,16 +1146,20 @@ static int I3Cx_SlaveTransmit(I3C_RESOURCES *i3c,
 #endif
     {
 #if I3C_DMA_ENABLE
-        i3c_setup_tx(i3c->regs, 0);
-        ret = I3C_DMA_Start_TX(i3c, data, len);
-        if(ret)
-        {
-            return ARM_DRIVER_ERROR;
+        if (i3c->dma_enable) {
+            i3c_setup_tx(i3c->regs, 0);
+            ret = I3C_DMA_Start_TX(i3c, data, len);
+            if(ret)
+            {
+                return ARM_DRIVER_ERROR;
+            }
         }
-#else
-        /* Invoke slave transmit api */
-        i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
+        else
 #endif
+        {
+            /* Invoke slave send api */
+            i3c_setup_tx(i3c->regs, i3c->xfer.tx_len);
+        }
     }
 
     return ARM_DRIVER_OK;
@@ -1183,13 +1207,17 @@ static int I3Cx_SlaveReceive(I3C_RESOURCES *i3c,
     i3c->xfer.rx_len              = len;
     i3c->xfer.xfer_cmd.cmd_type   = I3C_XFER_TYPE_DATA;
 
-#if (!I3C_DMA_ENABLE)
-    i3c->xfer.rx_buf     = data;
-    i3c->xfer.rx_cur_cnt = 0U;
-#else
-    i3c->xfer.rx_buf     = NULL;
-    i3c->xfer.rx_cur_cnt = len;
+#if (I3C_DMA_ENABLE)
+    if (i3c->dma_enable) {
+        i3c->xfer.rx_buf          = NULL;
+        i3c->xfer.rx_cur_cnt      = len;
+    }
+    else
 #endif
+    {
+        i3c->xfer.rx_buf          = data;
+        i3c->xfer.rx_cur_cnt      = 0U;
+    }
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
     if(i3c->blocking_mode)
@@ -1209,16 +1237,20 @@ static int I3Cx_SlaveReceive(I3C_RESOURCES *i3c,
 #endif
     {
 #if I3C_DMA_ENABLE
-        i3c_setup_rx(i3c->regs, 0);
-        ret = I3C_DMA_Start_RX(i3c, data, len);
-        if(ret)
-        {
-            return ARM_DRIVER_ERROR;
+        if (i3c->dma_enable) {
+            i3c_setup_rx(i3c->regs, 0);
+            ret = I3C_DMA_Start_RX(i3c, data, len);
+            if(ret)
+            {
+                return ARM_DRIVER_ERROR;
+            }
         }
-#else
-        /* Invoke slave reception api */
-        i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
+        else
 #endif
+        {
+            /* Invoke slave receive api */
+            i3c_setup_rx(i3c->regs, i3c->xfer.rx_len);
+        }
     }
 
     return ARM_DRIVER_OK;
@@ -1804,16 +1836,18 @@ static int32_t I3Cx_Initialize(I3C_RESOURCES         *i3c,
     i3c->cb_event = cb_event;
 
 #if I3C_DMA_ENABLE
-    i3c->dma_cfg->dma_rx.dma_handle = -1;
-    i3c->dma_cfg->dma_tx.dma_handle = -1;
+    if (i3c->dma_enable) {
+        i3c->dma_cfg->dma_rx.dma_handle = -1;
+        i3c->dma_cfg->dma_tx.dma_handle = -1;
 
-    /* Initialize DMA for I3C-Tx */
-    if(I3C_DMA_Initialize(&i3c->dma_cfg->dma_tx) != ARM_DRIVER_OK)
-        return ARM_DRIVER_ERROR;
+        /* Initialize DMA for I3C-Tx */
+        if(I3C_DMA_Initialize(&i3c->dma_cfg->dma_tx) != ARM_DRIVER_OK)
+            return ARM_DRIVER_ERROR;
 
-    /* Initialize DMA for I3C-Rx */
-    if(I3C_DMA_Initialize(&i3c->dma_cfg->dma_rx) != ARM_DRIVER_OK)
-        return ARM_DRIVER_ERROR;
+        /* Initialize DMA for I3C-Rx */
+        if(I3C_DMA_Initialize(&i3c->dma_cfg->dma_rx) != ARM_DRIVER_OK)
+            return ARM_DRIVER_ERROR;
+    }
 #endif
 
     i3c->core_clk = get_i3c_core_clock();
@@ -1833,8 +1867,10 @@ static int32_t I3Cx_Initialize(I3C_RESOURCES         *i3c,
 static int32_t I3Cx_Uninitialize(I3C_RESOURCES  *i3c)
 {
 #if I3C_DMA_ENABLE
-    i3c->dma_cfg->dma_rx.dma_handle = -1;
-    i3c->dma_cfg->dma_tx.dma_handle = -1;
+    if (i3c->dma_enable) {
+        i3c->dma_cfg->dma_rx.dma_handle = -1;
+        i3c->dma_cfg->dma_tx.dma_handle = -1;
+    }
 #endif
 
     i3c->state.initialized = 0;
@@ -1875,16 +1911,18 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
             }
 
 #if I3C_DMA_ENABLE
-            /* Disable i3c DMA */
-            i3c_dma_disable(i3c->regs);
+            if (i3c->dma_enable) {
+                /* Disable i3c DMA */
+                i3c_dma_disable(i3c->regs);
 
-            /* Deallocate DMA channel for Tx */
-            if(I3C_DMA_DeAllocate(&i3c->dma_cfg->dma_tx))
-                return ARM_DRIVER_ERROR;
+                /* Deallocate DMA channel for Tx */
+                if(I3C_DMA_DeAllocate(&i3c->dma_cfg->dma_tx))
+                    return ARM_DRIVER_ERROR;
 
-            /* Deallocate DMA channel for Rx */
-            if(I3C_DMA_DeAllocate(&i3c->dma_cfg->dma_rx))
-                return ARM_DRIVER_ERROR;
+                /* Deallocate DMA channel for Rx */
+                if(I3C_DMA_DeAllocate(&i3c->dma_cfg->dma_rx))
+                    return ARM_DRIVER_ERROR;
+            }
 #endif /* I3C_DMA_ENABLE */
 
             /* i3c EXPMST0 control configuration:
@@ -1910,17 +1948,19 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
             enable_i3c_clock(i3c->instance);
 
 #if I3C_DMA_ENABLE
-            /* if DMA2 is selected? */
-            if(i3c->dma_cfg->dma_tx.evtrtr_cfg.instance == 2)
-            {
-                select_i3c_dma2(i3c->instance);
-            }
-            /* else: DMA0 is selected.
-             * For LPI3C, DMA selection is done in DMA driver
-             */
+            if (i3c->dma_enable) {
+                /* if DMA2 is selected? */
+                if(i3c->dma_cfg->dma_tx.evtrtr_cfg.instance == 2)
+                {
+                    select_i3c_dma2(i3c->instance);
+                }
+                /* else: DMA0 is selected.
+                 * For LPI3C, DMA selection is done in DMA driver
+                 */
 
-            /* Enable i3c DMA */
-            i3c_dma_enable(i3c->regs);
+                /* Enable i3c DMA */
+                i3c_dma_enable(i3c->regs);
+            }
 #endif /* I3C_DMA_ENABLE */
 
             /* Perform below steps if not blocking mode */
@@ -1947,34 +1987,36 @@ static int32_t I3Cx_PowerControl(I3C_RESOURCES   *i3c,
     }
 
 #if I3C_DMA_ENABLE
-    /* Power Control DMA for I3C-Tx */
-    if(I3C_DMA_PowerControl(state, &i3c->dma_cfg->dma_tx) != ARM_DRIVER_OK)
-    {
-        i3c->state.powered = 0;
-        return ARM_DRIVER_ERROR;
-    }
-
-    /* Power Control DMA for I3C-Rx */
-    if(I3C_DMA_PowerControl(state, &i3c->dma_cfg->dma_rx) != ARM_DRIVER_OK)
-    {
-        i3c->state.powered = 0;
-        return ARM_DRIVER_ERROR;
-    }
-
-    if(state == ARM_POWER_FULL)
-    {
-        /* Try to allocate a DMA channel for TX */
-        if(I3C_DMA_Allocate(&i3c->dma_cfg->dma_tx))
+    if (i3c->dma_enable) {
+        /* Power Control DMA for I3C-Tx */
+        if(I3C_DMA_PowerControl(state, &i3c->dma_cfg->dma_tx) != ARM_DRIVER_OK)
         {
             i3c->state.powered = 0;
             return ARM_DRIVER_ERROR;
         }
 
-        /* Try to allocate a DMA channel for RX */
-        if(I3C_DMA_Allocate(&i3c->dma_cfg->dma_rx))
+        /* Power Control DMA for I3C-Rx */
+        if(I3C_DMA_PowerControl(state, &i3c->dma_cfg->dma_rx) != ARM_DRIVER_OK)
         {
             i3c->state.powered = 0;
             return ARM_DRIVER_ERROR;
+        }
+
+        if(state == ARM_POWER_FULL)
+        {
+            /* Try to allocate a DMA channel for TX */
+            if(I3C_DMA_Allocate(&i3c->dma_cfg->dma_tx))
+            {
+                i3c->state.powered = 0;
+                return ARM_DRIVER_ERROR;
+            }
+
+            /* Try to allocate a DMA channel for RX */
+            if(I3C_DMA_Allocate(&i3c->dma_cfg->dma_rx))
+            {
+                i3c->state.powered = 0;
+                return ARM_DRIVER_ERROR;
+            }
         }
     }
 #endif /* I3C_DMA_ENABLE */
@@ -2041,7 +2083,7 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num,
 
     }
 }
-#endif /* RTE_I3C_DMA_ENABLE */
+#endif /* I3C_DMA_ENABLE */
 
 /**
   \fn           static void I3Cx_HandleSuccess(I3C_RESOURCES *i3c,
@@ -2148,26 +2190,28 @@ static void I3Cx_HandleSuccess(I3C_RESOURCES *i3c,
         *event = ARM_I3C_EVENT_BUS_RESET_DONE;
     }
 
-#if RTE_I3C_DMA_ENABLE
-    /* DMA TX,
-     *  Success/Error decision will be taken by
-     *   Interrupt Handler based on status of Response-Queue.
-     *
-     * DMA RX,
-     *   Success decision will be taken in DMA_RX callback.
-     *   Error decision will be taken by Interrupt Handler
-     *    based on status of Response-Queue.
-     */
-    if( (xfer->status & I3C_XFER_STATUS_MST_RX_DONE) ||
-        (xfer->status & I3C_XFER_STATUS_SLV_RX_DONE) )
-    {
-        /* for DMA RX Success, mark event as 0. */
-        *event = 0;
+#if I3C_DMA_ENABLE
+    if (i3c->dma_enable) {
+        /* DMA TX,
+         *  Success/Error decision will be taken by
+         *   Interrupt Handler based on status of Response-Queue.
+         *
+         * DMA RX,
+         *   Success decision will be taken in DMA_RX callback.
+         *   Error decision will be taken by Interrupt Handler
+         *    based on status of Response-Queue.
+         */
+        if( (xfer->status & I3C_XFER_STATUS_MST_RX_DONE) ||
+            (xfer->status & I3C_XFER_STATUS_SLV_RX_DONE) )
+        {
+            /* for DMA RX Success, mark event as 0. */
+            *event = 0;
 
-        /* clear transfer status. */
-        xfer->status = I3C_XFER_STATUS_NONE;
+            /* clear transfer status. */
+            xfer->status = I3C_XFER_STATUS_NONE;
+        }
     }
-#endif /* RTE_I3C_DMA_ENABLE */
+#endif /* I3C_DMA_ENABLE */
 }
 
 /**
@@ -2184,19 +2228,21 @@ static void I3Cx_HandleError(I3C_RESOURCES *i3c,
                              i3c_xfer_t *xfer,
                              uint32_t *event)
 {
-#if RTE_I3C_DMA_ENABLE
-    /* Stop DMA TX transfer */
-    if(xfer->status & I3C_XFER_STATUS_ERROR_TX)
-    {
-        I3C_DMA_Stop(&i3c->dma_cfg->dma_tx);
-    }
+#if I3C_DMA_ENABLE
+    if (i3c->dma_enable) {
+        /* Stop DMA TX transfer */
+        if(xfer->status & I3C_XFER_STATUS_ERROR_TX)
+        {
+            I3C_DMA_Stop(&i3c->dma_cfg->dma_tx);
+        }
 
-    /* Stop DMA RX transfer */
-    if(xfer->status & I3C_XFER_STATUS_ERROR_RX)
-    {
-        I3C_DMA_Stop(&i3c->dma_cfg->dma_rx);
+        /* Stop DMA RX transfer */
+        if(xfer->status & I3C_XFER_STATUS_ERROR_RX)
+        {
+            I3C_DMA_Stop(&i3c->dma_cfg->dma_rx);
+        }
     }
-#endif /* RTE_I3C_DMA_ENABLE */
+#endif /* I3C_DMA_ENABLE */
 
     /* mark event as Transfer Error. */
     *event = ARM_I3C_EVENT_TRANSFER_ERROR;
@@ -2330,6 +2376,7 @@ static I3C_RESOURCES i3c =
     .irq_priority      = RTE_I3C_IRQ_PRI,
     .instance          = I3C_INSTANCE_0,
 #if RTE_I3C_DMA_ENABLE
+    .dma_enable        = RTE_I3C_DMA_ENABLE,
     .dma_cb            = I3C_DMACallback,
     .dma_cfg           = &I3Cx_DMA_HW_CONFIG,
     .dma_irq_priority  = RTE_I3C_DMA_IRQ_PRI,
@@ -2530,6 +2577,7 @@ static I3C_RESOURCES LPI3C_RES =
     .irq_priority      = RTE_LPI3C_IRQ_PRI,
     .instance          = I3C_INSTANCE_LP_0,
 #if RTE_LPI3C_DMA_ENABLE
+    .dma_enable        = RTE_LPI3C_DMA_ENABLE,
     .dma_cb            = LPI3C_DMACallback,
     .dma_cfg           = &LPI3Cx_DMA_HW_CONFIG,
     .dma_irq_priority  = RTE_LPI3C_DMA_IRQ_PRI,

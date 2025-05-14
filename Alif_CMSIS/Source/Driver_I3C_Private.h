@@ -88,6 +88,7 @@ typedef struct _I3C_RESOURCES
     uint32_t               irq_priority;     /* i3c interrupt priority                             */
     const I3C_INSTANCE     instance;         /* I3C Instance number                                */
 #if I3C_DMA_ENABLE
+    const bool             dma_enable;       /* I3C dma enable                                     */
     ARM_DMA_SignalEvent_t  dma_cb;           /* Pointer to DMA  Callback                           */
     I3C_DMA_HW_CONFIG     *dma_cfg;          /* DMA Controller configuration                       */
     const uint32_t         dma_irq_priority; /* DMA IRQ priority number                            */
