@@ -3116,8 +3116,8 @@
 //     <2=>   I2C2
 //     <3=>   I2C3
 //     <I3C=> I2C OVER I3C
-// <i> Default: 2
-#define RTE_WM8904_CODEC_I2C_INSTANCE         2
+// <i> Default: 0
+#define RTE_WM8904_CODEC_I2C_INSTANCE         0
 #endif
 
 // </h> WM8904 Codec [Driver_WM8904]
