@@ -1328,6 +1328,12 @@
       <require Cclass="CMSIS-Compiler" Cgroup="STDERR" Csub="Custom"/>
     </condition>
 
+    <condition id="WM8904 CODEC Driver">
+      <description>Requirement for WM8904 CODEC</description>
+      <require condition="Ensemble CMSIS_Driver"/>
+      <require Cclass="CMSIS Driver" Cgroup="I2C"/>
+    </condition>
+
   </conditions>
 <!-- component section -->
   <components>
@@ -2201,6 +2207,20 @@
       <files>
         <file category="source" name="components/Source/GT911_touch_driver.c"/>
 	<file category="header" name="components/Include/Driver_Touch_Screen.h"/>
+      </files>
+    </component>
+
+    <component Cclass="BSP" Cgroup="External peripherals" Csub="WM8904 CODEC" Cversion="2.0.0" condition="WM8904 CODEC Driver">
+      <description>Driver for WM8904 CODEC</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_WM8904_CODEC  	1           /* Driver */
+      </RTE_Components_h>
+      <files>
+        <file category="header" name="components/Include/WM8904_codec_i2c.h"/>
+        <file category="header" name="components/Include/WM8904_driver.h"/>
+        <file category="header" name="components/Include/WM8904_Private.h"/>
+        <file category="source" name="components/Source/WM8904_codec_i2c.c"/>
+        <file category="source" name="components/Source/WM8904_driver.c"/>
       </files>
     </component>
 
