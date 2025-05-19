@@ -111,6 +111,8 @@
 #define SOC_FEAT_GPIO7_FLEXIO_PIN_MASK  ((1U << 4) | (1U << 5) | (1U << 6) | (1U << 7))
 #define SOC_FEAT_LPGPIO_HAS_PIN2_7      (1)
 #define SOC_FEAT_LPGPIO_FLEXIO_PIN_MASK ((1U << 0) | (1U << 1) | (1U << 2) | (1U << 3))
+#define SOC_FEAT_GPIO_HAS_PORT10_14     (1)
+#define SOC_FEAT_GPIO_HAS_PORT16_17     (1)
 
 #define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS (1)
 

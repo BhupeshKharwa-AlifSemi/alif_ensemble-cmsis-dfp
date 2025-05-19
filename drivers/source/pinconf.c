@@ -63,9 +63,19 @@ int32_t pinconf_set(const uint8_t port, const uint8_t pin, const uint8_t alt_fun
 {
     uint32_t offset;
 
-    if ((port > PORT_15) || (pin > PIN_7))
+    if ((port == PORT_15))
     {
-        return -1;
+        if (pin > LPGPIO_MAX_PIN)
+        {
+            return -1;
+        }
+    }
+    else
+    {
+        if ((port > GPIO_MAX_PORT) || (pin > PIN_7))
+        {
+            return -1;
+        }
     }
 
     if (port == PORT_15)
@@ -102,9 +112,23 @@ int32_t pinconf_get(const uint8_t port, const uint8_t pin, uint8_t *alt_func, ui
 {
     uint32_t offset, val;
 
-    if ((port > PORT_15) || (pin > PIN_7) || (alt_func == NULL) || (pad_ctrl == NULL))
+    if ((alt_func == NULL) || (pad_ctrl == NULL))
     {
         return -1;
+    }
+    if ((port == PORT_15))
+    {
+        if (pin > LPGPIO_MAX_PIN)
+        {
+            return -1;
+        }
+    }
+    else
+    {
+        if ((port > GPIO_MAX_PORT) || (pin > PIN_7))
+        {
+            return -1;
+        }
     }
 
     if (port == PORT_15)

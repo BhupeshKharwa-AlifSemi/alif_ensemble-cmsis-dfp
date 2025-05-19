@@ -26,6 +26,7 @@ extern "C"
 #endif /* __cplusplus*/
 
 #include <stdint.h>
+#include "soc_features.h"
 
 #define _PORT_(n)  PORT_##n
 #define  PORT_(n) _PORT_(n)
@@ -47,6 +48,8 @@ extern "C"
 #define PORT_14                                             14
 #define PORT_15                                             15
 #define PORT_LP                                             PORT_15  /* PORT 15 name Alias */
+#define PORT_16                                             16
+#define PORT_17                                             17
 
 #define PIN_0                                               0U
 #define PIN_1                                               1U
@@ -78,6 +81,20 @@ extern "C"
 #define PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA                   0x40U
 #define PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA                  0x60U
 #define PADCTRL_DRIVER_OPEN_DRAIN                           0x80U
+
+#if SOC_FEAT_GPIO_HAS_PORT16_17
+#define GPIO_MAX_PORT    PORT_17
+#elif SOC_FEAT_GPIO_HAS_PORT10_14
+#define GPIO_MAX_PORT    PORT_14
+#else
+#define GPIO_MAX_PORT    PORT_9
+#endif
+
+#if SOC_FEAT_LPGPIO_HAS_PIN2_7
+#define LPGPIO_MAX_PIN   PIN_7
+#else
+#define LPGPIO_MAX_PIN   PIN_1
+#endif
 
 /**
   \fn          int32_t pinconf_set(const uint8_t port, const uint8_t pin, const uint8_t alt_func, const uint8_t pad_ctrl)
