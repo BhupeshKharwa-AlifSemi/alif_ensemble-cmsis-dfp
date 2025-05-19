@@ -1834,7 +1834,6 @@
 //    <0=> SS_0
 //    <1=> SS_1
 //    <2=> SS_2
-//    <3=> SS_3
 // <i> Defines slave selection for SPI0.
 // <i> Default: 0
 #define RTE_SPI0_CHIP_SELECTION_PIN             0
@@ -1966,7 +1965,6 @@
 //    <0=> SS_0
 //    <1=> SS_1
 //    <2=> SS_2
-//    <3=> SS_3
 // <i> Defines slave selection for SPI1.
 // <i> Default: 0
 #define RTE_SPI1_CHIP_SELECTION_PIN             0
@@ -2097,7 +2095,6 @@
 //    <0=> SS_0
 //    <1=> SS_1
 //    <2=> SS_2
-//    <3=> SS_3
 // <i> Defines slave selection for SPI2.
 // <i> Default: 0
 #define RTE_SPI2_CHIP_SELECTION_PIN             0
@@ -2229,7 +2226,6 @@
 //    <0=> SS_0
 //    <1=> SS_1
 //    <2=> SS_2
-//    <3=> SS_3
 // <i> Defines slave selection for SPI3.
 // <i> Default: 0
 #define RTE_SPI3_CHIP_SELECTION_PIN             1
@@ -2367,6 +2363,11 @@
 
 // <o> LPSPI slave selection
 //    <0=> SS_0
+//    <1=> SS_1
+//    <2=> SS_2
+//    <3=> SS_3
+//    <4=> SS_4
+//    <5=> SS_5
 // <i> Defines slave selection for LPSPI.
 // <i> Default: 0
 #define RTE_LPSPI_CHIP_SELECTION_PIN             0
