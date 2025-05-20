@@ -10,8 +10,8 @@
 
 /******************************************************************************
  * @file     ospi.h
- * @author   Silesh C V
- * @email    silesh@alifsemi.com
+ * @author   Silesh C V, Manoj A Murudi
+ * @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     19-06-2023
  * @brief    Low level header file for OSPI.
@@ -83,6 +83,10 @@ extern "C"
 #define SPI_CTRLR0_CFS                                  16U
 #define SPI_CTRLR0_CFS_MASK                             (0xFU << SPI_CTRLR0_CFS)
 
+#define SPI_FRF_DUAL                                    0x1
+#define SPI_FRF_QUAD                                    0x2
+#define SPI_FRF_OCTAL                                   0x3
+
 /* SPI Frame Format SPI_FRF bit[23:22]*/
 #define SPI_CTRLR0_SPI_FRF                              22U
 #define SPI_CTRLR0_SPI_FRF_MASK                         (0x3U << SPI_CTRLR0_SPI_FRF)
@@ -93,9 +97,9 @@ extern "C"
 
 /* SPI Hyperbus Frame format enable SPI_HYPERBUS_EN bit[24] */
 #define SPI_CTRLR0_SPI_HYPERBUS_EN                      24
-#define SPI_CTRLR0_SPI_HYPERBUS_EN_SSTE_MASK            (1 << SPI_CTRLR0_SPI_HYPERBUS_EN)
-#define SPI_CTRLR0_SPI_HYPERBUS_ENABLE                  0x4000      /* 0x1 SPI Hyperbus Frame format enable */
-#define SPI_CTRLR0_SPI_HYPERBUS_DISABLE                 0x0000      /* 0x0 SPI Hyperbus Frame format disable */
+#define SPI_CTRLR0_SPI_HYPERBUS_EN_MASK                 (1 << SPI_CTRLR0_SPI_HYPERBUS_EN)
+#define SPI_CTRLR0_SPI_HYPERBUS_ENABLE                  0x1000000U   /* 0x1 SPI Hyperbus Frame format enable */
+#define SPI_CTRLR0_SPI_HYPERBUS_DISABLE                 0x0000000U   /* 0x0 SPI Hyperbus Frame format disable */
 
 /* SPI is working in Master or Slave SSI_IS_MST bit[31] */
 #define SPI_CTRLR0_SSI_IS_MST                           31U
@@ -147,6 +151,7 @@ extern "C"
 #define SPI_CTRLR0_TRANS_TYPE_MASK                      3U
 #define SPI_TRANS_TYPE_STANDARD                         0U
 #define SPI_TRANS_TYPE_FRF_DEFINED                      2U  /* CTRLR0.SPI_FRF Defined - Standard/Dual/Quad/Octal */
+#define SPI_TRANS_TYPE_FRF_DUAL_OCTAL                   3U
 
 #define SPI_CTRLR0_SPI_RXDS_ENABLE                      1U
 #define SPI_CTRLR0_SPI_RXDS_DISABLE                     0U
@@ -190,6 +195,7 @@ extern "C"
 #define XIP_WRITE_CTRL_WR_FRF_OFFSET                    0U
 
 #define SPI_SR_TX_FIFO_EMPTY                            0x4U
+#define SPI_SR_TFNF                                     0x2U
 #define SPI_SR_BUSY                                     0x1U
 
 #define SPI_TX_FIFO_EMPTY_EVENT                         0x01U      /* Transmit fifo empty interrupt mask*/
@@ -273,6 +279,7 @@ typedef struct _ospi_transfer_t {
     uint32_t                        addr_len;           /**< Address length for the transfer  */
     uint32_t                        dummy_cycle;        /**< Dummy cycles for the transfer    */
     uint32_t                        ddr;                /**< DDR / SDR mode for the transfer  */
+    uint32_t                        inst_len;           /**< Instruction length for the transfer */
     bool                            tx_default_enable;  /**< Enable Tx default value transfer */
     SPI_TMOD                        mode;               /**< SPI transfer mode                */
     volatile SPI_TRANSFER_STATUS    status;             /**< transfer status                  */
@@ -327,17 +334,16 @@ static inline void ospi_mode_slave(OSPI_Type *ospi)
 }
 
 /**
-  \fn          static inline void ospi_set_bus_speed(OSPI_Type *ospi, uint32_t speed, uint32_t clk)
+  \fn          static inline void ospi_set_baud(OSPI_Type *ospi, uint32_t baud)
   \brief       Set the bus speed for the OSPI instance.
   \param[in]   ospi    Pointer to the OSPI register map
-  \param[in]   speed   The bus speed to be set
-  \param[in]   clk     OSPI input clk
+  \param[in]   baud    The baud value to be set
   \return      none
 */
-static inline void ospi_set_bus_speed(OSPI_Type *ospi, uint32_t speed, uint32_t clk)
+static inline void ospi_set_baud(OSPI_Type *ospi, uint32_t baud)
 {
     ospi_disable(ospi);
-    ospi->OSPI_BAUDR = (clk / speed);
+    ospi->OSPI_BAUDR = baud;
     ospi_enable(ospi);
 }
 
@@ -607,13 +613,23 @@ void ospi_dma_send(OSPI_Type *ospi, ospi_transfer_t *transfer);
 void ospi_dma_transfer(OSPI_Type *ospi, ospi_transfer_t *transfer);
 
 /**
-  \fn          void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles)
+  \fn          void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles, bool is_dual_octal)
   \brief       Initialize hyperbus XIP configuration for the OSPI instance
   \param[in]   ospi        Pointer to the OSPI register map
   \param[in]   wait_cycles Wait cycles needed by the hyperbus device
+  \param[in]   is_dual_octal OSPI transfer type is Dual Octal
   \return      none
 */
-void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles);
+void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles, bool is_dual_octal);
+
+/**
+  \fn          void ospi_hyperbus_send(OSPI_Type *spi, ospi_transfer_t *transfer)
+  \brief       Prepare the OSPI instance for transmission
+  \param[in]   ospi       Pointer to the OSPI register map
+  \param[in]   transfer   Transfer parameters
+  \return      none
+*/
+void ospi_hyperbus_send(OSPI_Type *ospi, ospi_transfer_t *transfer);
 
 /**
   \fn          void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)

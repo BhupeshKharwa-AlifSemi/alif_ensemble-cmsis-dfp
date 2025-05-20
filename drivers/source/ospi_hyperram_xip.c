@@ -10,8 +10,8 @@
 
 /******************************************************************************
  * @file     ospi_hyperram_xip.c
- * @author   Silesh C V
- * @email    silesh@alifsemi.com
+ * @author   Silesh C V, Manoj A Murudi
+ * @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     19-Jul-2023
  * @brief    Implementation of the OSPI hyperram XIP init library.
@@ -20,19 +20,65 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "ospi_hyperram_xip.h"
-#include "ospi.h"
-#include "sys_ctrl_aes.h"
-#include "soc.h"
-#include "sys_clocks.h"
-#include "RTE_Device.h"
-
 #include "RTE_Components.h"
 #include CMSIS_device_header
+
+#include "ospi_hyperram_xip.h"
+#include "ospi.h"
+#include "soc.h"
+#include "sys_clocks.h"
+
+#include "sys_ctrl_aes.h"
 
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 #include "sys_ctrl_ospi.h"
 #endif
+
+/**
+  \fn          int OSPI_Set_Speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xip_config *config)
+  \brief       Set OSPI bus speed for spi transfer.
+  \param[in]   ospi : Pointer to the OSPI register map.
+  \param[in]   aes  : Pointer to the AES register map.
+  \param[in]   config  : Pointer to hyperram configuration information.
+  \return      -1 on configuration error, 0 on success
+ */
+static int ospi_set_speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xip_config *config)
+{
+    uint32_t baud;
+
+    if (config->bus_speed == 0)
+    {
+        return -1;
+    }
+
+    baud = (GetSystemAXIClock() / config->bus_speed);
+
+    if (baud == 0)
+    {
+        return -1;
+    }
+
+    if (baud < 4)
+    {
+#if SOC_FEAT_AES_BAUD2_DELAY_VAL
+        {
+            aes_set_baud2_delay(aes);
+        }
+#elif SOC_FEAT_AES_OSPI_SIGNALS_DELAY
+        {
+            aes_set_signal_delay(aes, config->signal_delay);
+        }
+#else
+        {
+            return -1;
+        }
+#endif
+    }
+
+    ospi_set_baud(ospi, baud);
+
+    return 0;
+}
 
 /**
   \fn          int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
@@ -45,9 +91,9 @@
 */
 int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
 {
-    OSPI_Type *ospi;
-    AES_Type *aes;
-    uint32_t clk = GetSystemAXIClock();
+    OSPI_Type *ospi = NULL;
+    AES_Type *aes = NULL;
+    bool is_dual_octal = 0;
 
     if (config == NULL || config->instance < OSPI_INSTANCE_0 || config->instance > OSPI_INSTANCE_1)
     {
@@ -69,25 +115,35 @@ int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
 #endif
 
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-    enable_ospi_clk();
+    enable_ospi_clk(config->instance);
 #endif
-
-    ospi_set_dfs(ospi, config->dfs);
 
     ospi_set_ddr_drive_edge(ospi, config->ddr_drive_edge);
 
-    ospi_set_bus_speed(ospi, config->bus_speed, clk);
+    if (ospi_set_speed(ospi, aes, config))
+    {
+        return -1;
+    }
 
     aes_set_rxds_delay(aes, config->rxds_delay);
+
+    if (config->spi_mode == OSPI_SPI_MODE_DUAL_OCTAL)
+    {
+        is_dual_octal = 1;
+    }
 
     /* If the user has provided a function pointer to initialize the hyperram, call it */
     if (config->hyperram_init)
     {
-        config->hyperram_init();
+        ospi_control_ss(ospi, config->slave_select, SPI_SS_STATE_ENABLE);
+        config->hyperram_init(ospi, config->wait_cycles);
+        ospi_control_ss(ospi, config->slave_select, SPI_SS_STATE_DISABLE);
     }
 
+    ospi_set_dfs(ospi, config->dfs);
+
     /* Initialize OSPI hyperbus xip configuration */
-    ospi_hyperbus_xip_init(ospi, config->wait_cycles);
+    ospi_hyperbus_xip_init(ospi, config->wait_cycles, is_dual_octal);
 
 #if SOC_FEAT_OSPI_HAS_XIP_SER
     ospi_control_xip_ss(ospi, config->slave_select, SPI_SS_STATE_ENABLE);

@@ -10,8 +10,8 @@
 
 /**************************************************************************//**
  * @file     ospi.c
- * @author   Silesh C V
- * @email    silesh@alifsemi.com
+ * @author   Silesh C V, Manoj A Murudi
+ * @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     19-Jun-2023
  * @brief    Low level OSPI driver.
@@ -235,7 +235,7 @@ void ospi_send(OSPI_Type *ospi, ospi_transfer_t *transfer)
     val = SPI_TRANS_TYPE_FRF_DEFINED
               | SPI_CTRLR0_SPI_RXDS_ENABLE << SPI_CTRLR0_SPI_RXDS_EN_OFFSET
               | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
-              | (SPI_CTRLR0_INST_L_8bit << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
               | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
               | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
 
@@ -271,7 +271,7 @@ void ospi_receive(OSPI_Type *ospi, ospi_transfer_t *transfer)
     val = SPI_TRANS_TYPE_FRF_DEFINED
               | (SPI_CTRLR0_SPI_RXDS_ENABLE << SPI_CTRLR0_SPI_RXDS_EN_OFFSET)
               | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
-              | (SPI_CTRLR0_INST_L_0bit << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
               | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
               | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
 
@@ -310,7 +310,7 @@ void ospi_transfer(OSPI_Type *ospi, ospi_transfer_t *transfer)
     val = SPI_TRANS_TYPE_FRF_DEFINED
               | (SPI_CTRLR0_SPI_RXDS_ENABLE << SPI_CTRLR0_SPI_RXDS_EN_OFFSET)
               | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
-              | (SPI_CTRLR0_INST_L_8bit << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
               | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
               | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
 
@@ -347,7 +347,7 @@ void ospi_dma_send(OSPI_Type *ospi, ospi_transfer_t *transfer)
     val = SPI_TRANS_TYPE_FRF_DEFINED
               | SPI_CTRLR0_SPI_RXDS_ENABLE << SPI_CTRLR0_SPI_RXDS_EN_OFFSET
               | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
-              | (SPI_CTRLR0_INST_L_8bit << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
               | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
               | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
 
@@ -381,7 +381,7 @@ void ospi_dma_transfer(OSPI_Type *ospi, ospi_transfer_t *transfer)
     val = SPI_TRANS_TYPE_FRF_DEFINED
               | (SPI_CTRLR0_SPI_RXDS_ENABLE << SPI_CTRLR0_SPI_RXDS_EN_OFFSET)
               | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
-              | (SPI_CTRLR0_INST_L_8bit << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
               | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
               | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
 
@@ -403,14 +403,22 @@ void ospi_dma_transfer(OSPI_Type *ospi, ospi_transfer_t *transfer)
 }
 
 /**
-  \fn          void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles)
+  \fn          void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles, bool is_dual_octal)
   \brief       Initialize hyperbus XIP configuration for the OSPI instance
   \param[in]   ospi        Pointer to the OSPI register map
   \param[in]   wait_cycles Wait cycles needed by the hyperbus device
+  \param[in]   is_dual_octal OSPI transfer type is Dual Octal
   \return      none
 */
-void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles)
+void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles, bool is_dual_octal)
 {
+    uint8_t trans_type;
+
+    if (is_dual_octal)
+        trans_type = SPI_TRANS_TYPE_FRF_DUAL_OCTAL;
+    else
+        trans_type = SPI_TRANS_TYPE_STANDARD;
+
     ospi_disable(ospi);
 
     ospi->OSPI_SPI_CTRLR0 = (1 << SPI_CTRLR0_SPI_DM_EN_OFFSET);
@@ -418,14 +426,82 @@ void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles)
     ospi->OSPI_XIP_CTRL = (1 << XIP_CTRL_XIP_HYPERBUS_EN_OFFSET)
                         | (1 << XIP_CTRL_RXDS_SIG_EN_OFFSET)
                         | (wait_cycles << XIP_CTRL_WAIT_CYCLES_OFFSET)
-                        | (1 << XIP_CTRL_DFS_HC_OFFSET);
+                        | (1 << XIP_CTRL_DFS_HC_OFFSET)
+                        | (trans_type << XIP_CTRL_TRANS_TYPE_OFFSET);
 
     ospi->OSPI_XIP_WRITE_CTRL = (1 << XIP_WRITE_CTRL_XIPWR_HYPERBUS_EN_OFFSET)
                               | (1 << XIP_WRITE_CTRL_XIPWR_DM_EN_OFFSET)
                               | (1 << XIP_WRITE_CTRL_XIPWR_RXDS_SIG_EN_OFFSET)
+                              | (trans_type << XIP_WRITE_CTRL_WR_TRANS_TYPE_OFFSET)
+#if (SOC_FEAT_AES_OSPI_HAS_XIP_WRITE_HC_DFS)
+                              | (1 << XIP_WRITE_CTRL_XIPWR_DFS_HC_OFFSET)
+#endif
                               | (wait_cycles << XIP_WRITE_CTRL_XIPWR_WAIT_CYCLES);
 
     ospi_enable(ospi);
+}
+
+/**
+  \fn          void ospi_hyperbus_send(OSPI_Type *spi, ospi_transfer_t *transfer)
+  \brief       Prepare the OSPI instance for transmission
+  \param[in]   ospi       Pointer to the OSPI register map
+  \param[in]   transfer   Transfer parameters
+  \return      none
+*/
+void ospi_hyperbus_send(OSPI_Type *ospi, ospi_transfer_t *transfer)
+{
+    uint32_t val, tx_count, curr_fifo_level;
+
+    ospi_disable(ospi);
+
+    val = ospi->OSPI_CTRLR0;
+    val &= ~(SPI_CTRLR0_SPI_FRF_MASK | (SPI_CTRLR0_TMOD_MASK | SPI_CTRLR0_SSTE_MASK));
+    val |= ((transfer->spi_frf << SPI_CTRLR0_SPI_FRF)
+            | SPI_CTRLR0_TMOD_SEND_ONLY
+            | SPI_CTRLR0_SPI_HYPERBUS_ENABLE);
+    ospi->OSPI_CTRLR0 = val;
+
+    val = SPI_TRANS_TYPE_FRF_DEFINED
+              | (transfer->ddr << SPI_CTRLR0_SPI_DDR_EN_OFFSET)
+              | (transfer->inst_len << SPI_CTRLR0_INST_L_OFFSET)
+              | (transfer->addr_len << SPI_CTRLR0_ADDR_L_OFFSET)
+              | (transfer->dummy_cycle << SPI_CTRLR0_WAIT_CYCLES_OFFSET);
+
+    ospi->OSPI_SPI_CTRLR0 = val;
+
+    ospi_enable(ospi);
+
+    /* transmitting data in polling mode */
+    while (transfer->tx_total_cnt != transfer->tx_current_cnt)
+    {
+        while ((ospi->OSPI_SR & SPI_SR_TFNF) == 0)
+        {
+        }
+
+        curr_fifo_level = ospi->OSPI_TXFLR;
+
+        if (transfer->tx_total_cnt >= (transfer->tx_current_cnt + OSPI_TX_FIFO_DEPTH - curr_fifo_level))
+        {
+            tx_count = (OSPI_TX_FIFO_DEPTH - curr_fifo_level);
+        }
+        else
+        {
+            tx_count = (transfer->tx_total_cnt - transfer->tx_current_cnt);
+        }
+
+        ospi->OSPI_TXFTLR |= ((tx_count - 1U) << SPI_TXFTLR_TXFTHR_SHIFT);
+
+        for (int i = 0; i < tx_count; i++)
+        {
+            ospi->OSPI_DR[0] = transfer->tx_buff[0];
+            transfer->tx_buff = (transfer->tx_buff + 1);
+            transfer->tx_current_cnt++;
+        }
+    }
+
+    while (ospi_busy(ospi))
+    {
+    }
 }
 
 /**
@@ -545,7 +621,7 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
     if (event & SPI_RX_FIFO_UNDER_FLOW_EVENT)
     {
         transfer->status = SPI_TRANSFER_STATUS_RX_UNDERFLOW;
-    	ospi->OSPI_IMR &= ~(SPI_IMR_RX_FIFO_UNDER_FLOW_INTERRUPT_MASK);
+        ospi->OSPI_IMR &= ~(SPI_IMR_RX_FIFO_UNDER_FLOW_INTERRUPT_MASK);
     }
 
     /* SEND ONLY mode : check if the transfer is finished */
@@ -610,4 +686,3 @@ void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer)
     (void) ospi->OSPI_RXUICR;
     (void) ospi->OSPI_ICR;
 }
-

@@ -61,8 +61,8 @@
 
 /**************************************************************************//**
  * @file     Driver_OSPI.h
- * @author   Khushboo Singh
- * @email    khushboo.singh@alifsemi.com
+ * @author   Khushboo Singh, Manoj A Murudi
+ * @email    khushboo.singh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     21-Oct-2022
  * @brief    OSPI Driver header file derived from CMSIS Driver_SPI.h
@@ -141,6 +141,7 @@ extern "C"
 #define ARM_OSPI_SET_ADDR_LENGTH_WAIT_CYCLE    (0x15UL << ARM_OSPI_CONTROL_POS)
 #define ARM_OSPI_SET_FRAME_FORMAT              (0x16UL << ARM_OSPI_CONTROL_POS)
 #define ARM_OSPI_SET_DDR_MODE                  (0x17UL << ARM_OSPI_CONTROL_POS)
+#define ARM_OSPI_SET_INST_LENGTH               (0x18UL << ARM_OSPI_CONTROL_POS)
 
 /*----- OSPI Custom Control codes -----*/
 
@@ -149,8 +150,12 @@ extern "C"
 #define ARM_OSPI_ADDR_LENGTH_24_BITS           0x6
 #define ARM_OSPI_ADDR_LENGTH_32_BITS           0x8
 
+#define ARM_OSPI_INST_LENGTH_8_BITS            0x2
+#define ARM_OSPI_INST_LENGTH_16_BITS           0x3
+
 #define ARM_OSPI_DDR_DISABLE                   0x0
 #define ARM_OSPI_DDR_ENABLE                    0x1
+#define ARM_OSPI_INST_DDR_ENABLE               0x3
 
 #define ARM_OSPI_FRF_STANDRAD                  0x0    /* 0x0 Standard OSPI Format */
 #define ARM_OSPI_FRF_DUAL                      0x1    /* 0x1 Dual OSPI Format */
@@ -172,6 +177,42 @@ extern "C"
 #define ARM_OSPI_ERROR_DATA_BITS               (ARM_DRIVER_ERROR_SPECIFIC - 3)     ///< Specified number of Data bits not supported
 #define ARM_OSPI_ERROR_BIT_ORDER               (ARM_DRIVER_ERROR_SPECIFIC - 4)     ///< Specified Bit order not supported
 #define ARM_OSPI_ERROR_SS_MODE                 (ARM_DRIVER_ERROR_SPECIFIC - 5)     ///< Specified Slave Select Mode not supported
+
+/* In enum OSPI_DFS, the mapping from the enum to the corresponding
+ * integer must be strictly maintained, as the functionality
+ * relies on this association. */
+typedef enum _OSPI_DFS
+{
+    OSPI_DFS_4_BIT = 4,                          /* 4-bit DFS value */
+    OSPI_DFS_5_BIT = 5,                          /* 5-bit DFS value */
+    OSPI_DFS_6_BIT = 6,                          /* 6-bit DFS value */
+    OSPI_DFS_7_BIT = 7,                          /* 7-bit DFS value */
+    OSPI_DFS_8_BIT = 8,                          /* 8-bit DFS value */
+    OSPI_DFS_9_BIT = 9,                          /* 9-bit DFS value */
+    OSPI_DFS_10_BIT = 10,                        /* 10-bit DFS value */
+    OSPI_DFS_11_BIT = 11,                        /* 11-bit DFS value */
+    OSPI_DFS_12_BIT = 12,                        /* 12-bit DFS value */
+    OSPI_DFS_13_BIT = 13,                        /* 13-bit DFS value */
+    OSPI_DFS_14_BIT = 14,                        /* 14-bit DFS value */
+    OSPI_DFS_15_BIT = 15,                        /* 15-bit DFS value */
+    OSPI_DFS_16_BIT = 16,                        /* 16-bit DFS value */
+    OSPI_DFS_17_BIT = 17,                        /* 17-bit DFS value */
+    OSPI_DFS_18_BIT = 18,                        /* 18-bit DFS value */
+    OSPI_DFS_19_BIT = 19,                        /* 19-bit DFS value */
+    OSPI_DFS_20_BIT = 20,                        /* 20-bit DFS value */
+    OSPI_DFS_21_BIT = 21,                        /* 21-bit DFS value */
+    OSPI_DFS_22_BIT = 22,                        /* 22-bit DFS value */
+    OSPI_DFS_23_BIT = 23,                        /* 23-bit DFS value */
+    OSPI_DFS_24_BIT = 24,                        /* 24-bit DFS value */
+    OSPI_DFS_25_BIT = 25,                        /* 25-bit DFS value */
+    OSPI_DFS_26_BIT = 26,                        /* 26-bit DFS value */
+    OSPI_DFS_27_BIT = 27,                        /* 27-bit DFS value */
+    OSPI_DFS_28_BIT = 28,                        /* 28-bit DFS value */
+    OSPI_DFS_29_BIT = 29,                        /* 29-bit DFS value */
+    OSPI_DFS_30_BIT = 30,                        /* 30-bit DFS value */
+    OSPI_DFS_31_BIT = 31,                        /* 31-bit DFS value */
+    OSPI_DFS_32_BIT = 32,                        /* 32-bit DFS value */
+} OSPI_DFS;
 
 /**
 \brief OSPI Status

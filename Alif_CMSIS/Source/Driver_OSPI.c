@@ -10,8 +10,8 @@
 
 /**************************************************************************//**
  * @file     Driver_OSPI.c
- * @author   Khushboo Singh
- * @email    khushboo.singh@alifsemi.com
+ * @author   Khushboo Singh, Manoj A Murudi
+ * @email    khushboo.singh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     21-Oct-2022
  * @brief    CMSIS-Driver for OSPI derived from CMSIS SPI driver.
@@ -327,6 +327,7 @@ static int32_t ARM_OSPI_Initialize(OSPI_RESOURCES *OSPI, ARM_OSPI_SignalEvent_t 
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
+    OSPI->transfer.inst_len             = SPI_CTRLR0_INST_L_8bit;
     OSPI->transfer.addr_len             = 0;
     OSPI->transfer.dummy_cycle          = 0;
     OSPI->transfer.tx_buff              = NULL;
@@ -448,7 +449,7 @@ static int32_t ARM_OSPI_PowerControl(OSPI_RESOURCES *OSPI, ARM_POWER_STATE state
             }
 #endif
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-            disable_ospi_clk();
+            disable_ospi_clk(OSPI->drv_instance);
 #endif
             OSPI->state.powered = 0;
             break;
@@ -461,7 +462,7 @@ static int32_t ARM_OSPI_PowerControl(OSPI_RESOURCES *OSPI, ARM_POWER_STATE state
                 return ARM_DRIVER_OK;
             }
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-            enable_ospi_clk();
+            enable_ospi_clk(OSPI->drv_instance);
 #endif
             ospi_set_tx_threshold(OSPI->regs, OSPI->tx_fifo_threshold);
             ospi_set_rx_threshold(OSPI->regs, OSPI->rx_fifo_threshold);
@@ -707,7 +708,11 @@ static int32_t ARM_OSPI_Transfer(OSPI_RESOURCES *OSPI, const void *data_out, voi
     if (OSPI->transfer.addr_len == ARM_OSPI_ADDR_LENGTH_0_BITS)
         OSPI->transfer.tx_total_cnt = 1;
     else if (OSPI->transfer.addr_len == ARM_OSPI_ADDR_LENGTH_24_BITS)
+#if SOC_FEAT_OSPI_ADDR_IN_SINGLE_FIFO_LOCATION
+        OSPI->transfer.tx_total_cnt = 2;
+#else
         OSPI->transfer.tx_total_cnt = 4;
+#endif
     else if (OSPI->transfer.addr_len == ARM_OSPI_ADDR_LENGTH_32_BITS)
         OSPI->transfer.tx_total_cnt = 2;
 
@@ -800,6 +805,52 @@ static uint32_t ARM_OSPI_GetDataCount(OSPI_RESOURCES *OSPI)
 }
 
 /**
+ * @fn      int32_t OSPI_Set_Speed(OSPI_RESOURCES *OSPI, uint32_t arg).
+ * @brief   Set OSPI bus speed for spi transfer.
+ * @note    none.
+ * @param   OSPI : Pointer to the OSPI resource structure.
+ * @param   arg  : argument.
+ * @retval  \ref execution_status
+ */
+static int32_t OSPI_Set_Speed(OSPI_RESOURCES *OSPI, uint32_t arg)
+{
+    uint32_t baud;
+
+    if (arg == 0)
+    {
+        return ARM_DRIVER_ERROR_PARAMETER;
+    }
+
+    baud = (getOSPICoreClock() / arg);
+
+    if (baud == 0)
+    {
+        return ARM_DRIVER_ERROR_UNSUPPORTED;
+    }
+
+    if (baud < 4)
+    {
+#if SOC_FEAT_AES_BAUD2_DELAY_VAL
+        {
+            aes_set_baud2_delay(OSPI->aes_regs);
+        }
+#elif SOC_FEAT_AES_OSPI_SIGNALS_DELAY
+        {
+            aes_set_signal_delay(OSPI->aes_regs, OSPI->signal_delay);
+        }
+#else
+        {
+            return ARM_DRIVER_ERROR_UNSUPPORTED;
+        }
+#endif
+    }
+
+    ospi_set_baud(OSPI->regs, baud);
+
+    return ARM_DRIVER_OK;
+}
+
+/**
  * @fn      int32_t ARM_OSPI_Control(OSPI_RESOURCES *OSPI, uint32_t control, uint32_t arg).
  * @brief   Used to configure spi.
  * @note    none.
@@ -833,16 +884,20 @@ static int32_t ARM_OSPI_Control(OSPI_RESOURCES *OSPI, uint32_t control, uint32_t
         case ARM_OSPI_MODE_MASTER:
         {
             ospi_mode_master(OSPI->regs);
-            clk = getOSPICoreClock();
-            ospi_set_bus_speed(OSPI->regs, arg, clk);
+
+            ret = OSPI_Set_Speed(OSPI, arg);
+            if (ret != ARM_DRIVER_OK)
+            {
+                return ret;
+            }
+
             break;
         }
 
         case ARM_OSPI_SET_BUS_SPEED:
         {
-            clk = getOSPICoreClock();
-            ospi_set_bus_speed(OSPI->regs, arg, clk);
-            return ARM_DRIVER_OK;
+            ret = OSPI_Set_Speed(OSPI, arg);
+            return ret;
         }
 
         case ARM_OSPI_GET_BUS_SPEED:
@@ -853,7 +908,7 @@ static int32_t ARM_OSPI_Control(OSPI_RESOURCES *OSPI, uint32_t control, uint32_t
 
         case ARM_OSPI_SET_DEFAULT_TX_VALUE:
         {
-            OSPI->transfer.tx_default_val 	 = arg;
+            OSPI->transfer.tx_default_val    = arg;
             OSPI->transfer.tx_default_enable = true;
 
             return ARM_DRIVER_OK;
@@ -914,7 +969,7 @@ static int32_t ARM_OSPI_Control(OSPI_RESOURCES *OSPI, uint32_t control, uint32_t
             OSPI->transfer.rx_total_cnt         = 0;
             OSPI->transfer.tx_current_cnt       = 0;
             OSPI->transfer.rx_current_cnt       = 0;
-            OSPI->status.busy          			= 0;
+            OSPI->status.busy                   = 0;
 
             return ARM_DRIVER_OK;
         }
@@ -923,6 +978,12 @@ static int32_t ARM_OSPI_Control(OSPI_RESOURCES *OSPI, uint32_t control, uint32_t
         {
             OSPI->transfer.addr_len    = 0xF & arg;
             OSPI->transfer.dummy_cycle = 0xFF & (arg >> ARM_OSPI_WAIT_CYCLE_POS);
+            break;
+        }
+
+        case ARM_OSPI_SET_INST_LENGTH:
+        {
+            OSPI->transfer.inst_len    = arg;
             break;
         }
 
@@ -1083,7 +1144,10 @@ OSPI_RESOURCES OSPI0_RES = {
 #endif
     .ddr_drive_edge         = RTE_OSPI0_DDR_DRIVE_EDGE,
     .rx_sample_delay        = RTE_OSPI0_RX_SAMPLE_DELAY,
-    .rxds_delay             = RTE_OSPI0_RXDS_DELAY
+    .rxds_delay             = RTE_OSPI0_RXDS_DELAY,
+#if SOC_FEAT_AES_OSPI_SIGNALS_DELAY
+    .signal_delay           = RTE_OSPI0_SIGNAL_DELAY,
+#endif
 };
 
 void OSPI0_IRQHandler(void)
@@ -1214,7 +1278,10 @@ OSPI_RESOURCES OSPI1_RES = {
 #endif
     .ddr_drive_edge         = RTE_OSPI1_DDR_DRIVE_EDGE,
     .rx_sample_delay        = RTE_OSPI1_RX_SAMPLE_DELAY,
-    .rxds_delay             = RTE_OSPI1_RXDS_DELAY
+    .rxds_delay             = RTE_OSPI1_RXDS_DELAY,
+#if SOC_FEAT_AES_OSPI_SIGNALS_DELAY
+    .signal_delay           = RTE_OSPI1_SIGNAL_DELAY,
+#endif
 };
 
 void OSPI1_IRQHandler(void)

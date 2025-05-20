@@ -10,8 +10,8 @@
 
 /******************************************************************************
  * @file     Driver_OSPI_Private.h
- * @author   Silesh C V
- * @email    silesh@alifsemi.com
+ * @author   Silesh C V, Manoj A Murudi
+ * @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     19-06-2023
  * @brief    Private header file for OSPI.
@@ -91,6 +91,9 @@ typedef struct _OSPI_RESOURCES
     uint8_t                     rx_sample_delay;       /* Receive data sample delay */
     uint8_t                     rxds_delay;            /* RXDS delay */
     uint8_t                     chip_selection_pin;    /* chip selection pin from 0-3 */
+#if SOC_FEAT_AES_OSPI_SIGNALS_DELAY
+    uint8_t                     signal_delay;          /* delay for OSPI signals */
+#endif
 } OSPI_RESOURCES;
 
 static inline uint32_t getOSPICoreClock(void)

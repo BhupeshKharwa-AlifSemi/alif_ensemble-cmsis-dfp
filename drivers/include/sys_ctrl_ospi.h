@@ -8,6 +8,14 @@
  *
  */
 
+/******************************************************************************
+ * @file     sys_ctrl_ospi.h
+ * @author   Silesh C V, Manoj A Murudi
+ * @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
+ * @version  V1.0.0
+ * @date     19-06-2024
+ * @brief    Header file for OSPI Control.
+ ******************************************************************************/
 #ifndef SYS_CTRL_OSPI_H_
 #define SYS_CTRL_OSPI_H_
 
@@ -18,28 +26,26 @@ extern "C"
 
 #include "soc.h"
 
-
-/* CLKCTL_PER_SLV OSPI CTRL field definitions */
-#define OSPI_CTRL_CKEN                     (1U << 0U) /* Enable OSPI clock */
-
 /**
-  \fn          static inline void enable_ospi_clk(void)
+  \fn          static inline void enable_ospi_clk(OSPI_INSTANCE drv_instance)
   \brief       enable OSPI clock
+  \param       drv_instance: driver instance
   \return      none
 */
-static inline void enable_ospi_clk(void)
+static inline void enable_ospi_clk(OSPI_INSTANCE drv_instance)
 {
-    CLKCTL_PER_SLV->OSPI_CTRL |= OSPI_CTRL_CKEN;
+    CLKCTL_PER_SLV->OSPI_CTRL |= (1 << drv_instance);
 }
 
 /**
-  \fn          static inline void disable_ospi_clk(void)
+  \fn          static inline void disable_ospi_clk(OSPI_INSTANCE drv_instance)
   \brief       disable OSPI clock
+  \param       drv_instance: driver instance
   \return      none
 */
-static inline void disable_ospi_clk(void)
+static inline void disable_ospi_clk(OSPI_INSTANCE drv_instance)
 {
-    CLKCTL_PER_SLV->OSPI_CTRL &= ~OSPI_CTRL_CKEN;
+    CLKCTL_PER_SLV->OSPI_CTRL &= ~(1 << drv_instance);
 }
 
 #ifdef __cplusplus
