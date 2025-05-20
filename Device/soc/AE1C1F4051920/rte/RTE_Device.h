@@ -1283,8 +1283,8 @@
 //    <0=> SS_0
 //    <1=> SS_1
 // <i> Defines the slave select line for OSPI0
-// <i> Default: 0
-#define RTE_OSPI0_CHIP_SELECTION_PIN              0
+// <i> Default: 1
+#define RTE_OSPI0_CHIP_SELECTION_PIN              1
 
 // <o> OSPI0 RX SAMPLE DELAY
 // <i> Defines RX SAMPLE DELAY for OSPI0
@@ -1308,6 +1308,11 @@
 // <i> Configuration settings for Driver_Flash in component ::Drivers:Flash
 #define RTE_ISSI_FLASH               1
 #if RTE_ISSI_FLASH
+
+// <o> ISSI FLASH SIZE
+// <i>  ISSI flash density in bytes
+// <i> Default: 0x4000000
+#define RTE_ISSI_FLASH_SIZE                     0x4000000
 
 // <o> ISSI FLASH OSPI Instance
 // <i> Defines the OSPI controller instance the ISSI flash is connected to

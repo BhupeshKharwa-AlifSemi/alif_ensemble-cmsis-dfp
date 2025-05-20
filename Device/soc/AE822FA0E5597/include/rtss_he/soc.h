@@ -3374,12 +3374,10 @@ typedef struct {                                /*!< (@ 0x83000000) OSPI0 Struct
 typedef struct {                                /*!< (@ 0x83001000) AES0 Structure                                             */
   __IOM uint32_t  AES_CONTROL;                  /*!< (@ 0x00000000) AES Control Register                                       */
   __IOM uint32_t  AES_INTERRUPT;                /*!< (@ 0x00000004) AES Interrupt Control Register                             */
-  
-  union {
-    __IOM uint32_t AES_INTERRUPT_MASK;          /*!< (@ 0x00000008) AES Interrupt Mask Register                                */
-    __IOM uint32_t AES_CLK_DIS;                 /*!< (@ 0x00000008) AES Clock Disable Register                                 */
-  };
-  __IM  uint32_t  RESERVED[5];
+  __IOM uint32_t  AES_INTERRUPT_MASK;           /*!< (@ 0x00000008) AES Interrupt Mask Register                                */
+  __IOM uint32_t  AES_CLK_DIS;                  /*!< (@ 0x0000000C) AES Clock Disable Register                                 */
+  __IOM uint32_t  AES_ADDR_CONTROL;             /*!< (@ 0x000000010) AES Address Control Register                              */
+  __IM  uint32_t  RESERVED[3];
   __IOM uint32_t  AES_RXDS_DELAY;               /*!< (@ 0x00000020) OSPI RXDS Delay Register                                   */
   __IM  uint32_t  RESERVED1[7];
   __IOM uint32_t  AES_RXD_DELAY_0;              /*!< (@ 0x00000040) OSPI RXD[3:0] Delay Register                               */

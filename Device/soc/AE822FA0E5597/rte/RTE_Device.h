@@ -2560,10 +2560,15 @@
 // <i> Default: 0
 #define RTE_OSPI0_DDR_DRIVE_EDGE                  0
 
-// <o> OSPI0 RXDS Delay <0-16>
+// <o> OSPI0 RXDS Delay <0-23>
 // <i> Defines the delay applied to the RXDS signal of OSPI0
 // <i> Default: 0
 #define RTE_OSPI0_RXDS_DELAY                      0
+
+// <o> OSPI0 Signal Delay <0-23>
+// <i> Defines the delay applied to signals of OSPI0
+// <i> Default: 0
+#define RTE_OSPI0_SIGNAL_DELAY                     0
 #endif
 // </e> OSPI0 (Octal Serial Peripheral Interface 0) [Driver_OSPI]
 
@@ -2648,10 +2653,15 @@
 // <i> Default: 1
 #define RTE_OSPI1_DDR_DRIVE_EDGE                  1
 
-// <o> OSPI1 RXDS Delay <0-16>
+// <o> OSPI1 RXDS Delay <0-23>
 // <i> Defines the delay applied to the RXDS signal of OSPI1
 // <i> Default: 11
 #define RTE_OSPI1_RXDS_DELAY                      11
+
+// <o> OSPI1 Signal Delay <0-23>
+// <i> Defines the delay applied to signals of OSPI1
+// <i> Default: 0
+#define RTE_OSPI1_SIGNAL_DELAY                    0
 #endif
 // </e> OSPI1 (Octal Serial Peripheral Interface 1) [Driver_OSPI]
 
@@ -2660,6 +2670,11 @@
 // <i> Configuration settings for Driver_Flash in component ::Drivers:Flash
 #define RTE_ISSI_FLASH               1
 #if RTE_ISSI_FLASH
+
+// <o> ISSI FLASH SIZE
+// <i>  ISSI flash density in bytes
+// <i> Default: 0x4000000
+#define RTE_ISSI_FLASH_SIZE                     0x4000000
 
 // <o> ISSI FLASH OSPI Instance
 // <i> Defines the OSPI controller instance the ISSI flash is connected to

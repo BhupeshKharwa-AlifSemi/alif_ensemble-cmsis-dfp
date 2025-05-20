@@ -2600,6 +2600,11 @@
 #define RTE_ISSI_FLASH               1
 #if RTE_ISSI_FLASH
 
+// <o> ISSI FLASH SIZE
+// <i>  ISSI flash density in bytes
+// <i> Default: 0x2000000
+#define RTE_ISSI_FLASH_SIZE                     0x2000000
+
 // <o> ISSI FLASH OSPI Instance
 // <i> Defines the OSPI controller instance the ISSI flash is connected to
 // <i> Default: 1
