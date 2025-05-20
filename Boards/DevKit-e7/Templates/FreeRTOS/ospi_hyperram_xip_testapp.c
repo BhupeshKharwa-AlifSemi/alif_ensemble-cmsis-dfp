@@ -63,7 +63,7 @@ ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(OSPI_RESET_PORT);
 #define MPU_OSPI0_REGION_INDEX  5U
 
 #define DDR_DRIVE_EDGE      0
-#define OSPI_DELAY          11
+#define RXDS_DELAY          11
 #define OSPI_BUS_SPEED      100000000   /* 100MHz */
 #define ISSI_WAIT_CYCLES    6
 #define OSPI_DFS            16
@@ -73,16 +73,16 @@ ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(OSPI_RESET_PORT);
 #define BUFFER_SIZE      (16 * 1024)
 static uint16_t buff[BUFFER_SIZE/sizeof(uint16_t)]; /* Buffer size of 16KB */
 
-static ospi_hyperram_xip_config issi_config = {
+static const ospi_hyperram_xip_config issi_config = {
     .instance       = OSPI_INSTANCE_0,
     .bus_speed      = OSPI_BUS_SPEED,
     .hyperram_init  = NULL, /* No special initialization needed by the hyperram device */
     .ddr_drive_edge = DDR_DRIVE_EDGE,
-    .delay          = OSPI_DELAY,
+    .rxds_delay     = RXDS_DELAY,
     .wait_cycles    = ISSI_WAIT_CYCLES,
     .slave_select   = 0,
     .dfs            = OSPI_DFS,
-    .trans_mode     = OSPI_TRANS_MODE_OCTAL
+    .spi_mode       = OSPI_SPI_MODE_OCTAL
 };
 
 /* Define the FreeRTOS object control blocks...  */
