@@ -33,6 +33,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
+#include "board_config.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -41,6 +42,22 @@
 
 #define INSTANCE_CPI                    1
 #define INSTANCE_LPCPI                  0
+
+// Set to 0: Use application-defined mt9m114 camera pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+
+#if INSTANCE_LPCPI
+/* Camera  Driver instance 0 */
+extern ARM_DRIVER_CPI Driver_LPCPI;
+static ARM_DRIVER_CPI *CAMERAdrv = &Driver_LPCPI;
+#endif
+
+#if INSTANCE_CPI
+/* Camera  Driver instance 0 */
+extern ARM_DRIVER_CPI Driver_CPI;
+static ARM_DRIVER_CPI *CAMERAdrv = &Driver_CPI;
+#endif
 
 /*Define for FreeRTOS*/
 #define STACK_SIZE                      1024
@@ -275,6 +292,7 @@ void camera_callback(uint32_t event)
     }
 }
 
+#if !(USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
   \fn          int32_t i2c_pinmux(void)
   \brief       i2c hardware pin initialization:
@@ -291,22 +309,22 @@ int32_t i2c_pinmux(void)
     * Pad function: PADCTRL_READ_ENABLE |
     *               PADCTRL_DRIVER_DISABLED_PULL_UP
     */
-    ret = pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
+    ret = pinconf_set(PORT_(BOARD_I2C1_SDA_C_GPIO_PORT), BOARD_I2C1_SDA_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P7_3 as i2c1_scl_c
      * Pad function: PADCTRL_READ_ENABLE |
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5,
+    ret = pinconf_set(PORT_(BOARD_I2C1_SCL_C_GPIO_PORT), BOARD_I2C1_SCL_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     return 0;
@@ -314,18 +332,13 @@ int32_t i2c_pinmux(void)
 
 #if INSTANCE_CPI
 
-/* Camera  Driver instance 0 */
-extern ARM_DRIVER_CPI Driver_CPI;
-static ARM_DRIVER_CPI *CAMERAdrv = &Driver_CPI;
-
 /**
-  \fn          int32_t camera_pinmux(void)
-  \brief       Camera hardware pin initialization:
-                 - PIN-MUX configuration
-  \param[in]   none
-  \return      0:success; -1:failure
-*/
-int32_t camera_pinmux(void)
+ * @fn      static int32_t board_camera_pins_config(void)
+ * @brief   Configure camera pinmux settings not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
@@ -346,81 +359,81 @@ int32_t camera_pinmux(void)
    */
 
     /* Configure GPIO Pin : P0_0 as cam_hsync_a */
-    ret = pinconf_set(PORT_0, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT), BOARD_CAMERA_HSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P0_1 as cam_vsync_a */
-    ret = pinconf_set(PORT_0, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT), BOARD_CAMERA_VSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P0_2 as cam_pclk_a */
-    ret = pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT), BOARD_CAMERA_PCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Data Lines: D0-D7 */
     /* Configure GPIO Pin : P8_0 as cam_d0_b */
-    ret = pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT), BOARD_CAMERA_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_1 as cam_d1_b */
-    ret = pinconf_set(PORT_8, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT), BOARD_CAMERA_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_2 as cam_d2_b */
-    ret = pinconf_set(PORT_8, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT), BOARD_CAMERA_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_3 as cam_d3_b */
-    ret = pinconf_set(PORT_8, PIN_3, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT), BOARD_CAMERA_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_4 as cam_d4_b */
-    ret = pinconf_set(PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT), BOARD_CAMERA_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_5 as cam_d5_b */
-    ret = pinconf_set(PORT_8, PIN_5, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT), BOARD_CAMERA_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_6 as cam_d6_b */
-    ret = pinconf_set(PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT), BOARD_CAMERA_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_7 as cam_d7_b */
-    ret = pinconf_set(PORT_8, PIN_7, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT), BOARD_CAMERA_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     return 0;
@@ -429,19 +442,13 @@ int32_t camera_pinmux(void)
 #endif
 
 #if INSTANCE_LPCPI
-
-/* Camera  Driver instance 0 */
-extern ARM_DRIVER_CPI Driver_LPCPI;
-static ARM_DRIVER_CPI *CAMERAdrv = &Driver_LPCPI;
-
 /**
-  \fn          int32_t camera_pinmux(void)
-  \brief       Camera hardware pin initialization:
-                 - PIN-MUX configuration
-  \param[in]   none
-  \return      0:success; -1:failure
-*/
-int32_t camera_pinmux(void)
+ * @fn      static int32_t board_camera_pins_config(void)
+ * @brief   Configure lpcamera pinmux settings not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
@@ -462,88 +469,90 @@ int32_t camera_pinmux(void)
     */
 
     /* Configure GPIO Pin : P0_0 as lpcam_hsync_b */
-    ret = pinconf_set(PORT_0, PIN_0, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT), BOARD_CAMERA_HSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P0_1 as lpcam_vsync_b */
-    ret = pinconf_set(PORT_0, PIN_1, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT), BOARD_CAMERA_VSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P0_2 as lpcam_pclk_b */
-    ret = pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT), BOARD_CAMERA_PCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Data Lines: D0-D7 */
     /* Configure GPIO Pin : P8_0 as lpcam_d0_a */
-    ret = pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT), BOARD_CAMERA_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_1 as lpcam_d1_a */
-    ret = pinconf_set(PORT_8, PIN_1, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT), BOARD_CAMERA_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
      /* Configure GPIO Pin : P8_2 as lpcam_d2_a */
-    ret = pinconf_set(PORT_8, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT), BOARD_CAMERA_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_3 as lpcam_d3_a */
-    ret = pinconf_set(PORT_8, PIN_3, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT), BOARD_CAMERA_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_4 as lpcam_d4_a */
-    ret = pinconf_set(PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT), BOARD_CAMERA_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_5 as lpcam_d5_a */
-    ret = pinconf_set(PORT_8, PIN_5, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT), BOARD_CAMERA_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_6 as lpcam_d6_a */
-    ret = pinconf_set(PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT), BOARD_CAMERA_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     /* Configure GPIO Pin : P8_7 as lpcam_d7_a */
-    ret = pinconf_set(PORT_8, PIN_7, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT), BOARD_CAMERA_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if(ret != ARM_DRIVER_OK)
     {
-        return -1;
+        return ret;
     }
 
     return 0;
 }
 
 #endif
+#endif
 
+#if !(USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
   \fn          int32_t hardware_init(void)
   \brief       - i2c hardware pin initialization:
@@ -563,19 +572,20 @@ int32_t hardware_init(void)
     if(ret != 0)
     {
         printf("\r\n Error in i3c pinmux.\r\n");
-        return -1;
+        return ret;
     }
 
     /* Camera pinmux. */
-    ret = camera_pinmux();
+    ret = board_camera_pins_config();
     if(ret != 0)
     {
         printf("\r\n Error in Camera pinmux.\r\n");
-        return -1;
+        return ret;
     }
 
     return 0;
 }
+#endif
 
 /* Check if image conversion Bayer to RGB is Enabled? */
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
@@ -695,13 +705,26 @@ void camera_demo_thread_entry(void *pvParameters)
              BAYER_TO_RGB_BUFFER_POOL_SIZE, (uint32_t) bayer_to_rgb_buffer_pool);
 #endif
 
-    /* Initialize i2c and Camera hardware pins using PinMux Driver. */
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h */
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#else
+    /*
+     * NOTE: The I2C and  Camera pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
     ret = hardware_init();
     if(ret != 0)
     {
-        printf("\r\n Error: CAMERA Hardware Initialize failed.\r\n");
+        printf("Error: CAMERA Hardware Initialize failed: %d\n", ret);
         return;
     }
+#endif
 
     version = CAMERAdrv->GetVersion();
     printf("\r\n Camera driver version api:0x%X driver:0x%X \r\n",version.api, version.drv);

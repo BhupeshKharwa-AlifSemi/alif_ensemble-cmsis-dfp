@@ -34,7 +34,7 @@
 /* Project Includes */
 /* include for UART Driver */
 #include "Driver_USART.h"
-#include "pinconf.h"
+#include "board_config.h"
 
 /*RTOS Includes*/
 #include "RTE_Components.h"
@@ -67,14 +67,11 @@ StaticTask_t IdleTcb;
 StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
-/* UART Driver instance */
-#define UART      4
-
 /* UART Driver */
-extern ARM_DRIVER_USART ARM_Driver_USART_(UART);
+extern ARM_DRIVER_USART ARM_Driver_USART_(BOARD_UARTB_UART_INSTANCE);
 
 /* UART Driver instance */
-static ARM_DRIVER_USART *USARTdrv = &ARM_Driver_USART_(UART);
+static ARM_DRIVER_USART *USARTdrv = &ARM_Driver_USART_(BOARD_UARTB_UART_INSTANCE);
 
 /*Define for FreeRTOS objects */
 
@@ -201,29 +198,10 @@ void myUART_callback(uint32_t event)
    }
 }
 
-/**
- * @function   int hardware_init(void)
- * @brief      UART hardware pin initialization using PIN-MUX driver
- * @note       none
- * @param      void
- * @retval     0:success, -1:failure
- */
-int hardware_init(void)
-{
-   /* UART4_RX_B */
-   pinconf_set( PORT_12, PIN_1, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
-
-   /* UART4_TX_B */
-   pinconf_set( PORT_12, PIN_2, PINMUX_ALTERNATE_FUNCTION_2, 0);
-
-   return 0;
-}
-
 void Uart_Thread(void *pvParameters)
 {
    uint8_t cmd = 0;
    uint32_t ret = 0;
-   uint32_t events = 0;
    uint32_t ulNotificationValue;
    ARM_DRIVER_VERSION version;
 
@@ -248,13 +226,13 @@ void Uart_Thread(void *pvParameters)
    version = USARTdrv->GetVersion();
    printf("\r\n UART version api:%X driver:%X...\r\n", version.api,version.drv);
 
-   /* Initialize UART hardware pins using PinMux Driver. */
-   ret = hardware_init();
-   if (ret != 0)
-   {
-      printf("\r\n Error in UART hardware_init.\r\n");
-      return;
-   }
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if(ret != ARM_DRIVER_OK)
+    {
+        printf("ERROR: Pin configuration failed: %d\n", ret);
+        return;
+    }
 
    /* Initialize UART driver */
    ret = USARTdrv->Initialize(myUART_callback);

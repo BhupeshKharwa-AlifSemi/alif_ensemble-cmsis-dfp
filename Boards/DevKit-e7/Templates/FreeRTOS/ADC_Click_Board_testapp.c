@@ -30,7 +30,7 @@
 
 /* include Driver */
 #include "Driver_ADC.h"
-#include "pinconf.h"
+#include "board_config.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -48,8 +48,8 @@
 #define ADC_CONVERSION    ARM_ADC_SINGLE_SHOT_CH_CONV
 
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC Driver_ADC121;
-static ARM_DRIVER_ADC *pxADCDrv = &Driver_ADC121;
+extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_CLICKBOARD_ANA_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *pxADCDrv = &ARM_Driver_ADC12(BOARD_CLICKBOARD_ANA_ADC12_INSTANCE);
 
 #define CLICK_BOARD_INPUT        ARM_ADC_CHANNEL_0
 #define NUM_CHANNELS             (8)
@@ -102,26 +102,6 @@ void vApplicationIdleHook(void)
 uint32_t ulAdcSample[NUM_CHANNELS];
 
 volatile uint32_t ulNumSamples = 0;
-
-/**
- * @fn      static int32_t prvPinmuxConfig(void)
- * @brief   ADC potentiometer pinmux configuration
- * @retval  execution status.
- */
-static int32_t prvPinmuxConfig(void)
-{
-    int32_t lret = 0U;
-
-    lret = pinconf_set(PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_7,
-                       PADCTRL_READ_ENABLE);
-    if(lret)
-    {
-        printf("ERROR: Failed to configure PINMUX \r\n");
-        return lret;
-    }
-
-    return lret;
-}
 
 /*
  * @func   : static void prvAdcConversionCallBack(uint32_t ulEvent,
@@ -188,11 +168,11 @@ static void prvAdcPotentiometerDemo( void *pvParameters )
     xVersion = pxADCDrv->GetVersion();
     printf("\r\n ADC version api:%X driver:%X...\r\n",xVersion.api, xVersion.drv);
 
-    /* PINMUX */
-    lRet = prvPinmuxConfig();
-    if(lRet != 0)
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    lRet = board_pins_config();
+    if (lRet != 0)
     {
-        printf("Error in pin-mux configuration\n");
+        printf("ERROR: Board pin configuration failed: %d\n", lRet);
         return;
     }
 

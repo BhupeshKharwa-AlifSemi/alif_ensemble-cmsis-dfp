@@ -25,8 +25,10 @@ extern "C"
 {
 #endif
 
-
 #define ARM_ADC_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR (1,0) /*API VERSION*/
+
+#define _ARM_Driver_ADC12(n)      Driver_ADC12##n
+#define  ARM_Driver_ADC12(n)     _ARM_Driver_ADC12(n)
 
 /**********ADC CONTROL CODE************/
 #define ARM_ADC_SHIFT_CTRL                           (0x01UL)          /* ARM ADC SHIFT CONTROL                  */

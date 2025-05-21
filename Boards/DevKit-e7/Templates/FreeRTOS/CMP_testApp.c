@@ -38,7 +38,7 @@
 #include "Driver_IO.h"
 #include <stdio.h>
 #include "sys_utils.h"
-#include "pinconf.h"
+#include "board_config.h"
 #include "Driver_UTIMER.h"
 
 /* include for Comparator Driver */
@@ -53,13 +53,11 @@
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
 /* LED configurations */
-#define GPIO12_PORT                     12     /* Use LED0_R,LED0_B GPIO port */
-#define LED0_R                          PIN_3  /* LED0_R gpio pin             */
+#define LED0_R                     BOARD_LEDRGB0_R_GPIO_PIN  /* LED0_R gpio pin             */
 
 /* To read the HSCMP0 output status set CMP_OUTPIN as 7, for HSCMP1 set CMP_OUTPIN as 6,
  * for set CMP_OUTPIN as HSCMP2 5, and for HSCMP3 set CMP_OUTPIN as 4 */
-#define CMP14_PORT                      14
-#define CMP_OUTPIN                      7
+#define CMP_OUTPIN                      BOARD_CMP0_OUT_GPIO_PIN
 
 #define NUM_TAPS                        3  /* Filter taps: choose between 3 and 8 */
 
@@ -86,11 +84,11 @@
 #define ERROR    -1
 #define SUCCESS   0
 
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO12_PORT);
-ARM_DRIVER_GPIO *ledDrv = &ARM_Driver_GPIO_(GPIO12_PORT);
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
+ARM_DRIVER_GPIO *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(CMP14_PORT);
-ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(CMP14_PORT);
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
+ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 
 #if(CMP_INSTANCE == LPCMP)
 #if !defined(RTSS_HE)
@@ -99,8 +97,9 @@ ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(CMP14_PORT);
 extern ARM_DRIVER_CMP Driver_LPCMP;
 static ARM_DRIVER_CMP *CMPdrv = &Driver_LPCMP;
 #else
-extern ARM_DRIVER_CMP Driver_CMP0;
-static ARM_DRIVER_CMP *CMPdrv = &Driver_CMP0;
+/* Instance for CMP */
+extern ARM_DRIVER_CMP ARM_Driver_CMP(BOARD_POTENTIOMETER_CMP_INSTANCE);
+static ARM_DRIVER_CMP *CMPdrv = &ARM_Driver_CMP(BOARD_POTENTIOMETER_CMP_INSTANCE);
 #endif
 
 volatile uint32_t call_back_counter = 0;
@@ -190,11 +189,9 @@ static void utimer_compare_mode_cb_func(uint8_t event)
 static void utimer_compare_mode_app(void *pvParameters)
 {
     int32_t slRet;
-    uint8_t ucChannel = 0;
+    uint8_t ucChannel = BOARD_CMP_EXT_TRIGGER_UTIMER_INSTANCE;
     uint32_t ulCount_array[3];
     BaseType_t xReturned;
-
-    pinconf_set(0, 0, PINMUX_ALTERNATE_FUNCTION_4, 0);
 
     /*
      * utimer channel 0 is configured for utimer compare mode (driver A).
@@ -306,38 +303,6 @@ error_compare_mode_uninstall:
 #endif
 
 /**
- * @fn          void cmp_pinmux_config(void)
- * @brief       Initialize the pinmux for CMP output
- * @return      status
-*/
-int32_t cmp_pinmux_config(void)
-{
-    int32_t ucStatus;
-
-    /* Configure HSCMP0 output */
-    ucStatus = pinconf_set(PORT_14, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if(ucStatus)
-        return ERROR;
-
-    /* Configure HSCMP1 output */
-    ucStatus = pinconf_set(PORT_14, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if(ucStatus)
-        return ERROR;
-
-    /* Configure HSCMP2 output */
-    ucStatus = pinconf_set(PORT_14, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if(ucStatus)
-        return ERROR;
-
-    /* Configure HSCMP3 output */
-    ucStatus = pinconf_set(PORT_14, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if(ucStatus)
-        return ERROR;
-
-    return SUCCESS;
-}
-
-/**
  * @fn        led_init(void)
  * @brief     - Initialize the LED0_R
  *            - Enable the power for LED0_R
@@ -349,9 +314,6 @@ int32_t cmp_pinmux_config(void)
 static int32_t led_init(void)
 {
     int32_t slRet = 0;
-
-    /* gpio12 pin3 can be used as Red LED of LED0 */
-    pinconf_set(GPIO12_PORT, LED0_R, PINMUX_ALTERNATE_FUNCTION_0, 0);
 
     /* Initialize the LED0_R */
     slRet = ledDrv->Initialize(LED0_R, NULL);
@@ -521,10 +483,12 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     printf("\r\n >>> Comparator demo FreeRTOS starting up!!! <<< \r\n");
 
-    /* Configure the CMP output pins */
-    if(cmp_pinmux_config())
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    slRet = board_pins_config();
+    if (slRet != 0)
     {
-        printf("CMP pinmux failed\n");
+        printf("Error in pin-mux configuration: %d\n", slRet);
+        return;
     }
 
     version = CMPdrv->GetVersion();

@@ -32,6 +32,7 @@
 
 #include "Driver_I2C.h"
 #include "pinconf.h"
+#include "board_config.h"
 
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
@@ -40,6 +41,10 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined LPI2C pin configuration (via board_lpi2c_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
 
 /* I2C Driver instance */
 extern ARM_DRIVER_I2C Driver_I2C0;
@@ -111,36 +116,57 @@ static void i2c_slv_transfer_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static void pinmux_config(void)
- * @brief   I2C and LPI2C SCL and SDA pinmux configuration.
- * @note    Pinmux for B0
- * @param   none
- * @retval  none
- */
-static void pinmux_config()
+* @fn      static int32_t board_lpi2c_pins_config(void)
+* @brief   Configure additional lpi2c pinmux settings not handled
+*          by the board support library.
+* @retval  execution status.
+*/
+static int32_t board_lpi2c_pins_config(void)
 {
+    int32_t ret;
     /* LPI2C_SDA_B */
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_4,
-                (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                 PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    ret= pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT), BOARD_LPI2C_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4,
+             (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for LPI2C_SDA_PIN\n");
+        return ret;
+    }
 
     /* LPI2C_SCL_B */
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
-                (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                 PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    ret= pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT), BOARD_LPI2C_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+             (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for LPI2C_SCL_PIN\n");
+        return ret;
+    }
 
     /* I2C0_SDA_B */
-    pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_5,
+    ret= pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT), BOARD_I2C0_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C0_SDA_PIN\n");
+        return ret;
+    }
 
     /* I2C0_SCL_B */
-    pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_5,
+    ret= pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT), BOARD_I2C0_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C0_SCL_PIN\n");
+        return ret;
+    }
 
+    return ret;
 }
+#endif
 
 /**
  * @fn      static void LPI2C_demo(void)
@@ -157,8 +183,27 @@ static void LPI2C_demo(void)
 
     printf("\r\n >>> LPI2C demo starting up !!! <<< \r\n");
 
-    /* Pinmux */
-    pinmux_config();
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+
+#else
+    /*
+     * NOTE: The lpi2c pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_lpi2c_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
 
     version = I2C_mstdrv->GetVersion();
     printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",

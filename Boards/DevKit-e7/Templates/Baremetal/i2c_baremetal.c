@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "sys_utils.h"
 
 #include "RTE_Device.h"
 #include "RTE_Components.h"
@@ -37,22 +38,21 @@
 
 #include "sys_utils.h"
 #include "Driver_I2C.h"
-#include "pinconf.h"
+#include "board_config.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
-
 
 #define ADDRESS_MODE_7BIT   1                   /* I2C 7 bit addressing mode     */
 #define ADDRESS_MODE_10BIT  2                   /* I2C 10 bit addressing mode    */
 #define ADDRESS_MODE        ADDRESS_MODE_7BIT   /* 7 bit addressing mode chosen  */
 
 /* I2C Driver instance */
-extern ARM_DRIVER_I2C Driver_I2C1;
-static ARM_DRIVER_I2C *I2C_MstDrv = &Driver_I2C1;
+extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
+static ARM_DRIVER_I2C *I2C_MstDrv = &ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
 
-extern ARM_DRIVER_I2C Driver_I2C0;
-static ARM_DRIVER_I2C *I2C_SlvDrv = &Driver_I2C0;
+extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
+static ARM_DRIVER_I2C *I2C_SlvDrv = &ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
 
 static volatile uint32_t mst_cb_status = 0;
 static volatile uint32_t slv_cb_status = 0;
@@ -174,32 +174,6 @@ static void i2c_slv_conversion_callback(uint32_t event)
 }
 
 /**
- * @fn      static void hardware_init(void)
- * @brief   I2C0 and I2C1 pinmux configuration.
- * @note    none
- * @param   none
- * @retval  none
- */
-static void hardware_init(void)
-{
-    /* I2C0_SDA_A */
-    pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_3,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-
-    /* I2C0_SCL_A */
-    pinconf_set(PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_3,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-
-    /* I2C1_SDA_C */
-    pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-
-    /* I2C1_SCL_C */
-    pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-}
-
-/**
  * @fn      static void I2C_demo(void)
  * @brief   Performs I2C master and slave comm demo
  * @note    none
@@ -213,8 +187,13 @@ static void I2C_demo(void)
 
     printf("\r\n >>> I2C demo starting up!!! <<< \r\n");
 
-    /* Pinmux */
-    hardware_init();
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
 
     version = I2C_MstDrv->GetVersion();
     printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",

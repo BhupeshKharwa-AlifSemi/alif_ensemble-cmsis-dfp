@@ -163,7 +163,7 @@ static void prvTsensDemoThreadEntry( void *pvParameters )
         return;
     }
 
-    printf("\r\n >>> ADC demo threadX starting up!!! <<< \r\n");
+    printf("\r\n >>> ADC demo FreeRTOS starting up!!! <<< \r\n");
 
     xVersion = pxADCDrv->GetVersion();
     printf("\r\n ADC version api:%X driver:%X...\r\n",xVersion.api, xVersion.drv);

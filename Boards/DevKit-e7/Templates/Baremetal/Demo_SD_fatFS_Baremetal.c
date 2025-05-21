@@ -26,18 +26,19 @@
 #include "ff.h"
 #include "diskio.h"
 
-/* include for Pin Mux config */
-#include "pinconf.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #include "Driver_Common.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-#define SDC_A 1
-#define SDC_B 2
-#define SDC_C 3
-#define SDC_PINS SDC_A
+/* include for Pin Mux config */
+#include "pinconf.h"
+#include "board_config.h"
+
+// Set to 0: Use application-defined SDC A revision pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #define MEDIA_NAME "/SD_DISK/"
 
@@ -79,59 +80,28 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     UINT br,bw;
     FILE *fp = NULL;
 
-#if (SDC_PINS == SDC_A)
-    pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
-    pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
-    pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
-#endif
-
-#elif (SDC_PINS == SDC_B)
-    pinconf_set(PORT_14, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_14, PIN_1, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //clk
-    pinconf_set(PORT_14, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //rst
-    pinconf_set(PORT_13, PIN_0, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d0
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
-    pinconf_set(PORT_13, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_13, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_13, PIN_3, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //d3
-#endif
-
-#elif (SDC_PINS == SDC_C)
-    pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //cmd
-    pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //clk
-    pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //d0
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
-    pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //d1
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //d2
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_BUS_REPEATER); //d3
-#endif
-    pinconf_set(PORT_9, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //cmd
-    pinconf_set(PORT_9, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //clk
-    pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d0
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
-    pinconf_set(PORT_8, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d1
-    pinconf_set(PORT_8, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d2
-    pinconf_set(PORT_8, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d3
-#endif
-
-#elif (SDC_PINS == SDC_D)
-    pinconf_set(PORT_9, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_9, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //clk
-    //pinconf_set(PORT_9, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //rst
-    pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d0
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
-    pinconf_set(PORT_8, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_8, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_8, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d3
-#endif
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
 
 #else
-    #error "Invalid SDMMC Pins defined...\n"
-
+    /*
+     * NOTE: The SDC A revision pins used in this test application are not configured
+     * in the board support library. Therefore, pins are configured manually here.
+     */
+    pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT), BOARD_SD_CMD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
+    pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT), BOARD_SD_CLK_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
+    pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT), BOARD_SD_D0_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
+#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
+    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT), BOARD_SD_D1_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
+    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT), BOARD_SD_D2_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
+    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT), BOARD_SD_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
+#endif
 #endif
 
     /* Open the SD disk. and initialize SD controller */
@@ -303,4 +273,3 @@ int main()
 
     return 0;
 }
-

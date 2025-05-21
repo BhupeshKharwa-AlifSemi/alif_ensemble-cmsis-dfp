@@ -27,6 +27,7 @@
 #include "pinconf.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
+#include "board_config.h"
 /*RTOS Includes */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -35,6 +36,9 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined SPI pin configuration (via board_spi_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
 
 /* Use below macro to specify transfer type
 * 1 - Uses SPI Transfer function
@@ -99,37 +103,37 @@ void vApplicationIdleHook(void)
 
 /*****************Only for FreeRTOS use *************************/
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static int32_t pinmux_config(void)
- * @brief   SPI1 & SPI0 pinmux configuration.
- * @note    none.
- * @param   none.
- * @retval  execution status.
- */
-static int32_t pinmux_config(void)
+* @fn      static int32_t board_spi_pins_config(void)
+* @brief   Configure additional spi0 and spi1 pinmux settings not handled
+*          by the board support library.
+* @retval  execution status.
+*/
+static int32_t board_spi_pins_config(void)
 {
     int32_t ret = ARM_DRIVER_OK;
 
     /* pinmux configurations for SPI0 pins (using B version pins) */
-    ret = pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT), BOARD_SPI0_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT), BOARD_SPI0_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT), BOARD_SPI0_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT), BOARD_SPI0_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");
@@ -137,25 +141,25 @@ static int32_t pinmux_config(void)
     }
 
     /* pinmux configurations for SPI1 pins (using B version pins) */
-    ret = pinconf_set(PORT_8, PIN_3, PINMUX_ALTERNATE_FUNCTION_2, 0);
+        ret = pinconf_set(PORT_(BOARD_SPI1_MISO_GPIO_PORT), BOARD_SPI1_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI1_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI1_MOSI_GPIO_PORT), BOARD_SPI1_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI1_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_8, PIN_5, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI1_SCLK_GPIO_PORT), BOARD_SPI1_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI1_CLK_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI1_SCLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_6, PIN_4, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI1_SS0_GPIO_PORT), BOARD_SPI1_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI1_SS_PIN\n");
@@ -164,6 +168,7 @@ static int32_t pinmux_config(void)
 
     return ret;
 }
+#endif
 
 /**
  * @fn      static void SPI0_cb_func (uint32_t event)
@@ -230,12 +235,27 @@ static void spi0_spi1_transfer(void *pvParameters)
 
     printf("*** Demo FreeRTOS app using SPI0 & SPI1 is starting ***\n");
 
-    ret = pinmux_config();
-    if (ret != ARM_DRIVER_OK)
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        printf("Error in pinmux configuration\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
+
+#else
+    /*
+     * NOTE: The spi0 and spi1 pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_spi_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
 
     /* SPI0 Configuration as master */
     ret = ptrSPI0->Initialize(SPI0_cb_func);

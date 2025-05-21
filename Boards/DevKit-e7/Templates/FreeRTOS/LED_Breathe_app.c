@@ -25,12 +25,17 @@
 
 #include "Driver_UTIMER.h"
 #include "pinconf.h"
+#include "board_config.h"
 #include <RTE_Components.h>
 #include CMSIS_device_header
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined UTIMER pin configuration (from board_utimer_pins_config).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #define RED_LED    1U
 #define GREEN_LED  2U
@@ -58,9 +63,9 @@
 #define UT_33_PERC_DT_COUNTER_VALUE   80000U
 #define UT_66_PERC_DT_COUNTER_VALUE   UT_33_PERC_DT_COUNTER_VALUE * 2U
 #define UT_100_PERC_DT_COUNTER_VALUE  UT_33_PERC_DT_COUNTER_VALUE * 3U
-#define UT_CHANNEL_RED_LED            9U
-#define UT_CHANNEL_GREEN_LED          10U
-#define UT_CHANNEL_BLUE_LED           8U
+#define UT_CHANNEL_RED_LED            BOARD_RED_LED_UTIMER_INSTANCE
+#define UT_CHANNEL_GREEN_LED          BOARD_GREEN_LED_UTIMER_INSTANCE
+#define UT_CHANNEL_BLUE_LED           BOARD_BLUE_LED_UTIMER_INSTANCE
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
@@ -70,6 +75,42 @@ ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 #define DEMO_STACK_SIZE                 1024
 
 TaskHandle_t led_demo_xHandle;
+
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @fn      static int32_t board_utimer_pins_config (void)
+ * @brief   Configure UTIMER pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_utimer_pins_config(void)
+{
+	int32_t ret;
+#if (LED_USED == RED_LED)
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in Red LED PINMUX.\r\n");
+        return ret;
+    }
+#elif (LED_USED == GREEN_LED)
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in Green LED PINMUX.\r\n");
+        return ret;
+    }
+#elif (LED_USED == BLUE_LED)
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in Blue LED PINMUX.\r\n");
+        return ret;
+    }
+#else
+#error "ERROR: Selected LED is not correct"
+#endif
+
+    return 0;;
+}
+#endif
 
 /**
  * @function    void utimer_led_cb_func(uint8_t event)
@@ -211,33 +252,34 @@ static void led_breathe_thread (void *pvParameters)
 
     printf("*** utimer FreeRTOS demo application for LED brightness control ***\n");
 
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+#else
+    /*
+     * NOTE: The UTIMER pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_utimer_pins_config();
+#endif
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+
 #if (LED_USED == RED_LED)
     printf("Red LED brightness control has been started\n");
     channel = UT_CHANNEL_RED_LED;
     counter_type = ARM_UTIMER_COMPARE_B;
-
-    ret = pinconf_set (PORT_12, PIN_3, PINMUX_ALTERNATE_FUNCTION_4, 0);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in Red LED PINMUX.\r\n");
-    }
 #elif (LED_USED == GREEN_LED)
     printf("Green LED brightness control has been started\n");
     channel = UT_CHANNEL_GREEN_LED;
     counter_type = ARM_UTIMER_COMPARE_A;
-
-    ret = pinconf_set (PORT_7, PIN_4, PINMUX_ALTERNATE_FUNCTION_6, 0);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in Green LED PINMUX.\r\n");
-    }
 #elif (LED_USED == BLUE_LED)
     printf("Blue LED brightness control has been started\n");
     channel = UT_CHANNEL_BLUE_LED;
     counter_type = ARM_UTIMER_COMPARE_A;
-
-    ret = pinconf_set (PORT_12, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, 0);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in Blue LED PINMUX.\r\n");
-    }
 #else
 #error "ERROR: Selected LED is not correct"
 #endif

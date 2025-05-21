@@ -30,6 +30,7 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "board_config.h"
 /* PINMUX Driver */
 #include "pinconf.h"
 
@@ -40,6 +41,10 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+
+// Set to 0: Use application-defined arx3A0 pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /* Camera  Driver instance 0 */
 extern ARM_DRIVER_CPI Driver_CPI;
@@ -240,45 +245,48 @@ void camera_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-  \fn          int32_t i3c_pinmux(void)
-  \brief       i3c hardware pin initialization:
+  \fn          int32_t i2c_pinmux(void)
+  \brief       i2c hardware pin initialization:
                   - PIN-MUX configuration
                   - PIN-PAD configuration
   \param[in]   none
   \return      0:success; -1:failure
   */
-int32_t i3c_pinmux(void)
+int32_t i2c_pinmux(void)
 {
     int32_t ret;
 
-    /* Configure GPIO Pin : P7_6 as i3c_sda_d
+    /* Configure GPIO Pin : P7_2 as I2C1_SDA_C
      * Pad function: PADCTRL_READ_ENABLE |
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE |
+    ret = pinconf_set(PORT_(BOARD_I2C1_SDA_C_GPIO_PORT), BOARD_I2C1_SDA_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE |
             PADCTRL_DRIVER_DISABLED_PULL_UP);
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: i3c PINMUX and PINPAD failed.\r\n");
-        return -1;
+        return ret;
     }
 
-    /* Configure GPIO Pin : P7_7 as i3c_scl_d
+    /* Configure GPIO Pin : P7_3 as I2C1_SCL_C
      * Pad function: PADCTRL_READ_ENABLE
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE |
+    ret = pinconf_set(PORT_(BOARD_I2C1_SCL_C_GPIO_PORT), BOARD_I2C1_SCL_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE |
             PADCTRL_DRIVER_DISABLED_PULL_UP);
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: i3c PINMUX and PINPAD failed.\r\n");
-        return -1;
+        return ret;
     }
 
     return 0;
 }
+#endif
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
   \fn          int32_t camera_pinmux(void)
   \brief       Camera hardware pin initialization:
@@ -290,19 +298,21 @@ int32_t camera_pinmux(void)
 {
     int32_t ret;
 
-    ret = pinconf_set(PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, 0);
+    ret = pinconf_set(PORT_(BOARD_CAM_XVCLK_A_GPIO_PORT), BOARD_CAM_XVCLK_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, 0);
     if(ret != ARM_DRIVER_OK)
     {
         printf("\r\n Error: Camera Pin-Mux failed.\r\n");
-        return -1;
+        return ret;
     }
 
     return 0;
 }
+#endif
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
   \fn          int32_t hardware_init(void)
-  \brief       - i3c hardware pin initialization:
+  \brief       - i2c hardware pin initialization:
                    - PIN-MUX configuration
                    - PIN-PAD configuration
                - Camera hardware pin initialization:
@@ -314,12 +324,12 @@ int32_t hardware_init(void)
 {
     int32_t ret;
 
-    /* i3c pinmux. */
-    ret = i3c_pinmux();
+    /* i2c pinmux. */
+    ret = i2c_pinmux();
     if(ret != 0)
     {
         printf("\r\n Error in i3c pinmux.\r\n");
-        return -1;
+        return ret;
     }
 
     /* Camera pinmux. */
@@ -327,11 +337,12 @@ int32_t hardware_init(void)
     if(ret != 0)
     {
         printf("\r\n Error in Camera pinmux.\r\n");
-        return -1;
+        return ret;
     }
 
     return 0;
 }
+#endif
 
 /* Check if image conversion Bayer to RGB is Enabled? */
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
@@ -441,7 +452,6 @@ void camera_demo_thread_entry(void *pvParameters)
 
     printf("\r\n \t\t >>> ARX3A0 Camera Sensor demo with FreeRTOS is starting up!!! <<< \r\n");
 
-
     /* Allocated memory address for
      *   - Camera frame buffer and
      *   - (Optional) Camera frame buffer for Bayer to RGB Conversion
@@ -454,13 +464,26 @@ void camera_demo_thread_entry(void *pvParameters)
             BAYER_TO_RGB_BUFFER_POOL_SIZE, (uint32_t) bayer_to_rgb_buffer_pool);
 #endif
 
-    /* Initialize i3c and Camera hardware pins using PinMux Driver. */
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h */
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#else
+    /*
+     * NOTE: The I2C and  Camera pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
     ret = hardware_init();
     if(ret != 0)
     {
-        printf("\r\n Error: CAMERA Hardware Initialize failed.\r\n");
+        printf("Error: CAMERA Hardware Initialize failed: %d\n", ret);
         return;
     }
+#endif
 
     /* Initialize the SE services */
     se_services_port_init();

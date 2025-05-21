@@ -42,6 +42,7 @@
 #include "Driver_UTIMER.h"
 #include "Driver_ADC.h"
 #include "pinconf.h"
+#include "board_config.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -53,6 +54,12 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined ADC pin configuration (via board_adc_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+
+static volatile uint32_t cb_compare_a_status = 0;
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
@@ -70,8 +77,8 @@ ARM_DRIVER_UTIMER *pxUTIMERDrv = &Driver_UTIMER0;
 
 #if (ADC_INSTANCE == ADC12)
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC Driver_ADC122;
-static ARM_DRIVER_ADC *pxADCDrv = &Driver_ADC122;
+extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *pxADCDrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
 #else
 /* Instance for ADC24 */
 extern ARM_DRIVER_ADC Driver_ADC24;
@@ -197,6 +204,49 @@ static void prvUtimerCompareModeCallBack(uint8_t ucEvent)
         }
     }
 }
+
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @fn      static int32_t board_adc_pins_config(void)
+ * @brief   Configure ADC120 and ADC24 pinmux settings not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_adc_pins_config(void)
+{
+    int32_t ret = 0U;
+
+    if (ADC_INSTANCE == ADC12)
+    {
+        /* ADC122 channel 0 */
+        ret = pinconf_set(PORT_(BOARD_ADC12_CH0_GPIO_PORT), BOARD_ADC12_CH0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+        if(ret)
+        {
+            printf("ERROR: Failed to configure PINMUX \r\n");
+            return ret;
+        }
+    }
+
+    if (ADC_INSTANCE == ADC24)
+    {
+        /* ADC24 channel 0 */
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_POS_GPIO_PORT), BOARD_ADC24_CH0_POS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+        if(ret)
+        {
+            printf("ERROR: Failed to configure PINMUX \r\n");
+            return ret;
+        }
+        /* ADC24 channel 0 */
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_NEG_GPIO_PORT), BOARD_ADC24_CH0_NEG_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+        if(ret)
+        {
+            printf("ERROR: Failed to configure PINMUX \r\n");
+            return ret;
+        }
+    }
+    return ret;
+}
+#endif
 
 /**
  * @function    void prvUtimerCompareModeDemo(void *pvParameters)
@@ -333,6 +383,28 @@ static void prvAdcExtTriggerDemo(void *pvParameters)
     BaseType_t xReturned;
     BaseType_t xResult = pdFALSE;
     ARM_DRIVER_VERSION xVersion;
+
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    lRet = board_pins_config();
+    if (lRet != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", lRet);
+        return;
+    }
+
+#else
+    /*
+     * NOTE: The ADC122 and ADC24 pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    lRet = board_adc_pins_config();
+    if(lRet != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", lRet);
+        return;
+    }
+#endif
 
     /* Initialize the SE services */
     se_services_port_init();

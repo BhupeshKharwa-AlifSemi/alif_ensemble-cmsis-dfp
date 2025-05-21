@@ -33,7 +33,7 @@
 #include "pinconf.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
-
+#include "board_config.h"
 /*RTOS Includes */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -43,6 +43,9 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined SPI pin configuration (via board_spi_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
 /* assign 1: To enable master to slave transfer
  *        0: To enable slave to master transfer */
 #define MASTER_TO_SLAVE_TRANSFER   1
@@ -65,71 +68,72 @@ static ARM_DRIVER_SPI *slaveDrv = &ARM_Driver_SPI_(SPI3);
 /* Thread id of thread */
 static TaskHandle_t mw_xHandle;
 
+#if(!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      int32_t pinmux_config(void)
- * @brief   pinmux config for master and slave SPI instances.
- * @note    none.
- * @param   none.
- * @retval  status
- */
-static int32_t pinmux_config(void)
+* @fn      static int32_t board_spi_pins_config(void)
+* @brief   Configure additional MW pinmux settings not handled
+*          by the board support library.
+* @retval  execution status.
+*/
+static int32_t board_spi_pins_config(void)
 {
     int32_t ret = 0;
 
     /* pinmux configurations for SPI2 pins (using B version pins) */
-    ret = pinconf_set(PORT_9, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI2_MISO_GPIO_PORT), BOARD_SPI2_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_9, PIN_3, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI2_MOSI_GPIO_PORT), BOARD_SPI2_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_9, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI2_SCLK_GPIO_PORT), BOARD_SPI2_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_9, PIN_5, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI2_SS0_GPIO_PORT), BOARD_SPI2_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_SS_PIN\n");
         return ret;
     }
 
+
     /* pinmux configurations for SPI3 pins (using B version pins) */
-    ret = pinconf_set(PORT_12, PIN_4, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI3_MISO_GPIO_PORT), BOARD_SPI3_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_12, PIN_5, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI3_MOSI_GPIO_PORT), BOARD_SPI3_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_12, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI3_SCLK_GPIO_PORT), BOARD_SPI3_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI3_CLK_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI3_SCLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_12, PIN_7, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI3_SS0_GPIO_PORT), BOARD_SPI3_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_SS_PIN\n");
         return ret;
     }
-
     return 0;
 }
+#endif
 
 /**
  * @fn      void SPI2_Callback_func (uint32_t event)
@@ -197,13 +201,27 @@ static void MW_Demo_thread(void *pvParameters)
 
     printf("Start of MicroWire demo application \n");
 
-    /* SPI instances pinmux initialization */
-    status = pinmux_config();
-    if (status)
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    status = board_pins_config();
+    if (status != 0)
     {
-        printf("ERROR: Failed in SPI pinmux and pinpad config \n");
+        printf("Error in pin-mux configuration: %d\n", status);
         return;
     }
+
+#else
+    /*
+     * NOTE: The spi2 and spi3 pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    status = board_spi_pins_config();
+    if(status != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", status);
+        return;
+    }
+#endif
 
     /* SPI2 master instance initialization */
     status = masterDrv->Initialize(SPI2_Callback_func);

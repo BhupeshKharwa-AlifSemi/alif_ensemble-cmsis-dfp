@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
-#include "pinconf.h"
+#include "board_config.h"
 #include "Driver_Flash.h"
 #include "Driver_IO.h"
 #include "RTE_Components.h"
@@ -28,7 +28,6 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
-
 
 #define FLASH_NUM 1
 
@@ -56,64 +55,13 @@ static int32_t setup_PinMUX(void)
 {
     int32_t ret;
 
-    ret = pinconf_set(PORT_9, PIN_5, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_9, PIN_6, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_9, PIN_7, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST |  PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_0, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_1, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_2, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_3, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_4, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST |  PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_10, PIN_7, PINMUX_ALTERNATE_FUNCTION_7,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_READ_ENABLE);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_5, PIN_5, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
-    if (ret)
-        return -1;
-
-    ret = pinconf_set(PORT_5, PIN_7, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST);
-    if (ret)
-        return -1;
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: ret = %d\n", ret);
+        return ret;
+    }
 
     ret = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);
     if (ret != ARM_DRIVER_OK)
@@ -179,7 +127,7 @@ int main ()
 
     if (ret != ARM_DRIVER_OK)
     {
-        printf("Set up pinmux failed\n");
+        printf("Set up pinmux failed: %d\n", ret);
         goto error_pinmux;
     }
 

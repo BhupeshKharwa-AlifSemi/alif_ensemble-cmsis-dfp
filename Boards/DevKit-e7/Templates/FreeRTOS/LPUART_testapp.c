@@ -35,13 +35,17 @@
 /*RTOS Includes*/
 #include "RTE_Components.h"
 #include CMSIS_device_header
-
+#include "board_config.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined lpuart pin configuration (via board_lpuart_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
 
 /*Define for FreeRTOS*/
 #define STACK_SIZE     1024
@@ -186,23 +190,34 @@ void myUART_callback(uint32_t event)
    }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @function   int hardware_init(void)
- * @brief      UART hardware pin initialization using PIN-MUX driver
- * @note       none
- * @param      void
- * @retval     0:success, -1:failure
- */
-int hardware_init(void)
+* @fn      static int32_t board_lpuart_pins_config(void)
+* @brief   Configure additional lpuart pinmux settings not handled
+*          by the board support library.
+* @retval  execution status.
+*/
+int board_lpuart_pins_config(void)
 {
-   /* LPUART_RX_A */
-   pinconf_set( PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    int32_t ret;
 
-   /* LPUART_TX_A */
-   pinconf_set( PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    /* LPUART_RX_A */
+    ret = pinconf_set( PORT_(BOARD_LPUART_RX_GPIO_PORT), BOARD_LPUART_RX_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    if (ret)
+    {
+        return ret;
+    }
 
-   return 0;
+    /* LPUART_TX_A */
+    ret = pinconf_set( PORT_(BOARD_LPUART_TX_GPIO_PORT), BOARD_LPUART_TX_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if (ret)
+    {
+        return ret;
+    }
+
+    return ret;
 }
+#endif
 
 void Uart_Thread(void *pvParameters)
 {
@@ -217,13 +232,27 @@ void Uart_Thread(void *pvParameters)
    version = USARTdrv->GetVersion();
    printf("\r\n UART version api:%X driver:%X...\r\n", version.api,version.drv);
 
-   /* Initialize UART hardware pins using PinMux Driver. */
-   ret = hardware_init();
-   if (ret != 0)
-   {
-      printf("\r\n Error in UART hardware_init.\r\n");
-      return;
-   }
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+
+#else
+    /*
+     * NOTE: The lpuart pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_lpuart_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
 
    /* Initialize UART driver */
    ret = USARTdrv->Initialize(myUART_callback);

@@ -25,7 +25,6 @@
 #include "Driver_LPTIMER.h"
 #include "sys_utils.h"
 
-
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)

@@ -35,6 +35,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
+#include "board_config.h"
 
 /* SE Services */
 #include "se_services_port.h"
@@ -241,56 +242,6 @@ extern ARM_DRIVER_TOUCH_SCREEN GT911;
 static ARM_DRIVER_TOUCH_SCREEN *Drv_Touchscreen = &GT911;
 
 /**
-  \fn          int hardware_cfg(void)
-  \brief       i2c hardware pin initialization:
-                   -  PIN-MUX and PIN_PAD configuration
-               GPIO9 initialization:
-                   -  PIN-MUX and PIN-PAD configuration
-  \param[in]   none
-  \return      ARM_DRIVER_OK: success; -1: failure
-  */
-int hardware_cfg(void)
-{
-    int ret = 0;
-
-    /* Configure GPIO Pin : P9_4 as gpio pin
-     *   Pad function: PAD_FUNCTION_READ_ENABLE |
-     *                 PAD FUNCTION_DRIVER_DISABLE_STATE_WITH_PULL_UP |
-     *                 PADCTRL_SCHMITT_TRIGGER_ENABLE
-     */
-    ret = pinconf_set(PORT_9, PIN_4, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE | \
-            PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_SCHMITT_TRIGGER_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
-        return -1;
-    }
-
-   /* Configure GPIO Pin : P7_2 as i2c1_sda_c
-    * Pad function: PADCTRL_READ_ENABLE |
-    *               PAD PADCTRL_DRIVER_DISABLED_PULL_UP
-    */
-    ret = pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | \
-            PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
-        return -1;
-    }
-
-    /* Configure GPIO Pin : P7_3 as i2c1_scl_c
-     * Pad function: PADCTRL_READ_ENABLE |
-     *               PADCTRL_DRIVER_DISABLED_PULL_UP
-     */
-    ret = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | \
-            PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
-        return -1;
-    }
-
-    return ARM_DRIVER_OK;
-}
-
-/**
   \function     static void lv_touch_get(lv_indev_drv_t * drv, lv_indev_data_t * data)
   \brief        Check touch screen is pressed or not
   \param[in]    drv: pointer to LVGL driver
@@ -327,12 +278,12 @@ static void hw_touch_init(void)
 {
     int ret = 0;
 
-    /* Initialize i3c and GPIO2 hardware pins using PinMux Driver. */
-    ret = hardware_cfg();
-    if(ret != ARM_DRIVER_OK)
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        /* Error in hardware configuration */
-        printf("\r\n Error: Hardware configuration failed.\r\n");
+        printf("ERROR: Board pin configuration failed: %d\n", ret);
+        return;
     }
 
     /* Initialize GT911 touch screen */

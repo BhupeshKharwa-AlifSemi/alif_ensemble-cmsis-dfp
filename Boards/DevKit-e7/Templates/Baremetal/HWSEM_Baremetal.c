@@ -31,7 +31,7 @@
 
 #include "RTE_Device.h"
 #include "Driver_USART.h"
-#include <pinconf.h>
+#include "board_config.h"
 #include "Driver_HWSEM.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -118,36 +118,6 @@ static void myHWSEM_callback(int32_t event, uint8_t sem_id)
         /* HWSEM available */
         event_flags_hwsem |= HWSEM_CB_EVENT;
     }
-}
-
-/**
- * @function    static int32_t pinmux_setup(void)
- * @brief       pinmux setup
- * @note        none
- * @param       void
- * @retval      execution status
- */
-static int32_t pinmux_setup(void)
-{
-    int32_t ret;
-
-    /* UART4_RX_B */
-    ret = pinconf_set(PORT_12, PIN_1, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
-
-    if (ret)
-    {
-        return -1;
-    }
-
-    /* UART4_TX_B */
-    ret = pinconf_set(PORT_12, PIN_2, PINMUX_ALTERNATE_FUNCTION_2, 0);
-
-    if (ret)
-    {
-        return -1;
-    }
-
-    return 0;
 }
 
 /**
@@ -394,11 +364,11 @@ int main()
         goto error_uninitialize;
     }
 
-    ret = pinmux_setup();
-
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
     if (ret != 0)
     {
-        printf("\r\n Error in pinmux_setup.\r\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
         goto error_unlock;
     }
 

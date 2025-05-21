@@ -49,12 +49,17 @@
 #include "Driver_UTIMER.h"
 #include "Driver_ADC.h"
 #include "pinconf.h"
+#include "board_config.h"
 
 #include "se_services_port.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined ADC pin configuration (via board_adc_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 static volatile uint32_t cb_compare_a_status = 0;
 
@@ -74,8 +79,8 @@ ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
 #if (ADC_INSTANCE == ADC12)
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC Driver_ADC122;
-static ARM_DRIVER_ADC *ADCdrv = &Driver_ADC122;
+extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
 #else
 /* Instance for ADC24 */
 extern ARM_DRIVER_ADC Driver_ADC24;
@@ -91,20 +96,21 @@ uint32_t adc_sample[NUM_CHANNELS];
 
 volatile uint32_t num_samples = 0;
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static int32_t pinmux_config(void)
- * @brief   ADC external trigger pinmux configuration
+ * @fn      static int32_t board_adc_pins_config(void)
+ * @brief   Configure ADC120 and ADC24 pinmux settings not
+ *          handled by the board support library.
  * @retval  execution status.
  */
-static int32_t pinmux_config(void)
+static int32_t board_adc_pins_config(void)
 {
     int32_t ret = 0U;
 
     if (ADC_INSTANCE == ADC12)
     {
         /* ADC122 channel 0 */
-        ret = pinconf_set(PORT_1, PIN_4, PINMUX_ALTERNATE_FUNCTION_7,
-                          PADCTRL_READ_ENABLE);
+        ret = pinconf_set(PORT_(BOARD_ADC12_CH0_GPIO_PORT), BOARD_ADC12_CH0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
         if(ret)
         {
             printf("ERROR: Failed to configure PINMUX \r\n");
@@ -115,25 +121,23 @@ static int32_t pinmux_config(void)
     if (ADC_INSTANCE == ADC24)
     {
         /* ADC24 channel 0 */
-        ret = pinconf_set(PORT_0, PIN_0, PINMUX_ALTERNATE_FUNCTION_7,
-                          PADCTRL_READ_ENABLE);
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_POS_GPIO_PORT), BOARD_ADC24_CH0_POS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
         if(ret)
         {
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
         /* ADC24 channel 0 */
-        ret = pinconf_set(PORT_0, PIN_4, PINMUX_ALTERNATE_FUNCTION_7,
-                          PADCTRL_READ_ENABLE);
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_NEG_GPIO_PORT), BOARD_ADC24_CH0_NEG_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
         if(ret)
         {
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
     }
-
     return ret;
 }
+#endif
 
 /*
  * @func   : void adc_conversion_callback(uint32_t event, uint8_t channel, uint32_t sample_output)
@@ -280,6 +284,28 @@ void adc_ext_trigger_demo()
     uint32_t service_error_code;
     ARM_DRIVER_VERSION version;
 
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+
+#else
+    /*
+     * NOTE: The ADC122 and ADC24 pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_adc_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
+
     /* Initialize the SE services */
     se_services_port_init();
 
@@ -298,14 +324,6 @@ void adc_ext_trigger_demo()
 
     version = ADCdrv->GetVersion();
     printf("\r\n ADC version api:%X driver:%X...\r\n",version.api, version.drv);
-
-    /* PINMUX */
-    ret = pinmux_config();
-    if(ret != 0)
-    {
-        printf("Error in pin-mux configuration\n");
-        return;
-    }
 
     /* Initialize ADC driver */
     ret = ADCdrv->Initialize(adc_conversion_callback);

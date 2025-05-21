@@ -33,9 +33,7 @@
 /* Project Includes */
 #include "Driver_I3C.h"
 #include "sys_utils.h"
-
-/* PINMUX Driver */
-#include "pinconf.h"
+#include "board_config.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -101,30 +99,6 @@ typedef enum _I3C_CB_EVENT{
 }I3C_CB_EVENT;
 
 volatile int32_t cb_event_flag = 0;
-
-/**
-  \fn          INT hardware_init(void)
-  \brief       i3c hardware pin initialization:
-                - PIN-MUX configuration
-                - PIN-PAD configuration
-  \param[in]   void
-  \return      ARM_DRIVER_OK : success; ARM_DRIVER_ERROR : failure
-*/
-int32_t hardware_init(void)
-{
-
-  /* I3C_SDA_D */
-  pinconf_set(PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_6,
-          PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | \
-          PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
-
-  /* I3C_SCL_D */
-  pinconf_set( PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_6,
-          PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | \
-          PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
-
-    return ARM_DRIVER_OK;
-}
 
 /**
   \fn          void I3C_callback(UINT event)
@@ -221,11 +195,11 @@ void i2c_using_i3c_demo_thread(void *pvParameters)
         return;
     }
 
-    /* Initialize i3c hardware pins using PinMux Driver. */
-    ret = hardware_init();
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
     if(ret != ARM_DRIVER_OK)
     {
-        printf("\r\n Error: i3c hardware_init failed.\r\n");
+        printf("ERROR: Pin configuration failed: %d\n", ret);
         return;
     }
 

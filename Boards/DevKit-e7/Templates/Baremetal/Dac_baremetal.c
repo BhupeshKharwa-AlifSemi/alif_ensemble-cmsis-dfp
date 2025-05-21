@@ -37,6 +37,7 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #include "pinconf.h"
+#include "board_config.h"
 #include "sys_utils.h"
 
 /* Project Includes */
@@ -46,9 +47,14 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined DAC12 pin configuration (via board_dac12_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+
+
 /* DAC Driver instance */
-extern ARM_DRIVER_DAC Driver_DAC0;
-static ARM_DRIVER_DAC *DACdrv = &Driver_DAC0;
+extern ARM_DRIVER_DAC ARM_Driver_DAC_(BOARD_P2_2_DAC12_INSTANCE);
+static ARM_DRIVER_DAC *DACdrv = &ARM_Driver_DAC_(BOARD_P2_2_DAC12_INSTANCE);
 
 /* DAC maximum resolution is 12-bit */
 #define DAC_MAX_INPUT_VALUE   (0xFFF)
@@ -56,27 +62,30 @@ static ARM_DRIVER_DAC *DACdrv = &Driver_DAC0;
 #define ERROR    -1
 #define SUCCESS   0
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn          int32_t dac_pinmux_config(void)
- * @brief       Initialize the pinmux for DAC output
- * @return      status
-*/
-static int32_t dac_pinmux_config(void)
+ * @fn      static int32_t board_dac12_pins_config(void)
+ * @brief   Configure DAC12 pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_dac12_pins_config(void)
 {
     int32_t status;
 
-    /* Configure DAC0 output */
-    status = pinconf_set(PORT_2, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    /* Configure DAC120 output */
+    status = pinconf_set(PORT_(BOARD_DAC120_OUT_GPIO_PORT), BOARD_DAC120_OUT_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(status)
         return ERROR;
 
-    /* Configure DAC1 output */
-    status = pinconf_set(PORT_2, PIN_3, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    /* Configure DAC121 output */
+    status = pinconf_set(PORT_(BOARD_DAC121_OUT_GPIO_PORT), BOARD_DAC121_OUT_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(status)
         return ERROR;
 
     return SUCCESS;
 }
+#endif
 
 /**
  @fn           void dac_demo()
@@ -98,12 +107,27 @@ static void dac_demo(void)
 
     printf("\r\n >>> DAC demo starting up!!! <<< \r\n");
 
-    /* Configure the DAC output pins */
-    if(dac_pinmux_config())
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        printf("DAC pinmux failed\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
+
+#else
+    /*
+     * NOTE: The DAC12 pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_dac12_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
 
     version = DACdrv->GetVersion();
     printf("\r\n DAC version api:%X driver:%X...\r\n",version.api, version.drv);

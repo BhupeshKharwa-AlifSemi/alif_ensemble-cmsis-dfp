@@ -30,25 +30,24 @@
  */
 
 #include "ospi_hyperram_xip.h"
-#include "pinconf.h"
 #include "Driver_IO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+#include "board_config.h"
 
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define OSPI_RESET_PORT     LP
-#define OSPI_RESET_PIN      6
+#define OSPI_RESET_PIN      BOARD_OSPI0_RESET_GPIO_PIN
 #define OSPI0_XIP_BASE      0xA0000000
 
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(OSPI_RESET_PORT);
-ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(OSPI_RESET_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_OSPI0_RESET_GPIO_PORT);
+ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_OSPI0_RESET_GPIO_PORT);
 
 /* OSPI0 region index is 5 in mpu table defined in the same testapp */
 #define MPU_OSPI0_REGION_INDEX  5U
@@ -65,7 +64,7 @@ ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(OSPI_RESET_PORT);
 static uint16_t buff[BUFFER_SIZE/sizeof(uint16_t)]; /* Buffer size of 16KB */
 
 static const ospi_hyperram_xip_config issi_config = {
-    .instance       = OSPI_INSTANCE_0,
+    .instance       = BOARD_ISSI_RAM_OSPI_INSTANCE,
     .bus_speed      = OSPI_BUS_SPEED,
     .hyperram_init  = NULL, /* No special initialization needed by the hyperram device */
     .ddr_drive_edge = DDR_DRIVE_EDGE,
@@ -193,82 +192,11 @@ static int32_t pinmux_setup()
 {
     int32_t ret;
 
-    ret = pinconf_set(PORT_2, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_2, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_3, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_3, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_3, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_1, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE );
-    if (ret)
-    {
-        return -1;
-    }
-
-    ret = pinconf_set(PORT_15, PIN_6, PINMUX_ALTERNATE_FUNCTION_0, 0);
-    if (ret)
-    {
-        return -1;
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret) {
+        printf("ERROR: Board pin mux configuration failed: %d\n", ret);
+        return ret;
     }
 
     ret = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);

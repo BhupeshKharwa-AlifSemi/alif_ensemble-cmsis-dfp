@@ -26,8 +26,14 @@
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #include "pinconf.h"
+#include "board_config.h"
+
 #include "Driver_CAN.h"
 #include "sys_utils.h"
+
+// Set to 0: Use application-defined CANFD pin configuration (via board_canfd_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
@@ -108,19 +114,19 @@ static void canfd_process_rx_message(void);
 static void canfd_transmit_message(const CANFD_FRAME msg_type);
 static void canfd_check_error(void);
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static int32_t pinmux_config(void)
- * @brief   CANFD Rx and Tx pinmux configuration.
- * @note    none
- * @param   none
+ * @fn      static int32_t board_canfd_pins_config(void)
+ * @brief   Configure CANFD pinmux which not
+ *          handled by the board support library.
  * @retval  execution status.
  */
-static int32_t pinmux_config(void)
+static int32_t board_canfd_pins_config(void)
 {
     int32_t ret_val = 0U;
 
     /* pinmux configurations for CANFD pins */
-    ret_val = pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_RXD_A_GPIO_PORT), BOARD_CAN_RXD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
                           (PADCTRL_READ_ENABLE |
                            PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA));
     if(ret_val)
@@ -129,7 +135,7 @@ static int32_t pinmux_config(void)
         return ret_val;
     }
 
-    ret_val = pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_TXD_A_GPIO_PORT), BOARD_CAN_TXD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
                           PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(ret_val)
     {
@@ -137,7 +143,7 @@ static int32_t pinmux_config(void)
         return ret_val;
     }
 
-    ret_val = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_STBY_A_GPIO_PORT), BOARD_CAN_STBY_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
                           PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(ret_val)
     {
@@ -147,6 +153,7 @@ static int32_t pinmux_config(void)
 
     return ret_val;
 }
+#endif
 
 /**
  * @fn      static void canfd_blocking_mode_demo(void)
@@ -193,12 +200,27 @@ static void canfd_blocking_mode_demo(void)
 
     printf("*** CANFD Blocking Mode Demo app is starting ***\n");
 
-    ret_val = pinmux_config();
-    if(ret_val != ARM_DRIVER_OK)
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret_val = board_pins_config();
+    if (ret_val != 0)
     {
-        printf("Error in pin-mux configuration\n");
+        printf("Error in pin-mux configuration: %d\n", ret_val);
         return;
     }
+
+#else
+    /*
+     * NOTE: The CANFD pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret_val = board_canfd_pins_config();
+    if(ret_val != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret_val);
+        return;
+    }
+#endif
 
     /* Get CANFD capabilities */
     can_capabilities = CANFD_instance->GetCapabilities();

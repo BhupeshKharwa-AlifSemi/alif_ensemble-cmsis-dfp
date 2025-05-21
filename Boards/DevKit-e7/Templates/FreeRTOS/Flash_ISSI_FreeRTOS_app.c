@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Alif Semiconductor - All Rights Reserved.
+/* Copyright (C) 2024 Alif Semiconductor - All Rights Reserved.
  * Use, distribution and modification of this code is permitted under the
  * terms stated in the Alif Semiconductor Software License Agreement
  *
@@ -23,7 +23,7 @@
 #include "stdint.h"
 #include "Driver_Flash.h"
 #include "Driver_IO.h"
-#include "pinconf.h"
+#include "board_config.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
@@ -46,11 +46,8 @@ TaskHandle_t xDemoTask;
 extern ARM_DRIVER_FLASH ARM_Driver_Flash_( FLASH_NUM );
 #define ptrFLASH ( &ARM_Driver_Flash_( FLASH_NUM ) )
 
-#define OSPI_RESET_PORT     15
-#define OSPI_RESET_PIN      7
-
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(OSPI_RESET_PORT);
-ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(OSPI_RESET_PORT);
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_OSPI1_RESET_GPIO_PORT);
+ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_OSPI1_RESET_GPIO_PORT);
 
 #define FLASH_ADDR 0x00
 #define BUFFER_SIZE 1024
@@ -71,82 +68,31 @@ static int32_t prvSetupPinMUX( void )
 {
     int32_t lRet;
 
-    lRet = pinconf_set(PORT_9, PIN_5, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    lRet = board_pins_config();
+    if (lRet != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", lRet);
+        return lRet;
+    }
 
-    lRet = pinconf_set(PORT_9, PIN_6, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_9, PIN_7, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST |  PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_0, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_1, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_2, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_3, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_4, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST |  PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_10, PIN_7, PINMUX_ALTERNATE_FUNCTION_7,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_READ_ENABLE);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_5, PIN_5, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_8, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
-    if (lRet)
-        return -1;
-
-    lRet = pinconf_set(PORT_5, PIN_7, PINMUX_ALTERNATE_FUNCTION_1,
-                     PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA | PADCTRL_SLEW_RATE_FAST);
-    if (lRet)
-        return -1;
-
-    lRet = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);
+    lRet = GPIODrv->Initialize(BOARD_OSPI1_RESET_GPIO_PIN, NULL);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->PowerControl(OSPI_RESET_PIN, ARM_POWER_FULL);
+    lRet = GPIODrv->PowerControl(BOARD_OSPI1_RESET_GPIO_PIN, ARM_POWER_FULL);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetDirection(OSPI_RESET_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    lRet = GPIODrv->SetDirection(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
+    lRet = GPIODrv->SetValue(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    lRet = GPIODrv->SetValue(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 

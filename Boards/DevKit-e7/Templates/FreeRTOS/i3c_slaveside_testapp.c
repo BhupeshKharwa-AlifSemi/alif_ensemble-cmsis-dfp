@@ -45,7 +45,7 @@
 #include "Driver_I3C.h"
 
 /* PINMUX Driver */
-#include "pinconf.h"
+#include "board_config.h"
 #include "Driver_IO.h"
 
 /* Rtos include */
@@ -147,6 +147,7 @@ int32_t hardware_init(void)
      *   so we can use any one of the pin to configure flex I/O.
      */
 #define GPIO7_PORT          7
+#define GPIO_PIN            6
 
     extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7_PORT);
     ARM_DRIVER_GPIO *gpioDrv = &ARM_Driver_GPIO_(GPIO7_PORT);
@@ -154,15 +155,15 @@ int32_t hardware_init(void)
     int32_t  ret = 0;
     uint32_t arg = 0;
 
-    ret = gpioDrv->Initialize(PIN_6, NULL);
-    if (ret != 0)
+    ret = gpioDrv->Initialize(GPIO_PIN, NULL);
+    if (ret != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to initialize GPIO \n");
-        return -1;
+        return ARM_DRIVER_ERROR;
     }
 
-    ret = gpioDrv->PowerControl(PIN_6, ARM_POWER_FULL);
-    if (ret != 0)
+    ret = gpioDrv->PowerControl(GPIO_PIN, ARM_POWER_FULL);
+    if (ret != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to powered full GPIO \n");
         return -1;
@@ -170,22 +171,20 @@ int32_t hardware_init(void)
 
     /* select control argument as flex 1.8-V */
     arg = ARM_GPIO_FLEXIO_VOLT_1V8;
-    ret = gpioDrv->Control(PIN_6, ARM_GPIO_CONFIG_FLEXIO, &arg);
+    ret = gpioDrv->Control(GPIO_PIN, ARM_GPIO_CONFIG_FLEXIO, &arg);
     if (ret != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to control GPIO Flex \n");
         return -1;
     }
 
-    /* I3C_SDA_D */
-    ret = pinconf_set(PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_6,
-                PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
-
-    /* I3C_SCL_D */
-    ret = pinconf_set(PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_6,
-                PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if(ret != ARM_DRIVER_OK)
+    {
+        printf("ERROR: Pin configuration failed: %d\n", ret);
+        return ARM_DRIVER_ERROR;
+    }
 
     return ret;
 }
@@ -257,7 +256,7 @@ void i3c_slave_loopback_thread(void *pvParameters)
     ret = hardware_init();
     if(ret != 0)
     {
-        printf("\r\n Error: i3c hardware_init failed.\r\n");
+        printf("Error: i3c hardware_init failed: %d\n", ret);
         return;
     }
 

@@ -24,10 +24,15 @@
 #include "pinconf.h"
 #include "Driver_IO.h"
 #include "RTE_Components.h"
+#include "board_config.h"
+
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined lpspi and spi pin configuration (via board_lpspi_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
 
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
@@ -55,72 +60,70 @@ ARM_DRIVER_SPI *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
 extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7);
 ARM_DRIVER_GPIO *gpioDrv7 = &ARM_Driver_GPIO_(GPIO7);
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static int32_t pinmux_config(void)
- * @brief   LPSPI & SPI0 pinmux configuration.
- * @note    none.
- * @param   none.
- * @retval  none.
- */
-static int32_t pinmux_config(void)
+* @fn      static int32_t board_lpspi_pins_config(void)
+* @brief   Configure additional lpspi pinmux settings not handled
+*          by the board support library.
+* @retval  execution status.
+*/
+static int32_t board_lpspi_pins_config(void)
 {
     int32_t ret;
 
     /* pinmux configurations for LPSPI pins (using A version pins) */
-    ret = pinconf_set(PORT_7, PIN_4, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MISO_GPIO_PORT), BOARD_LPSPI_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_7, PIN_5, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MOSI_GPIO_PORT), BOARD_LPSPI_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SCLK_GPIO_PORT), BOARD_LPSPI_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SS_GPIO_PORT), BOARD_LPSPI_SS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
     if (ret)
-    {
-        printf("ERROR: Failed to configure PINMUX for LPSPI_SS_PIN\n");
+        {printf("ERROR: Failed to configure PINMUX for LPSPI_SS_PIN\n");
         return ret;
     }
 
-
-    /* pinmux configurations for SPI0 pins (using B version pins) */
-    ret = pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, 0);
+     /* pinmux configurations for SPI0 pins (using B version pins) */
+    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT), BOARD_SPI0_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT), BOARD_SPI0_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT), BOARD_SPI0_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT), BOARD_SPI0_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");
         return ret;
     }
-
     return ret;
 }
+#endif
 
 /**
  * @fn      void LPSPI_cb_func (uint32_t event)
@@ -179,12 +182,27 @@ void lpspi_spi0_transfer(void)
 
     printf("*** Demo app using SPI0 & LPSPI is starting ***\n");
 
-    ret = pinmux_config();
-    if (ret)
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        printf("Error in pinmux configuration\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
+
+#else
+    /*
+     * NOTE: The lpspi_spi pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_lpspi_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
 
     /* config any of the LPSPI pins (flexio) to 1.8V */
     ret = gpioDrv7->Initialize(PIN_4, NULL);

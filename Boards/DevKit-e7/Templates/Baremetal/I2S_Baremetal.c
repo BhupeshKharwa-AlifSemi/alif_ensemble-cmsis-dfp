@@ -29,11 +29,15 @@
 /* Project Includes */
 #include <Driver_SAI.h>
 #include <pinconf.h>
+#include "board_config.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined I2S pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /*Audio samples */
 #include "i2s_samples.h"
@@ -76,8 +80,8 @@ static uint32_t sampling_rate = 48000;        /* 48Khz audio sampling rate */
 extern ARM_DRIVER_SAI ARM_Driver_SAI_(I2S_DAC);
 static ARM_DRIVER_SAI *i2s_dac = &ARM_Driver_SAI_(I2S_DAC);
 
-extern ARM_DRIVER_SAI ARM_Driver_SAI_(I2S_ADC);
-static ARM_DRIVER_SAI *i2s_adc = &ARM_Driver_SAI_(I2S_ADC);
+extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
+static ARM_DRIVER_SAI *i2s_adc = &ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
 
 /**
   \fn          void dac_callback(uint32_t event)
@@ -93,43 +97,45 @@ static void dac_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-  \fn          void dac_pinmux_config(void)
-  \brief       Initialize the pinmux for DAC
-  \return      status
-*/
-static int32_t dac_pinmux_config(void)
+ * @fn      static int32_t board_i2s_dac_pins_config(void)
+ * @brief   Configure I2S DAC pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_i2s_dac_pins_config(void)
 {
     int32_t status;
 
 #if (I2S_DAC == LP)
     /* Configure LPI2S_C SDO */
-    status = pinconf_set(PORT_13, PIN_5, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    status = pinconf_set(PORT_(BOARD_LPI2S_SDO_C_GPIO_PORT), BOARD_LPI2S_SDO_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if(status)
         return ERROR;
 
     /* Configure LPI2S_C WS */
-    status = pinconf_set(PORT_13, PIN_7, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    status = pinconf_set(PORT_(BOARD_LPI2S_WS_C_GPIO_PORT), BOARD_LPI2S_WS_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if(status)
         return ERROR;
 
     /* Configure LPI2S_C SCLK */
-    status = pinconf_set(PORT_13, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    status = pinconf_set(PORT_(BOARD_LPI2S_SCLK_C_GPIO_PORT), BOARD_LPI2S_SCLK_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if(status)
         return ERROR;
 #else
     /* Configure I2S1_A SDO */
-    status = pinconf_set(PORT_3, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    status = pinconf_set(PORT_(BOARD_I2S1_SDO_GPIO_PORT), BOARD_I2S1_SDO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if(status)
         return ERROR;
 
     /* Configure I2S1_A WS */
-    status = pinconf_set(PORT_4, PIN_0, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    status = pinconf_set(PORT_(BOARD_I2S1_WS_GPIO_PORT), BOARD_I2S1_WS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
     if(status)
         return ERROR;
 
     /* Configure I2S1_A SCLK */
-    status = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    status = pinconf_set(PORT_(BOARD_I2S1_SCLK_GPIO_PORT), BOARD_I2S1_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
     if(status)
         return ERROR;
 
@@ -137,6 +143,7 @@ static int32_t dac_pinmux_config(void)
 
     return SUCCESS;
 }
+#endif
 
 /**
   \fn          void DAC_Init(void)
@@ -152,12 +159,27 @@ void DAC_Init(void)
     uint32_t             buf_len2 = 0;
 #endif
 
-    /* Configure the dac pins */
-    if(dac_pinmux_config())
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    status = board_pins_config();
+    if (status != 0)
     {
-        printf("DAC pinmux failed\n");
+        printf("Error in pin-mux configuration: %d\n", status);
         return;
     }
+
+#else
+    /*
+     * NOTE: The I2S DAC pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    status = board_i2s_dac_pins_config();
+    if(status != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", status);
+        return;
+    }
+#endif
 
     /* Verify the I2S API version for compatibility */
     version = i2s_dac->GetVersion();
@@ -313,32 +335,35 @@ static void adc_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-  \fn          void adc_pinmux_config(void)
-  \brief       Initialize the pinmux for ADC
-  \return      status
-*/
-static int32_t adc_pinmux_config(void)
+ * @fn      static int32_t board_i2s_adc_pins_config(void)
+ * @brief   Configure I2S ADC pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_i2s_adc_pins_config(void)
 {
     int32_t  status;
 
     /* Configure I2S3_B WS */
-    status = pinconf_set(PORT_8, PIN_7, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    status = pinconf_set(PORT_(BOARD_I2S3_WS_B_GPIO_PORT), BOARD_I2S3_WS_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if(status)
         return ERROR;
 
     /* Configure I2S3_B SCLK */
-    status = pinconf_set(PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    status = pinconf_set(PORT_(BOARD_I2S3_SCLK_B_GPIO_PORT), BOARD_I2S3_SCLK_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
     if(status)
         return ERROR;
 
     /* Configure I2S3_B SDI */
-    status = pinconf_set(PORT_9, PIN_0, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_I2S3_SDI_B_GPIO_PORT), BOARD_I2S3_SDI_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
     if(status)
         return ERROR;
 
     return SUCCESS;
 }
+#endif
 
 /**
   \fn          void ADC_Thread(void)
@@ -351,12 +376,18 @@ void ADC_Init(void)
     ARM_SAI_CAPABILITIES cap;
     int32_t              status;
 
-    /* Configure the adc pins */
-    if(adc_pinmux_config())
+#if !(USE_CONDUCTOR_TOOL_PINS_CONFIG)
+    /*
+     * NOTE: The I2S ADC pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    status = board_i2s_adc_pins_config();
+    if(status != 0)
     {
-        printf("ADC pinmux failed\n");
+        printf("Error in pin-mux configuration: %d\n", status);
         return;
     }
+#endif
 
     /* Verify the I2S API version for compatibility*/
     version = i2s_adc->GetVersion();

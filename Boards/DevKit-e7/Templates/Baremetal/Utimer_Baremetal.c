@@ -35,6 +35,7 @@
 #include "Driver_UTIMER.h"
 #include "Driver_IO.h"
 #include "pinconf.h"
+#include "board_config.h"
 #include "sys_utils.h"
 
 #include "RTE_Components.h"
@@ -43,29 +44,29 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-
-/* GPIO related definitions */
-#define GPIO                           3
-#define GPIO3_PIN5                     5
-#define GPIO3_PIN6                     6
-#define GPIO3_PIN3                     3
-#define GPIO3_PIN4                     4
+// Set to 0: Use application-defined UTIMER pin configuration (from board_utimer_pins_config).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
 ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
-/* GPIO3 Driver instance */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO);
-ARM_DRIVER_GPIO *ptrDrv = &ARM_Driver_GPIO_(GPIO);
+#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_UT_TRIGGER_MODE_GPO0_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrTrig0GPO = &ARM_Driver_GPIO_(BOARD_UT_TRIGGER_MODE_GPO0_GPIO_PORT);
 
-static volatile uint32_t cb_basic_status = 0;
-static volatile uint32_t cb_buffer_status = 0;
-static volatile uint32_t cb_trigger_status = 0;
-static volatile uint32_t cb_capture_status = 0;
-static volatile uint32_t cb_compare_a_status = 0;
-static volatile uint32_t cb_compare_a_buf1_status = 0;
-static volatile uint32_t cb_compare_a_buf2_status = 0;
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrTrig1GPO = &ARM_Driver_GPIO_(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PORT);
+#endif
+
+#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrCapt0GPO = &ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PORT);
+
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrCapt1GPO = &ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT);
+#endif
 
 /**
  * @function    int gpio_init(ARM_UTIMER_MODE mode)
@@ -80,132 +81,109 @@ static int32_t gpio_init(ARM_UTIMER_MODE mode)
 
     if(mode == ARM_UTIMER_MODE_TRIGGERING)
     {
-        /* init P3_5 as GPIO */
-        ret = pinconf_set (PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_0, 0);
-        if(ret != ARM_DRIVER_OK) {
-            printf("\r\n Error in PINMUX.\r\n");
-            return -1;
-        }
-
-        ret = ptrDrv->Initialize(GPIO3_PIN5, NULL);
+#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
+        ret = ptrTrig0GPO->Initialize(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to initialize GPIO3_PIN5 as GPIO\n");
+            printf("ERROR: Failed to initialize BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN as GPIO\n");
             return -1;
         }
 
-        ret = ptrDrv->PowerControl(GPIO3_PIN5, ARM_POWER_FULL);
+        ret = ptrTrig0GPO->PowerControl(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, ARM_POWER_FULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to Power up GPIO3_PIN5\n");
+            printf("ERROR: Failed to Power up BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetDirection(GPIO3_PIN5, GPIO_PIN_DIRECTION_OUTPUT);
+        ret = ptrTrig0GPO->SetDirection(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set direction for GPIO3_PIN5\n");
+            printf("ERROR: Failed to set direction for BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetValue(GPIO3_PIN5, GPIO_PIN_OUTPUT_STATE_LOW);
+        ret = ptrTrig0GPO->SetValue(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set value for GPIO3_PIN5\n");
+            printf("ERROR: Failed to set value for BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN\n");
             return -1;
         }
 
-        /* init P3_6 as GPIO */
-        ret = pinconf_set (PORT_3, PIN_6, PINMUX_ALTERNATE_FUNCTION_0, 0);
-        if(ret != ARM_DRIVER_OK) {
-            printf("\r\n Error in PINMUX.\r\n");
-            return -1;
-        }
-
-        ret = ptrDrv->Initialize(GPIO3_PIN6, NULL);
+        ret = ptrTrig1GPO->Initialize(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to initialize GPIO3_PIN6 as GPIO\n");
+            printf("ERROR: Failed to initialize BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN as GPIO\n");
             return -1;
         }
 
-        ret = ptrDrv->PowerControl(GPIO3_PIN6, ARM_POWER_FULL);
+        ret = ptrTrig1GPO->PowerControl(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN, ARM_POWER_FULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to Power up GPIO3_PIN6\n");
+            printf("ERROR: Failed to Power up BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetDirection(GPIO3_PIN6, GPIO_PIN_DIRECTION_OUTPUT);
+        ret = ptrTrig1GPO->SetDirection(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set direction for GPIO3_PIN6\n");
+            printf("ERROR: Failed to set direction for BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetValue(GPIO3_PIN6, GPIO_PIN_OUTPUT_STATE_LOW);
+        ret = ptrTrig1GPO->SetValue(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set value for GPIO3_PIN6\n");
+            printf("ERROR: Failed to set value for BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
+#endif
+
     }
 
     else if (mode == ARM_UTIMER_MODE_CAPTURING)
     {
-        /* init P3_3 as GPIO */
-        ret = pinconf_set (PORT_3, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, 0);
-        if(ret != ARM_DRIVER_OK) {
-            printf("\r\n Error in PINMUX.\r\n");
-            return -1;
-        }
-
-        ret = ptrDrv->Initialize(GPIO3_PIN3, NULL);
+#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
+        ret = ptrCapt0GPO->Initialize(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to initialize GPIO3_PIN3 as GPIO\n");
+            printf("ERROR: Failed to initialize BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN as GPIO\n");
             return -1;
         }
 
-        ret = ptrDrv->PowerControl(GPIO3_PIN3, ARM_POWER_FULL);
+        ret = ptrCapt0GPO->PowerControl(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, ARM_POWER_FULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to Power up GPIO3_PIN3\n");
+            printf("ERROR: Failed to Power up BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetDirection(GPIO3_PIN3, GPIO_PIN_DIRECTION_OUTPUT);
+        ret = ptrCapt0GPO->SetDirection(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set direction for GPIO3_PIN3\n");
+            printf("ERROR: Failed to set direction for BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetValue(GPIO3_PIN3, GPIO_PIN_OUTPUT_STATE_LOW);
+        ret = ptrCapt0GPO->SetValue(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set value for GPIO3_PIN3\n");
+            printf("ERROR: Failed to set value for BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN\n");
             return -1;
         }
 
-        /* init P3_4 as GPIO */
-        ret = pinconf_set (PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_0, 0);
-        if(ret != ARM_DRIVER_OK) {
-            printf("\r\n Error in PINMUX.\r\n");
-            return -1;
-        }
-
-        ret = ptrDrv->Initialize(GPIO3_PIN4, NULL);
+        ret = ptrCapt1GPO->Initialize(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to initialize GPIO3_PIN4 as GPIO\n");
+            printf("ERROR: Failed to initialize BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN as GPIO\n");
             return -1;
         }
 
-        ret = ptrDrv->PowerControl(GPIO3_PIN4, ARM_POWER_FULL);
+        ret = ptrCapt1GPO->PowerControl(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN, ARM_POWER_FULL);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to Power up GPIO3_PIN4\n");
+            printf("ERROR: Failed to Power up BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetDirection(GPIO3_PIN4, GPIO_PIN_DIRECTION_OUTPUT);
+        ret = ptrCapt1GPO->SetDirection(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set direction for GPIO3_PIN4\n");
+            printf("ERROR: Failed to set direction for BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
 
-        ret = ptrDrv->SetValue(GPIO3_PIN4, GPIO_PIN_OUTPUT_STATE_LOW);
+        ret = ptrCapt1GPO->SetValue(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
         if (ret != ARM_DRIVER_OK) {
-            printf("ERROR: Failed to set value for GPIO3_PIN4\n");
+            printf("ERROR: Failed to set value for BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN\n");
             return -1;
         }
+#endif
     }
 
     else
@@ -216,6 +194,83 @@ static int32_t gpio_init(ARM_UTIMER_MODE mode)
     return ARM_DRIVER_OK;
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @function    int32_t board_utimer_pins_config(void)
+ * @brief       UTIMER pinmux config
+ * @note        none
+ * @param       mode
+ * @retval      execution status
+ */
+static int32_t board_utimer_pins_config(void)
+{
+    int32_t ret;
+
+#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
+    /* UITMER Trigger mode pins config */
+    ret = pinconf_set (PORT_(BOARD_UT_TRIGGER_MODE_T0_GPO_GPIO_PORT), BOARD_UT_TRIGGER_MODE_T0_GPO_GPIO_PIN, BOARD_UT_TRIGGER_MODE_T0_GPO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    ret = pinconf_set (PORT_(BOARD_UT_TRIGGER_MODE_T1_GPO_GPIO_PORT), BOARD_UT_TRIGGER_MODE_T1_GPO_GPIO_PIN, BOARD_UT_TRIGGER_MODE_T1_GPO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    /* GPIO init for Trigger mode */
+    ret = pinconf_set (PORT_(BOARD_UT_TRIGGER_MODE_GPO0_GPIO_PORT), BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, 0);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    ret = pinconf_set (PORT_(BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PORT), BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, 0);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+#endif
+
+#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
+    /* UITMER Capture mode pins config */
+    ret = pinconf_set (PORT_(BOARD_UT_CAPTURE_MODE_T0_GPO_GPIO_PORT), BOARD_UT_CAPTURE_MODE_T0_GPO_GPIO_PIN, BOARD_UT_CAPTURE_MODE_T0_GPO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    ret = pinconf_set (PORT_(BOARD_UT_CAPTURE_MODE_T1_GPO_GPIO_PORT), BOARD_UT_CAPTURE_MODE_T1_GPO_GPIO_PIN, BOARD_UT_CAPTURE_MODE_T1_GPO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    /* GPIO init for Capture mode */
+    ret = pinconf_set (PORT_(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PORT), BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, 0);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+    ret = pinconf_set (PORT_(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT), BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, 0);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+#endif
+
+#ifdef BOARD_COMPARE_MODE_UTIMER_INSTANCE
+    /* UITMER Compare mode pins config */
+    ret = pinconf_set (PORT_(BOARD_UT_COMPARE_MODE_T0_GPO_GPIO_PORT), BOARD_UT_COMPARE_MODE_T0_GPO_GPIO_PIN, BOARD_UT_COMPARE_MODE_T0_GPO_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if(ret != ARM_DRIVER_OK) {
+        printf("\r\n Error in PINMUX.\r\n");
+        return ret;
+    }
+#endif
+
+    return 0;
+}
+#endif
+
+#ifdef BOARD_BASIC_MODE_UTIMER_INSTANCE
+static volatile uint32_t cb_basic_status = 0;
 /**
  * @function    void utimer_basic_mode_cb_func(event)
  * @brief       utimer basic mode callback function
@@ -240,7 +295,7 @@ static void utimer_basic_mode_cb_func (uint8_t event)
 static void utimer_basic_mode_app(void)
 {
     int32_t ret;
-    uint8_t channel = 0;
+    uint8_t channel = BOARD_BASIC_MODE_UTIMER_INSTANCE;
     uint32_t count_array[2];
 
     /* utimer channel 0 is configured for utimer basic mode (config counter ptr reg for 500ms) */
@@ -257,10 +312,9 @@ static void utimer_basic_mode_app(void)
      *
      * DEC = 20000000
      * HEX = 0xBEBC200
-     *
      */
     count_array[0] = 0x00000000;   /*< initial counter value >*/
-    count_array[1] = 0xBEBC200;    /*< over flow count value >*/
+    count_array[1] = BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE;    /*< over flow count value >*/
 
     ret = ptrUTIMER->Initialize (channel, utimer_basic_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
@@ -335,7 +389,10 @@ error_basic_mode_uninstall:
 
     printf("*** demo application: basic mode completed *** \r\n\n");
 }
+#endif
 
+#ifdef BOARD_BUFFER_MODE_UTIMER_INSTANCE
+static volatile uint32_t cb_buffer_status = 0;
 /**
  * @function    void utimer_buffering_mode_cb_func(event)
  * @brief       utimer buffer mode callback function
@@ -360,7 +417,7 @@ static void utimer_buffering_mode_cb_func (uint8_t event)
 static void utimer_buffering_mode_app (void)
 {
     int32_t ret;
-    uint8_t channel = 1;
+    uint8_t channel = BOARD_BUFFER_MODE_UTIMER_INSTANCE;
     uint8_t index;
     uint32_t count_array[4];
 
@@ -387,13 +444,12 @@ static void utimer_buffering_mode_app (void)
      * So count for 1500ms = (1500*(10^-3))/(0.0025*(10^-6))
      * DEC = 60000000
      * HEX = 0x23C34600
-     *
      */
 
     count_array[0] = 0x00000000;     /*< Initial counter value>*/
-    count_array[1] = 0xBEBC200;      /*< Over flow count value for First Iteration>*/
-    count_array[2] = 0x17D78400;     /*< Over flow count value for Second Iteration>*/
-    count_array[3] = 0x23C34600;     /*< Over flow count value for Third Iteration>*/
+    count_array[1] = BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE;      /*< Over flow count value for First Iteration>*/
+    count_array[2] = BOARD_UTIMER_1000_MILLI_SEC_COUNTER_VALUE;     /*< Over flow count value for Second Iteration>*/
+    count_array[3] = BOARD_UTIMER_1500_MILLI_SEC_COUNTER_VALUE;     /*< Over flow count value for Third Iteration>*/
 
     ret = ptrUTIMER->Initialize (channel, utimer_buffering_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
@@ -483,7 +539,10 @@ error_buffering_mode_uninstall:
 
     printf("*** demo application: buffering mode completed *** \r\n\n");
 }
+#endif
 
+#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
+static volatile uint32_t cb_trigger_status = 0;
 /**
  * @function    void utimer_trigger_mode_cb_func(event)
  * @brief       utimer trigger mode callback function
@@ -509,7 +568,7 @@ static void utimer_trigger_mode_app(void)
 {
     int32_t ret;
     uint32_t value = 0;
-    uint8_t channel = 3;
+    uint8_t channel = BOARD_TRIGGER_MODE_UTIMER_INSTANCE;
     uint32_t count_array[2];
 
     ARM_UTIMER_TRIGGER_CONFIG trig_config = {
@@ -521,7 +580,7 @@ static void utimer_trigger_mode_app(void)
     /*
      * utimer channel 3 is configured for utimer trigger mode.
      * chan_event_a_rising_b_0 event from pinmux is used for triggering counter start.
-     * H/W connection : short P3_5 and P0_6, short P3_6 and P0_7.
+
      **/
 
     printf("*** utimer demo application for trigger mode started ***\n");
@@ -539,18 +598,7 @@ static void utimer_trigger_mode_app(void)
      */
 
     count_array[0] = 0;            /*< initial counter value >*/
-    count_array[1] = 0xBEBC200;    /*< over flow count value >*/
-
-    /* trigger mode pin config */
-    ret = pinconf_set (PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-    }
-
-    ret = pinconf_set (PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-    }
+    count_array[1] = BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE;    /*< over flow count value >*/
 
     ret = gpio_init(ARM_UTIMER_MODE_TRIGGERING);
     if (ret) {
@@ -599,7 +647,7 @@ static void utimer_trigger_mode_app(void)
     value = ptrUTIMER->GetCount (channel, ARM_UTIMER_CNTR);
     printf("counter value before triggering : %d\n",value);
 
-    ret = ptrDrv->SetValue(GPIO3_PIN5, GPIO_PIN_OUTPUT_STATE_HIGH);
+    ret = ptrTrig0GPO->SetValue(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if ((ret != ARM_DRIVER_OK)) {
         printf("ERROR: Failed to configure\n");
     }
@@ -639,7 +687,10 @@ error_trigger_mode_uninstall:
 
     printf("*** demo application: trigger mode completed *** \r\n\n");
 }
+#endif
 
+#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
+static volatile uint32_t cb_capture_status = 0;
 /**
  * @function    void utimer_capture_mode_cb_func(event)
  * @brief       utimer capture mode callback function
@@ -653,7 +704,7 @@ static void utimer_capture_mode_cb_func(uint8_t event)
         cb_capture_status++;
     }
 
-    ptrDrv->SetValue(GPIO3_PIN3, GPIO_PIN_OUTPUT_STATE_LOW);
+    ptrCapt0GPO->SetValue(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
 }
 
 /**
@@ -666,7 +717,7 @@ static void utimer_capture_mode_cb_func(uint8_t event)
 static void utimer_capture_mode_app(void)
 {
     int32_t ret;
-    uint8_t channel = 4;
+    uint8_t channel = BOARD_CAPTURE_MODE_UTIMER_INSTANCE;
     uint32_t count_array[2];
 
     ARM_UTIMER_TRIGGER_CONFIG trig_config = {
@@ -676,9 +727,8 @@ static void utimer_capture_mode_app(void)
     };
 
     /*
-     * utimer channel 4 is configured for utimer input capture mode (selected driver A, double buffer).
+     * utimer channel 4 (E7) and channel 3 (E1C) is configured for utimer input capture mode (selected driver A, double buffer).
      * chan_event_a_rising_b_0 event from pinmux is used to trigger input capture counter value.
-     * H/W connection : short P3_3 and P1_0, short P3_4 and P1_1.
      */
 
     printf("*** utimer demo application for capture mode started ***\n");
@@ -695,18 +745,7 @@ static void utimer_capture_mode_app(void)
      * HEX = 0x17D78400
      */
     count_array[0] = 0;             /*< initial counter value >*/
-    count_array[1] = 0x17D78400;    /*< over flow count value >*/
-
-    /* capture mode pin config */
-    ret = pinconf_set(PORT_1, PIN_0, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-    }
-
-    ret = pinconf_set(PORT_1, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-    }
+    count_array[1] = BOARD_UTIMER_1000_MILLI_SEC_COUNTER_VALUE;    /*< over flow count value >*/
 
     /* GPIO pin confg */
     ret = gpio_init(ARM_UTIMER_MODE_CAPTURING);
@@ -765,7 +804,7 @@ static void utimer_capture_mode_app(void)
     {
         /* Delay of 100 ms */
         sys_busy_loop_us (100000);
-        ret = ptrDrv->SetValue(GPIO3_PIN3, GPIO_PIN_OUTPUT_STATE_HIGH);
+        ptrCapt0GPO->SetValue(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
         if ((ret != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to configure\n");
         }
@@ -807,6 +846,13 @@ error_capture_mode_uninstall:
 
     printf("*** demo application: capture mode completed *** \r\n\n");
 }
+#endif
+
+#ifdef BOARD_COMPARE_MODE_UTIMER_INSTANCE
+static volatile uint32_t cb_compare_a_status = 0;
+static volatile uint32_t cb_compare_a_buf1_status = 0;
+static volatile uint32_t cb_compare_a_buf2_status = 0;
+static volatile uint32_t cb_overflow_status = 0;
 
 /**
  * @function    void utimer_compare_mode_cb_func(event)
@@ -827,7 +873,7 @@ static void utimer_compare_mode_cb_func(uint8_t event)
         cb_compare_a_buf2_status = 1;
     }
     if (event == ARM_UTIMER_EVENT_OVER_FLOW) {
-        cb_basic_status = 1;
+        cb_overflow_status = 1;
     }
 }
 
@@ -841,7 +887,7 @@ static void utimer_compare_mode_cb_func(uint8_t event)
 static void utimer_compare_mode_app(void)
 {
     int32_t ret;
-    uint8_t channel = 5;
+    uint8_t channel = BOARD_COMPARE_MODE_UTIMER_INSTANCE;
     uint32_t count_array[5];
 
     /*
@@ -873,16 +919,10 @@ static void utimer_compare_mode_app(void)
      * HEX = 0x11E1A300
      */
     count_array[0] =  0x000000000;       /*< initial counter value >*/
-    count_array[1] =  0x17D78400;        /*< over flow count value >*/
-    count_array[2] =  0x5F5E100;         /*< compare a/b value>*/
-    count_array[3] =  0xBEBC200;         /*< compare a/b buf1 value>*/
-    count_array[4] =  0x11E1A300;        /*< compare a/b buf2 value>*/
-
-    /* compare mode pin confg */
-    ret = pinconf_set (PORT_1, PIN_2, PINMUX_ALTERNATE_FUNCTION_4, 0);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-    }
+    count_array[1] =  BOARD_UTIMER_1000_MILLI_SEC_COUNTER_VALUE;        /*< over flow count value >*/
+    count_array[2] =  BOARD_UTIMER_250_MILLI_SEC_COUNTER_VALUE;         /*< compare a/b value>*/
+    count_array[3] =  BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE;         /*< compare a/b buf1 value>*/
+    count_array[4] =  BOARD_UTIMER_750_MILLI_SEC_COUNTER_VALUE;        /*< compare a/b buf2 value>*/
 
     ret = ptrUTIMER->Initialize (channel, utimer_compare_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
@@ -959,8 +999,8 @@ static void utimer_compare_mode_app(void)
                 printf("compare_a_buf2 reg value is matched to counter value\n");
                 break;
             }
-            if (cb_basic_status) {
-                cb_basic_status = 0;
+            if (cb_overflow_status) {
+                cb_overflow_status = 0;
                 printf("Interrupt: Overflow occurred\n");
                 break;
             }
@@ -990,12 +1030,13 @@ error_compare_mode_uninstall:
 
     printf("*** demo application: compare mode completed *** \r\n\n");
 }
+#endif
 
 int main()
 {
+    int32_t ret;
     #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
-    int32_t ret;
     ret = stdout_init();
     if(ret != ARM_DRIVER_OK)
     {
@@ -1004,9 +1045,36 @@ int main()
         }
     }
     #endif
+
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+#else
+    /*
+     * NOTE: The UTIMER pins used in this test application are not configured
+     * in the board support library. Therefore, pins are configured manually here.
+     */
+    ret = board_utimer_pins_config();
+#endif
+    if (ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return ret;
+    }
+
+#ifdef BOARD_BASIC_MODE_UTIMER_INSTANCE
     utimer_basic_mode_app();
+#endif
+#ifdef BOARD_BUFFER_MODE_UTIMER_INSTANCE
     utimer_buffering_mode_app();
+#endif
+#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
     utimer_trigger_mode_app();
+#endif
+#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
     utimer_capture_mode_app();
+#endif
+#ifdef BOARD_COMPARE_MODE_UTIMER_INSTANCE
     utimer_compare_mode_app();
+#endif
 }

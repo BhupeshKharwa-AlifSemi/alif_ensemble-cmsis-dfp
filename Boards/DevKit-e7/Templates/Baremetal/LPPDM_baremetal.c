@@ -45,6 +45,7 @@
 /* include for PDM Driver */
 #include "Driver_PDM.h"
 #include "pinconf.h"
+#include "board_config.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
@@ -53,6 +54,10 @@
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
+
+// Set to 0: Use application-defined LPPDM pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #define ENABLE              1
 #define DISABLE             0
@@ -128,57 +133,60 @@ static void PDM_fifo_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn          void lppdm_pinmux(void)
- * @brief       Initialize the pinmux for LPPDM
- * @return      status
-*/
-static int32_t lppdm_pinmux(void)
+ * @fn      static int32_t board_lppdm_pins_config(void)
+ * @brief   Configure LPPDM pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_lppdm_pins_config(void)
 {
     int32_t status;
 
     /* channel 0_1 data line */
-    status = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D0_B_GPIO_PORT), BOARD_LPPDM_D0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 2_3 data line */
-    status = pinconf_set(PORT_3, PIN_7, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D1_B_GPIO_PORT), BOARD_LPPDM_D1_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 4_5 data line */
-    status = pinconf_set(PORT_11, PIN_6, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D2_B_GPIO_PORT), BOARD_LPPDM_D2_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 6_7 data line */
-    status = pinconf_set(PORT_7, PIN_7, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D3_A_GPIO_PORT), BOARD_LPPDM_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* Channel 0_1 clock line */
-    status = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C0_B_GPIO_PORT), BOARD_LPPDM_C0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 2_3 clock line */
-    status = pinconf_set(PORT_3, PIN_6, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C1_B_GPIO_PORT), BOARD_LPPDM_C1_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 4_5 clock line */
-    status = pinconf_set(PORT_11, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C2_B_GPIO_PORT), BOARD_LPPDM_C2_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 6_7 clock line */
-    status = pinconf_set(PORT_7, PIN_6, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C3_A_GPIO_PORT), BOARD_LPPDM_C3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     return SUCCESS;
 }
+#endif
 
 /**
  * @fn         : void PDM_fifo_callback(uint32_t event)
@@ -208,19 +216,33 @@ void pdm_demo()
 {
     int32_t ret = 0;
     ARM_DRIVER_VERSION version;
-    int32_t retval;
 
     printf("\r\n >>> PDM demo starting up!!! <<< \r\n");
 
     version = PDMdrv->GetVersion();
     printf("\r\n PDM version api:%X driver:%X...\r\n", version.api, version.drv);
 
-    /* configure LPPDM data and clock lines */
-    if(lppdm_pinmux())
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        printf("LPPDM pinmux failed\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
     }
 
+#else
+    /*
+     * NOTE: The LPPDM pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret = board_lppdm_pins_config();
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
+    }
+#endif
     /* Initialize PDM driver */
     ret = PDMdrv->Initialize(PDM_fifo_callback);
     if(ret != ARM_DRIVER_OK){

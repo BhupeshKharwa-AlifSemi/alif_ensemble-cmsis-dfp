@@ -28,6 +28,9 @@ extern "C" {
 
 #define ARM_CMP_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1,0)  /* API version */
 
+#define _ARM_Driver_CMP(n)      Driver_CMP##n
+#define  ARM_Driver_CMP(n)     _ARM_Driver_CMP(n)
+
 /* Control code for Analog Comparator */
 #define ARM_CMP_POLARITY_CONTROL               (0X01UL)  /* Used to invert the comparator input signal before processing */
 #define ARM_CMP_WINDOW_CONTROL_ENABLE          (0X02UL)  /* Window control used to define when to look at the comparator input */

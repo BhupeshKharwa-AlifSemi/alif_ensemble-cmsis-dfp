@@ -30,8 +30,7 @@
 /* include for UART Driver */
 #include "Driver_USART.h"
 
-/* PINMUX Driver */
-#include "pinconf.h"
+#include "board_config.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
@@ -47,14 +46,11 @@
 #include "se_services_port.h"
 #endif
 
-/* UART Driver instance (UART0-UART7) */
-#define UART      2
-
 /* UART Driver */
-extern ARM_DRIVER_USART ARM_Driver_USART_(UART);
+extern ARM_DRIVER_USART ARM_Driver_USART_(BOARD_UARTA_UART_INSTANCE);
 
 /* UART Driver instance */
-static ARM_DRIVER_USART *USARTdrv = &ARM_Driver_USART_(UART);
+static ARM_DRIVER_USART *USARTdrv = &ARM_Driver_USART_(BOARD_UARTA_UART_INSTANCE);
 
 void myUART_Thread_entry();
 
@@ -67,24 +63,6 @@ void myUART_Thread_entry();
 #define UART_CB_RX_OVERFLOW        (1U << 6)
 
 volatile uint32_t event_flags_uart;
-
-/**
- * @function    int hardware_init(void)
- * @brief       UART hardware pin initialization using PIN-MUX driver
- * @note        none
- * @param       void
- * @retval      0:success, -1:failure
- */
-int hardware_init(void)
-{
-    /* UART2_RX_A */
-    pinconf_set( PORT_1, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE);
-
-    /* UART2_TX_A */
-    pinconf_set( PORT_1, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, 0);
-
-    return 0;
-}
 
 /**
  * @function    void myUART_callback(uint32_t event)
@@ -177,11 +155,11 @@ void myUART_Thread_entry()
     version = USARTdrv->GetVersion();
     printf("\r\n UART version api:%X driver:%X...\r\n",version.api, version.drv);
 
-    /* Initialize UART hardware pins using PinMux Driver. */
-    ret = hardware_init();
-    if(ret != 0)
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if(ret != ARM_DRIVER_OK)
     {
-        printf("\r\n Error in UART hardware_init.\r\n");
+        printf("ERROR: Pin configuration failed: %d\n", ret);
         return;
     }
 

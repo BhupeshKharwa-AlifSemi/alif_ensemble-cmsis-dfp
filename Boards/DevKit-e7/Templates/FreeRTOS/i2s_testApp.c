@@ -29,6 +29,7 @@
 /* Project Includes */
 #include <Driver_SAI.h>
 #include <pinconf.h>
+#include "board_config.h"
 #include "RTE_Components.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -44,6 +45,10 @@
 
 /*Audio samples */
 #include "i2s_samples.h"
+
+// Set to 0: Use application-defined I2S pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /* 1 to send the data stream continuously , 0 to send data only once */
 #define REPEAT_TX 1
@@ -134,50 +139,53 @@ static void prvDacCallback( uint32_t ulEvent )
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-  \fn          void prvDacConfigPinmux(void)
-  \brief       Initialize the pinmux for DAC
-  \return      lStatus
-*/
-static int32_t prvDacConfigPinmux( void )
+ * @fn      static int32_t board_i2s_dac_pins_config(void)
+ * @brief   Configure I2S DAC pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_i2s_dac_pins_config(void)
 {
-    int32_t lStatus;
+    int32_t status;
 
-    #if (I2S_DAC == LP)
-        /* Configure LPI2S_C SDO */
-        lStatus = pinconf_set( PORT_13, PIN_5, PINMUX_ALTERNATE_FUNCTION_2, 0 );
-        if( lStatus )
-            return ERROR;
+#if (I2S_DAC == LP)
+    /* Configure LPI2S_C SDO */
+    status = pinconf_set(PORT_(BOARD_LPI2S_SDO_C_GPIO_PORT), BOARD_LPI2S_SDO_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure LPI2S_C WS */
-        lStatus = pinconf_set( PORT_13, PIN_7, PINMUX_ALTERNATE_FUNCTION_2, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure LPI2S_C WS */
+    status = pinconf_set(PORT_(BOARD_LPI2S_WS_C_GPIO_PORT), BOARD_LPI2S_WS_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure LPI2S_C SCLK */
-        lStatus = pinconf_set( PORT_13, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, 0 );
-        if( lStatus )
-            return ERROR;
-    #else
-        /* Configure I2S1_A SDO */
-        lStatus = pinconf_set( PORT_3, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure LPI2S_C SCLK */
+    status = pinconf_set(PORT_(BOARD_LPI2S_SCLK_C_GPIO_PORT), BOARD_LPI2S_SCLK_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if(status)
+        return ERROR;
+#else
+    /* Configure I2S1_A SDO */
+    status = pinconf_set(PORT_(BOARD_I2S1_SDO_GPIO_PORT), BOARD_I2S1_SDO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure I2S1_A WS */
-        lStatus = pinconf_set( PORT_4, PIN_0, PINMUX_ALTERNATE_FUNCTION_3, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure I2S1_A WS */
+    status = pinconf_set(PORT_(BOARD_I2S1_WS_GPIO_PORT), BOARD_I2S1_WS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure I2S1_A SCLK */
-        lStatus = pinconf_set( PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_4, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure I2S1_A SCLK */
+    status = pinconf_set(PORT_(BOARD_I2S1_SCLK_GPIO_PORT), BOARD_I2S1_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    if(status)
+        return ERROR;
 
-    #endif
+#endif
 
     return SUCCESS;
 }
+#endif
 
 /**
   \fn          void prvDacTask( void * pvParameters )
@@ -197,12 +205,27 @@ static void prvDacTask( void * pvParameters )
 
     ( void ) pvParameters;
 
-    /* Configure the dac pins */
-    if( prvDacConfigPinmux() )
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    lStatus = board_pins_config();
+    if (lStatus != 0)
     {
-        printf( "DAC pinmux failed\n" );
+        printf("Error in pin-mux configuration: %d\n", lStatus);
         return;
     }
+
+#else
+    /*
+     * NOTE: The I2S DAC pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    lStatus = board_i2s_dac_pins_config();
+    if(lStatus != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", lStatus);
+        return;
+    }
+#endif
 
     /* Use the I2S as Trasmitter */
     xI2SDrv = &ARM_Driver_SAI_(I2S_DAC);
@@ -380,32 +403,35 @@ error_initialize:
         }
     }
 
-    /**
-      \fn          void prvAdcConfigPinmux(void)
-      \brief       Initialize the pinmux for ADC
-      \return      Status
-    */
-    static int32_t prvAdcConfigPinmux( void )
-    {
-        int32_t lStatus;
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @fn      static int32_t board_i2s_adc_pins_config(void)
+ * @brief   Configure I2S ADC pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_i2s_adc_pins_config(void)
+{
+    int32_t  status;
 
-        /* Configure I2S3_B WS */
-        lStatus = pinconf_set( PORT_8, PIN_7, PINMUX_ALTERNATE_FUNCTION_2, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure I2S3_B WS */
+    status = pinconf_set(PORT_(BOARD_I2S3_WS_B_GPIO_PORT), BOARD_I2S3_WS_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure I2S3_B SCLK */
-        lStatus = pinconf_set( PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_2, 0 );
-        if( lStatus )
-            return ERROR;
+    /* Configure I2S3_B SCLK */
+    status = pinconf_set(PORT_(BOARD_I2S3_SCLK_B_GPIO_PORT), BOARD_I2S3_SCLK_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    if(status)
+        return ERROR;
 
-        /* Configure I2S3_B SDI */
-        lStatus = pinconf_set( PORT_9, PIN_0, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE );
-        if( lStatus )
-            return ERROR;
+    /* Configure I2S3_B SDI */
+    status = pinconf_set(PORT_(BOARD_I2S3_SDI_B_GPIO_PORT), BOARD_I2S3_SDI_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
 
-        return SUCCESS;
-    }
+    return SUCCESS;
+}
+#endif
 
     /**
       \fn          void prvAdcTask( void * pvParameters )
@@ -421,18 +447,23 @@ error_initialize:
         SamplesMsgq_t        xSamplesMsg;
         EventBits_t          xEvents;
 
-        extern ARM_DRIVER_SAI ARM_Driver_SAI_( I2S_ADC );
+        extern ARM_DRIVER_SAI ARM_Driver_SAI_( BOARD_MIC_INPUT_I2S_INSTANCE );
         ( void ) pvParameters;
 
-        /* Configure the adc pins */
-        if( prvAdcConfigPinmux() )
-        {
-            printf("ADC pinmux failed\n");
-            return;
-        }
-
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+    /*
+     * NOTE: The I2S ADC pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    lStatus = board_i2s_adc_pins_config();
+    if(lStatus != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", lStatus);
+        return;
+    }
+#endif
         /* Use the I2S as Receiver */
-        xI2SDrv = &ARM_Driver_SAI_( I2S_ADC );
+        xI2SDrv = &ARM_Driver_SAI_( BOARD_MIC_INPUT_I2S_INSTANCE );
 
         /* Verify the I2S API version for compatibility*/
         xVersion = xI2SDrv->GetVersion();

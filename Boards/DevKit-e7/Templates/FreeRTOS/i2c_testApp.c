@@ -17,12 +17,12 @@
  *           1) Master transmit 30 bytes and Slave receive 30 bytes
  *           2) Slave transmit 29 bytes and Master receive 29 bytes
  *           I2C1 instance is taken as Master (PIN P7_2 and P7_3)
- *           I2C0 instance is taken as Slave  (PIN P0_2 and P0_3)
+ *           I2C0 instance is taken as Slave  (PIN P3_5 and P3_4)
  *
  *           Hardware setup:
  *           - Connecting GPIO pins of I2C1 TO I2C0 instances
- *             SDA pin P7_2(J15) to P0_2(J11)
- *             SCL pin P7_3(J15) to P0_3(J11).
+ *             SDA pin P7_2(J15) to P3_5(J11)
+ *             SCL pin P7_3(J15) to P3_4(J11).
  * @bug      None.
  * @Note     None.
  ******************************************************************************/
@@ -35,21 +35,33 @@
 #include CMSIS_device_header
 
 #include "Driver_I2C.h"
-#include "pinconf.h"
 #include "sys_utils.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "event_groups.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+#if defined(RTE_Board_Config)
+    #include "board_config.h"
+#else
+    #include "pinconf.h"
+    #define  BOARD_MASTER_I2C_INSTANCE          1    /* I2C master instance */
+    #define  BOARD_SLAVE_I2C_INSTANCE           0    /* I2C slave instance */
+#endif
+
+#if !defined(BOARD_MASTER_I2C_INSTANCE) && !defined(BOARD_SLAVE_I2C_INSTANCE)
+#error "ERROR: I2C instances not present in this device or no pins available!"
+#elif !defined(BOARD_MASTER_I2C_INSTANCE) || !defined(BOARD_SLAVE_I2C_INSTANCE)
+#error "ERROR: Two I2C instances are required!"
+#endif
+
 /* Defining Address modes */
 #define ADDRESS_MODE_7BIT   1                   /* I2C 7 bit addressing mode     */
 #define ADDRESS_MODE_10BIT  2                   /* I2C 10 bit addressing mode    */
-#define ADDRESS_MODE        ADDRESS_MODE_7BIT   /* Current Addressing mode       */
+#define ADDRESS_MODE        ADDRESS_MODE_7BIT   /* 7 bit addressing mode chosen  */
 
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
     #define TAR_ADDRS       (0X2D0)  /* 10 bit Target(Slave) Address, use by Master */
@@ -76,16 +88,14 @@ static StaticTask_t IdleTcb;
 static StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 static StaticTask_t TimerTcb;
 /* I2C Driver instance */
-extern ARM_DRIVER_I2C Driver_I2C1;
-static ARM_DRIVER_I2C *I2C_MstDrv = &Driver_I2C1;
+extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
+static ARM_DRIVER_I2C *I2C_MstDrv = &ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
 
-extern ARM_DRIVER_I2C Driver_I2C0;
-static ARM_DRIVER_I2C *I2C_SlvDrv = &Driver_I2C0;
+extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
+static ARM_DRIVER_I2C *I2C_SlvDrv = &ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
 
 /* Task handle */
 static TaskHandle_t i2c_xHandle;
-/* Event group Handle */
-static EventGroupHandle_t i2c_event_group;
 
 #if (RTE_I2C0_DMA_ENABLE || RTE_I2C1_DMA_ENABLE)
     #define I2C_DMA_ENABLED     1
@@ -198,8 +208,8 @@ static void i2c_mst_transfer_callback(uint32_t event)
     if (event & ARM_I2C_EVENT_TRANSFER_DONE)
     {
         /* Transfer or receive is finished */
-        xResult = xEventGroupSetBitsFromISR(i2c_event_group, I2C_MST_TRANSFER_DONE,
-                                            &xHigherPriorityTaskWoken);
+        xResult = xTaskNotifyFromISR(i2c_xHandle, I2C_MST_TRANSFER_DONE,
+                           eSetBits, &xHigherPriorityTaskWoken);
 
         if (xResult == pdTRUE)
         {
@@ -222,8 +232,8 @@ static void i2c_slv_transfer_callback(uint32_t event)
     if (event & ARM_I2C_EVENT_TRANSFER_DONE)
     {
         /* Transfer or receive is finished */
-        xResult = xEventGroupSetBitsFromISR(i2c_event_group, I2C_SLV_TRANSFER_DONE,
-                                            &xHigherPriorityTaskWoken);
+        xResult = xTaskNotifyFromISR(i2c_xHandle, I2C_SLV_TRANSFER_DONE,
+                           eSetBits, &xHigherPriorityTaskWoken);
 
         if (xResult == pdTRUE)
         {
@@ -232,31 +242,59 @@ static void i2c_slv_transfer_callback(uint32_t event)
     }
 }
 
+#if !defined(RTE_Board_Config)
 /**
- * @fn      static void hardware_init(void)
- * @brief   Assigns I2C0 and I2C1 Pin mux
- * @note    none
- * @param   none
- * @retval  none
+ * @fn      static int32_t pinmux_config(void)
+ * @brief   I2C master and I2C slave instances pinmux configuration.
+ * @note    none.
+ * @param   none.
+ * @retval  execution status.
  */
-static void hardware_init(void)
+static int32_t pinmux_config(void)
 {
+    int32_t ret = ARM_DRIVER_OK;
+
+    /* pinmux configurations for I2C slave pins */
     /* I2C0_SDA_A */
-    pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, \
+    ret = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_5,
          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C%d_SDA_PIN\n", BOARD_SLAVE_I2C_INSTANCE);
+        return ret;
+    }
 
     /* I2C0_SCL_A */
-    pinconf_set(PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, \
-         ( PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    ret = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_5,
+         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C%d_SCL_PIN\n", BOARD_SLAVE_I2C_INSTANCE);
+        return ret;
+    }
+
+    /* pinmux configurations for I2C master pins */
+    /* I2C1_SCL_C */
+    ret = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5,
+         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C%d_SCL_PIN\n", BOARD_MASTER_I2C_INSTANCE);
+        return ret;
+    }
 
     /* I2C1_SDA_C */
-    pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, \
+    ret = pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (ret)
+    {
+        printf("ERROR: Failed to configure PINMUX for I2C%d_SDA_PIN\n", BOARD_MASTER_I2C_INSTANCE);
+        return ret;
+    }
 
-    /* I2C1_SCL_C */
-    pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5, \
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    return ret;
 }
+#endif
 
 /**
  * @fn      static void I2C_Thread(void *pvParameters)
@@ -269,13 +307,22 @@ static void I2C_Thread(void *pvParameters)
 {
     int ret                      = 0;
     ARM_DRIVER_VERSION version;
-    EventBits_t events           = 0;
+    uint32_t task_notified_value = 0;
     ARG_UNUSED(pvParameters);
 
     printf("\r\n >>> I2C demo Thread starting up!!! <<< \r\n");
 
-    /* Pinmux */
-    hardware_init();
+#if defined(RTE_Board_Config)
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+#else
+    ret = pinmux_config();
+#endif
+    if(ret != ARM_DRIVER_OK)
+    {
+        printf("ERROR: pin configuration failed: %d\n", ret);
+        return;
+    }
 
     version = I2C_MstDrv->GetVersion();
     printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",
@@ -337,6 +384,8 @@ static void I2C_Thread(void *pvParameters)
         printf("\r\n Error: I2C Slave Receive failed\n");
         goto error_poweroff;
     }
+    /* delay */
+    vTaskDelay(1);
 
     /* I2C Master Transmit */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
@@ -353,15 +402,27 @@ static void I2C_Thread(void *pvParameters)
         printf("\r\n Error: I2C Master Transmit failed\n");
         goto error_poweroff;
     }
-
-    /* wait for 2-way communication to complete */
-    events = xEventGroupWaitBits(i2c_event_group, I2C_TWO_WAY_TRANSFER_DONE,
-                                 pdTRUE, pdTRUE, portMAX_DELAY);
-
-    if (events != I2C_TWO_WAY_TRANSFER_DONE)
+    while(pdTRUE)
     {
-        printf("Error: Master transmit/slave receive failed \n");
+        /* wait for master/slave callback. */
+        if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
+                            portMAX_DELAY) != pdFALSE)
+        {
+            /* Checks if both callbacks are successful */
+            if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
+            {
+                xTaskNotifyStateClear(NULL);
+            }
+            else
+            {
+                task_notified_value = 0;
+                break;
+            }
+        }
     }
+
+    /* 3ms delay */
+    vTaskDelay(3);
 
     /* Compare received data. */
 #if I2C_DMA_ENABLED
@@ -376,14 +437,6 @@ static void I2C_Thread(void *pvParameters)
     }
 
     printf("\n---------Master receive/slave transmit---------\n");
-
-    /* I2C Slave Transmit */
-    ret = I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
-    if (ret != ARM_DRIVER_OK)
-    {
-        printf("\r\n Error: I2C Slave Transmit failed\n");
-        goto error_poweroff;
-    }
 
     /* I2C Master Receive */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
@@ -401,14 +454,38 @@ static void I2C_Thread(void *pvParameters)
         goto error_poweroff;
     }
 
-    /* wait for 2-way communication to complete */
-    events = xEventGroupWaitBits(i2c_event_group, I2C_TWO_WAY_TRANSFER_DONE,
-                                 pdTRUE, pdTRUE, portMAX_DELAY);
+    /* 1ms delay */
+    vTaskDelay(1);
 
-    if (events != I2C_TWO_WAY_TRANSFER_DONE)
+    /* I2C Slave Transmit */
+    ret = I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK)
     {
-        printf("Error: Master receive/slave transmit failed \n");
+        printf("\r\n Error: I2C Slave Transmit failed\n");
+        goto error_poweroff;
     }
+
+    while(pdTRUE)
+    {
+         /* wait for master/slave callback. */
+         if (xTaskNotifyWait(NULL, NULL, &task_notified_value,
+                             portMAX_DELAY) != pdFALSE)
+         {
+             /* Checks if both callbacks are successful */
+             if (task_notified_value != I2C_TWO_WAY_TRANSFER_DONE)
+             {
+                 xTaskNotifyStateClear(NULL);
+             }
+             else
+             {
+                 task_notified_value = 0;
+                 break;
+             }
+         }
+    }
+
+    /* 3ms delay */
+    vTaskDelay(3);
 
     /* Compare received data. */
 #if I2C_DMA_ENABLED
@@ -490,9 +567,6 @@ int main(void)
       vTaskDelete(i2c_xHandle);
       return -1;
    }
-
-   /* Create an event group */
-   i2c_event_group = xEventGroupCreate();
 
    /* Start thread execution */
    vTaskStartScheduler();

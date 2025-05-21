@@ -34,7 +34,7 @@
 #include "task.h"
 
 #include "Driver_USART.h"
-#include <pinconf.h>
+#include "board_config.h"
 #include "Driver_HWSEM.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -149,32 +149,6 @@ static void myHWSEM_callback(int32_t event, uint8_t sem_id)
 }
 
 /**
- * @function    static int32_t pinmux_init(void)
- * @brief       pinmux initialization
- * @note        none
- * @param       void
- * @retval      execution status
- */
-static int32_t pinmux_init(void)
-{
-    int32_t ret;
-
-    /* UART4_RX_B */
-    ret = pinconf_set(PORT_12, PIN_1, PINMUX_ALTERNATE_FUNCTION_2,
-                      PADCTRL_READ_ENABLE);
-
-    if (ret)
-    {
-        return ret;
-    }
-
-    /* UART4_TX_B */
-    ret = pinconf_set(PORT_12, PIN_2, PINMUX_ALTERNATE_FUNCTION_2, 0);
-
-    return ret;
-}
-
-/**
  * @function    static void Hwsem_Thread(void *pvParameters)
  * @brief       TestApp to verify HWSEM interface
  *              Get the lock, send message through UART
@@ -238,16 +212,16 @@ static void Hwsem_Thread(void *pvParameters)
         /* Initialize the pinmux in the first iteration */
         if (init)
         {
-            ret = pinmux_init();
-
+            /* pin mux and configuration for all device IOs requested from pins.h*/
+            ret = board_pins_config();
             if (ret != 0)
             {
-                printf("\r\n Error in UART hardware_init.\r\n");
+                printf("Error in pin-mux configuration: %d\n", ret);
                 goto error_unlock;
             }
-
             init = 0;
         }
+
 #if !RTE_UART4_BLOCKING_MODE_ENABLE
         /* Initialize UART driver */
         ret = USARTdrv->Initialize(myUART_callback);

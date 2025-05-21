@@ -31,7 +31,7 @@
 
 /* Project include */
 #include "Driver_ADC.h"
-#include "pinconf.h"
+#include "board_config.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -49,10 +49,9 @@
 #define ADC_CONVERSION    ARM_ADC_SINGLE_SHOT_CH_CONV
 
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC Driver_ADC121;
-static ARM_DRIVER_ADC *ADCdrv = &Driver_ADC121;
+extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_POTENTIOMETER_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_POTENTIOMETER_ADC12_INSTANCE);
 
-#define POTENTIOMETER            ARM_ADC_CHANNEL_1
 #define NUM_CHANNELS             8
 
 #define ADC_INT_AVG_SAMPLE_RDY       0x01
@@ -101,26 +100,6 @@ void vApplicationIdleHook(void)
 uint32_t ulAdcSample[NUM_CHANNELS];
 
 volatile uint32_t ulNumSamples = 0;
-
-/**
- * @fn     : static int32_t prvPinmuxConfig(void)
- * @brief  : ADC potentiometer pinmux configuration
- * @retval : execution status.
- */
-static int32_t prvPinmuxConfig(void)
-{
-    int32_t lRet = 0U;
-
-    lRet = pinconf_set(PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_7,
-                       PADCTRL_READ_ENABLE);
-    if (lRet)
-    {
-        printf("ERROR: Failed to configure PINMUX \r\n");
-        return lRet;
-    }
-
-    return lRet;
-}
 
 /*
  * @func   : static void prvAdcConversionCallBack(uint32_t event,
@@ -186,12 +165,10 @@ static void prvAdcPotentiometerDemo( void *pvParameters )
     xVersion = ADCdrv->GetVersion();
     printf("\r\n ADC version api:%X driver:%X...\r\n",xVersion.api, xVersion.drv);
 
-    /* PINMUX */
-    lRet = prvPinmuxConfig();
-    if (lRet != 0)
-    {
-        printf("Error in pin-mux configuration\n");
-        return;
+    /* pinmux and configurations for all device IOs requested from pins.h*/
+    lRet = board_pins_config();
+    if (lRet) {
+        printf("ERROR: Board pin configuration failed: %d\n", lRet);
     }
 
     /* Initialize ADC driver */
@@ -216,13 +193,13 @@ static void prvAdcPotentiometerDemo( void *pvParameters )
     }
 
     /* set initial channel */
-    lRet = ADCdrv->Control(ARM_ADC_CHANNEL_INIT_VAL, POTENTIOMETER);
+    lRet = ADCdrv->Control(ARM_ADC_CHANNEL_INIT_VAL, BOARD_POTENTIOMETER_ADC12_INPUT);
     if (lRet != ARM_DRIVER_OK){
         printf("\r\n Error: ADC channel init failed\n");
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)(ulAdcSample + POTENTIOMETER));
+    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)(ulAdcSample + BOARD_POTENTIOMETER_ADC12_INPUT));
     /* Start ADC */
     lRet = ADCdrv->Start();
     if (lRet != ARM_DRIVER_OK){

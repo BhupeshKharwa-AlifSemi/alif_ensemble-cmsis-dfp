@@ -27,6 +27,9 @@ extern "C"
 
 #include "Driver_Common.h"
 
+#define _ARM_Driver_DAC_(n)      Driver_DAC##n
+#define  ARM_Driver_DAC_(n) _ARM_Driver_DAC_(n)
+
 #define ARM_DAC_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1,0)  /* API version */
 
 /* DAC Control Code */

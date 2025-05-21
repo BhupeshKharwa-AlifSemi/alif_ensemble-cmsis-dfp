@@ -26,7 +26,7 @@
 #include "string.h"
 
 /* PINMUX Driver */
-#include "pinconf.h"
+#include "board_config.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
@@ -101,63 +101,6 @@ void vApplicationIdleHook(void)
 /*****************Only for FreeRTOS use *************************/
 
 /**
-  \fn          int32_t hardware_cfg(void)
-  \brief       -i2c hardware pin initialization:
-                   -  PIN-MUX configuration
-                   -  PIN-PAD configuration
-               -GPIO9 initialization:
-                   -  PIN-MUX configuration
-                   -  PIN-PAD configuration
-  \param[in]   none
-  \return      ARM_DRIVER_OK: success; 0: failure
-  */
-int32_t hardware_cfg(void)
-{
-    int8_t ret = 0;
-    /* gpio9 config for interrupt
-     * Pad function: PADCTRL_READ_ENABLE |
-     *               PADCTRL_DRIVER_DISABLED_PULL_UP |
-     *               PADCTRL_SCHMITT_TRIGGER_ENABLE
-     */
-    ret = pinconf_set(GT911_TOUCH_INT_GPIO_PORT, GT911_TOUCH_INT_PIN_NO,
-                      PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_READ_ENABLE |
-                      PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
-        printf("\r\n Error: GPIO PINMUX failed.\r\n");
-        return ret;
-    }
-
-    /* Configure GPIO Pin : P7_2 as i2c1_sda_c
-     * Pad function: PADCTRL_READ_ENABLE |
-     *               PADCTRL_DRIVER_DISABLED_PULL_UP
-     */
-    ret = pinconf_set(GT911_TOUCH_I2C_SDA_PORT, GT911_TOUCH_I2C_SDA_PIN_NO,
-                      PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE |
-                      PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
-        printf("\r\n Error: I2C SDA PINMUX failed.\r\n");
-        return ret;
-    }
-
-    /* Configure GPIO Pin : P7_3 as i2c1_scl_c
-     * Pad function: PADCTRL_READ_ENABLE |
-     *               PADCTRL_DRIVER_DISABLED_PULL_UP
-     */
-    ret = pinconf_set(GT911_TOUCH_I2C_SCL_PORT, GT911_TOUCH_I2C_SCL_PIN_NO,
-                      PINMUX_ALTERNATE_FUNCTION_5,PADCTRL_READ_ENABLE |
-                      PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
-        printf("\r\n Error: I2C SCL PINMUX failed.\r\n");
-        return ret;
-    }
-
-    return ARM_DRIVER_OK;
-}
-
-/**
   * @function    void touchscreen_demo_thread_entry(void *pvParameters)
   \brief         TestApp to verify GT911 touch screen with
                  FREERTOS as an Operating System.
@@ -180,11 +123,12 @@ void touchscreen_demo_thread_entry(void *pvParameters)
 
     /* Initialize i2c and GPIO9 hardware pins using PinMux Driver. */
     /* Initialize UART4 hardware pins using PinMux driver if printf redirection to UART is selected */
-    ret = hardware_cfg();
-    if(ret != ARM_DRIVER_OK)
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        /* Error in hardware configuration */
-        printf("\r\n Error: Hardware configuration failed.\r\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
+        return;
     }
 
     /* Touch screen version */
@@ -288,4 +232,3 @@ int main( void )
 }
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/
-

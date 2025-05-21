@@ -23,57 +23,87 @@
 #include "Driver_UTIMER.h"
 #include "Driver_IO.h"
 #include "pinconf.h"
+#include "board_config.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-
-/* GPIO related definitions */
-#define GPIO1                          1
-#define GPIO1_PIN0                     0
-#define GPIO1_PIN1                     1
-#define GPIO1_PIN2                     2
+// Set to 0: Use application-defined QEC pin configuration (via board_qec_pins_config()).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
 ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
 
-/* GPIO1 Driver instance */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO1);
-ARM_DRIVER_GPIO *ptrGPIO = &ARM_Driver_GPIO_(GPIO1);
+/* BOARD_QEC_X_GPO_GPIO_PORT Driver instance */
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_QEC_X_GPO_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrQECxGPIO = &ARM_Driver_GPIO_(BOARD_QEC_X_GPO_GPIO_PORT);
 
+/* BOARD_QEC_Y_GPO_GPIO_PORT Driver instance */
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_QEC_Y_GPO_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrQECyGPIO = &ARM_Driver_GPIO_(BOARD_QEC_Y_GPO_GPIO_PORT);
+
+/* BOARD_QEC_Z_GPO_GPIO_PORT Driver instance */
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_QEC_Z_GPO_GPIO_PORT);
+ARM_DRIVER_GPIO *ptrQECzGPIO = &ARM_Driver_GPIO_(BOARD_QEC_Z_GPO_GPIO_PORT);
+
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @function    int pinmux_config(void)
+ * @function    int board_qec_pins_config(void)
  * @brief       QEC h/w pin init using pinmux driver
  * @note        none
  * @param       none
  * @retval      execution status
  */
-static int32_t pinmux_config(void)
+static int32_t board_qec_pins_config(void)
 {
     int32_t ret;
 
-    ret = pinconf_set (PORT_8, PIN_4, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set (PORT_(BOARD_QEC0_X_B_GPIO_PORT), BOARD_QEC0_X_B_GPIO_PIN,
+            PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE | PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
     }
 
-    ret = pinconf_set (PORT_8, PIN_5, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set (PORT_(BOARD_QEC0_Y_B_GPIO_PORT), BOARD_QEC0_Y_B_GPIO_PIN,
+            PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE | PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
     }
 
-    ret = pinconf_set (PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set (PORT_(BOARD_QEC0_Z_B_GPIO_PORT), BOARD_QEC0_Z_B_GPIO_PIN,
+            PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE | PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
+    }
+
+    /* Config as GPIO */
+    ret = pinconf_set (PORT_(BOARD_QEC_X_GPO_GPIO_PORT), BOARD_QEC_X_GPO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if(ret != ARM_DRIVER_OK) {
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
+    }
+
+    ret = pinconf_set (PORT_(BOARD_QEC_Y_GPO_GPIO_PORT), BOARD_QEC_Y_GPO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if(ret != ARM_DRIVER_OK) {
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
+    }
+
+    ret = pinconf_set (PORT_(BOARD_QEC_Z_GPO_GPIO_PORT), BOARD_QEC_Z_GPO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    if(ret != ARM_DRIVER_OK) {
+        printf("Error in PINMUX: %d\n", ret);
+        return ret;
     }
 
     return 0;
 }
+#endif
 
 /**
  * @function    int gpio_init(void)
@@ -86,94 +116,64 @@ static int32_t gpio_init(void)
 {
     int32_t ret = ARM_DRIVER_OK;
 
-    /* init P1_0 as GPIO */
-    ret = pinconf_set (PORT_1, PIN_0, PINMUX_ALTERNATE_FUNCTION_0, 0);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
-    }
-
-    ret = ptrGPIO->Initialize (GPIO1_PIN0, NULL);
+    ret = ptrQECxGPIO->Initialize (BOARD_QEC_X_GPO_GPIO_PIN, NULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize GPIO1_PIN0 as GPIO\n");
         return -1;
     }
-
-    ret = ptrGPIO->PowerControl (GPIO1_PIN0, ARM_POWER_FULL);
+    ret = ptrQECxGPIO->PowerControl (BOARD_QEC_X_GPO_GPIO_PIN, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to Power up GPIO1_PIN0\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetDirection (GPIO1_PIN0, GPIO_PIN_DIRECTION_OUTPUT);
+    ret = ptrQECxGPIO->SetDirection (BOARD_QEC_X_GPO_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set direction for GPIO1_PIN0\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetValue (GPIO1_PIN0, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = ptrQECxGPIO->SetValue (BOARD_QEC_X_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set value for GPIO1_PIN0\n");
         return -1;
     }
 
-    /* init P1_1 as GPIO */
-    ret = pinconf_set (PORT_1, PIN_1, PINMUX_ALTERNATE_FUNCTION_0, 0);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
-    }
-
-    ret = ptrGPIO->Initialize (GPIO1_PIN1, NULL);
+    ret = ptrQECyGPIO->Initialize (BOARD_QEC_Y_GPO_GPIO_PIN, NULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize GPIO1_PIN1 as GPIO\n");
         return -1;
     }
-
-    ret = ptrGPIO->PowerControl (GPIO1_PIN1, ARM_POWER_FULL);
+    ret = ptrQECyGPIO->PowerControl (BOARD_QEC_Y_GPO_GPIO_PIN, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to Power up GPIO1_PIN1\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetDirection (GPIO1_PIN1, GPIO_PIN_DIRECTION_OUTPUT);
+    ret = ptrQECyGPIO->SetDirection (BOARD_QEC_Y_GPO_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set direction for GPIO1_PIN1\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetValue (GPIO1_PIN1, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = ptrQECyGPIO->SetValue (BOARD_QEC_Y_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set value for GPIO1_PIN1\n");
         return -1;
     }
 
-    /* init P1_2 as GPIO */
-    ret = pinconf_set (PORT_1, PIN_2, PINMUX_ALTERNATE_FUNCTION_0, 0);
-    if(ret != ARM_DRIVER_OK) {
-        printf("\r\n Error in PINMUX.\r\n");
-        return -1;
-    }
-
-    ret = ptrGPIO->Initialize (GPIO1_PIN2, NULL);
+    ret = ptrQECzGPIO->Initialize (BOARD_QEC_Z_GPO_GPIO_PIN, NULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize GPIO1_PIN2 as GPIO\n");
         return -1;
     }
-
-    ret = ptrGPIO->PowerControl (GPIO1_PIN2, ARM_POWER_FULL);
+    ret = ptrQECzGPIO->PowerControl (BOARD_QEC_Z_GPO_GPIO_PIN, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to Power up GPIO1_PIN2\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetDirection (GPIO1_PIN2, GPIO_PIN_DIRECTION_OUTPUT);
+    ret = ptrQECzGPIO->SetDirection (BOARD_QEC_Z_GPO_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set direction for GPIO1_PIN2\n");
         return -1;
     }
-
-    ret = ptrGPIO->SetValue (GPIO1_PIN2, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = ptrQECzGPIO->SetValue (BOARD_QEC_Z_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set value for GPIO1_PIN2\n");
         return -1;
@@ -192,7 +192,7 @@ static int32_t gpio_init(void)
 static void qec0_app(void)
 {
     int32_t ret;
-    uint8_t channel = 12;
+    uint8_t channel = BOARD_ENCODER_UTIMER_INSTANCE;
     uint32_t init_count = 0;
 
     ARM_UTIMER_TRIGGER_CONFIG upcount_trig = {
@@ -222,14 +222,23 @@ static void qec0_app(void)
 
     printf("*** QEC demo application started ***\n");
 
-    ret = pinmux_config();
-    if (ret) {
-        printf("pinmux failed\n");
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+#else
+    /* Configure pin mux manually */
+    ret = board_qec_pins_config();
+#endif
+    if(ret != ARM_DRIVER_OK)
+    {
+        printf("ERROR: Pin configuration failed: %d\n", ret);
+        return;
     }
 
     ret = gpio_init();
     if (ret) {
         printf("gpio init failed\n");
+        return;
     }
 
     ret = ptrUTIMER->Initialize (channel, NULL);
@@ -283,7 +292,7 @@ static void qec0_app(void)
     /* Toggling gpio's connected to x for 20 times to increment cnt value for 10 times */
     for(int i=0; i<20; i++)
     {
-        ret = ptrGPIO->SetValue (GPIO1_PIN0, GPIO_PIN_OUTPUT_STATE_TOGGLE);
+        ret = ptrQECxGPIO->SetValue (BOARD_QEC_X_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_TOGGLE);
         if (ret != ARM_DRIVER_OK) {
             printf("ERROR: Failed to set value for GPIO1_PIN0\n");
         }
@@ -294,7 +303,7 @@ static void qec0_app(void)
     /* Toggling gpio's connected to x for 10 times to increment cnt value for 5 times */
     for(int i=0; i<10; i++)
     {
-        ret = ptrGPIO->SetValue (GPIO1_PIN1, GPIO_PIN_OUTPUT_STATE_TOGGLE);
+        ret = ptrQECyGPIO->SetValue (BOARD_QEC_Y_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_TOGGLE);
        if (ret != ARM_DRIVER_OK) {
             printf("ERROR: Failed to set value for GPIO1_PIN1\n");
         }
@@ -303,7 +312,7 @@ static void qec0_app(void)
     printf("counter value after counter decrement: %d\n", ptrUTIMER->GetCount (channel, ARM_UTIMER_CNTR));
 
     /* Making z event as high to clear count value */
-    ret = ptrGPIO->SetValue (GPIO1_PIN2, GPIO_PIN_OUTPUT_STATE_HIGH);
+    ret = ptrQECzGPIO->SetValue (BOARD_QEC_Z_GPO_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to set value for GPIO1_PIN2\n");
     }

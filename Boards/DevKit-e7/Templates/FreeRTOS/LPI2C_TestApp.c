@@ -40,10 +40,15 @@
 
 #include "Driver_I2C.h"
 #include "pinconf.h"
+#include "board_config.h"
 
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
+
+// Set to 0: Use application-defined lpi2c pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #if defined(RTE_Compiler_IO_STDOUT)
 #include "retarget_stdout.h"
@@ -53,8 +58,8 @@
 extern ARM_DRIVER_I2C Driver_I2C0;
 static ARM_DRIVER_I2C *I2C_mstdrv = &Driver_I2C0;
 
-extern ARM_DRIVER_I2C Driver_LPI2C;
-static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C;
+extern ARM_DRIVER_I2C Driver_LPI2C0;
+static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C0;
 
 /*Define for FreeRTOS*/
 #define STACK_SIZE                    512
@@ -89,8 +94,7 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    ARG_UNUSED(pxTask);
-    ARG_UNUSED(pcTaskName);
+   (void) pxTask;
 
     for (;;);
 }
@@ -199,35 +203,60 @@ static void i2c_slv_transfer_callback(uint32_t event)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
- * @fn      static void pinmux_config(void)
- * @brief   I2C and LPI2C SCL and SDA pinmux configuration.
- * @note    Pinmux for B0
- * @param   none
- * @retval  none
+ * @fn      static int32_t board_lpi2c_pins_config(void)
+ * @brief   Configure lpi2c pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
  */
-static void pinmux_config(void)
+static int32_t board_lpi2c_pins_config(void)
 {
+    int32_t ret_val = 0;
+
     /* LPI2C_SDA_B */
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_4,
+    ret_val = pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT), BOARD_LPI2C_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if(ret_val)
+    {
+        printf("ERROR: Failed to configure PINMUX for CANFD Rx \r\n");
+        return ret_val;
+    }
 
     /* LPI2C_SCL_B */
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
+    ret_val = pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT), BOARD_LPI2C_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if(ret_val)
+    {
+        printf("ERROR: Failed to configure PINMUX for CANFD Rx \r\n");
+        return ret_val;
+    }
 
     /* I2C0_SDA_B */
-    pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_5,
+    ret_val = pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT), BOARD_I2C0_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if(ret_val)
+    {
+        printf("ERROR: Failed to configure PINMUX for CANFD Rx \r\n");
+        return ret_val;
+    }
 
     /* I2C0_SCL_B*/
-    pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_5,
+    ret_val = pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT), BOARD_I2C0_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if(ret_val)
+    {
+        printf("ERROR: Failed to configure PINMUX for CANFD Rx \r\n");
+        return ret_val;
+    }
+
+    return ret_val;
 }
+#endif
 
 /**
  * @fn      static void i2c_master_task(void *pvParameters)
@@ -242,8 +271,6 @@ static void i2c_master_task(void *pvParameters)
     uint8_t   iter       = 0;
     ARM_DRIVER_VERSION version;
     uint32_t  mst_event  = 0;
-
-    ARG_UNUSED(pvParameters);
 
     version = I2C_mstdrv->GetVersion();
     printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",
@@ -343,8 +370,6 @@ static void i2c_slave_task(void *pvParameters)
     ARM_DRIVER_VERSION version;
     uint32_t  slv_event  = 0;
 
-    ARG_UNUSED(pvParameters);
-
     version = LPI2C_slvdrv->GetVersion();
     printf("\r\n LPI2C version api:0x%X driver:0x%X...\r\n",
             version.api, version.drv);
@@ -416,11 +441,31 @@ slave_error_uninitialize:
 static void LPI2C_demo(void)
 {
     BaseType_t xReturned = 0;
+    int32_t   ret_val    = 0;
 
     printf("\r\n >>> LPI2C FreeRTOS demo starting up !!! <<< \r\n");
 
-    /* Pinmux */
-    pinmux_config();
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret_val = board_pins_config();
+    if (ret_val != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret_val);
+        return;
+    }
+
+#else
+    /*
+     * NOTE: The lpi2c pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret_val = board_lpi2c_pins_config();
+    if(ret_val != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret_val);
+        return;
+    }
+#endif
 
     /* Create application main thread */
     xReturned = xTaskCreate(i2c_master_task,
