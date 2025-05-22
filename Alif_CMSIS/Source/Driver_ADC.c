@@ -170,13 +170,13 @@ static int32_t ADC_PowerControl(ADC_RESOURCES *ADC, ARM_POWER_STATE state)
             if (ADC->drv_instance == ADC_INSTANCE_ADC24_0)
             {
                 /* enable adc24 from control register */
-                enable_adc24();
+                enable_adc24(ADC->drv_instance);
 
                 /* set output rate from control register */
-                set_adc24_output_rate(ADC->output_rate);
+                set_adc24_output_rate(ADC->drv_instance, ADC->output_rate);
 
                 /* Set adc24 bias from control register */
-                set_adc24_bias(ADC->bias);
+                set_adc24_bias(ADC->drv_instance, ADC->bias);
 
                 /* Enabling continuous sampling */
                 adc24_enable_continous_sample(ADC->regs);
@@ -253,10 +253,10 @@ static int32_t ADC_PowerControl(ADC_RESOURCES *ADC, ARM_POWER_STATE state)
             if (ADC->drv_instance == ADC_INSTANCE_ADC24_0)
             {
                 /* disable adc24 from control register */
-                disable_adc24();
+                disable_adc24(ADC->drv_instance);
 
                 /* set output rate from control register */
-                set_adc24_output_rate(0U);
+                set_adc24_output_rate(ADC->drv_instance, 0U);
             }
 
             /* Disabling CMP clock */
@@ -590,7 +590,7 @@ static int32_t ADC_Control(ADC_RESOURCES *ADC, uint32_t Control, uint32_t arg)
             if(arg > ADC_24_BIAS_MAX_VALUE)
                 return ARM_DRIVER_ERROR_PARAMETER;
 
-            set_adc24_bias(arg);
+            set_adc24_bias(ADC->drv_instance, arg);
         break;
 
         case ARM_ADC_24_OUTPUT_RATE_CTRL:
@@ -600,7 +600,7 @@ static int32_t ADC_Control(ADC_RESOURCES *ADC, uint32_t Control, uint32_t arg)
                 return ARM_DRIVER_ERROR_PARAMETER;
 
             /* set output rate from control register */
-            set_adc24_output_rate(arg);
+            set_adc24_output_rate(ADC->drv_instance, arg);
         break;
 
         default:

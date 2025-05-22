@@ -18,6 +18,26 @@ extern "C"
 {
 #endif
 
+#if SOC_FEAT_ADC_REG_ALIASING
+/* PMU_PERIPH field definitions */
+#define PMU_PERIPH_ADC1_PGA_EN              (1U << 0)
+#define PMU_PERIPH_ADC1_PGA_GAIN_Pos        (1)
+#define PMU_PERIPH_ADC1_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC1_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC2_PGA_EN              (1U << 0)
+#define PMU_PERIPH_ADC2_PGA_GAIN_Pos        (1)
+#define PMU_PERIPH_ADC2_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC2_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC3_PGA_EN              (1U << 0)
+#define PMU_PERIPH_ADC3_PGA_GAIN_Pos        (1)
+#define PMU_PERIPH_ADC3_PGA_GAIN_Msk        (0x7 << PMU_PERIPH_ADC3_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC24_EN                 (1U << 12)
+#define PMU_PERIPH_ADC24_OUTPUT_RATE_Pos    (13)
+#define PMU_PERIPH_ADC24_OUTPUT_RATE_Msk    (0x7 << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos)
+#define PMU_PERIPH_ADC24_PGA_EN             (1U << 0)
+#define PMU_PERIPH_ADC24_PGA_GAIN_Pos       (1)
+#define PMU_PERIPH_ADC24_PGA_GAIN_Msk       (0x7 << PMU_PERIPH_ADC24_PGA_GAIN_Pos)
+#define PMU_PERIPH_ADC24_BIAS_Pos           (20)
+#define PMU_PERIPH_ADC24_BIAS_Msk           (0x7 << PMU_PERIPH_ADC24_BIAS_Pos)
+#else
 /* PMU_PERIPH field definitions */
 #define PMU_PERIPH_ADC1_PGA_EN              (1U << 0)
 #define PMU_PERIPH_ADC1_PGA_GAIN_Pos        (1)
@@ -36,6 +56,7 @@ extern "C"
 #define PMU_PERIPH_ADC24_PGA_GAIN_Msk       (0x7 << PMU_PERIPH_ADC24_PGA_GAIN_Pos)
 #define PMU_PERIPH_ADC24_BIAS_Pos           (20)
 #define PMU_PERIPH_ADC24_BIAS_Msk           (0x7 << PMU_PERIPH_ADC24_BIAS_Pos)
+#endif
 
 /* CLKCTL_PER_SLV ADC_CTRL field definitions */
 #define ADC_CTRL_ADC0_CKEN                  (1U  << 0U)  /* ADC0 clock enable  */
@@ -46,6 +67,23 @@ extern "C"
 /* ADC control */
 #define ADC_CTRL_BASE                       ADC120_BASE
 
+#if SOC_FEAT_ADC_REG_ALIASING
+/* ADC reg1 position macro */
+#define ADC120_DIFFERENTIAL_EN_Pos          (1)
+#define ADC120_COMPARATOR_EN_Pos            (2)
+#define ADC120_COMPARATOR_BIAS_Pos          (3)
+#define ADC120_VCM_DIV_Pos                  (5)
+
+#define ADC121_DIFFERENTIAL_EN_Pos          (1)
+#define ADC121_COMPARATOR_EN_Pos            (2)
+#define ADC121_COMPARATOR_BIAS_Pos          (3)
+#define ADC121_VCM_DIV_Pos                  (5)
+
+#define ADC122_DIFFERENTIAL_EN_Pos          (1)
+#define ADC122_COMPARATOR_EN_Pos            (2)
+#define ADC122_COMPARATOR_BIAS_Pos          (3)
+#define ADC122_VCM_DIV_Pos                  (5)
+#else
 /* ADC reg1 position macro */
 #define ADC120_DIFFERENTIAL_EN_Pos          (1)
 #define ADC120_COMPARATOR_EN_Pos            (2)
@@ -61,7 +99,7 @@ extern "C"
 #define ADC122_COMPARATOR_EN_Pos            (14)
 #define ADC122_COMPARATOR_BIAS_Pos          (15)
 #define ADC122_VCM_DIV_Pos                  (17)
-
+#endif
 #define ADC_CTRL_ADC_CKEN_Msk               (0x110)
 
 /**
@@ -144,6 +182,29 @@ static inline void disable_adc24_periph_clk(void)
     CLKCTL_PER_SLV->ADC_CTRL &= ~ADC_CTRL_ADC24_CKEN;
 }
 
+/**
+* @fn          static inline uint32_t *get_cmp_base(uint8_t instance)
+* @brief       Get the base address of the ADC instance
+* @param[in]   instance:  ADC instance number
+* @return      Pointer to the base address of the corresponding ADC
+*              instance
+*/
+static inline uint32_t *adc_get_base(uint8_t instance)
+{
+#if SOC_FEAT_ADC_REG_ALIASING
+
+	switch (instance) {
+	case ADC_INSTANCE_ADC12_0: return (uint32_t *) ADC120_BASE;
+	case ADC_INSTANCE_ADC12_1: return (uint32_t *) ADC121_BASE;
+	case ADC_INSTANCE_ADC12_2: return (uint32_t *) ADC122_BASE;
+	case ADC_INSTANCE_ADC24_0: return (uint32_t *) ADC24_BASE;
+	default: return NULL;
+	}
+#else
+	return (uint32_t *) ADC120_BASE;
+#endif
+}
+
 /*
  * @func         : void adc_set_differential_ctrl(uint8_t instance,
                                                   bool vcm_en,
@@ -157,8 +218,7 @@ static inline void adc_set_differential_ctrl(uint8_t instance,
                                              bool differential_en)
 {
     uint32_t value = 0U;
-
-    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *)ADC_CTRL_BASE;
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
 
     switch (instance)
     {
@@ -201,8 +261,7 @@ void adc_set_comparator_ctrl(uint8_t instance,
                              uint8_t comparator_bias)
 {
     uint32_t value = 0U;
-
-    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *)ADC_CTRL_BASE;
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
 
     switch (instance)
     {
@@ -296,61 +355,95 @@ static inline void adc_set_clk_control(uint8_t instance, bool enable)
 /**
   \fn     static inline void enable_adc24(void)
   \brief  Enable ADC24 from control register
-  \param  none.
+  \@parameter[1] : instance        : adc instances
   \return none.
  */
-static inline void enable_adc24(void)
+static inline void enable_adc24(uint8_t instance)
 {
+
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    adc_ctrl->ADC_PERIPH |= PMU_PERIPH_ADC24_EN;
+#else
     __disable_irq();
 
     AON->PMU_PERIPH |= PMU_PERIPH_ADC24_EN;
 
     __enable_irq();
+#endif
 }
 
 /**
   \fn     static inline void disable_adc24(void)
   \brief  Disable ADC24 from control register
-  \param  none.
+  \@parameter[1] : instance        : adc instances
   \return none.
  */
-static inline void disable_adc24(void)
+static inline void disable_adc24(uint8_t instance)
 {
+
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    adc_ctrl->ADC_PERIPH &= ~PMU_PERIPH_ADC24_EN;
+#else
+
     __disable_irq();
 
     AON->PMU_PERIPH &= ~PMU_PERIPH_ADC24_EN;
 
     __enable_irq();
+#endif
 }
 
 /*
  * @func           : void set_adc24_output_rate(uint32_t rate)
  * @brief          : set output rate for adc24
- * @parameter[1]   : bias : value for setting bias
+ * @parameter[1]   : instance        : adc instances
+ * @parameter[2]   : bias : value for setting bias
  * @return         : NONE
  */
-static inline void set_adc24_bias(uint32_t bias)
+static inline void set_adc24_bias(uint8_t instance, uint32_t bias)
 {
+
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    adc_ctrl->ADC_PERIPH |= ((bias << PMU_PERIPH_ADC24_BIAS_Pos) & PMU_PERIPH_ADC24_BIAS_Msk);
+#else
     __disable_irq();
 
     AON->PMU_PERIPH |= ((bias << PMU_PERIPH_ADC24_BIAS_Pos) & PMU_PERIPH_ADC24_BIAS_Msk);
 
     __enable_irq();
+#endif
 }
 
 /*
  * @func           : void set_adc24_output_rate(uint32_t rate)
  * @brief          : set output rate for adc24
+ * @parameter[1]   : instance        : adc instances
  * @parameter[1]   : rate : value for setting output rate
  * @return         : NONE
  */
-static inline void set_adc24_output_rate(uint32_t rate)
+static inline void set_adc24_output_rate(uint8_t instance, uint32_t rate)
 {
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    adc_ctrl->ADC_PERIPH |= ((rate << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos) & PMU_PERIPH_ADC24_OUTPUT_RATE_Msk);
+#else
     __disable_irq();
 
     AON->PMU_PERIPH |= ((rate << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos) & PMU_PERIPH_ADC24_OUTPUT_RATE_Msk);
 
     __enable_irq();
+#endif
 }
 
 /*
@@ -362,6 +455,39 @@ static inline void set_adc24_output_rate(uint32_t rate)
  */
 static inline void enable_adc_pga_gain(uint8_t instance, uint32_t gain)
 {
+
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    switch (instance)
+    {
+        case ADC_INSTANCE_ADC12_0:
+        {
+            adc_ctrl->ADC_PERIPH |= (PMU_PERIPH_ADC1_PGA_EN |
+                               ((gain << PMU_PERIPH_ADC1_PGA_GAIN_Pos) & PMU_PERIPH_ADC1_PGA_GAIN_Msk));
+            break;
+        }
+        case ADC_INSTANCE_ADC12_1:
+        {
+            adc_ctrl->ADC_PERIPH |= (PMU_PERIPH_ADC2_PGA_EN |
+                               ((gain << PMU_PERIPH_ADC2_PGA_GAIN_Pos) & PMU_PERIPH_ADC2_PGA_GAIN_Msk));
+            break;
+        }
+        case ADC_INSTANCE_ADC12_2:
+        {
+            adc_ctrl->ADC_PERIPH |= (PMU_PERIPH_ADC3_PGA_EN |
+                               ((gain << PMU_PERIPH_ADC3_PGA_GAIN_Pos) & PMU_PERIPH_ADC3_PGA_GAIN_Msk));
+            break;
+        }
+        case ADC_INSTANCE_ADC24_0:
+        {
+            adc_ctrl->ADC_PERIPH |= (PMU_PERIPH_ADC24_PGA_EN |
+                               ((gain << PMU_PERIPH_ADC24_PGA_GAIN_Pos) & PMU_PERIPH_ADC24_PGA_GAIN_Msk));
+            break;
+        }
+    }
+#else
     __disable_irq();
 
     switch (instance)
@@ -392,6 +518,7 @@ static inline void enable_adc_pga_gain(uint8_t instance, uint32_t gain)
         }
     }
     __enable_irq();
+#endif
 }
 
 /*
@@ -402,6 +529,35 @@ static inline void enable_adc_pga_gain(uint8_t instance, uint32_t gain)
  */
 static inline void disable_adc_pga_gain(uint8_t instance)
 {
+
+#if SOC_FEAT_ADC_REG_ALIASING
+
+    volatile ADC_Type *adc_ctrl = (volatile ADC_Type *) adc_get_base(instance);
+
+    switch (instance)
+    {
+        case ADC_INSTANCE_ADC12_0:
+        {
+            adc_ctrl->ADC_PERIPH &= ~(PMU_PERIPH_ADC1_PGA_EN | PMU_PERIPH_ADC1_PGA_GAIN_Msk);
+            break;
+        }
+        case ADC_INSTANCE_ADC12_1:
+        {
+            adc_ctrl->ADC_PERIPH &= ~(PMU_PERIPH_ADC2_PGA_EN | PMU_PERIPH_ADC2_PGA_GAIN_Msk);
+            break;
+        }
+        case ADC_INSTANCE_ADC12_2:
+        {
+            adc_ctrl->ADC_PERIPH &= ~(PMU_PERIPH_ADC3_PGA_EN | PMU_PERIPH_ADC3_PGA_GAIN_Msk);
+            break;
+        }
+        case ADC_INSTANCE_ADC24_0:
+        {
+            adc_ctrl->ADC_PERIPH &= ~(PMU_PERIPH_ADC24_PGA_EN | PMU_PERIPH_ADC24_PGA_GAIN_Msk);
+            break;
+        }
+    }
+#else
     __disable_irq();
 
     switch (instance)
@@ -429,6 +585,7 @@ static inline void disable_adc_pga_gain(uint8_t instance)
     }
 
     __enable_irq();
+#endif
 }
 
 #ifdef  __cplusplus
