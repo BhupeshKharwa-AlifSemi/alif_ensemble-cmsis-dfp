@@ -7344,15 +7344,6 @@
 // </e> UTIMER (Universal timer) [Driver_UTIMER]
 // </h> UTIMER (Universal Timer)
 
-
-// <e> Analog configuration [vbat analog register2 and comparator register2]
-#define RTE_ANALOG_CONFIG          1
-#if RTE_ANALOG_CONFIG
-#define RTE_VBAT_ANA_REG2_VAL      (0x388C4230)
-#define RTE_COMP_REG2_VAL          (0x10200000 | 0x1C240100)
-#endif
-// </e> Analog configuration [vbat analog register2 and comparator register2]
-
 // <h> DAC (Digital to analog converter )
 // <e> DAC0 (Digital to analog converter ) [Driver_DAC0]
 // <i> Configuration settings for Driver_DAC0 in component ::Drivers:DAC
