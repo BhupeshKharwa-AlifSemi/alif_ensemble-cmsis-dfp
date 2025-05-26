@@ -804,7 +804,7 @@ ARM_DRIVER_CMP Driver_CMP3 =
 #if(RTE_LPCMP)
 
 /* Comparator Configurations */
-static CMP_RESOURCES LPCMP = {
+static CMP_RESOURCES LPCMP_RES = {
     .cb_event           = NULL,
     .drv_instance       = CMP_INSTANCE_LP,
     .state              = {0},
@@ -823,7 +823,7 @@ static CMP_RESOURCES LPCMP = {
  */
 static int32_t LPCMP_Initialize(ARM_Comparator_SignalEvent_t cb_event)
 {
-    return CMP_Initialize(cb_event, &LPCMP);
+	return CMP_Initialize(cb_event, &LPCMP_RES);
 }
 
 /**
@@ -833,7 +833,7 @@ static int32_t LPCMP_Initialize(ARM_Comparator_SignalEvent_t cb_event)
  */
 static int32_t LPCMP_Uninitialize(void)
 {
-    return CMP_Uninitialize(&LPCMP);
+	return CMP_Uninitialize(&LPCMP_RES);
 }
 
 /**
@@ -844,7 +844,7 @@ static int32_t LPCMP_Uninitialize(void)
  */
 static int32_t LPCMP_PowerControl(ARM_POWER_STATE state)
 {
-    return (CMP_PowerControl(state, &LPCMP));
+	return CMP_PowerControl(state, &LPCMP_RES);
 }
 
 /**
@@ -868,7 +868,7 @@ static int32_t LPCMP_Control(uint32_t control, uint32_t arg)
  */
 static int32_t LPCMP_Start(void)
 {
-    return CMP_Start(&LPCMP);
+	return CMP_Start(&LPCMP_RES);
 }
 
 /**
@@ -878,7 +878,7 @@ static int32_t LPCMP_Start(void)
  */
 static int32_t LPCMP_Stop(void)
 {
-    return CMP_Stop(&LPCMP);
+	return CMP_Stop(&LPCMP_RES);
 }
 
 /**
@@ -887,7 +887,7 @@ static int32_t LPCMP_Stop(void)
  */
 void LPCMP_IRQHandler(void)
 {
-    CMP_IRQ_handler(&LPCMP);
+	CMP_IRQ_handler(&LPCMP_RES);
 }
 
 extern ARM_DRIVER_CMP Driver_LPCMP;
