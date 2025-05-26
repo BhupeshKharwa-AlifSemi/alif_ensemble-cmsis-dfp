@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.4" xs:noNamespaceSchemaLocation="PACK.xsd">
+<package xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.7.49" xs:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/v1.7.49/schema/PACK.xsd">
   <vendor>AlifSemiconductor</vendor>
   <name>Ensemble</name>
   <description>Alif Semiconductor Ensemble Device Family Pack</description>
