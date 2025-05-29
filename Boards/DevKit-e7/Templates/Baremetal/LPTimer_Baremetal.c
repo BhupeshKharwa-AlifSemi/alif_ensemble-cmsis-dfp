@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Driver_LPTIMER.h"
+#include "sys_utils.h"
 
 
 #include "RTE_Components.h"

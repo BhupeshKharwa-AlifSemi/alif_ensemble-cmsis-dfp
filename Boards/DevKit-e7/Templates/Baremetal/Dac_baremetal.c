@@ -37,6 +37,7 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #include "pinconf.h"
+#include "sys_utils.h"
 
 /* Project Includes */
 /* include for DAC Driver */

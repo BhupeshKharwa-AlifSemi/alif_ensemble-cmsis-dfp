@@ -33,6 +33,8 @@
 #include <RTE_Components.h>
 #include CMSIS_device_header
 
+#include "sys_utils.h"
+
 /* include the CDC200 driver */
 #include "Driver_CDC200.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)

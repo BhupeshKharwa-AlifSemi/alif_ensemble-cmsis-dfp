@@ -23,6 +23,8 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
+#include "sys_utils.h"
+
 /* Project Includes */
 #include "WM8904_codec_i2c.h"
 

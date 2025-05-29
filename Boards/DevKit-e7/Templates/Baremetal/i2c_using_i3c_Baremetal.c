@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include "Driver_I3C.h"
 #include "pinconf.h"
+#include "sys_utils.h"
 
 #include "RTE_Device.h"
 #include <RTE_Components.h>

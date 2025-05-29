@@ -35,6 +35,7 @@
 #include "Driver_UTIMER.h"
 #include "Driver_IO.h"
 #include "pinconf.h"
+#include "sys_utils.h"
 
 #include "RTE_Components.h"
 #include CMSIS_device_header

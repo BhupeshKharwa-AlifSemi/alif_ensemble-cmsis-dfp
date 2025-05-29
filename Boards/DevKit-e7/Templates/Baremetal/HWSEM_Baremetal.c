@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "sys_utils.h"
 
 #include "RTE_Device.h"
 #include "Driver_USART.h"

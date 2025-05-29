@@ -21,6 +21,7 @@
 /* System Includes */
 #include <stdio.h>
 #include "string.h"
+#include "sys_utils.h"
 
 /* Project Includes */
 /* PINMUX Driver */

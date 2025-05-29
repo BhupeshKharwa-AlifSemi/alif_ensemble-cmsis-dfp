@@ -34,6 +34,8 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
+
+#include "sys_utils.h"
 #include "Driver_I2C.h"
 #include "pinconf.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
