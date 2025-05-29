@@ -1207,7 +1207,15 @@
       </attributes>
     </example>
 
-    <example name="Blinky (M55_HP)" folder="Boards/AppKit-e7-aiml/Examples//M55_HP/Blinky" doc="README.md">
+    <example name="Blinky (M55_HE)" folder="Boards/AppKit-e7-aiml/Examples/M55_HE/Blinky" doc="README.md">
+      <description>CMSIS-RTOS2 Blinky example with VIO running on M55 High Efficiency core</description>
+      <board name="AppKit-E7-AIML" vendor="Alif Semiconductor"/>
+      <project>
+        <environment name="csolution" load="Blinky.csolution.yml"/>
+      </project>
+    </example>
+
+    <example name="Blinky (M55_HP)" folder="Boards/AppKit-e7-aiml/Examples/M55_HP/Blinky" doc="README.md">
       <description>CMSIS-RTOS2 Blinky example with VIO running on M55 High Performance core</description>
       <board name="AppKit-E7-AIML" vendor="Alif Semiconductor"/>
       <project>
