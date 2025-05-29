@@ -220,6 +220,7 @@ pipeline {
                         fail_cfg_run_cnt=0
                         success_cfg_run_cnt=0
                         total_cmakeError=0
+                        collective_total_Error=0
 
                         CURR_OS=("NONE")
                         CURR_COMPILER=("armclang" "gcc")
@@ -268,11 +269,12 @@ pipeline {
                             done
                         done
                         echo -e "\n"
-                        echo -e " 🏆Check-Patch Result =>  Error: $errors, Warnings: $warnings, Tabs: $tabCnt"
+                        echo -e " 🏆Check-Patch Result =>  Error: $check_patch_errors, Warnings: $check_patch_warnings, Tabs: $tabCnt"
                         echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
                         echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
-                        #total_cmakeError=$((total_cmakeError + errors + tabCnt))
-                        exit $total_cmakeError
+                        #collective_total_Error=$((total_cmakeError + check_patch_errors + tabCnt))
+                        collective_total_Error=$((total_cmakeError))
+                        exit $collective_total_Error
                         '''
                     }
                     echo  " 🏆Git Rebase Needed  =>  ${rebaseNeeded}"
