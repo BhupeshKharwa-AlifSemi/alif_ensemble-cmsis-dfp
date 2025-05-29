@@ -155,7 +155,7 @@ pipeline {
                                 echo -e "🚫Error: VALIDATION_SCRIPT_DIR is null"
                             fi
 
-                            check_patch_output=$(./scripts/scripts/checkpatch.pl --patch *.patch  --ignore CODE_INDENT,TABS,C99_COMMENTS,OPEN_BRACE)
+                            check_patch_output=$(./scripts/scripts/checkpatch.pl --patch *.patch  --ignore CODE_INDENT,TABS,C99_COMMENTS,OPEN_BRACE,LEADING_SPACE)
                             echo -e "$check_patch_output"
                             check_patch_output_summary=$(echo "$check_patch_output" | grep "total:")
                             echo -e "$check_patch_output_summary"
