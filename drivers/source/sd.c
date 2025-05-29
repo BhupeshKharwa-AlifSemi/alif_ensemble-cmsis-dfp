@@ -303,7 +303,7 @@ void sdmmc_decode_card_ext_csd(sd_handle_t *pHsd, uint8_t *praw_ext_csd)
 
     RTSS_InvalidateDCache_by_Addr(praw_ext_csd, SDMMC_EXT_CSD_SIZE);
 
-    pHsd->mmc_ext_csd.sector_cnt = (uint32_t *)praw_ext_csd[212];
+    pHsd->mmc_ext_csd.sector_cnt = *((uint32_t *)(praw_ext_csd + 212));
 
     pHsd->mmc_ext_csd.bus_width = praw_ext_csd[SDMMC_EXT_CSD_CMD_BUS_WIDTH];
     pHsd->mmc_ext_csd.hs_mode   = praw_ext_csd[SDMMC_EXT_CSD_CMD_HS_MODE];

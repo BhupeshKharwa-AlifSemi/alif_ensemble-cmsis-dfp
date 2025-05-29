@@ -142,7 +142,7 @@ typedef struct _sd_cmd_t{
     uint16_t xfer_mode;          /*!< SD Command transfer mode   */
     uint8_t cmdidx;              /*!< SD Command index           */
     uint8_t data_present;        /*!< SD Command uses Data lines */
-    uint8_t card_buffer[SDMMC_CACHED_BLK_SIZE * SDMMC_BLK_SIZE_512_Msk]
+    uint8_t card_buffer[SDMMC_CACHED_NUM_BLK * SDMMC_BLK_SIZE_512_Msk]
             __attribute__((aligned(512)));
 }sd_cmd_t;
 
