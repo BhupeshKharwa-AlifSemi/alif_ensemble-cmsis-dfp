@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh """#!/bin/bash -xe
+                    sh """#!/bin/bash -x
                     echo -e "✔️ None."
                     """
                 }
@@ -26,7 +26,7 @@ pipeline {
         stage('Display Environment Variables') {
             steps {
                 script {
-                    sh """#!/bin/bash -xe
+                    sh """#!/bin/bash -x
                         printenv
                         echo -e "✔️ Displayed all environment setting."
                     """
@@ -47,9 +47,15 @@ pipeline {
                 script {
                     rebaseNeeded = sh(
                         script: '''#!/bin/bash
-                            set -xe
+                            set -x
                             cd ${REPO_NAME}
                             git fetch origin refs/heads/${REF_BRANCH}:refs/remotes/origin/${REF_BRANCH}
+
+                            if ! git rebase origin/${REF_BRANCH} ; then
+                                echo -e "Rebase could not happen succesfully"
+                                exit 1
+                            fi
+
                             commitCnt=$(git rev-list --count origin/${REF_BRANCH}..HEAD)
                             commits=$(git log -n ${commitCnt} --pretty=format:"%H")
 
@@ -83,7 +89,7 @@ pipeline {
                 script {
                     allRecipientEmails = sh(
                         script: '''#!/bin/bash
-                            set -xe
+                            set -x
                             cd ${REPO_NAME}
                             commitCnt=$(git rev-list --count origin/${REF_BRANCH}..HEAD)
 
@@ -108,7 +114,7 @@ pipeline {
                 script {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh '''#!/bin/bash
-                        set -xe
+                        set -x
                         license_status=$($ARMCLANG_PATH/../../bin/armlm inspect)
 
                         case "$license_status" in
