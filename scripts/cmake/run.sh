@@ -68,6 +68,8 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
                 ;;
             -f|-F)
                 fresh_build_flag=$((fresh_build_flag+1))
+                rm -rf build
+                echo -e "${YELLOW}Fresh Build has been triggered and build dir will be deleted.${NC}"
                 ;;
             -help|-HELP|--h|--H|-h|-H|help|HELP)
                 # Insert help message here
