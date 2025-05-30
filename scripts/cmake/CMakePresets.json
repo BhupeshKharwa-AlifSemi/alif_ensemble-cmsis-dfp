@@ -39,6 +39,7 @@
                 "BOARD_REV": "B4",
                 "BOOT": "TCM",
                 "DEVICE": "AE722F80F55D5",
+                "BOARD_NAME": "DevKit-e7",
                 "COMPILER": "ARMCLANG",
                 "OS": "NONE",
                 "TEST_APP": "ALL"

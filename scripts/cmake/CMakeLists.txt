@@ -54,6 +54,7 @@ include (${USER_CMAKE_SCRIPT_DIR}/utilities_func.cmake)
 
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOOT                    BOOT                    CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(DEVICE                  DEVICE                  CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOARD_NAME              BOARD_NAME              CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CPU                     CPU                     CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(RTSS                    RTSS                    CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOARD_REV               BOARD_REV               CACHE)
@@ -81,25 +82,6 @@ else ()
     message (FATAL_ERROR "${Red}DEFINE PROPER DEVICE NAME ${ColourReset}")
 endif()
 
-string(SUBSTRING    ${DEVICE}   1   2   ABBREVIATION_DEV_NAME)
-
-if ("${ABBREVIATION_DEV_NAME}" STREQUAL "E1")
-    string(SUBSTRING    ${DEVICE}   3   1   TMP)
-
-    if("${TMP}" STREQUAL "C")
-        string(SUBSTRING    ${DEVICE}   1   3   ABBREVIATION_DEV_NAME)
-    endif()
-endif()
-
-string(TOLOWER          ${ABBREVIATION_DEV_NAME}             abbreviation_dev_name)
-set(BOARD_NAME          "DevKit-${abbreviation_dev_name}")
-
-if(${ABBREVIATION_DEV_NAME} STREQUAL "E8")
-    message(STATUS     "${Yellow} E7 TestApps have been selected for E8 device ${ColourReset}")
-    set(BOARD_NAME     "DevKit-e7")
-endif()
-
-
 if( ("${BOARD_NAME}" STREQUAL "DevKit-e1c") AND ("${RTSS}" STREQUAL "HP") )
     message(FATAL_ERROR     "\n E1C Board doesn't have HP sub-system ${ColourReset}")
 endif()
@@ -125,6 +107,8 @@ set (HOST_SERVICES_CMAKE_DIR "${USER_CMAKE_SCRIPT_DIR}/host_services_cmake")
 set (DEVICE_PATH            "${ALIF_DEVICE_DIR}")
 set (DRIVERS_CMAKE_FILE     "${DRIVERS_CMAKE_DIR}/drivers.cmake")
 set (RETARGET_SRC_DIR       "${ALIF_DEV_SRC_DIR}/libs")
+set (BOARD_DIR              "${ALIF_DEV_SRC_DIR}/libs/board_config")
+set (BOARD_CMAKE_FILE       "${USER_CMAKE_SCRIPT_DIR}/board_cmake/board.cmake")
 
 #Include Retarget Include path
 set(RETARGET_IO_INC     "${CMSIS_COMPILER_PATH}/include;${RETARGET_SRC_DIR}/retarget_io/config")
@@ -148,6 +132,9 @@ set(MSG     "${MSG}-- 📌 SELECTED CORE            --> ${HCyan}${CPU} (${RTSS},
 set(MSG     "${MSG}-- 📌 SELECTED BOOT            --> ${HCyan}${BOOT}${ColourReset}\n")
 set(MSG     "${MSG}-- 📌 SELECTED BOARD           --> ${HCyan}${BOARD_NAME}${ColourReset}\n")
 set(MSG     "${MSG}-- 📌 SELECTED DEVICE FAMILY   --> ${HCyan}${DEVICE_FAMILY_NAME} ${ColourReset}\n")
+
+# Including cmake for Drivers
+include (${BOARD_CMAKE_FILE})
 
 # Checking if Test app name is given
 if(${TEST_APP} STREQUAL "ALL")

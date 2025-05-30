@@ -163,17 +163,17 @@ macro (BUILD_PROJECT)
     if (OS STREQUAL FREERTOS)
 
         # Linking all the library files to the test application
-        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${PACK_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
 
     elseif (OS STREQUAL THREADX)
 
         # Linking all the library files to the test application
-        target_link_libraries (${EXECUTABLE} PRIVATE ${COMMON_LIB} ${FILEX_LIB} ${PACK_LIB} ${NETXDUO_LIB} ${USBX_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
 
     elseif (OS STREQUAL NONE)
 
         # Linking all the library files to the test application
-        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB}  ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB})
 
     endif ()
 
@@ -382,6 +382,7 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_SD              ENABLE_SD           "Enable/disable SD Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_OSPI            ENABLE_OSPI         "Enable/disable OSPI Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_XIP_HYPERRAM    ENABLE_XIP_HYPERRAM "Enable/disable XIP Hyper RAM Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_S80K_XIP_HYPERRAM    ENABLE_S80K_XIP_HYPERRAM "Enable/disable S80K XIP Hyper RAM Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_ISSI_FLASH      ENABLE_ISSI_FLASH   "Enable/disable ISSI FLASH Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_GT911           ENABLE_GT911        "Enable/disable GT911 Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_HWSEM           ENABLE_HWSEM        "Enable/disable Hardware Semaphores Driver.")
