@@ -30,12 +30,12 @@
 extern sd_handle_t Hsd;
 static adma2_desc_t adma_desc_tbl[32] __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
 
-static volatile uint16_t nis,eis,cc,xfer_done;
+static volatile uint16_t nis, eis, cc;
 
 #ifdef SDMMC_IRQ_MODE
 void SDMMC_IRQHandler(void){
 
-    cc = xfer_done = 0;
+    uint16_t xfer_done = 0;
 
     /* get the current interrupt status */
     eis = Hsd.regs->SDMMC_ERROR_INT_STAT_R;
@@ -44,32 +44,32 @@ void SDMMC_IRQHandler(void){
     /* clear the current interrupt status */
     while(Hsd.regs->SDMMC_ERROR_INT_STAT_R)
     {
-        eis = Hsd.regs->SDMMC_ERROR_INT_STAT_R;
-        Hsd.regs->SDMMC_ERROR_INT_STAT_R = eis;
+        uint16_t eis_tmp = Hsd.regs->SDMMC_ERROR_INT_STAT_R;
+        Hsd.regs->SDMMC_ERROR_INT_STAT_R = eis_tmp;
     }
 
     while(Hsd.regs->SDMMC_NORMAL_INT_STAT_R)
     {
-        nis = Hsd.regs->SDMMC_NORMAL_INT_STAT_R;
-        Hsd.regs->SDMMC_NORMAL_INT_STAT_R = nis;
+        uint16_t nis_tmp = Hsd.regs->SDMMC_NORMAL_INT_STAT_R;
+        Hsd.regs->SDMMC_NORMAL_INT_STAT_R = nis_tmp;
     }
 
     if(eis)
         hc_reset(&Hsd, (uint8_t)(SDMMC_SW_RST_DAT_Msk | SDMMC_SW_RST_CMD_Msk));
 
-    switch(nis){
-        case SDMMC_INTR_CC_Msk:
-            cc = SDMMC_INTR_CC_Msk;
-            break;
-        case SDMMC_INTR_TC_Msk:
-        case (SDMMC_INTR_CC_Msk | SDMMC_INTR_TC_Msk):
-            cc = SDMMC_INTR_CC_Msk;
-            xfer_done = SDMMC_INTR_TC_Msk;
-            break;
+    if (nis & SDMMC_INTR_CC_Msk) {
+        cc = SDMMC_INTR_CC_Msk;
     }
 
-    if(Hsd.sd_param.app_callback)
-        Hsd.sd_param.app_callback(cc, xfer_done);
+    if (nis & SDMMC_INTR_TC_Msk) {
+        xfer_done = SDMMC_INTR_TC_Msk;
+    }
+
+    if (Hsd.sd_param.app_callback) {
+        if (cc || xfer_done) {
+            Hsd.sd_param.app_callback(cc, xfer_done);
+        }
+    }
 
 }
 
