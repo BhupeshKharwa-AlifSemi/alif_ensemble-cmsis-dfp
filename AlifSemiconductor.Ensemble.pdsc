@@ -1185,6 +1185,14 @@
       </attributes>
     </example>
 
+    <example name="DualCore (M55_HE/M55_HP)" folder="Boards/DevKit-e7/Examples/Dual_Core" doc="README.md">
+      <description>Dual Core example running on M55 High Efficiency and High Performance core</description>
+      <board name="DevKit-E7" vendor="Alif Semiconductor"/>
+      <project>
+        <environment name="csolution" load="Dual_Core.csolution.yml"/>
+      </project>
+    </example>
+
     <example name="HelloWorld_M55_HP" doc="Abstract.txt" folder="Boards/DevKit-e7/Examples/Hello_World">
       <description>Hello World app running out of MRAM on M55-HP</description>
       <board name="DevKit-E7" vendor="Alif Semiconductor"/>
