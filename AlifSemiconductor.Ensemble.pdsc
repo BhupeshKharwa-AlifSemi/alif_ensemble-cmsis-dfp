@@ -2835,6 +2835,9 @@
   <csolution>
     <clayer type="Board" path="Boards/AppKit-e7-aiml/Layers/M55_HE" file="Board_HE.clayer.yml" copy-to="Board/AppKit-E7_M55_HE" condition="AppKit-E7-AIML"/>
     <clayer type="Board" path="Boards/AppKit-e7-aiml/Layers/M55_HP" file="Board_HP.clayer.yml" copy-to="Board/AppKit-E7_M55_HP" condition="AppKit-E7-AIML"/>
+
+    <clayer type="Board" path="Boards/DevKit-e7/Layers/M55_HE"      file="Board_HE.clayer.yml" copy-to="Board/DevKit-E7_M55_HE" condition="DevKit-E7"/>
+    <clayer type="Board" path="Boards/DevKit-e7/Layers/M55_HP"      file="Board_HP.clayer.yml" copy-to="Board/DevKit-E7_M55_HP" condition="DevKit-E7"/>
   </csolution>
 
 </package>
