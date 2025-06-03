@@ -12,8 +12,18 @@
   -->
 
   <releases>
-     <release version="2.0.0-alpha2"  tag="v2.0.0-alpha2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-alpha2/AlifSemiconductor.Ensemble.2.0.0-alpha2.pack" date="2025-04-09">
-      - Add Eagle Support
+     <release version="2.0.0-rc1"  tag="v2.0.0-rc1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc1/AlifSemiconductor.Ensemble.2.0.0-rc1.pack" date="2025-06-03">
+      - Updates in I2C, SPI, ADC, I3C, USART, DPHY, PDM, CMP, HWSEM, SD Drivers
+      - Update MRAM FLM file
+      - I2C Restart feature support
+      - LPI3C, LPI2C instance support for E8
+      - OSPI HyperRAM XIP demo fixes
+      - SE Services updates to FWv105.
+      - WM8904 support
+      - EMMC mode support in SD Driver
+      - BMI323 Driver support
+      - Board Support Library for Devkit E7, E8
+      - Add E8 Support
       - Add E1C Support
       - Restructured DFP
       - Add Csolution Examples
