@@ -193,6 +193,12 @@
 // </e>
 // </e>
 
+// <o> "Basic Mode" UTIMER instance number <0-12>
+#define BOARD_BASIC_MODE_UTIMER_INSTANCE                  0
+
+// <o> "Buffer Mode" UTIMER instance number <0-12>
+#define BOARD_BUFFER_MODE_UTIMER_INSTANCE                 1
+
 // <o> "Capture Mode" UTIMER instance number <0-12>
 #define BOARD_CAPTURE_MODE_UTIMER_INSTANCE                4
 
@@ -204,6 +210,39 @@
 
 // <o> "Clickboard PWM" UTIMER instance number <0-12>
 #define BOARD_CLICKBOARD_PWM_UTIMER_INSTANCE                3
+
+// <o> Utimer 250ms counter value
+#define BOARD_UTIMER_250_MILLI_SEC_COUNTER_VALUE          100000000
+
+// <o> Utimer 500ms counter value
+#define BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE          200000000
+
+// <o> Utimer 750ms counter value
+#define BOARD_UTIMER_750_MILLI_SEC_COUNTER_VALUE          300000000
+
+// <o> Utimer 1000ms counter value
+#define BOARD_UTIMER_1000_MILLI_SEC_COUNTER_VALUE         400000000
+
+// <o> Utimer 1500ms counter value
+#define BOARD_UTIMER_1500_MILLI_SEC_COUNTER_VALUE         600000000
+
+// <o> LED PWM utimer max counter value
+#define BOARD_LED_PWM_UT_MAX_COUNTER_VALUE   240000
+
+// <o> "RED_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
+//    <0=> UTIMER_COMPARE_A
+//    <1=> UTIMER_COMPARE_B
+#define BOARD_RED_LED_UTIMER_COUNTER_TYPE   1
+
+// <o> "GREEN_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
+//    <0=> UTIMER_COMPARE_A
+//    <1=> UTIMER_COMPARE_B
+#define BOARD_GREEN_LED_UTIMER_COUNTER_TYPE   0
+
+// <o> "BLUE_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
+//    <0=> UTIMER_COMPARE_A
+//    <1=> UTIMER_COMPARE_B
+#define BOARD_BLUE_LED_UTIMER_COUNTER_TYPE   0
 
 // <o> UTIMER channel red LED instance number <9>
 #define BOARD_RED_LED_UTIMER_INSTANCE   9
@@ -284,9 +323,9 @@
 #define BOARD_POTENTIOMETER_ADC24_INPUT                 3
 
 // <o> "POTENTIOMETER" CMP instance number <0=> CMP0 <1=> CMP1 <2=> CMP2 <3=> CMP3
-#define BOARD_POTENTIOMETER_CMP_INSTANCE                 1
+#define BOARD_POTENTIOMETER_CMP_INSTANCE                 0
 // <o> "POTENTIOMETER" CMP input number <0=> IN0 <1=> IN1 <2=> IN2 <3=> IN3
-#define BOARD_POTENTIOMETER_CMP_INPUT                 1
+#define BOARD_POTENTIOMETER_CMP_INPUT                 0
 
 // <o> "ADC12_CH0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_ADC12_CH0_GPIO_PORT               1
@@ -571,45 +610,60 @@
 // <o> "TOUCH_RESET" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_TOUCH_RESET_GPIO_PIN                 0
 
-// <o> "UTIMER_GPO0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_UTIMER_GPO0_GPIO_PORT                4
-// <o> "UTIMER_GPO0" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_UTIMER_GPO0_GPIO_PIN                 1
+// <o> "UT_TRIGGER_MODE_GPO0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_UT_TRIGGER_MODE_GPO0_GPIO_PORT                3
+// <o> "UT_TRIGGER_MODE_GPO0" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN                 5
 
 // <o> "UTIMER_GPO1" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_UTIMER_GPO1_GPIO_PORT                4
+#define BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PORT                3
 // <o> "UTIMER_GPO1" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_UTIMER_GPO1_GPIO_PIN                 2
+#define BOARD_UT_TRIGGER_MODE_GPO1_GPIO_PIN                 6
 
-// <o> "UTIMER_GPO2" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_UTIMER_GPO2_GPIO_PORT                4
-// <o> "UTIMER_GPO2" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_UTIMER_GPO2_GPIO_PIN                 3
+// <o> "UT_CAPTURE_MODE_GPO0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PORT                3
+// <o> "UT_CAPTURE_MODE_GPO0" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN                 3
+
+// <o> "UT_CAPTURE_MODE_GPO1" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT                3
+// <o> "UT_CAPTURE_MODE_GPO1" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PIN                 4
 
 // <o> "UT_TRIGGER_MODE_T0_GPO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_UT_TRIGGER_MODE_T0_GPO_GPIO_PORT             0
 // <o> "UT_TRIGGER_MODE_T0_GPO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_UT_TRIGGER_MODE_T0_GPO_GPIO_PIN              6
+// <o> "UT_TRIGGER_MODE_T0_GPO" GPIO pin alternate function <0-7>
+#define BOARD_UT_TRIGGER_MODE_T0_GPO_ALTERNATE_FUNCTION    5
 
 // <o> "UT_TRIGGER_MODE_T1_GPO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_UT_TRIGGER_MODE_T1_GPO_GPIO_PORT             0
 // <o> "UT_TRIGGER_MODE_T1_GPO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_UT_TRIGGER_MODE_T1_GPO_GPIO_PIN              7
+// <o> "UT_TRIGGER_MODE_T1_GPO" GPIO pin alternate function <0-7>
+#define BOARD_UT_TRIGGER_MODE_T1_GPO_ALTERNATE_FUNCTION    5
 
 // <o> "UT_CAPTURE_MODE_T0_GPO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_UT_CAPTURE_MODE_T0_GPO_GPIO_PORT             1
 // <o> "UT_CAPTURE_MODE_T0_GPO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_UT_CAPTURE_MODE_T0_GPO_GPIO_PIN              0
+// <o> "UT_CAPTURE_MODE_T0_GPO" GPIO pin alternate function <0-7>
+#define BOARD_UT_CAPTURE_MODE_T0_GPO_ALTERNATE_FUNCTION              4
 
 // <o> "UT_CAPTURE_MODE_T1_GPO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_UT_CAPTURE_MODE_T1_GPO_GPIO_PORT             1
 // <o> "UT_CAPTURE_MODE_T1_GPO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_UT_CAPTURE_MODE_T1_GPO_GPIO_PIN              1
+// <o> "UT_CAPTURE_MODE_T1_GPO" GPIO pin alternate function <0-7>
+#define BOARD_UT_CAPTURE_MODE_T1_GPO_ALTERNATE_FUNCTION              4
 
 // <o> "UT_COMPARE_MODE_T0_GPO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_UT_COMPARE_MODE_T0_GPO_GPIO_PORT             1
 // <o> "UT_COMPARE_MODE_T0_GPO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_UT_COMPARE_MODE_T0_GPO_GPIO_PIN              2
+// <o> "UT_COMPARE_MODE_T0_GPO" GPIO pin alternate function <0-7>
+#define BOARD_UT_COMPARE_MODE_T0_GPO_ALTERNATE_FUNCTION        4
 
 // <o> "QEC0_X_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_QEC0_X_B_GPIO_PORT             8
@@ -653,11 +707,6 @@
 #define BOARD_LEDRGB1_R_GPIO_PORT                6
 // <o> "LEDRGB1_R" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_LEDRGB1_R_GPIO_PIN                 2
-
-// <o> "UTIMER_GPO3" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_UTIMER_GPO3_GPIO_PORT                6
-// <o> "UTIMER_GPO3" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_UTIMER_GPO3_GPIO_PIN                 3
 
 // <o> "LEDRGB1_G" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_LEDRGB1_G_GPIO_PORT                6
@@ -1135,7 +1184,176 @@
 // <o> "OSPI1_RESET" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_OSPI1_RESET_GPIO_PORT                15
 // <o> "OSPI1_RESET" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_OSPI1_RESET_GPIO_PIN                 7
+#define BOARD_OSPI1_RESET_GPIO_PIN                 5
+
+// <o> "OSPI1_D0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D0_GPIO_PORT                13
+// <o> "OSPI1_D0_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D0_GPIO_PIN                 0
+
+// <o> "OSPI1_D1_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D1_GPIO_PORT                13
+// <o> "OSPI1_D1_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D1_GPIO_PIN                 1
+
+// <o> "OSPI1_D2_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D2_GPIO_PORT                13
+// <o> "OSPI1_D2_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D2_GPIO_PIN                 2
+
+// <o> "OSPI1_D3_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D3_GPIO_PORT                13
+// <o> "OSPI1_D3_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D3_GPIO_PIN                 3
+
+// <o> "OSPI1_D4_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D4_GPIO_PORT                13
+// <o> "OSPI1_D_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D4_GPIO_PIN                 4
+
+// <o> "OSPI1_D5_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D5_GPIO_PORT                13
+// <o> "OSPI1_D5_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D5_GPIO_PIN                 5
+
+// <o> "OSPI1_D6_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D6_GPIO_PORT                13
+// <o> "OSPI1_D6_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D6_GPIO_PIN                 6
+
+// <o> "OSPI1_D7_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D7_GPIO_PORT                13
+// <o> "OSPI1_D7_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D7_GPIO_PIN                 7
+
+// <o> "OSPI1_D7_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_D7_GPIO_PORT                17
+// <o> "OSPI1_D7_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_D7_GPIO_PIN                 7
+
+// <o> "OSPI0_D8_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D8_GPIO_PORT                17
+// <o> "OSPI0_D8_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D8_GPIO_PIN                 0
+
+// <o> "OSPI0_D9_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D9_GPIO_PORT                17
+// <o> "OSPI0_D9_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D9_GPIO_PIN                 1
+
+// <o> "OSPI0_D10_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D10_GPIO_PORT                17
+// <o> "OSPI0_D10_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D10_GPIO_PIN                 2
+
+// <o> "OSPI0_D11_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D11_GPIO_PORT                17
+// <o> "OSPI0_D11_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D11_GPIO_PIN                 3
+
+// <o> "OSPI0_D12_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D12_GPIO_PORT                17
+// <o> "OSPI0_D12_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D12_GPIO_PIN                 4
+
+// <o> "OSPI0_D13_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D13_GPIO_PORT                17
+// <o> "OSPI0_D13_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D13_GPIO_PIN                 5
+
+// <o> "OSPI0_D14_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D14_GPIO_PORT                17
+// <o> "OSPI0_D14_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D14_GPIO_PIN                 6
+
+// <o> "OSPI0_D15_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D15_GPIO_PORT                17
+// <o> "OSPI0_D15_C" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D15_GPIO_PIN                   7
+
+// <o> "OSPI1_RXDS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_RXDS0_GPIO_PORT                12
+// <o> "OSPI1_RXDS0_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_RXDS0_GPIO_PIN                   7
+
+// <o> "OSPI1_RXDS1_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_RXDS1_GPIO_PORT                8
+// <o> "OSPI1_RXDS1_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_RXDS1_GPIO_PIN                 6
+
+// <o> "OSPI1_SCLK_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_SCLK_GPIO_PORT                14
+// <o> "OSPI1_SCLK_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_SCLK_GPIO_PIN                 0
+
+// <o> "OSPI1_SS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI1_SS0_GPIO_PORT                14
+// <o> "OSPI1_SS0_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI1_SS0_GPIO_PIN                  2
+
+// <o> "OSPI0_D0_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D0_GPIO_PORT                  0
+// <o> "OSPI0_D0_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D0_GPIO_PIN                   0
+
+// <o> "OSPI0_D1_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D1_GPIO_PORT                  0
+// <o> "OSPI0_D1_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D1_GPIO_PIN                   1
+
+// <o> "OSPI0_D2_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D2_GPIO_PORT                  0
+// <o> "OSPI0_D2_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D2_GPIO_PIN                   2
+
+// <o> "OSPI0_D3_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D3_GPIO_PORT                  0
+// <o> "OSPI0_D3_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D3_GPIO_PIN                   3
+
+// <o> "OSPI0_D4_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D4_GPIO_PORT                  0
+// <o> "OSPI0_D4_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D4_GPIO_PIN                   4
+
+// <o> "OSPI0_D5_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D5_GPIO_PORT                  0
+// <o> "OSPI0_D5_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D5_GPIO_PIN                   5
+
+// <o> "OSPI0_D6_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D6_GPIO_PORT                  0
+// <o> "OSPI0_D6_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D6_GPIO_PIN                   6
+
+// <o> "OSPI0_D7_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_D7_GPIO_PORT                  0
+// <o> "OSPI0_D7_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_D7_GPIO_PIN                   7
+
+// <o> "OSPI0_SS0_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_SS0_GPIO_PORT                  1
+// <o> "OSPI0_SS0_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_SS0_GPIO_PIN                   4
+
+// <o> "OSPI0_SCLK_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_SCLK_GPIO_PORT                  1
+// <o> "OSPI0_SCLK_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_SCLK_GPIO_PIN                   7
+
+// <o> "OSPI0_SCLKN_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_SCLKN_GPIO_PORT                 3
+// <o> "OSPI0_SCLKN_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_SCLKN_GPIO_PIN                  5
+
+// <o> "OSPI0_RXDS_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
+#define BOARD_OSPI0_RXDS_GPIO_PORT                  3
+// <o> "OSPI0_RXDS_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
+#define BOARD_OSPI0_RXDS_GPIO_PIN                    4
+
+
+
+
 
 // P0_0 ADC12 instance number (Do Not Modify!)
 #define BOARD_P0_0_ADC12_INSTANCE                 0
@@ -1363,4 +1581,3 @@
 #define BOARD_P2_7_LPCMP_INPUT                 3
 
 // </h>
-

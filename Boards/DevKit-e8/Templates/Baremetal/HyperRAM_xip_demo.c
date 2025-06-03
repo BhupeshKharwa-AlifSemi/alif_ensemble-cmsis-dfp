@@ -24,12 +24,17 @@
 #include "ospi_hyperram_xip.h"
 #include "S80K_HyperRAM.h"
 #include "pinconf.h"
+#include "board_config.h"
 #include "Driver_IO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif  /*RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined HyperRAM pin configuration (from s80k_pinmux_setup).
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /*
  * Below macro is used for selecting HyperRAM for testing:
@@ -91,6 +96,8 @@ static const ospi_hyperram_xip_config issi_config = {
 };
 #endif
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+
 
 #if TEST_S80K_HYPERRAM
 
@@ -98,125 +105,125 @@ static int32_t s80k_pinmux_setup(void)
 {
     int32_t ret;
 
-    ret = pinconf_set(PORT_13, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D0_GPIO_PORT), BOARD_OSPI1_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D1_GPIO_PORT), BOARD_OSPI1_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D2_GPIO_PORT), BOARD_OSPI1_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D3_GPIO_PORT), BOARD_OSPI1_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D4_GPIO_PORT), BOARD_OSPI1_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D5_GPIO_PORT), BOARD_OSPI1_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D6_GPIO_PORT), BOARD_OSPI1_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_13, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_D7_GPIO_PORT), BOARD_OSPI1_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D8_GPIO_PORT), BOARD_OSPI0_D8_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D9_GPIO_PORT), BOARD_OSPI0_D9_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D10_GPIO_PORT), BOARD_OSPI0_D10_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D11_GPIO_PORT), BOARD_OSPI0_D11_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D12_GPIO_PORT), BOARD_OSPI0_D12_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D13_GPIO_PORT), BOARD_OSPI0_D13_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D14_GPIO_PORT), BOARD_OSPI0_D14_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_17, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D15_GPIO_PORT), BOARD_OSPI0_D15_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* RXDS-0 */
-    ret = pinconf_set(PORT_12, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_RXDS0_GPIO_PORT), BOARD_OSPI1_RXDS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* RXDS-1 */
-    ret = pinconf_set(PORT_8, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_RXDS1_GPIO_PORT), BOARD_OSPI1_RXDS1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* SCLK */
-    ret = pinconf_set(PORT_14, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_SCLK_GPIO_PORT), BOARD_OSPI1_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* SS-0 */
-    ret = pinconf_set(PORT_14, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI1_SS0_GPIO_PORT), BOARD_OSPI1_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
@@ -230,77 +237,77 @@ static int32_t issi_pinmux_setup(void)
 {
     int32_t ret;
 
-    ret = pinconf_set(PORT_0, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D0_GPIO_PORT), BOARD_OSPI0_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_1, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D1_GPIO_PORT), BOARD_OSPI0_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D2_GPIO_PORT), BOARD_OSPI0_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D3_GPIO_PORT), BOARD_OSPI0_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D4_GPIO_PORT), BOARD_OSPI0_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D5_GPIO_PORT), BOARD_OSPI0_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D6_GPIO_PORT), BOARD_OSPI0_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
-    ret = pinconf_set(PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_D7_GPIO_PORT), BOARD_OSPI0_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* SCLK */
-    ret = pinconf_set(PORT_1, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_SCLK_GPIO_PORT), BOARD_OSPI0_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* SCLK_N */
-    ret = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_SCLKN_GPIO_PORT), BOARD_OSPI0_SCLKN_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* SS_0 */
-    ret = pinconf_set(PORT_1, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_SS0_GPIO_PORT), BOARD_OSPI0_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
     }
 
     /* RXDS */
-    ret = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
+    ret = pinconf_set(PORT_(BOARD_OSPI0_RXDS_GPIO_PORT), BOARD_OSPI0_RXDS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret)
     {
         return -1;
@@ -308,6 +315,7 @@ static int32_t issi_pinmux_setup(void)
 
     return 0;
 }
+#endif
 #endif
 
 static int32_t hyperram_reset(void)
@@ -357,9 +365,10 @@ int main(void)
 {
     uint32_t *const ptr = (uint32_t *) OSPI_XIP_BASE;
     uint32_t total_errors = 0, random_val;
-
-    #if defined(RTE_Compiler_IO_STDOUT_User)
     int32_t ret;
+    
+    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init (void);
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK)
     {
@@ -375,16 +384,34 @@ int main(void)
     printf("ISSI HyperRAM demo app started\n");
 #endif
 
-
-#if TEST_S80K_HYPERRAM
-    if (s80k_pinmux_setup() < 0)
-#else
-    if (issi_pinmux_setup() < 0)
-#endif
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret != 0)
     {
-        printf("Pinmux setup failed\n");
+        printf("Error in pin-mux configuration: %d\n", ret);
         goto error_exit;
     }
+
+#else
+#if TEST_S80K_HYPERRAM
+    /*
+     * NOTE: The Hyper RAM pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret =s80k_pinmux_setup();
+
+#else
+
+    ret = issi_pinmux_setup();
+
+#endif
+    if(ret != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", ret);
+        goto error_exit;
+    }
+#endif
 
     hyperram_reset();
 
