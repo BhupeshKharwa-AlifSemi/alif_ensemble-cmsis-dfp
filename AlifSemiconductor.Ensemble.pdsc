@@ -1205,6 +1205,7 @@
     <!--<image small="Images/DK_small.png" large="Images/DK_large.png"/>-->
     <board vendor="Alif Semiconductor" name="DevKit-E7" revision="Gen 2">
       <description>Development Kit E7 Gen 2 (FBGA194)</description>
+      <image small="docs/images/DK-E7_Gen-2_small.jpg" large="docs/images/DK-E7_Gen-2.jpg"/>
       <book category="overview"  name="https://alifsemi.com/support/kits/ensemble-devkit-gen2/" title="Ensemble DevKit Gen 2 Web Page"/>
       <mountedDevice deviceIndex="0" Dvendor="Alif Semiconductor:165" Dname="AE722F80F55D5LS"/>
       <compatibleDevice deviceIndex="0" Dvendor="Alif Semiconductor:165" Dname="AE512F80F55D5LS"/>
