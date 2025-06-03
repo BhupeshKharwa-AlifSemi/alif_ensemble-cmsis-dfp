@@ -26,13 +26,14 @@ extern "C"
 #endif
 
 #include "soc.h"
+#include "sys_utils.h"
 
 #define RTC_CLK_ENABLE                     (1U << 0U)  /* Enable RTC clock */
 
 /**
-  \fn           static inline void enable_lprtc_clk (void)
+  \fn           static inline void enable_lprtc_clk (LPRTC_INSTANCE inst)
   \brief        VBAT clock enable for LPRTC
-  \param        none
+  \param        inst LPRTC instance number
   \return       none
 */
 static inline void enable_lprtc_clk (LPRTC_INSTANCE inst)
@@ -44,14 +45,15 @@ static inline void enable_lprtc_clk (LPRTC_INSTANCE inst)
 		VBAT->RTCB_CLK_EN |= RTC_CLK_ENABLE;
 	}
 #else
+    ARG_UNUSED(inst);
     VBAT->RTC_CLK_EN |= RTC_CLK_ENABLE;
 #endif
 }
 
 /**
-  \fn           static inline void disable_lprtc_clk (void)
+  \fn           static inline void disable_lprtc_clk (LPRTC_INSTANCE inst)
   \brief        VBAT clock disable for LPRTC
-  \param        none
+  \param        inst LPRTC instance number
   \return       none
 */
 static inline void disable_lprtc_clk (LPRTC_INSTANCE inst)
@@ -63,6 +65,7 @@ static inline void disable_lprtc_clk (LPRTC_INSTANCE inst)
 		VBAT->RTCB_CLK_EN &= RTC_CLK_ENABLE;
 	}
 #else
+    ARG_UNUSED(inst);
     VBAT->RTC_CLK_EN &= ~RTC_CLK_ENABLE;
 #endif
 }

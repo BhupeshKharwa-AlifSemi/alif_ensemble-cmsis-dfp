@@ -1724,6 +1724,10 @@ static int32_t mt9m114_Control(CAMERA_SENSOR_DEVICE *cpi_mt9m114_camera_sensor,
             {
                 return MT9M114_Camera_AE(arg, i2c_cfg);
             }
+            else
+            {
+                return ARM_DRIVER_ERROR_PARAMETER;
+            }
 #endif
         default:
             return ARM_DRIVER_ERROR_PARAMETER;

@@ -17,6 +17,7 @@ extern "C"
 #endif
 
 #include "soc.h"
+#include "sys_utils.h"
 
 #if SOC_FEAT_HSCMP_REG_ALIASING
 #define CMP0_ENABLE                 (1U << 28)    /* To enable the CMP0  */
@@ -150,6 +151,9 @@ static inline uint32_t *get_cmp_base(uint8_t instance)
     default: return NULL;
     }
 #else
+
+    ARG_UNUSED(instance);
+
     /* Comparator configuration register is provided at CMP0 base address */
     return (uint32_t *)CMP0_BASE;
 #endif

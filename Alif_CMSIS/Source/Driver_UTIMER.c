@@ -581,10 +581,10 @@ static int32_t ARM_UTIMER_ConfigTrigger (UTIMER_RESOURCES *UTIMER_RES, uint8_t c
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
-    if(((arg->triggerSrc == ARM_UTIMER_SRC_0) && ((ARM_UTIMER_SRC0_TRIG0_RISING <= arg->trigger) && (arg->trigger >= ARM_UTIMER_SRC0_TRIG15_FALLING))) ||
-       ((arg->triggerSrc == ARM_UTIMER_SRC_1) && ((ARM_UTIMER_SRC1_DRIVE_A_RISING_B_0 <= arg->trigger) && (arg->trigger >= ARM_UTIMER_SRC1_DRIVE_B_FALLING_A_1))) ||
-       ((arg->triggerSrc == ARM_UTIMER_FAULT_TRIGGER) && ((ARM_UTIMER_FAULT_TRIG0_RISING <= arg->trigger) && (arg->trigger >= ARM_UTIMER_FAULT_TRIG3_FALLING))) ||
-       ((arg->triggerSrc == ARM_UTIMER_CNTR_PAUSE_TRIGGER) && ((ARM_UTIMER_PAUSE_SRC_0_HIGH <= arg->trigger) && (arg->trigger >= ARM_UTIMER_PAUSE_SRC_1_LOW))))
+    if(((arg->triggerSrc == ARM_UTIMER_SRC_0) && (arg->trigger > ARM_UTIMER_SRC0_TRIG15_FALLING)) ||
+       ((arg->triggerSrc == ARM_UTIMER_SRC_1) && ((arg->trigger < ARM_UTIMER_SRC1_DRIVE_A_RISING_B_0) || (arg->trigger > ARM_UTIMER_SRC1_DRIVE_B_FALLING_A_1))) ||
+       ((arg->triggerSrc == ARM_UTIMER_FAULT_TRIGGER) && ((arg->trigger < ARM_UTIMER_FAULT_TRIG0_RISING) || (arg->trigger > ARM_UTIMER_FAULT_TRIG3_FALLING))) ||
+       ((arg->triggerSrc == ARM_UTIMER_CNTR_PAUSE_TRIGGER) && (arg->trigger < ARM_UTIMER_PAUSE_SRC_0_HIGH)))
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }

@@ -25,6 +25,12 @@
 #include "string.h"
 #include "sys_utils.h"
 
+#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_DEBUG_WARN) || \
+    defined(SDMMC_PRINTF_SD_STATE_DEBUG) || defined(SDMMC_PRINT_SEC_DATA)
+    #include <stdio.h>
+    #include <inttypes.h>
+#endif
+
 /* Global SD Driver Callback definitions */
 const diskio_t SD_Driver =
 {
@@ -442,7 +448,8 @@ SD_DRV_STATUS sd_read(uint32_t sec, uint16_t blk_cnt, volatile unsigned char *de
         return SD_DRV_STATUS_RD_ERR;
 
 #ifdef SDMMC_PRINTF_DEBUG
-    printf("SD READ Dest Buff: 0x%p Sec: %u, Block Count: %u\n",dest_buff,sec,blk_cnt);
+    printf("SD READ Dest Buff: 0x%08"PRIxPTR" Sec: %"PRIu32", Block Count: %"PRIu16"\n",
+           (uintptr_t)dest_buff, sec, blk_cnt);
 #endif
 
     /* Change the Card State from Tran to Data */
@@ -475,13 +482,14 @@ retry:
     pHsd->state = SD_CARD_STATE_TRAN;
 
 #ifdef SDMMC_PRINT_SEC_DATA
-    int j = 0;
-    int *p = dest_buff;
+    uint32_t  j = 0;
+    uint32_t *p = (uint32_t *)dest_buff;
 
     RTSS_InvalidateDCache_by_Addr(dest_buff, blk_cnt*512);
 
     while(j<(128*blk_cnt)){
-        printf("0x%08x: %08x %08x %08x %08x\n",j*4, p[j+0], p[j+1], p[j+2], p[j+3]);
+        printf("0x%08"PRIx32": %08"PRIx32" %08"PRIx32" %08"PRIx32" %08"PRIx32"\n",
+               j*4, p[j+0], p[j+1], p[j+2], p[j+3]);
         j += 4;
     }
 #endif
@@ -500,14 +508,17 @@ retry:
 SD_DRV_STATUS sd_write(uint32_t sector, uint32_t blk_cnt, volatile unsigned char *src_buff){
 
     sd_handle_t *pHsd =  &Hsd;
+#ifndef SDMMC_IRQ_MODE
     int timeout_cnt = 2000 * blk_cnt;
     uint8_t retry_cnt = 1;
+#endif
     uint8_t *aligned_buff = (uint8_t *)src_buff;
     if(src_buff == NULL)
         return SD_DRV_STATUS_WR_ERR;
 
 #ifdef SDMMC_PRINTF_DEBUG
-    printf("SD WRITE Src Buff: 0x%p Sec: %d, Block Count: %d\n",src_buff,sector,blk_cnt);
+    printf("SD WRITE Src Buff: 0x%08"PRIxPTR" Sec: %"PRId32", Block Count: %"PRId32"\n",
+           (uintptr_t)src_buff, sector, blk_cnt);
 #endif
 
     if((uint32_t)src_buff & (SDMMC_BLK_SIZE_512_Msk - 1)) {
@@ -545,11 +556,12 @@ retry:
 #endif
 
 #ifdef SDMMC_PRINT_SEC_DATA
-    int j = 0;
-    int *p = src_buff;
+    uint32_t j  = 0;
+    uint32_t *p = (uint32_t *)src_buff;
 
     while(j<(128*blk_cnt)){
-        printf("0x%08x: %08x %08x %08x %08x\n",j*4, p[j+0], p[j+1], p[j+2], p[j+3]);
+        printf("0x%08"PRIx32": %08"PRIx32" %08"PRIx32" %08"PRIx32" %08"PRIx32"\n",
+                j*4, p[j+0], p[j+1], p[j+2], p[j+3]);
         j += 4;
     }
 #endif

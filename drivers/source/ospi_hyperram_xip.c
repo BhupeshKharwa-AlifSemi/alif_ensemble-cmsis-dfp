@@ -27,6 +27,7 @@
 #include "ospi.h"
 #include "soc.h"
 #include "sys_clocks.h"
+#include "sys_utils.h"
 
 #include "sys_ctrl_aes.h"
 
@@ -35,7 +36,7 @@
 #endif
 
 /**
-  \fn          int OSPI_Set_Speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xip_config *config)
+  \fn          int ospi_set_speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xip_config *config)
   \brief       Set OSPI bus speed for spi transfer.
   \param[in]   ospi : Pointer to the OSPI register map.
   \param[in]   aes  : Pointer to the AES register map.
@@ -70,11 +71,11 @@ static int ospi_set_speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xi
         }
 #else
         {
+            ARG_UNUSED(aes);
             return -1;
         }
 #endif
     }
-
     ospi_set_baud(ospi, baud);
 
     return 0;
@@ -95,7 +96,7 @@ int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config)
     AES_Type *aes = NULL;
     bool is_dual_octal = 0;
 
-    if (config == NULL || config->instance < OSPI_INSTANCE_0 || config->instance > OSPI_INSTANCE_1)
+    if (!config)
     {
         return -1;
     }

@@ -24,9 +24,12 @@
 #include "sd.h"
 #include "sys_utils.h"
 
-#ifdef SDMMC_PRINTF_DEBUG
-#include "stdio.h"
+#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_DEBUG_WARN) || \
+    defined(SDMMC_PRINTF_SD_STATE_DEBUG) || defined(SDMMC_PRINT_SEC_DATA)
+    #include <stdio.h>
+    #include <inttypes.h>
 #endif
+
 extern sd_handle_t Hsd;
 static adma2_desc_t adma_desc_tbl[32] __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
 
@@ -195,7 +198,7 @@ RETRY:
     while( timeout_cnt-- && (!cc) );
 
 #ifdef SDMMC_PRINTF_DEBUG
-    printf("CMD: 0x%04x, ARG: 0x%08x XFER: 0x%04x RSP01: 0x%08x PSTATE: 0x%08x cc:%d\n",
+    printf("CMD: 0x%04"PRIx16", ARG: 0x%08"PRIx32" XFER: 0x%04"PRIx16" RSP01: 0x%08"PRIx32" PSTATE: 0x%08"PRIx32" cc:%"PRId16"\n",
             cmd,pCmd->arg,pCmd->xfer_mode,pHsd->regs->SDMMC_RESP01_R,pHsd->regs->SDMMC_PSTATE_REG, cc);
 #endif
 
@@ -566,7 +569,6 @@ SDMMC_HC_STATUS hc_get_emmc_card_opcond(sd_handle_t *pHsd){
     uint32_t resp_OPcond;
     uint32_t timeout = 0xFFU;
     uint32_t switch1v8 = 0;
-    uint32_t ocr;
 
     hc_power_cycle(pHsd);
 
@@ -1011,7 +1013,7 @@ SDMMC_HC_STATUS hc_get_card_status(sd_handle_t *pHsd, uint32_t *pstatus){
     *pstatus = (status & SDMMC_STATUS_Msk) >> SDMMC_STATUS_Pos;
 
 #ifdef SDMMC_PRINTF_DEBUG
-    printf("Card Status: %x\n",status);
+    printf("Card Status: %"PRIx32"\n",status);
 #endif
 
     return SDMMC_HC_STATUS_OK;
@@ -1075,7 +1077,8 @@ SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t blk_cnt
 
         adma_desc_tbl[desc_num - 1].attr |= SDMMC_ADMA2_DESC_END;
 #ifdef SDMMC_PRINTF_DEBUG
-        printf("ADMA Desc: 0x%x, addr: 0x%x, Len: 0x%x, Attr: 0x%x\n",(uint32_t)&adma_desc_tbl[0],adma_desc_tbl[0].addr,adma_desc_tbl[0].len,adma_desc_tbl[0].attr);
+        printf("ADMA Desc: 0x%"PRIx32", addr: 0x%"PRIx32", Len: 0x%"PRIx16", Attr: 0x%"PRIx16"\n",
+              (uint32_t)&adma_desc_tbl[0],adma_desc_tbl[0].addr,adma_desc_tbl[0].len,adma_desc_tbl[0].attr);
 #endif
 
         RTSS_CleanDCache_by_Addr(&adma_desc_tbl[0], sizeof(adma_desc_tbl));
@@ -1207,8 +1210,8 @@ SDMMC_HC_STATUS hc_check_xfer_done(sd_handle_t *pHsd, uint32_t timeout_cnt){
 
     pHsd->regs->SDMMC_HOST_CTRL1_R ^= SDMMC_HOST_CTRL1_LED_ON; //led caution off
 #ifdef SDMMC_PRINTF_SD_STATE_DEBUG
-    printf("PSTATE REG:0x%08x\tAUTO_CMD_STAT:0x%04hx\tERROR_INT_STAT_R:0x%x\n",
-        pHsd->regs->SDMMC_PSTATE_REG,pHsd->regs->SDMMC_AUTO_CMD_STAT_R,
+    printf("PSTATE REG:0x%08"PRIx32"\tAUTO_CMD_STAT:0x%04h"PRIx16"\tERROR_INT_STAT_R:0x%"PRIx8"\n",
+        pHsd->regs->SDMMC_PSTATE_REG, pHsd->regs->SDMMC_AUTO_CMD_STAT_R,
         (uint8_t)pHsd->regs->SDMMC_ERROR_INT_STAT_R);
 #endif
 

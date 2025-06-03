@@ -138,11 +138,7 @@ void crc_calculate_32bit(CRC_Type *crc, const void *data_in,
 {
     const uint32_t *data32;
     uint32_t value;
-    uint32_t control_val;
     uint32_t aligned_length = len;
-
-    control_val = crc_get_control_val(crc);
-
 
     data32           = (const uint32_t *)data_in;
 

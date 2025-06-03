@@ -179,7 +179,7 @@ __STATIC_INLINE int32_t CRC_DMA_Allocate(DMA_PERIPHERAL_CONFIG *dma_periph)
     }
 
     /* Disable DMA Handshaking for CRC */
-    status = dma_drv->Control(&dma_periph->dma_handle, ARM_DMA_CRC_MODE, NULL);
+    status = dma_drv->Control(&dma_periph->dma_handle, ARM_DMA_CRC_MODE, 0);
     if(status)
     {
         return ARM_DRIVER_ERROR;

@@ -937,7 +937,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case ARM_PDM_SELECT_CHANNEL:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Clear PDM channels */
@@ -950,7 +950,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case ARM_PDM_MODE:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* Clear the PDM modes */
@@ -963,7 +963,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case  ARM_PDM_BYPASS_IIR_FILTER:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the Bypass IIR filter */
@@ -973,7 +973,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case ARM_PDM_BYPASS_FIR_FILTER:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the Bypass FIR filter */
@@ -983,7 +983,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case ARM_PDM_PEAK_DETECTION_NODE:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the peak detect node */
@@ -993,7 +993,7 @@ static int32_t PDMx_Control (uint32_t control,
 
     case ARM_PDM_SAMPLE_ADVANCE:
 
-        if(arg2 != NULL)
+        if(arg2)
             return ARM_DRIVER_ERROR_PARAMETER;
 
         /* To select the sample advance */

@@ -450,7 +450,7 @@ void ospi_hyperbus_xip_init(OSPI_Type *ospi, uint8_t wait_cycles, bool is_dual_o
 */
 void ospi_hyperbus_send(OSPI_Type *ospi, ospi_transfer_t *transfer)
 {
-    uint32_t val, tx_count, curr_fifo_level;
+    uint32_t val, tx_count, curr_fifo_level, i;
 
     ospi_disable(ospi);
 
@@ -491,7 +491,7 @@ void ospi_hyperbus_send(OSPI_Type *ospi, ospi_transfer_t *transfer)
 
         ospi->OSPI_TXFTLR |= ((tx_count - 1U) << SPI_TXFTLR_TXFTHR_SHIFT);
 
-        for (int i = 0; i < tx_count; i++)
+        for (i = 0; i < tx_count; i++)
         {
             ospi->OSPI_DR[0] = transfer->tx_buff[0];
             transfer->tx_buff = (transfer->tx_buff + 1);

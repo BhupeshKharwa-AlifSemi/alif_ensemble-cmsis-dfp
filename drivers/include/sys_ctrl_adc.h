@@ -12,6 +12,7 @@
 #define SYS_CTRL_ADC_H_
 
 #include "soc.h"
+#include "sys_utils.h"
 
 #ifdef  __cplusplus
 extern "C"
@@ -201,6 +202,7 @@ static inline uint32_t *adc_get_base(uint8_t instance)
 	default: return NULL;
 	}
 #else
+        ARG_UNUSED(instance);
 	return (uint32_t *) ADC120_BASE;
 #endif
 }
@@ -367,6 +369,8 @@ static inline void enable_adc24(uint8_t instance)
 
     adc_ctrl->ADC_PERIPH |= PMU_PERIPH_ADC24_EN;
 #else
+    ARG_UNUSED(instance);
+
     __disable_irq();
 
     AON->PMU_PERIPH |= PMU_PERIPH_ADC24_EN;
@@ -376,7 +380,7 @@ static inline void enable_adc24(uint8_t instance)
 }
 
 /**
-  \fn     static inline void disable_adc24(void)
+  \fn     static inline void disable_adc24(uint8_t instance)
   \brief  Disable ADC24 from control register
   \@parameter[1] : instance        : adc instances
   \return none.
@@ -391,6 +395,8 @@ static inline void disable_adc24(uint8_t instance)
     adc_ctrl->ADC_PERIPH &= ~PMU_PERIPH_ADC24_EN;
 #else
 
+    ARG_UNUSED(instance);
+
     __disable_irq();
 
     AON->PMU_PERIPH &= ~PMU_PERIPH_ADC24_EN;
@@ -400,7 +406,7 @@ static inline void disable_adc24(uint8_t instance)
 }
 
 /*
- * @func           : void set_adc24_output_rate(uint32_t rate)
+ * @func           : void set_adc24_output_rate(uint8_t instance, uint32_t rate)
  * @brief          : set output rate for adc24
  * @parameter[1]   : instance        : adc instances
  * @parameter[2]   : bias : value for setting bias
@@ -415,6 +421,9 @@ static inline void set_adc24_bias(uint8_t instance, uint32_t bias)
 
     adc_ctrl->ADC_PERIPH |= ((bias << PMU_PERIPH_ADC24_BIAS_Pos) & PMU_PERIPH_ADC24_BIAS_Msk);
 #else
+
+    ARG_UNUSED(instance);
+
     __disable_irq();
 
     AON->PMU_PERIPH |= ((bias << PMU_PERIPH_ADC24_BIAS_Pos) & PMU_PERIPH_ADC24_BIAS_Msk);
@@ -424,7 +433,7 @@ static inline void set_adc24_bias(uint8_t instance, uint32_t bias)
 }
 
 /*
- * @func           : void set_adc24_output_rate(uint32_t rate)
+ * @func           : void set_adc24_output_rate(uint8_t instance, uint32_t rate)
  * @brief          : set output rate for adc24
  * @parameter[1]   : instance        : adc instances
  * @parameter[1]   : rate : value for setting output rate
@@ -438,6 +447,9 @@ static inline void set_adc24_output_rate(uint8_t instance, uint32_t rate)
 
     adc_ctrl->ADC_PERIPH |= ((rate << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos) & PMU_PERIPH_ADC24_OUTPUT_RATE_Msk);
 #else
+
+    ARG_UNUSED(instance);
+
     __disable_irq();
 
     AON->PMU_PERIPH |= ((rate << PMU_PERIPH_ADC24_OUTPUT_RATE_Pos) & PMU_PERIPH_ADC24_OUTPUT_RATE_Msk);

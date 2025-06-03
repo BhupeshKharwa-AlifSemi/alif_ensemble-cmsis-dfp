@@ -433,17 +433,19 @@ static void i3c_dispatch_xfer_cmd(I3C_Type *i3c, i3c_xfer_t *xfer)
 */
 static void i3c_send(I3C_Type *i3c, i3c_xfer_t *xfer, const uint16_t sts_len)
 {
+    const uint8_t *tbuf = (const uint8_t *)xfer->tx_buf;
+
     /* If available tx slots are lesser than required slots then,
      * send data of available slots */
     if((xfer->tx_len - xfer->tx_cur_cnt) >= sts_len)
     {
-        i3c_wr_tx_fifo(i3c, &xfer->tx_buf[xfer->tx_cur_cnt], sts_len);
+        i3c_wr_tx_fifo(i3c, &tbuf[xfer->tx_cur_cnt], sts_len);
         xfer->tx_cur_cnt += sts_len;
     }
     else
     {
         /* Send required bytes of data */
-        i3c_wr_tx_fifo(i3c, &xfer->tx_buf[xfer->tx_cur_cnt],
+        i3c_wr_tx_fifo(i3c, &tbuf[xfer->tx_cur_cnt],
                       ((xfer->tx_len - xfer->tx_cur_cnt)));
         xfer->tx_cur_cnt += (xfer->tx_len - xfer->tx_cur_cnt);
     }
@@ -497,17 +499,19 @@ static bool i3c_send_blocking(I3C_Type *i3c, i3c_xfer_t *xfer)
 */
 static void i3c_receive(I3C_Type *i3c, i3c_xfer_t *xfer, const uint16_t sts_len)
 {
+    uint8_t *rbuf = (uint8_t *)xfer->rx_buf;
+
     /* If available rx data is lesser than required number of bytes then,
      * receive currently available data */
     if((xfer->rx_len - xfer->rx_cur_cnt) >= sts_len)
     {
-        i3c_read_rx_fifo(i3c, &xfer->rx_buf[xfer->rx_cur_cnt], sts_len);
+        i3c_read_rx_fifo(i3c, &rbuf[xfer->rx_cur_cnt], sts_len);
         xfer->rx_cur_cnt += sts_len;
     }
     else
     {
         /* Read required bytes of data */
-        i3c_read_rx_fifo(i3c, &xfer->rx_buf[xfer->rx_cur_cnt],
+        i3c_read_rx_fifo(i3c, &rbuf[xfer->rx_cur_cnt],
                         ((xfer->rx_len - xfer->rx_cur_cnt)));
         xfer->rx_cur_cnt += (xfer->rx_len - xfer->rx_cur_cnt);
     }
