@@ -29,6 +29,7 @@
 #include "rl_fs.h"
 #include "pinconf.h"
 #include "se_services_port.h"
+#include "board_config.h"
 
 /* Use current drive if drive is not specified */
 #ifndef FILE_DEMO_DRIVE
@@ -722,6 +723,7 @@ __NO_RETURN void app_main_thread (void *argument) {
     uint32_t i,j;
     uint32_t error_code = SERVICES_REQ_SUCCESS;
     uint32_t service_error_code;
+    int32_t ret = 0;
 
     (void)argument;
 
@@ -743,13 +745,12 @@ __NO_RETURN void app_main_thread (void *argument) {
         while(1);
     }
 
-    /* pinmux for Alif Ensemble Devkit E* */
-    pinconf_set(PORT_7, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_7, PIN_1, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
-    pinconf_set(PORT_5, PIN_0, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
-    pinconf_set(PORT_5, PIN_1, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_5, PIN_2, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_5, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
+    /* pin mux and configuration for all device IOs requested from pins.h*/
+    ret = board_pins_config();
+    if (ret) {
+        printf("ERROR: Board pin-mux configuration failed: %d\n", ret);
+        return;
+    }
 
     init_filesystem();
 

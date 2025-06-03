@@ -46,7 +46,7 @@
 #include "netif/etharp.h"
 #include "lwip/dhcp.h"
 
-#include "pinconf.h"
+#include "board_config.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
@@ -59,57 +59,6 @@ static void net_timer (uint32_t *tick);
 static struct netif netif;
 
 #define HTTP_DEMO_DEBUG
-
-static int pin_mux_init(void)
-{
-  int32_t ret;
-
-  ret = pinconf_set(PORT_11, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_1, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_2, PINMUX_ALTERNATE_FUNCTION_6, 0);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_3, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_4, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_5, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_6, PINMUX_ALTERNATE_FUNCTION_6, 0);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_11, PIN_7, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_6, PIN_0, PINMUX_ALTERNATE_FUNCTION_6, 0);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_10, PIN_5, PINMUX_ALTERNATE_FUNCTION_6, 0);
-  if (ret)
-    return -1;
-
-  ret = pinconf_set(PORT_10, PIN_6, PINMUX_ALTERNATE_FUNCTION_6, 0);
-  if (ret)
-    return -1;
-
-  return 0;
-}
 
 /* Initialize lwIP */
 static void net_init (void)
@@ -191,19 +140,19 @@ void app_main (void *argument)
   }
 #endif
 
-  ret = pin_mux_init ();
-
-  if (ret < 0) {
+  /* pin mux and configuration for all device IOs requested from pins.h*/
+  ret = board_pins_config();
+  if(ret != 0)
+  {
 #ifdef HTTP_DEMO_DEBUG
-    printf("pin mux initialization failed\n");
+      printf("ERROR: Pin configuration failed: %d\n", ret);
 #endif
-    goto error;
+      goto error;
   }
 
   /* Create tick timer, tick interval = 500ms */
   id = osTimerNew ((osTimerFunc_t)&net_timer, osTimerPeriodic, &tick, NULL);
   osTimerStart (id, 500);
-
 
   net_init ();
 
