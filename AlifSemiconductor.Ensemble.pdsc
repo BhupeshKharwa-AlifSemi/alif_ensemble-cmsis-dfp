@@ -2,7 +2,7 @@
 <package xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.7.49" xs:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/v1.7.49/schema/PACK.xsd">
   <vendor>AlifSemiconductor</vendor>
   <name>Ensemble</name>
-  <description>Alif Semiconductor Ensemble Device Family Pack</description>
+  <description overview="docs/Overview.md">Alif Semiconductor Ensemble Device Family Pack</description>
   <url>https://github.com/alifsemi/alif_ensemble-cmsis-dfp/raw/main/</url>
   <supportContact>support@alifsemi.com</supportContact>
   <license>License.txt</license>
