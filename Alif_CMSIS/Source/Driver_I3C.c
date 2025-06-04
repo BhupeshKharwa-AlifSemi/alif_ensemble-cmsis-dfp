@@ -2046,7 +2046,12 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num,
     {
         switch(peri_num)
         {
+#if RTE_I3C
             case I3C_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_LPI3C
+            case LPI3C_DMA_TX_PERIPH_REQ:
+#endif
                 /* For DMA TX,
                  *  Success/Error decision will be taken by
                  *   Interrupt Handler based on status of Response-Queue.
@@ -2054,8 +2059,12 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num,
                  *    irrespective of slave gives ACK/NACK.)
                  */
                 break;
-
+#if RTE_I3C
             case I3C_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_LPI3C
+            case LPI3C_DMA_RX_PERIPH_REQ:
+#endif
                 /* For DMA RX,
                  *  Success decision will be taken here(DMA RX Callback).
                  *  Error decision will be taken by Interrupt Handler
