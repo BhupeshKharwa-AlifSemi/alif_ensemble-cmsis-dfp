@@ -120,13 +120,21 @@ static void OSPI_DMACallback(uint32_t event, int8_t peri_num,
     {
         switch (peri_num)
         {
+#if RTE_OSPI0
         case OSPI0_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_OSPI1
         case OSPI1_DMA_RX_PERIPH_REQ:
+#endif
             OSPI->status.busy = 0;
             OSPI->cb_event(ARM_OSPI_EVENT_TRANSFER_COMPLETE);
             break;
+#if RTE_OSPI0
         case OSPI0_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_OSPI1
         case OSPI1_DMA_TX_PERIPH_REQ:
+#endif
             if (OSPI->transfer.mode == SPI_TMOD_TX)
             {
                 OSPI->status.busy = 0;

@@ -949,7 +949,9 @@ static int32_t I2S_Control(uint32_t control, uint32_t arg1,
     uint16_t frame_length = 0;
     uint8_t  datasize = 0;
     int32_t  ret = 0;
+#if SOC_FEAT_I2S_HAS_EXT_AUDIO_CLK
     uint16_t mclk_prescaler = 0;
+#endif
 
     /* Verify whether the driver is initialized and powered*/
     if(I2S_RES->state.powered == 0)

@@ -1208,6 +1208,13 @@
 // <i> Defines LPSPI DMA Interrupt priority
 // <i> Default: 0
 #define RTE_LPSPI_DMA_IRQ_PRI                    0
+
+// <o> LPSPI blocking mode enable
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines Blocking mode support for LPSPI
+// <i> Default: DISABLE
+#define RTE_LPSPI_BLOCKING_MODE_ENABLE           0
 #endif  //RTE_LPSPI
 
 // </e> LPSPI (Low Power Serial Peripheral Interface) [Driver_LPSPI]

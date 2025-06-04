@@ -22,7 +22,6 @@
 #define DRIVER_I2S_PRIVATE_H
 /* Includes ------------------------------------------------------------------*/
 #include <Driver_SAI.h>
-#include "RTE_Device.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #include <stdbool.h>

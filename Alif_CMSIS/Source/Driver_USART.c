@@ -1595,15 +1595,31 @@ static void UART_DMATxCallback(uint32_t event, int8_t peri_num,
     {
         switch(peri_num)
         {
+#if RTE_UART0
         case UART0_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART1
         case UART1_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART2
         case UART2_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART3
         case UART3_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART4
         case UART4_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART5
         case UART5_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART6
         case UART6_DMA_TX_PERIPH_REQ:
+#endif
+#if RTE_UART7
         case UART7_DMA_TX_PERIPH_REQ:
-#if defined (RTE_LPUART)
+#endif
+#if RTE_LPUART
         case LPUART_DMA_TX_PERIPH_REQ:
 #endif
             /* clear the Tx flag. */
@@ -1643,14 +1659,30 @@ static void UART_DMARxCallback(uint32_t event, int8_t peri_num,
     {
         switch(peri_num)
         {
+#if RTE_UART0
         case UART0_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART1
         case UART1_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART2
         case UART2_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART3
         case UART3_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART4
         case UART4_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART5
         case UART5_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART6
         case UART6_DMA_RX_PERIPH_REQ:
+#endif
+#if RTE_UART7
         case UART7_DMA_RX_PERIPH_REQ:
+#endif
         /* case LPUART_DMA_RX_PERIPH_REQ:
          *  muxed with UART0_DMA_RX_PERIPH_REQ */
 

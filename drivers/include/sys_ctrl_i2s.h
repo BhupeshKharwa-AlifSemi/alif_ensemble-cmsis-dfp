@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "soc.h"
+#include "RTE_Device.h"
 
 #ifdef  __cplusplus
 extern "C"
@@ -75,20 +76,32 @@ static inline void enable_i2s_sclk_aon(I2S_INSTANCE instance)
 {
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_SCLK_AON;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -104,19 +117,31 @@ static inline void disable_i2s_sclk_aon(I2S_INSTANCE instance)
     switch(instance)
     {
     case I2S_INSTANCE_0:
+#if RTE_I2S0
         CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_SCLK_AON;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_SCLK_AON;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -131,20 +156,32 @@ static inline void bypass_i2s_clock_divider(I2S_INSTANCE instance)
 {
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_DIV_BYPASS;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_DIV_BYPASS;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_DIV_BYPASS;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_DIV_BYPASS;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_DIV_BYPASS;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -163,25 +200,37 @@ static inline void select_i2s_clock_source(I2S_INSTANCE instance, bool ext_clk_s
 
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_CLK_SEL_Msk;
         CLKCTL_PER_SLV->I2S_CTRL[0] |= val;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_CLK_SEL_Msk;
         CLKCTL_PER_SLV->I2S_CTRL[1] |= val;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_CLK_SEL_Msk;
         CLKCTL_PER_SLV->I2S_CTRL[2] |= val;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_CLK_SEL_Msk;
         CLKCTL_PER_SLV->I2S_CTRL[3] |= val;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_CLK_SEL_Msk;
         M55HE_CFG->HE_I2S_CTRL |= val;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -196,20 +245,32 @@ static inline void enable_i2s_clock(I2S_INSTANCE instance)
 {
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         CLKCTL_PER_SLV->I2S_CTRL[0] |= I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] |= I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] |= I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] |= I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL |= I2S_CTRL_CKEN;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -224,20 +285,32 @@ static inline void disable_i2s_clock(I2S_INSTANCE instance)
 {
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         CLKCTL_PER_SLV->I2S_CTRL[0] &= ~I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         CLKCTL_PER_SLV->I2S_CTRL[1] &= ~I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         CLKCTL_PER_SLV->I2S_CTRL[2] &= ~I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         CLKCTL_PER_SLV->I2S_CTRL[3] &= ~I2S_CTRL_CKEN;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         M55HE_CFG->HE_I2S_CTRL &= ~I2S_CTRL_CKEN;
+        break;
+#endif
+    default:
         break;
     }
 }
@@ -255,35 +328,47 @@ static inline void set_i2s_clock_divisor(I2S_INSTANCE instance, uint16_t clk_div
 
     switch(instance)
     {
+#if RTE_I2S0
     case I2S_INSTANCE_0:
         ctrl = CLKCTL_PER_SLV->I2S_CTRL[0];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
         CLKCTL_PER_SLV->I2S_CTRL[0] = ctrl;
         break;
+#endif
+#if RTE_I2S1
     case I2S_INSTANCE_1:
         ctrl = CLKCTL_PER_SLV->I2S_CTRL[1];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
         CLKCTL_PER_SLV->I2S_CTRL[1] = ctrl;
         break;
+#endif
+#if RTE_I2S2
     case I2S_INSTANCE_2:
         ctrl = CLKCTL_PER_SLV->I2S_CTRL[2];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
         CLKCTL_PER_SLV->I2S_CTRL[2] = ctrl;
         break;
+#endif
+#if RTE_I2S3
     case I2S_INSTANCE_3:
         ctrl = CLKCTL_PER_SLV->I2S_CTRL[3];
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
         CLKCTL_PER_SLV->I2S_CTRL[3] = ctrl;
         break;
+#endif
+#if RTE_LPI2S
     case I2S_INSTANCE_LP:
         ctrl = M55HE_CFG->HE_I2S_CTRL;
         ctrl &= ~(I2S_CTRL_CKDIV_Msk | I2S_CTRL_DIV_BYPASS);
         ctrl |= (clk_div & I2S_CTRL_CKDIV_Msk);
         M55HE_CFG->HE_I2S_CTRL = ctrl;
+        break;
+#endif
+    default:
         break;
     }
 }
