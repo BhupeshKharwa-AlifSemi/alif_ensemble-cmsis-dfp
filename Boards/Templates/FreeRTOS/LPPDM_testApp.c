@@ -27,7 +27,7 @@
  *           -> Export the memory and To play the PCM data, use pcmplay.c file which
  *              will generate the pcm_samples.pcm audio file
  *           -> Use ffplay command to play the audio.
- *           Hardware setup:
+ *           E7: Hardware setup:
  *           -> Connect Flat board PDM Microphone PDM data line to LPPDM data
  *              line of P3_5 (J11 on Flat board)
  *            For channel 0 and channel 1
@@ -35,7 +35,14 @@
                 pin P6_7 (on Flat board J15) --> pin P3_4 (on Flat board J11)
              -> Data line (LPPDM_D0_B):
                 pin P5_4 (on Flat board J14) --> pin P3_5 (on Flat board J11)
-
+ *           E1C: Hardware setup:
+ *           -> Connect the Spark DevKit PDM Microphone's PDM data line to LPPDM data
+ *              line (P5_6)
+ *           -> For channel 0 and channel 1 as follows:
+ *           -> Clock Line Connection:
+ *              pin P7_4 --> pin P5_4
+ *           -> Data Line Connection:
+ *              pin P7_5 --> pin P5_6
  ******************************************************************************/
 /* System Includes */
 #include <stdio.h>
@@ -82,7 +89,13 @@ StaticTask_t TimerTcb;
  * to store maximum samples then change the scatter file and increase the memory */
 #define NUM_SAMPLE  30000
 
-/* channel number used for channel configuration and status register */
+/* Channel Configuration:
+ * The CHANNEL_0 and CHANNEL_1 macros define the channel numbers used
+ * for channel configuration.
+ * To configure other channels (e.g., channel 2 and channel 3), update the macros as follows:
+ * #define CHANNEL_0  2
+ * #define CHANNEL_1  3
+ */
 #define CHANNEL_0  0
 #define CHANNEL_1  1
 
@@ -192,42 +205,42 @@ static int32_t board_lppdm_pins_config(void)
     int32_t status;
 
     /* channel 0_1 data line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_D0_B_GPIO_PORT), BOARD_LPPDM_D0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D0_GPIO_PORT), BOARD_LPPDM_D0_GPIO_PIN, BOARD_LPPDM_D0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 2_3 data line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_D1_B_GPIO_PORT), BOARD_LPPDM_D1_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D1_GPIO_PORT), BOARD_LPPDM_D1_GPIO_PIN, BOARD_LPPDM_D1_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 4_5 data line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_D2_B_GPIO_PORT), BOARD_LPPDM_D2_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D2_GPIO_PORT), BOARD_LPPDM_D2_GPIO_PIN, BOARD_LPPDM_D2_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* channel 6_7 data line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_D3_A_GPIO_PORT), BOARD_LPPDM_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    status = pinconf_set(PORT_(BOARD_LPPDM_D3_GPIO_PORT), BOARD_LPPDM_D3_GPIO_PIN, BOARD_LPPDM_D3_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (status)
         return ERROR;
 
     /* Channel 0_1 clock line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_C0_B_GPIO_PORT), BOARD_LPPDM_C0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C0_GPIO_PORT), BOARD_LPPDM_C0_GPIO_PIN, BOARD_LPPDM_C0_ALTERNATE_FUNCTION, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 2_3 clock line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_C1_B_GPIO_PORT), BOARD_LPPDM_C1_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C1_GPIO_PORT), BOARD_LPPDM_C1_GPIO_PIN, BOARD_LPPDM_C1_ALTERNATE_FUNCTION, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 4_5 clock line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_C2_B_GPIO_PORT), BOARD_LPPDM_C2_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C2_GPIO_PORT), BOARD_LPPDM_C2_GPIO_PIN, BOARD_LPPDM_C2_ALTERNATE_FUNCTION, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
     /* Channel 6_7 clock line */
-    status = pinconf_set(PORT_(BOARD_LPPDM_C3_A_GPIO_PORT), BOARD_LPPDM_C3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    status = pinconf_set(PORT_(BOARD_LPPDM_C3_GPIO_PORT), BOARD_LPPDM_C3_GPIO_PIN, BOARD_LPPDM_C3_ALTERNATE_FUNCTION, PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status)
         return ERROR;
 
@@ -307,7 +320,13 @@ void pdm_demo_thread_entry(void *pvParameters)
         goto error_uninitialize;
     }
 
-    /* To select the PDM channel 0 and channel 1 */
+    /* PDM Channel Selection:
+     * This code selects PDM channel 0 and channel 1 for operation.
+     * To select different channels (e.g., channel 2 and channel 3), update the macro parameter
+     * in the PDMdrv->Control function as follows:
+     * (ARM_PDM_MASK_CHANNEL_2 | ARM_PDM_MASK_CHANNEL_3)
+     * Note: These macros are defined in Driver_PDM.h.
+     */
     ret = PDMdrv->Control(ARM_PDM_SELECT_CHANNEL, (ARM_PDM_MASK_CHANNEL_0 | ARM_PDM_MASK_CHANNEL_1), NULL);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: PDM channel select control failed\n");

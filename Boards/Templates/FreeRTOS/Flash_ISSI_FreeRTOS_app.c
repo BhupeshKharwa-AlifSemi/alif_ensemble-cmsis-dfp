@@ -35,7 +35,6 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
-
 #define DEMO_THREAD_STACK_SIZE                        ( 512 )
 
 /* Thread id of thread */
@@ -46,8 +45,8 @@ TaskHandle_t xDemoTask;
 extern ARM_DRIVER_FLASH ARM_Driver_Flash_( FLASH_NUM );
 #define ptrFLASH ( &ARM_Driver_Flash_( FLASH_NUM ) )
 
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_OSPI1_RESET_GPIO_PORT);
-ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_OSPI1_RESET_GPIO_PORT);
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_ISSI_FLASH_RESET_GPIO_PORT);
+ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_ISSI_FLASH_RESET_GPIO_PORT);
 
 #define FLASH_ADDR 0x00
 #define BUFFER_SIZE 1024
@@ -76,23 +75,23 @@ static int32_t prvSetupPinMUX( void )
         return lRet;
     }
 
-    lRet = GPIODrv->Initialize(BOARD_OSPI1_RESET_GPIO_PIN, NULL);
+    lRet = GPIODrv->Initialize(BOARD_ISSI_FLASH_RESET_GPIO_PIN, NULL);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->PowerControl(BOARD_OSPI1_RESET_GPIO_PIN, ARM_POWER_FULL);
+    lRet = GPIODrv->PowerControl(BOARD_ISSI_FLASH_RESET_GPIO_PIN, ARM_POWER_FULL);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetDirection(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    lRet = GPIODrv->SetDirection(BOARD_ISSI_FLASH_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetValue(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
+    lRet = GPIODrv->SetValue(BOARD_ISSI_FLASH_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
-    lRet = GPIODrv->SetValue(BOARD_OSPI1_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    lRet = GPIODrv->SetValue(BOARD_ISSI_FLASH_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if (lRet != ARM_DRIVER_OK)
         return -1;
 
@@ -312,4 +311,3 @@ int main(  void  )
     vTaskStartScheduler();
 
 }
-

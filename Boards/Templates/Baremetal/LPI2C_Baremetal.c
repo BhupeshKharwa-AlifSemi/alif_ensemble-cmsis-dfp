@@ -126,8 +126,8 @@ static void i2c_slv_transfer_callback(uint32_t event)
 static int32_t board_lpi2c_pins_config(void)
 {
     int32_t ret;
-    /* LPI2C_SDA_B */
-    ret= pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT), BOARD_LPI2C_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4,
+    /* LPI2C_SDA */
+    ret= pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT), BOARD_LPI2C_SDA_GPIO_PIN, BOARD_LPI2C_SDA_ALTERNATE_FUNCTION,
              (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret)
     {
@@ -135,8 +135,8 @@ static int32_t board_lpi2c_pins_config(void)
         return ret;
     }
 
-    /* LPI2C_SCL_B */
-    ret= pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT), BOARD_LPI2C_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+    /* LPI2C_SCL */
+    ret= pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT), BOARD_LPI2C_SCL_GPIO_PIN, BOARD_LPI2C_SCL_ALTERNATE_FUNCTION,
              (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret)
     {
@@ -144,8 +144,8 @@ static int32_t board_lpi2c_pins_config(void)
         return ret;
     }
 
-    /* I2C0_SDA_B */
-    ret= pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT), BOARD_I2C0_SDA_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+    /* I2C0_SDA */
+    ret= pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT), BOARD_I2C0_SDA_GPIO_PIN, BOARD_I2C0_SDA_ALTERNATE_FUNCTION,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret)
@@ -154,8 +154,8 @@ static int32_t board_lpi2c_pins_config(void)
         return ret;
     }
 
-    /* I2C0_SCL_B */
-    ret= pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT), BOARD_I2C0_SCL_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+    /* I2C0_SCL */
+    ret= pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT), BOARD_I2C0_SCL_GPIO_PIN, BOARD_I2C0_SCL_ALTERNATE_FUNCTION,
                 (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                  PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret)

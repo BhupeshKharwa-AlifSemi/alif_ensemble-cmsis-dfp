@@ -28,7 +28,7 @@
 /* Project Includes */
 #include "WM8904_codec_i2c.h"
 
-#if (defined(RTE_WM8904_CODEC) && defined(RTE_Drivers_WM8904))
+#if (defined(RTE_WM8904_CODEC) && defined(RTE_Drivers_WM8904_CODEC))
 
 /* Wrapper function for Delay
  * Delay for millisecond:

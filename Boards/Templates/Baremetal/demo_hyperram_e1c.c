@@ -1,64 +1,62 @@
-/* Copyright (C) 2023 Alif Semiconductor - All Rights Reserved.
- * Use, distribution and modification of this code is permitted under the
- * terms stated in the Alif Semiconductor Software License Agreement
- *
- * You should have received a copy of the Alif Semiconductor Software
- * License Agreement with this file. If not, please write to:
- * contact@alifsemi.com, or visit: https://alifsemi.com/license
- *
- */
+/* Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
+* Use, distribution and modification of this code is permitted under the
+* terms stated in the Alif Semiconductor Software License Agreement
+*
+* You should have received a copy of the Alif Semiconductor Software
+* License Agreement with this file. If not, please write to:
+* contact@alifsemi.com, or visit: https://alifsemi.com/license
+*
+*/
 
 /******************************************************************************
- * @file     ospi_hyperram_xip_demo.c
- * @author   Silesh C V
- * @email    silesh@alifsemi.com
- * @version  V1.0.0
- * @date     20-Jul-2023
- * @brief    Demo program for the OSPI hyperram XIP library API.
- ******************************************************************************/
+* @file     demo_hyperram_e1c.c
+* @author   Silesh C V, Manoj A Murudi
+* @email    silesh@alifsemi.com, manoj.murudi@alifsemi.com
+* @version  V1.0.0
+* @date     3-April-2025
+* @brief    Demo program for the OSPI hyperram XIP for Balletto family.
+******************************************************************************/
 
 /*
- * Below are the constraints to make use of HyperRAM memory on Ensemble:
- * 1. Hardcoded DFS for writes is not supported. Writes matching the same data frame size as designated for
- *    hardcoded DFS reads must be used to avoid unexpected results.
- * 2. 8-bit writes and 8-bit DFS are not supported at all for Octal DDR operation, including HyperBus.
- * 3. AXI bus sparse writes are not supported.
- * 4. In general, RTSS Cortex-M55 HP, RTSS Cortex-M55 HE cannot use the HyperRAM as a general-purpose
- *    memory due to the above limitations. The Cortex-M55s can write to HyperRAM as long as accesses
+ * Below are the constraints to make use of HyperRAM memory on Balletto:
+ * 1. 8-bit writes and 8-bit DFS are not supported at all for Octal DDR operation, including HyperBus.
+ * 2. AXI bus sparse writes are not supported.
+ * 3. In general, RTSS Cortex-M55 HE cannot use the HyperRAM as a general-purpose memory
+ *    due to the above limitations. The Cortex-M55 HE can write to HyperRAM as long as accesses
  *    are controlled to stay within the above constraints — this would  require writing with the
- *    memory mapped as Device Mode for either Cortex-M55.
+ *    memory mapped as Device Mode for Cortex-M55 HE.
  */
 
 #include "ospi_hyperram_xip.h"
+#include "board_config.h"
 #include "Driver_IO.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
-#include "board_config.h"
 
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define OSPI_RESET_PIN      BOARD_OSPI0_RESET_GPIO_PIN
+#define OSPI_RESET_PIN      BOARD_IS66_HYPERRAM_RESET_GPIO_PIN
 #define OSPI0_XIP_BASE      0xA0000000
 
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_OSPI0_RESET_GPIO_PORT);
-ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_OSPI0_RESET_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_IS66_HYPERRAM_RESET_GPIO_PORT);
+ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_IS66_HYPERRAM_RESET_GPIO_PORT);
 
 /* OSPI0 region index is 5 in mpu table defined in the same testapp */
 #define MPU_OSPI0_REGION_INDEX  5U
 
 #define DDR_DRIVE_EDGE      0
-#define RXDS_DELAY          11
-#define OSPI_BUS_SPEED      100000000           /* 100MHz */
+#define RXDS_DELAY          8
+#define OSPI_BUS_SPEED      80000000           /* 80MHz */
 #define ISSI_WAIT_CYCLES    6
 #define OSPI_DFS            16
 
-#define HRAM_SIZE_BYTES     (32 * 1024 * 1024)  /* 32MB */
+#define HRAM_SIZE_BYTES     (64 * 1024 * 1024)  /* 64MB */
 
 #define BUFFER_SIZE      (16 * 1024)
 static uint16_t buff[BUFFER_SIZE/sizeof(uint16_t)]; /* Buffer size of 16KB */
@@ -72,7 +70,7 @@ static const ospi_hyperram_xip_config issi_config = {
     .wait_cycles    = ISSI_WAIT_CYCLES,
     .slave_select   = 0,
     .dfs            = OSPI_DFS,
-    .spi_mode     = OSPI_SPI_MODE_OCTAL
+    .spi_mode       = OSPI_SPI_MODE_OCTAL
 };
 
 void MPU_Load_Regions(void)
@@ -119,8 +117,8 @@ void MPU_Load_Regions(void)
     /* Mem Attribute for 0th index */
     ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA_TRANSIENT, ARM_MPU_ATTR(
                                          /* NT=0, WB=0, RA=1, WA=0 */
-                                         ARM_MPU_ATTR_MEMORY_(0,0,1,0),
-                                         ARM_MPU_ATTR_MEMORY_(0,0,1,0)));
+                                         ARM_MPU_ATTR_MEMORY_(0, 0, 1, 0),
+                                         ARM_MPU_ATTR_MEMORY_(0, 0, 1, 0)));
 
     /* Mem Attribute for 1st index */
     ARM_MPU_SetMemAttr(MEMATTRIDX_DEVICE_nGnRE, ARM_MPU_ATTR(
@@ -131,14 +129,14 @@ void MPU_Load_Regions(void)
     /* Mem Attribute for 2nd index */
     ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WB_RA_WA, ARM_MPU_ATTR(
                                          /* NT=1, WB=1, RA=1, WA=1 */
-                                         ARM_MPU_ATTR_MEMORY_(1,1,1,1),
-                                         ARM_MPU_ATTR_MEMORY_(1,1,1,1)));
+                                         ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1),
+                                         ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1)));
 
     /* Mem Attribute for 3th index */
     ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA, ARM_MPU_ATTR(
                                          /* NT=1, WB=0, RA=1, WA=0 */
-                                         ARM_MPU_ATTR_MEMORY_(1,0,1,0),
-                                         ARM_MPU_ATTR_MEMORY_(1,0,1,0)));
+                                         ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0),
+                                         ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0)));
 
     /* Mem Attribute for 4th index */
     ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_NON_CACHEABLE, ARM_MPU_ATTR(
@@ -188,7 +186,7 @@ static void mpu_set_ospi0_xip_cacheable_attr(void)
     __ISB();
 }
 
-static int32_t pinmux_setup()
+static int32_t pinmux_setup(void)
 {
     int32_t ret;
 
@@ -201,33 +199,23 @@ static int32_t pinmux_setup()
 
     ret = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);
     if (ret != ARM_DRIVER_OK)
-    {
         return -1;
-    }
 
     ret = GPIODrv->PowerControl(OSPI_RESET_PIN, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK)
-    {
         return -1;
-    }
 
     ret = GPIODrv->SetDirection(OSPI_RESET_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if (ret != ARM_DRIVER_OK)
-    {
         return -1;
-    }
 
     ret = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (ret != ARM_DRIVER_OK)
-    {
         return -1;
-    }
 
     ret = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if (ret != ARM_DRIVER_OK)
-    {
         return -1;
-    }
 
     return 0;
 }
@@ -325,7 +313,7 @@ void hyperram_test(void)
 {
     volatile uint16_t *ptr = (uint16_t *) OSPI0_XIP_BASE;
     uint32_t errors = 0;
-    uint16_t val;
+    uint32_t val;
 
     /* writing 16KB of random data to HyperRAM using the device memory
      * attribute, followed by multiple readbacks using device, non-cacheable
@@ -340,12 +328,13 @@ void hyperram_test(void)
 
         SCB_InvalidateDCache_by_Addr(ptr, BUFFER_SIZE);
 
-        /* writing 16KB data to hyperram memory in device attr */
-        for (int i = 0; i < (BUFFER_SIZE/sizeof(uint16_t)); i++)
+        /* Writing 16KB of data to HyperRAM using 32-bit accesses
+         * with device memory attributes */
+        for (int i = 0; i < (BUFFER_SIZE/sizeof(uint32_t)); i++)
         {
-            val = (rand() % 0xFFFF);
-            buff[i] = val;
-            ptr[i] = val;
+            val = rand();
+            ((uint32_t *)buff)[i] = val;
+            ((uint32_t *)ptr)[i] = val;
         }
 
         /* read back 16KB data from hyperram memory in device attr */
@@ -365,6 +354,8 @@ void hyperram_test(void)
     mpu_set_ospi0_xip_device_attr();
     SCB_InvalidateDCache_by_Addr((void *)OSPI0_XIP_BASE, HRAM_SIZE_BYTES);
 
+    /* Writing 64MB of data to HyperRAM using 16-bit accesses
+     * with device memory attributes */
     for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
     {
         ptr[i] = (rand() % 0xFFFF);

@@ -17,12 +17,17 @@
  *           1) Master transmit 30 bytes and Slave receive 30 bytes
  *           2) Slave transmit 29 bytes and Master receive 29 bytes
  *           I2C1 instance is taken as Master (PIN used P7_2 and P7_3)
- *           I2C0 instance is taken as Slave  (PIN used P0_2 and P0_3)
+ *           For E7: I2C0 instance is taken as Slave  (PIN used P0_2 and P0_3)
+ *           For E1C:I2C0 instance is taken as Slave  (PIN used P7_0 and P7_1)
  *
- *           Hardware setup:
+ *           E7: Hardware setup:
  *           - Connecting GPIO pins of I2C1 TO I2C0
  *             SDA pin P7_2(J15) to P0_2(J11)
  *             SCL pin P7_3(J15) to P0_3(J11).
+ *           E1C: Hardware setup:
+ *           - Connecting GPIO pins of I2C1 TO I2C0
+ *             SDA pin P7_2(J14) to P7_0(J14)
+ *             SCL pin P7_3(J14) to P7_1(J14).
  * @bug      None.
  * @Note     None.
  ******************************************************************************/
@@ -35,8 +40,6 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-
-#include "sys_utils.h"
 #include "Driver_I2C.h"
 #include "board_config.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -80,18 +83,18 @@ static volatile uint32_t slv_cb_status = 0;
      * as the DMA processes in 2bytes fashion only */
     /* Master parameter set */
     /* Master TX Data */
-    static uint16_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
+    static uint16_t __ALIGNED(4) MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
     {
         /* MST_TX_BUF data = "Master_Data" */
         77, 97, 115, 116, 101, 114, 95, 68, 97, 116, 97
     };
     /* master receive buffer */
-    static uint16_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
+    static uint16_t __ALIGNED(4) MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
     /* Master parameter set END  */
     /* Slave parameter set */
     /* slave receive buffer */
-    static uint16_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
-    static uint16_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
+    static uint16_t __ALIGNED(4) SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
+    static uint16_t __ALIGNED(4) SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
     {
         /* SLV_TX_BUF data =  "Slave_Data" */
         83, 108, 97, 118, 101, 95, 68, 97, 116, 97

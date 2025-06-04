@@ -128,7 +128,7 @@ static int32_t board_canfd_pins_config(void)
     int32_t ret_val = 0U;
 
     /* pinmux configurations for CANFD pins */
-    ret_val = pinconf_set(PORT_(BOARD_CAN_RXD_A_GPIO_PORT), BOARD_CAN_RXD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_RXD_GPIO_PORT), BOARD_CAN_RXD_GPIO_PIN, BOARD_CAN_RXD_ALTERNATE_FUNCTION,
                           (PADCTRL_READ_ENABLE |
                            PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA));
     if(ret_val)
@@ -137,7 +137,7 @@ static int32_t board_canfd_pins_config(void)
         return ret_val;
     }
 
-    ret_val = pinconf_set(PORT_(BOARD_CAN_TXD_A_GPIO_PORT), BOARD_CAN_TXD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_TXD_GPIO_PORT), BOARD_CAN_TXD_GPIO_PIN, BOARD_CAN_TXD_ALTERNATE_FUNCTION,
                           PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(ret_val)
     {
@@ -145,7 +145,7 @@ static int32_t board_canfd_pins_config(void)
         return ret_val;
     }
 
-    ret_val = pinconf_set(PORT_(BOARD_CAN_STBY_A_GPIO_PORT), BOARD_CAN_STBY_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7,
+    ret_val = pinconf_set(PORT_(BOARD_CAN_STBY_GPIO_PORT), BOARD_CAN_STBY_GPIO_PIN, BOARD_CAN_STBY_ALTERNATE_FUNCTION,
                           PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(ret_val)
     {

@@ -22,7 +22,7 @@
              -If the input value is not greater than the maximum dac input value
                then input value will be incremented by 1000.
 
-             Hardware Setup :
+             E7: Hardware Setup :
               -when the application uses DAC0 channel,then connect DAC0 to P2_2
                GPIO pin,according to DAC input the output will be observed in P2_2
                GPIO pin through the logic analyzer.
@@ -30,6 +30,10 @@
               -And when the application uses DAC1 channel,then connect DAC1 to
                P2_3 GPIO pin,according to DAC input the output will be observed
                in P2_3 GPIO pin through the logic analyzer.
+             E1C: Hardware Setup :
+              - Connect the logic analyzer to pin P2_3 to observe the DAC0 output.
+                By varying the DAC input values, the output will be displayed on
+                pin P2_3.
  ******************************************************************************/
 /* System Includes */
 #include <stdio.h>
@@ -53,8 +57,8 @@
 
 
 /* DAC Driver instance */
-extern ARM_DRIVER_DAC ARM_Driver_DAC_(BOARD_P2_2_DAC12_INSTANCE);
-static ARM_DRIVER_DAC *DACdrv = &ARM_Driver_DAC_(BOARD_P2_2_DAC12_INSTANCE);
+extern ARM_DRIVER_DAC ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
+static ARM_DRIVER_DAC *DACdrv = &ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
 
 /* DAC maximum resolution is 12-bit */
 #define DAC_MAX_INPUT_VALUE   (0xFFF)
@@ -74,15 +78,16 @@ static int32_t board_dac12_pins_config(void)
     int32_t status;
 
     /* Configure DAC120 output */
-    status = pinconf_set(PORT_(BOARD_DAC120_OUT_GPIO_PORT), BOARD_DAC120_OUT_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    status = pinconf_set(PORT_(BOARD_DAC120_OUT_GPIO_PORT), BOARD_DAC120_OUT_GPIO_PIN, BOARD_DAC120_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(status)
         return ERROR;
 
+#if(RTE_DAC1)
     /* Configure DAC121 output */
-    status = pinconf_set(PORT_(BOARD_DAC121_OUT_GPIO_PORT), BOARD_DAC121_OUT_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    status = pinconf_set(PORT_(BOARD_DAC121_OUT_GPIO_PORT), BOARD_DAC121_OUT_GPIO_PIN, BOARD_DAC121_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if(status)
         return ERROR;
-
+#endif
     return SUCCESS;
 }
 #endif
@@ -122,7 +127,7 @@ static void dac_demo(void)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_dac12_pins_config();
-    if(ret != 0)
+    if (ret != 0)
     {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;

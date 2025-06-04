@@ -14,8 +14,8 @@
  * @email    manoj.murudi@alifsemi.com
  * @version  V1.0.0
  * @date     28-Jan-2024
- * @brief    Baremetal demo app configures the SPI2 instance in master
- *           mode with Microwire frame format and configures the SPI3 instance
+ * @brief    Baremetal demo app configures the BOARD_MW_SPI_MASTER_INSTANCE instance in master
+ *           mode with Microwire frame format and configures the BOARD_MW_SPI_SLAVE_INSTANCE instance
  *           in slave mode with Microwire frame format. The data transfer
  *           occurs between master and slave or slave and master based on the
  *           MASTER_TO_SLAVE_TRANSFER macro.
@@ -43,16 +43,14 @@
  *        0: To enable slave to master transfer */
 #define MASTER_TO_SLAVE_TRANSFER   1
 
-#define SPI2               2        /* SPI instance 2 configured Master */
-#define SPI3               3        /* SPI instance 3 configured Slave */
 
-static volatile uint32_t cb_spi2_status, cb_spi3_status;
+static volatile uint32_t cb_spi_master_status, cb_spi_slave_status;
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI2);
-static ARM_DRIVER_SPI *masterDrv = &ARM_Driver_SPI_(SPI2);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(BOARD_MW_SPI_MASTER_INSTANCE);
+static ARM_DRIVER_SPI *masterDrv = &ARM_Driver_SPI_(BOARD_MW_SPI_MASTER_INSTANCE);
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI3);
-static ARM_DRIVER_SPI *slaveDrv = &ARM_Driver_SPI_(SPI3);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(BOARD_MW_SPI_SLAVE_INSTANCE);
+static ARM_DRIVER_SPI *slaveDrv = &ARM_Driver_SPI_(BOARD_MW_SPI_SLAVE_INSTANCE);
 
 #if(!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
@@ -65,56 +63,56 @@ static int32_t board_spi_pins_config(void)
 {
     int32_t ret = 0;
 
-    /* pinmux configurations for SPI2 pins (using B version pins) */
-    ret = pinconf_set(PORT_(BOARD_SPI2_MISO_GPIO_PORT), BOARD_SPI2_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    /* pinmux configurations for SPI Master pins  */
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MISO_GPIO_PORT), BOARD_MW_SPI_MASTER_MISO_GPIO_PIN, BOARD_MW_SPI_MASTER_MISO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI2_MISO_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_MASTER_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_MOSI_GPIO_PORT), BOARD_SPI2_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MOSI_GPIO_PORT), BOARD_MW_SPI_MASTER_MOSI_GPIO_PIN, BOARD_MW_SPI_MASTER_MOSI_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI2_MOSI_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_MASTER_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_SCLK_GPIO_PORT), BOARD_SPI2_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SCLK_GPIO_PORT), BOARD_MW_SPI_MASTER_SCLK_GPIO_PIN, BOARD_MW_SPI_MASTER_SCLK_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI2_CLK_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_MASTER_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_SS0_GPIO_PORT), BOARD_SPI2_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SS0_GPIO_PORT), BOARD_MW_SPI_MASTER_SS0_GPIO_PIN, BOARD_MW_SPI_MASTER_SS0_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI2_SS_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_MASTER_SS_PIN\n");
         return ret;
     }
 
 
-    /* pinmux configurations for SPI3 pins (using B version pins) */
-    ret = pinconf_set(PORT_(BOARD_SPI3_MISO_GPIO_PORT), BOARD_SPI3_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    /* pinmux configurations for SPI Slave pins  */
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MISO_GPIO_PORT), BOARD_MW_SPI_SLAVE_MISO_GPIO_PIN, BOARD_MW_SPI_SLAVE_MISO_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI3_MISO_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_SLAVE_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_MOSI_GPIO_PORT), BOARD_SPI3_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MOSI_GPIO_PORT), BOARD_MW_SPI_SLAVE_MOSI_GPIO_PIN, BOARD_MW_SPI_SLAVE_MOSI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI3_MOSI_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_SLAVE_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_SCLK_GPIO_PORT), BOARD_SPI3_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SCLK_GPIO_PORT), BOARD_MW_SPI_SLAVE_SCLK_GPIO_PIN, BOARD_MW_SPI_SLAVE_SCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI3_SCLK_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_SLAVE_SCLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_SS0_GPIO_PORT), BOARD_SPI3_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SS0_GPIO_PORT), BOARD_MW_SPI_SLAVE_SS0_GPIO_PIN, BOARD_MW_SPI_SLAVE_SS0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
-        printf("ERROR: Failed to configure PINMUX for SPI3_SS_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for SPI_SLAVE_SS_PIN\n");
         return ret;
     }
     return 0;
@@ -122,32 +120,32 @@ static int32_t board_spi_pins_config(void)
 #endif
 
 /**
- * @fn      void SPI2_Callback_func (uint32_t event)
- * @brief   SPI2 call back function.
+ * @fn      void SPI_Master_Callback_func (uint32_t event)
+ * @brief   SPI Master call back function.
  * @note    none.
  * @param   event: SPI event.
  * @retval  None
  */
-static void SPI2_Callback_func (uint32_t event)
+static void SPI_Master_Callback_func (uint32_t event)
 {
     if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
     {
-        cb_spi2_status = 1;
+        cb_spi_master_status = 1;
     }
 }
 
 /**
- * @fn      void SPI3_Callback_func (uint32_t event)
- * @brief   SPI3 call back function.
+ * @fn      void SPI_Slave_Callback_func (uint32_t event)
+ * @brief   SPI Slave call back function.
  * @note    none.
  * @param   event: SPI event.
  * @retval  None
  */
-static void SPI3_Callback_func (uint32_t event)
+static void SPI_Slave_Callback_func (uint32_t event)
 {
     if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
     {
-        cb_spi3_status = 1;
+        cb_spi_slave_status = 1;
     }
 }
 
@@ -160,9 +158,9 @@ static void SPI3_Callback_func (uint32_t event)
  */
 static void MW_Demo_func(void)
 {
-    uint32_t master_control, slave_control, baudrate = 1000000;
+    uint32_t master_control, slave_control, baudrate = BOARD_MW_SPI_MASTER_BUS_SPEED;
     int32_t status;
-    ARM_SPI_STATUS spi2_status, spi3_status;
+    ARM_SPI_STATUS spi_master_status, spi_slave_status;
 
     /* Single buffer is used to store both control code and data.
      * Therefore, Buffer width size should be of 4 bytes irrespective of frame format size
@@ -185,7 +183,7 @@ static void MW_Demo_func(void)
 
 #else
     /*
-     * NOTE: The spi2 and spi3 pins used in this test application are not configured
+     * NOTE: The spi master and spi slave pins used in this test application are not configured
      * in the board support library.Therefore, it is being configured manually here.
      */
     status = board_spi_pins_config();
@@ -196,19 +194,19 @@ static void MW_Demo_func(void)
     }
 #endif
 
-    /* SPI2 master instance initialization */
-    status = masterDrv->Initialize(SPI2_Callback_func);
+    /* SPI master instance initialization */
+    status = masterDrv->Initialize(SPI_Master_Callback_func);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to initialize SPI2 \n");
+        printf("ERROR: Failed to initialize SPI Master \n");
         return;
     }
 
     status = masterDrv->PowerControl(ARM_POWER_FULL);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to power SPI2 \n");
-        goto error_spi2_uninitialize;
+        printf("ERROR: Failed to power SPI Master \n");
+        goto error_spi_master_uninitialize;
     }
 
     master_control = (ARM_SPI_MODE_MASTER | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_MICROWIRE | ARM_SPI_DATA_BITS(32));
@@ -216,23 +214,23 @@ static void MW_Demo_func(void)
     status = masterDrv->Control(master_control, baudrate);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to configure SPI2\n");
-        goto error_spi2_power_off;
+        printf("ERROR: Failed to configure SPI Master\n");
+        goto error_spi_master_power_off;
     }
 
-    /* SPI3 slave instance initialization */
-    status = slaveDrv->Initialize(SPI3_Callback_func);
+    /* SPI slave instance initialization */
+    status = slaveDrv->Initialize(SPI_Slave_Callback_func);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to initialize SPI3 \n");
+        printf("ERROR: Failed to initialize SPI Slave \n");
         return;
     }
 
     status = slaveDrv->PowerControl(ARM_POWER_FULL);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to power SPI3 \n");
-        goto error_spi3_uninitialize;
+        printf("ERROR: Failed to power SPI Slave \n");
+        goto error_spi_slave_uninitialize;
     }
 
     slave_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_MICROWIRE | ARM_SPI_DATA_BITS(32));
@@ -240,15 +238,15 @@ static void MW_Demo_func(void)
     status = slaveDrv->Control(slave_control, NULL);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to configure SPI3\n");
-        goto error_spi3_power_off;
+        printf("ERROR: Failed to configure SPI Slave\n");
+        goto error_spi_slave_power_off;
     }
 
     status = masterDrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to configure SPI2\n");
-        goto error_spi2_power_off;
+        printf("ERROR: Failed to configure SPI Master\n");
+        goto error_spi_master_power_off;
     }
 
 #if MASTER_TO_SLAVE_TRANSFER
@@ -265,8 +263,8 @@ static void MW_Demo_func(void)
     status = slaveDrv->Receive(slave_rx_buff, 2);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed SPI3 to configure as rx\n");
-        goto error_spi3_power_off;
+        printf("ERROR: Failed SPI Slave to configure as rx\n");
+        goto error_spi_slave_power_off;
     }
 
     /* The second parameter should be the total number of data to be transferred,
@@ -274,8 +272,8 @@ static void MW_Demo_func(void)
     status = masterDrv->Send(master_tx_buff, 2);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed SPI2 to configure as tx\n");
-        goto error_spi2_power_off;
+        printf("ERROR: Failed SPI Master to configure as tx\n");
+        goto error_spi_master_power_off;
     }
 
 #else
@@ -295,8 +293,8 @@ static void MW_Demo_func(void)
     status = slaveDrv->Transfer(slave_tx_buff, slave_rx_buff, 2);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed SPI3 to configure as tx\n");
-        goto error_spi3_power_off;
+        printf("ERROR: Failed SPI Slave to configure as tx\n");
+        goto error_spi_slave_power_off;
     }
 
     /* The third parameter should be the total number of data to be transferred,
@@ -304,29 +302,29 @@ static void MW_Demo_func(void)
     status = masterDrv->Transfer(master_tx_buff, master_rx_buff, 2);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed SPI2 to configure as rx\n");
-        goto error_spi2_power_off;
+        printf("ERROR: Failed SPI Master to configure as rx\n");
+        goto error_spi_master_power_off;
     }
 
 #endif
 
     /* waiting for a transfer complete interrupt */
-    while(!(cb_spi2_status && cb_spi3_status));
+    while(!(cb_spi_master_status && cb_spi_slave_status));
     printf("Data Transfer is completed\n");
 
-    spi2_status = masterDrv->GetStatus();
-    spi3_status = slaveDrv->GetStatus();
-    while((spi2_status.busy == 1) || (spi3_status.busy == 1))
+    spi_master_status = masterDrv->GetStatus();
+    spi_slave_status = slaveDrv->GetStatus();
+    while((spi_master_status.busy == 1) || (spi_slave_status.busy == 1))
     {
-        spi2_status = masterDrv->GetStatus();
-        spi3_status = slaveDrv->GetStatus();
+        spi_master_status = masterDrv->GetStatus();
+        spi_slave_status = slaveDrv->GetStatus();
     }
 
     masterDrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
     if (status != ARM_DRIVER_OK)
     {
-        printf("ERROR: Failed to configure SPI2\n");
-        goto error_spi2_power_off;
+        printf("ERROR: Failed to configure SPI Master\n");
+        goto error_spi_master_power_off;
     }
 
 #if MASTER_TO_SLAVE_TRANSFER
@@ -341,25 +339,25 @@ static void MW_Demo_func(void)
 
 #endif
 
-error_spi2_power_off :
+error_spi_master_power_off :
     status = masterDrv->PowerControl(ARM_POWER_OFF);
     if (status != ARM_DRIVER_OK)
-        printf("Error in SPI2 Power Off \n");
+        printf("Error in SPI Master Power Off \n");
 
-error_spi2_uninitialize :
+error_spi_master_uninitialize :
     status = masterDrv->Uninitialize();
     if (status != ARM_DRIVER_OK)
-        printf("Error in SPI2 Uninitialize \n");
+        printf("Error in SPI Master Uninitialize \n");
 
-error_spi3_power_off :
+error_spi_slave_power_off :
     status = slaveDrv->PowerControl(ARM_POWER_OFF);
     if (status != ARM_DRIVER_OK)
-        printf("Error in SPI3 Power Off \n");
+        printf("Error in SPI Slave Power Off \n");
 
-error_spi3_uninitialize :
+error_spi_slave_uninitialize :
     status = slaveDrv->Uninitialize();
     if (status != ARM_DRIVER_OK)
-        printf("Error in SPI3 Uninitialize \n");
+        printf("Error in SPI Slave Uninitialize \n");
 
     printf("\nEnd of MicroWire demo application \n");
 }
@@ -379,3 +377,4 @@ if(ret != ARM_DRIVER_OK)
 #endif
     MW_Demo_func();
 }
+

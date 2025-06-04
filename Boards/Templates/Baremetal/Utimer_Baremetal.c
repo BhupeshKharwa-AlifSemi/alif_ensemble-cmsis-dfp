@@ -17,9 +17,9 @@
  * @brief    Baremetal demo application for UTIMER.
  *           - Configuring the UTIMER Channel 0 for 500ms basic mode.
  *           - Configuring the UTIMER Channel 1 for 500ms, 1000ms, 1500ms buffering mode.
- *           - Configuring the UTIMER Channel 3 for counter start triggering mode.
- *           - Configuring the UTIMER Channel 4 for driver A, double buffering capture mode.
- *           - Configuring the UTIMER Channel 5 for driver A, double buffering compare mode.
+ *           - Configuring the UTIMER Channel 3(E7) and Channel 2(E1C) for counter start triggering mode.
+ *           - Configuring the UTIMER Channel 4(E7) and Channel 3(E1C) for driver A, double buffering capture mode.
+ *           - Configuring the UTIMER Channel 5 for driver A, double buffering compare mode (only for E7).
  * @bug      None.
  * @Note     None
  ******************************************************************************/
@@ -81,7 +81,7 @@ static int32_t gpio_init(ARM_UTIMER_MODE mode)
 
     if(mode == ARM_UTIMER_MODE_TRIGGERING)
     {
-#ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
+#if BOARD_TRIGGER_MODE_UTIMER_INSTANCE
         ret = ptrTrig0GPO->Initialize(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
             printf("ERROR: Failed to initialize BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN as GPIO\n");
@@ -133,9 +133,9 @@ static int32_t gpio_init(ARM_UTIMER_MODE mode)
 
     }
 
-    else if (mode == ARM_UTIMER_MODE_CAPTURING)
+    if (mode == ARM_UTIMER_MODE_CAPTURING)
     {
-#ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
+#if BOARD_CAPTURE_MODE_UTIMER_INSTANCE
         ret = ptrCapt0GPO->Initialize(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
             printf("ERROR: Failed to initialize BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN as GPIO\n");
@@ -301,7 +301,7 @@ static void utimer_basic_mode_app(void)
     /* utimer channel 0 is configured for utimer basic mode (config counter ptr reg for 500ms) */
 
     printf("*** utimer demo application for basic mode started ***\n");
-    /*
+    /* For E7:
      * System CLOCK frequency (F)= 400Mhz
      *
      * Time for 1 count T = 1/F = 1/(400*10^6) = 0.0025 * 10^-6
@@ -312,6 +312,17 @@ static void utimer_basic_mode_app(void)
      *
      * DEC = 20000000
      * HEX = 0xBEBC200
+     *
+     * For E1C:
+     * System CLOCK frequency (F)= 160Mhz
+     *
+     * Time for 1 count T = 1/F = 1/(160*10^6) = 6.25 * 10^-9
+     *
+     * To Increment or Decrement Timer by 1 count, takes 6.25 nano sec
+     *
+     * So count for 500ms = (500*(10^-3))/(6.25*(10^-9)) = 80000000
+     *
+     * DEC = 80000000
      */
     count_array[0] = 0x00000000;   /*< initial counter value >*/
     count_array[1] = BOARD_UTIMER_500_MILLI_SEC_COUNTER_VALUE;    /*< over flow count value >*/
@@ -426,7 +437,7 @@ static void utimer_buffering_mode_app (void)
      * configuring counter ptr, buf1, buf2 reg's as 500ms, 1 sec, 1.5 sec respectively */
 
     printf("*** utimer demo application for buffering mode started ***\n");
-    /*
+    /* For E7:
      * System CLOCK frequency (F)= 400Mhz
      *
      * Time for 1 count T = 1/F = 1/(400*10^6) = 0.0025 * 10^-6
@@ -444,6 +455,19 @@ static void utimer_buffering_mode_app (void)
      * So count for 1500ms = (1500*(10^-3))/(0.0025*(10^-6))
      * DEC = 60000000
      * HEX = 0x23C34600
+     *
+     * For E1C:
+     * System CLOCK frequency (F)= 160Mhz
+     *
+     * Time for 1 count T = 1/F = 1/(160*10^6) = 6.25 * 10^-9
+     *
+     * To Increment or Decrement Timer by 1 count, takes 6.25 nano sec
+     *
+     * So count for 500ms = (500*(10^-3))/(6.25*(10^-9)) = 80000000
+     *
+     * So count for 1000ms = (1000*(10^-3))/(6.25*(10^-9)) = 160000000
+     *
+     * So count for 1500ms = (1500*(10^-3))/(6.25*(10^-9)) = 240000000
      */
 
     count_array[0] = 0x00000000;     /*< Initial counter value>*/
@@ -578,13 +602,13 @@ static void utimer_trigger_mode_app(void)
     };
 
     /*
-     * utimer channel 3 is configured for utimer trigger mode.
+     * utimer channel 3 (E7) and channel 2 (E1C) is configured for utimer trigger mode.
      * chan_event_a_rising_b_0 event from pinmux is used for triggering counter start.
 
      **/
 
     printf("*** utimer demo application for trigger mode started ***\n");
-    /*
+    /* For E7:
      * System CLOCK frequency (F)= 400Mhz
      *
      * Time for 1 count T = 1/F = 1/(400*10^6) = 0.0025 * 10^-6
@@ -595,6 +619,15 @@ static void utimer_trigger_mode_app(void)
      *
      * DEC = 200000000
      * HEX = 0xBEBC200
+     *
+     * For E1C:
+     * System CLOCK frequency (F)= 160Mhz
+     *
+     * Time for 1 count T = 1/F = 1/(160*10^6) = 6.25 * 10^-9
+     *
+     * To Increment or Decrement Timer by 1 count, takes 6.25 nano sec
+     *
+     * So count for 500ms = (500*(10^-3))/(6.25*(10^-9)) = 80000000
      */
 
     count_array[0] = 0;            /*< initial counter value >*/
@@ -732,7 +765,7 @@ static void utimer_capture_mode_app(void)
      */
 
     printf("*** utimer demo application for capture mode started ***\n");
-    /*
+    /* For E7:
      * System CLOCK frequency (F)= 400Mhz
      *
      * Time for 1 count T = 1/F = 1/(400*10^6) = 0.0025 * 10^-6
@@ -743,6 +776,15 @@ static void utimer_capture_mode_app(void)
      *
      * DEC = 400000000
      * HEX = 0x17D78400
+     *
+     * For E1C:
+     * System CLOCK frequency (F)= 160Mhz
+     *
+     * Time for 1 count T = 1/F = 1/(160*10^6) = 6.25 * 10^-9
+     *
+     * To Increment or Decrement Timer by 1 count, takes 6.25 nano sec
+     *
+     * So count for 1000 sec = (1000*(10^-3))/(6.25*(10^-9)) = 160000000
      */
     count_array[0] = 0;             /*< initial counter value >*/
     count_array[1] = BOARD_UTIMER_1000_MILLI_SEC_COUNTER_VALUE;    /*< over flow count value >*/
@@ -895,7 +937,7 @@ static void utimer_compare_mode_app(void)
      * observe driver A output signal from P1_2.
      */
     printf("*** utimer demo application for compare mode started ***\n");
-    /*
+    /* For E7:
      * System CLOCK frequency (F)= 400Mhz
      *
      * Time for 1 count T = 1/F = 1/(400*10^6) = 0.0025 * 10^-6

@@ -21,14 +21,17 @@
  *              - Input A is set to RTE_CMP0_POSITIVE_PIN_PO_00 (analog pin P0_0)
  *              - Input B is set by RTE_CMP0_SEL_NEGATIVE
  *              - Input B is set to RTE_CMP_NEGATIVE_DAC6(which provide 0.9v)
- *              Hardware setup (1 wires needed):
+ *              E7: Hardware setup (1 wires needed):
  *              - Connect P0_0(+ve pin) to P12_3(GPIO output) and DAC6 is set as negative
  *                pin,check CMP0 output in the pin P14_7 using saleae logic analyzer.
+ *              E1C: Hardware setup (1 wires needed):
+ *              - Connect P0_6(+ve pin) to P4_7(GPIO output) and DAC6 is set as negative
+ *                pin,check CMP0 output in the pin P8_0 using saleae logic analyzer.
  *              - If +ve input is greater than -ve input, interrupt will be generated,
  *                and the output will be high.
  *              - If -ve input is greater than +ve input, interrupt will be generated,
  *                and the output will be low.
- *              For window control feature:
+ *              E7: For window control feature:
  *              - As glb_events/utimer events are active for few clocks, set prescalar
  *                value to 0. These interrupt will occur continuously because Utimer
  *                is running continuously.
@@ -39,6 +42,7 @@
 #include <stdio.h>
 #include "sys_utils.h"
 #include "board_config.h"
+#include "pinconf.h"
 #include "Driver_UTIMER.h"
 
 /* include for Comparator Driver */
@@ -52,11 +56,19 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+// Set to 0: Use application-defined CMP pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  1
+
 /* LED configurations */
 #define LED0_R                     BOARD_LEDRGB0_R_GPIO_PIN  /* LED0_R gpio pin             */
 
-/* To read the HSCMP0 output status set CMP_OUTPIN as 7, for HSCMP1 set CMP_OUTPIN as 6,
- * for set CMP_OUTPIN as HSCMP2 5, and for HSCMP3 set CMP_OUTPIN as 4 */
+/* For E7: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN, for HSCMP1
+ * set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN, for HSCMP2 set CMP_OUTPIN as BOARD_CMP2_OUT_GPIO_PIN,
+ * and for HSCMP3 set CMP_OUTPIN as BOARD_CMP3_OUT_GPIO_PIN.
+ * For E1C: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN and for
+ * HSCMP1 set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN
+ * */
 #define CMP_OUTPIN                      BOARD_CMP0_OUT_GPIO_PIN
 
 #define NUM_TAPS                        3  /* Filter taps: choose between 3 and 8 */
@@ -303,6 +315,44 @@ error_compare_mode_uninstall:
 #endif
 
 /**
+ * @fn      static int32_t board_cmp_pins_config(void)
+ * @brief   Configure CMP pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_cmp_pins_config(void)
+{
+    int32_t status;
+
+    /* Configure HSCMP0 output */
+    status = pinconf_set(PORT_(BOARD_CMP0_OUT_GPIO_PORT), BOARD_CMP0_OUT_GPIO_PIN, BOARD_CMP0_OUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
+
+    /* LPCMP_IN0 input to the positive terminal of LPCMP */
+    status = pinconf_set(PORT_(BOARD_LPCMP_POS_INPUT_GPIO_PORT), BOARD_LPCMP_POS_INPUT_GPIO_PIN, BOARD_LPCMP_POS_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
+
+    /* LPCMP_IN0 input to the negative terminal of LPCMP */
+    status = pinconf_set(PORT_(BOARD_LPCMP_NEG_INPUT_GPIO_PORT), BOARD_LPCMP_NEG_INPUT_GPIO_PIN, BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
+
+    /* CMP0_IN0 input to the positive terminal of HSCMP0 */
+    status = pinconf_set(PORT_(BOARD_CMP0_POS_INPUT_GPIO_PORT), BOARD_CMP0_POS_INPUT_GPIO_PIN, BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
+
+    /* VREF_IN0 input to the negative terminal of HSCMP0 and HSCMP1 */
+    status = pinconf_set(PORT_(BOARD_CMP_NEG_INPUT_GPIO_PORT), BOARD_CMP_NEG_INPUT_GPIO_PIN, BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
+    if(status)
+        return ERROR;
+
+    return SUCCESS;
+}
+
+/**
  * @fn        led_init(void)
  * @brief     - Initialize the LED0_R
  *            - Enable the power for LED0_R
@@ -483,6 +533,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     printf("\r\n >>> Comparator demo FreeRTOS starting up!!! <<< \r\n");
 
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     slRet = board_pins_config();
     if (slRet != 0)
@@ -490,6 +541,18 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         printf("Error in pin-mux configuration: %d\n", slRet);
         return;
     }
+#else
+    /*
+     * NOTE: The CMP pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    slRet = board_cmp_pins_config();
+    if(slRet != 0)
+    {
+        printf("Error in pin-mux configuration: %d\n", slRet);
+        return;
+    }
+#endif
 
     version = CMPdrv->GetVersion();
     printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);

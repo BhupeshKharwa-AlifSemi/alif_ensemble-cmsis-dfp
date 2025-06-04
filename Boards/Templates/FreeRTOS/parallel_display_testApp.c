@@ -147,224 +147,224 @@ int board_cdc200_pins_config(void)
 {
     int ret;
 
-    /* Configure Pin for cdc_pclk_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_PCLK_GPIO_PORT), BOARD_CDC_PCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_pclk */
+    ret = pinconf_set (PORT_(BOARD_CDC_PCLK_GPIO_PORT), BOARD_CDC_PCLK_GPIO_PIN, BOARD_CDC_PCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_PCLK \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_de_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_DE_GPIO_PORT), BOARD_CDC_DE_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_de */
+    ret = pinconf_set (PORT_(BOARD_CDC_DE_GPIO_PORT), BOARD_CDC_DE_GPIO_PIN, BOARD_CDC_DE_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_DE \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_hsync_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_HSYNC_GPIO_PORT), BOARD_CDC_HSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_hsync */
+    ret = pinconf_set (PORT_(BOARD_CDC_HSYNC_GPIO_PORT), BOARD_CDC_HSYNC_GPIO_PIN, BOARD_CDC_HSYNC_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_HSYNC \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_vsync_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_VSYNC_GPIO_PORT), BOARD_CDC_VSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_vsync */
+    ret = pinconf_set (PORT_(BOARD_CDC_VSYNC_GPIO_PORT), BOARD_CDC_VSYNC_GPIO_PIN, BOARD_CDC_VSYNC_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_VSYNC \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d0_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D0_GPIO_PORT), BOARD_CDC_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d0 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D0_GPIO_PORT), BOARD_CDC_D0_GPIO_PIN, BOARD_CDC_D0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D0 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d1_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D1_GPIO_PORT), BOARD_CDC_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d1 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D1_GPIO_PORT), BOARD_CDC_D1_GPIO_PIN, BOARD_CDC_D1_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D1 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d2_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D2_GPIO_PORT), BOARD_CDC_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d2 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D2_GPIO_PORT), BOARD_CDC_D2_GPIO_PIN, BOARD_CDC_D2_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D2 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d3_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D3_GPIO_PORT), BOARD_CDC_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d3 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D3_GPIO_PORT), BOARD_CDC_D3_GPIO_PIN, BOARD_CDC_D3_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D3 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d4_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D4_GPIO_PORT), BOARD_CDC_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d4 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D4_GPIO_PORT), BOARD_CDC_D4_GPIO_PIN, BOARD_CDC_D4_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D4 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d5_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D5_GPIO_PORT), BOARD_CDC_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d5 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D5_GPIO_PORT), BOARD_CDC_D5_GPIO_PIN, BOARD_CDC_D5_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D5 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d6_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D6_GPIO_PORT), BOARD_CDC_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d6 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D6_GPIO_PORT), BOARD_CDC_D6_GPIO_PIN, BOARD_CDC_D6_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D6 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d7_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D7_GPIO_PORT), BOARD_CDC_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d7 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D7_GPIO_PORT), BOARD_CDC_D7_GPIO_PIN, BOARD_CDC_D7_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D7 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d8_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D8_GPIO_PORT), BOARD_CDC_D8_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d8 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D8_GPIO_PORT), BOARD_CDC_D8_GPIO_PIN, BOARD_CDC_D8_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D8 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d9_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D9_GPIO_PORT), BOARD_CDC_D9_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d9 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D9_GPIO_PORT), BOARD_CDC_D9_GPIO_PIN, BOARD_CDC_D9_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D9 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d10_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D10_GPIO_PORT), BOARD_CDC_D10_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d10 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D10_GPIO_PORT), BOARD_CDC_D10_GPIO_PIN, BOARD_CDC_D10_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D10 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d11_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D11_GPIO_PORT), BOARD_CDC_D11_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d11 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D11_GPIO_PORT), BOARD_CDC_D11_GPIO_PIN, BOARD_CDC_D11_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D11 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d12_a */
-    ret = pinconf_set (PORT_(BOARD_CDC_D12_GPIO_PORT), BOARD_CDC_D12_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d12 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D12_GPIO_PORT), BOARD_CDC_D12_GPIO_PIN, BOARD_CDC_D12_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D12 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d13_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D13_GPIO_PORT), BOARD_CDC_D13_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d13 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D13_GPIO_PORT), BOARD_CDC_D13_GPIO_PIN, BOARD_CDC_D13_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D13 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d14_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D14_GPIO_PORT), BOARD_CDC_D14_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d14 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D14_GPIO_PORT), BOARD_CDC_D14_GPIO_PIN, BOARD_CDC_D14_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D14 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d15_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D15_GPIO_PORT), BOARD_CDC_D15_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d15 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D15_GPIO_PORT), BOARD_CDC_D15_GPIO_PIN, BOARD_CDC_D15_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D15 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d16_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D16_GPIO_PORT), BOARD_CDC_D16_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d16 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D16_GPIO_PORT), BOARD_CDC_D16_GPIO_PIN, BOARD_CDC_D16_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D16 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d17_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D17_GPIO_PORT), BOARD_CDC_D17_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d17 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D17_GPIO_PORT), BOARD_CDC_D17_GPIO_PIN, BOARD_CDC_D17_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D17 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d18_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D18_GPIO_PORT), BOARD_CDC_D18_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d18 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D18_GPIO_PORT), BOARD_CDC_D18_GPIO_PIN, BOARD_CDC_D18_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D18 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d19_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D19_GPIO_PORT), BOARD_CDC_D19_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d19 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D19_GPIO_PORT), BOARD_CDC_D19_GPIO_PIN, BOARD_CDC_D19_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D19 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d20_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D20_GPIO_PORT), BOARD_CDC_D20_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d20 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D20_GPIO_PORT), BOARD_CDC_D20_GPIO_PIN, BOARD_CDC_D20_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D20 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d21_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D21_GPIO_PORT), BOARD_CDC_D21_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d21 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D21_GPIO_PORT), BOARD_CDC_D21_GPIO_PIN, BOARD_CDC_D21_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D21 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d22_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D22_GPIO_PORT), BOARD_CDC_D22_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d22 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D22_GPIO_PORT), BOARD_CDC_D22_GPIO_PIN, BOARD_CDC_D22_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D22 \n");
         return ret;
     }
 
-    /* Configure Pin for cdc_d23_b */
-    ret = pinconf_set (PORT_(BOARD_CDC_D23_GPIO_PORT), BOARD_CDC_D23_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
+    /* Configure Pin for cdc_d23 */
+    ret = pinconf_set (PORT_(BOARD_CDC_D23_GPIO_PORT), BOARD_CDC_D23_GPIO_PIN, BOARD_CDC_D23_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for CDC_D23 \n");

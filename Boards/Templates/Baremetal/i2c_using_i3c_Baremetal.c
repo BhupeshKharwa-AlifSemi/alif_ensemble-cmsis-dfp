@@ -18,11 +18,14 @@
  *           multiple i2c slave devices using i3c IP
  *
  *           hardware setup
- *           BMI Slave is internally connected with the I3C_D
+ *           BMI Slave is internally connected with the I3C_D(E7) and I3C_A(E1C)
  *           No hardware setup required.
- *           Pins used:
+ *           E7: Pins used:
  *           P7_6 (SDA)
  *           P7_7 (SCL)
+ *           E1C:Pins used:
+ *           P0_6 (SDA)
+ *           P0_5 (SCL)
  *
  * @bug      None.
  * @Note     None.

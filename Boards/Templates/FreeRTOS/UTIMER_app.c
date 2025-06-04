@@ -42,6 +42,7 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+
 // Set to 0: Use application-defined UTIMER pin configuration (from board_utimer_pins_config).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG  0

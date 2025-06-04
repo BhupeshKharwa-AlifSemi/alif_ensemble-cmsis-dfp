@@ -25,9 +25,12 @@
  *            Required two boards one for Master and one for Slave
  *             (as there is only one i3c instance is available on ASIC).
  *
- *           Connect SDA to SDA and SCL to SCL and GND to GND.
+ *           For E7: Connect SDA to SDA and SCL to SCL and GND to GND.
  *            - SDA P7_6 -> SDA P7_6
  *            - SCL P7_7 -> SCL P7_7
+ *           For E1C: Connect SDA to SDA and SCL to SCL and GND to GND.
+ *            - SDA P0_6 -> SDA P0_6
+ *            - SCL P0_5 -> SCL P0_5
  *            - GND      -> GND
  * @bug      None.
  * @Note     None.
@@ -132,6 +135,8 @@ typedef enum _I3C_CB_EVENT{
 */
 int32_t hardware_init(void)
 {
+    int32_t  ret = 0;
+#if BOARD_I3C_FLEXIO_PRESENT
     /* for I3C_D(PORT_7 PIN_6(SDA)/PIN_7(SCL)) instance,
      *  for I3C in I3C mode (not required for I3C in I2C mode)
      *  GPIO voltage level(flex) has to be change to 1.8-V power supply.
@@ -152,7 +157,6 @@ int32_t hardware_init(void)
     extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7_PORT);
     ARM_DRIVER_GPIO *gpioDrv = &ARM_Driver_GPIO_(GPIO7_PORT);
 
-    int32_t  ret = 0;
     uint32_t arg = 0;
 
     ret = gpioDrv->Initialize(GPIO_PIN, NULL);
@@ -177,7 +181,7 @@ int32_t hardware_init(void)
         printf("ERROR: Failed to control GPIO Flex \n");
         return -1;
     }
-
+#endif
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if(ret != ARM_DRIVER_OK)

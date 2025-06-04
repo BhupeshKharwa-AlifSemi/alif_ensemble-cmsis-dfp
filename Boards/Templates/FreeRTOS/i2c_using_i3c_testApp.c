@@ -20,9 +20,13 @@
  *           hardware setup
  *           BMI Slave is internally connected with the I3C_D
  *           No hardware setup required.
- *           Pins used:
+ *           E7: Pins used:
  *           P7_6 (SDA)
  *           P7_7 (SCL)
+ *           E1C:Pins used:
+ *           P0_6 (SDA)
+ *           P0_5 (SCL)
+ *
  * @bug      None.
  * @Note     None.
  ******************************************************************************/

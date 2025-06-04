@@ -79,26 +79,26 @@ static int32_t board_spi_pins_config(void)
 {
     int32_t ret = 0;
 
-    /* pinmux configurations for SPI2 pins (using B version pins) */
-    ret = pinconf_set(PORT_(BOARD_SPI2_MISO_GPIO_PORT), BOARD_SPI2_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    /* pinmux configurations for SPI Master pins  */
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MISO_GPIO_PORT), BOARD_MW_SPI_MASTER_MISO_GPIO_PIN, BOARD_MW_SPI_MASTER_MISO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_MOSI_GPIO_PORT), BOARD_SPI2_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MOSI_GPIO_PORT), BOARD_MW_SPI_MASTER_MOSI_GPIO_PIN, BOARD_MW_SPI_MASTER_MOSI_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_SCLK_GPIO_PORT), BOARD_SPI2_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SCLK_GPIO_PORT), BOARD_MW_SPI_MASTER_SCLK_GPIO_PIN, BOARD_MW_SPI_MASTER_SCLK_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI2_SS0_GPIO_PORT), BOARD_SPI2_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SS0_GPIO_PORT), BOARD_MW_SPI_MASTER_SS0_GPIO_PIN, BOARD_MW_SPI_MASTER_SS0_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI2_SS_PIN\n");
@@ -106,26 +106,26 @@ static int32_t board_spi_pins_config(void)
     }
 
 
-    /* pinmux configurations for SPI3 pins (using B version pins) */
-    ret = pinconf_set(PORT_(BOARD_SPI3_MISO_GPIO_PORT), BOARD_SPI3_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    /* pinmux configurations for SPI Slave pins  */
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MISO_GPIO_PORT), BOARD_MW_SPI_SLAVE_MISO_GPIO_PIN, BOARD_MW_SPI_SLAVE_MISO_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_MOSI_GPIO_PORT), BOARD_SPI3_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MOSI_GPIO_PORT), BOARD_MW_SPI_SLAVE_MOSI_GPIO_PIN, BOARD_MW_SPI_SLAVE_MOSI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_SCLK_GPIO_PORT), BOARD_SPI3_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SCLK_GPIO_PORT), BOARD_MW_SPI_SLAVE_SCLK_GPIO_PIN, BOARD_MW_SPI_SLAVE_SCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_SCLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI3_SS0_GPIO_PORT), BOARD_SPI3_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SS0_GPIO_PORT), BOARD_MW_SPI_SLAVE_SS0_GPIO_PIN, BOARD_MW_SPI_SLAVE_SS0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI3_SS_PIN\n");

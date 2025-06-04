@@ -40,7 +40,7 @@ ARM_DRIVER_GPIO *gpioDrvLed0G = &ARM_Driver_GPIO_(BOARD_LEDRGB0_G_GPIO_PORT);
 extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
 ARM_DRIVER_GPIO *gpioDrvLed0B = &ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
 
-
+#if (BOARD_LEDRGB_COUNT > 1)
 /* GPIO port used for LEDRGB1_R */
 extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
 ARM_DRIVER_GPIO *gpioDrvLed1R = &ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
@@ -52,7 +52,7 @@ ARM_DRIVER_GPIO *gpioDrvLed1G = &ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_PORT);
 /* GPIO port used for LEDRGB1_B */
 extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
 ARM_DRIVER_GPIO *gpioDrvLed1B = &ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
-
+#endif
 
 uint32_t volatile ms_ticks = 0;
 
@@ -76,7 +76,7 @@ void delay(uint32_t nticks)
 */
 void led_blink_app (void)
 {
-  /*
+  /* For E7:
    * gpio12 pin3 can be used as Red LED of LED0.
    * gpio7 pin4 can be used as Green LED of LED0.
    * gpio12 pin0 can be used as Blue LED of LED0.
@@ -87,6 +87,13 @@ void led_blink_app (void)
    *
    * This demo application is about.
    *   - Blink LED0_R and LED1_R, then LED0_B and LED1_B, then LED0_G and LED1_G simultaneously in rotation.
+   * For E1C:
+   * gpio4 pin7 can be used as Red LED of LED0.
+   * gpio4 pin5 can be used as Green LED of LED0.
+   * gpio4 pin3 can be used as Blue LED of LED0.
+   *
+   * This demo application is about.
+   *   - Blink LED 0 with RGB color in a sequence.
    */
 
     int32_t ret1 = 0;
@@ -94,9 +101,11 @@ void led_blink_app (void)
     uint8_t LED0_R = BOARD_LEDRGB1_R_GPIO_PIN;
     uint8_t LED0_G = BOARD_LEDRGB0_G_GPIO_PIN;
     uint8_t LED0_B = BOARD_LEDRGB0_B_GPIO_PIN;
+#if (BOARD_LEDRGB_COUNT > 1)
     uint8_t LED1_R = BOARD_LEDRGB1_R_GPIO_PIN;
     uint8_t LED1_G = BOARD_LEDRGB1_G_GPIO_PIN;
     uint8_t LED1_B = BOARD_LEDRGB1_B_GPIO_PIN;
+#endif
 
     printf("led blink demo application started\n\n");
 
@@ -107,69 +116,111 @@ void led_blink_app (void)
         return;
     }
 
-
     ret1 = gpioDrvLed0R->Initialize(LED0_R, NULL);
-    ret2 = gpioDrvLed1R->Initialize(LED1_R, NULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
         return;
     }
     ret1 = gpioDrvLed0G->Initialize(LED0_G, NULL);
-    ret2 = gpioDrvLed1G->Initialize(LED1_G, NULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
         return;
     }
     ret1 = gpioDrvLed0B->Initialize(LED0_B, NULL);
-    ret2 = gpioDrvLed1B->Initialize(LED1_B, NULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
         return;
     }
 
     ret1 = gpioDrvLed0R->PowerControl(LED0_R, ARM_POWER_FULL);
-    ret2 = gpioDrvLed1R->PowerControl(LED1_R, ARM_POWER_FULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to powered full\n");
         goto error_uninitialize;
     }
     ret1 = gpioDrvLed0G->PowerControl(LED0_G, ARM_POWER_FULL);
-    ret2 = gpioDrvLed1G->PowerControl(LED1_G, ARM_POWER_FULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to powered full\n");
         goto error_uninitialize;
     }
     ret1 = gpioDrvLed0B->PowerControl(LED0_B, ARM_POWER_FULL);
-    ret2 = gpioDrvLed1B->PowerControl(LED1_B, ARM_POWER_FULL);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to powered full\n");
         goto error_uninitialize;
     }
 
     ret1 = gpioDrvLed0R->SetDirection(LED0_R, GPIO_PIN_DIRECTION_OUTPUT);
-    ret2 = gpioDrvLed1R->SetDirection(LED1_R, GPIO_PIN_DIRECTION_OUTPUT);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off;
     }
     ret1 = gpioDrvLed0G->SetDirection(LED0_G, GPIO_PIN_DIRECTION_OUTPUT);
-    ret2 = gpioDrvLed1G->SetDirection(LED1_G, GPIO_PIN_DIRECTION_OUTPUT);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off;
     }
     ret1 = gpioDrvLed0B->SetDirection(LED0_B, GPIO_PIN_DIRECTION_OUTPUT);
-    ret2 = gpioDrvLed1B->SetDirection(LED1_B, GPIO_PIN_DIRECTION_OUTPUT);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off;
     }
+
+#if (BOARD_LEDRGB_COUNT > 1)
+    ret2 = gpioDrvLed1R->Initialize(LED1_R, NULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to initialize\n");
+        return;
+    }
+    ret2 = gpioDrvLed1G->Initialize(LED1_G, NULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to initialize\n");
+        return;
+    }
+    ret2 = gpioDrvLed1B->Initialize(LED1_B, NULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to initialize\n");
+        return;
+    }
+
+    ret2 = gpioDrvLed1R->PowerControl(LED1_R, ARM_POWER_FULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to powered full\n");
+        return;
+    }
+    ret2 = gpioDrvLed1G->PowerControl(LED1_G, ARM_POWER_FULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to powered full\n");
+        return;
+    }
+    ret2 = gpioDrvLed1B->PowerControl(LED1_B, ARM_POWER_FULL);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to powered full\n");
+        return;
+    }
+
+    ret2 = gpioDrvLed1R->SetDirection(LED1_R, GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to configure\n");
+        return;
+    }
+    ret2 = gpioDrvLed1G->SetDirection(LED1_G, GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to configure\n");
+        return;
+    }
+    ret2 = gpioDrvLed1B->SetDirection(LED1_B, GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to configure\n");
+        return;
+    }
+#endif
 
     while (1)
     {
         /* Toggle Red LED */
         ret1 = gpioDrvLed0R->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_HIGH);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1R->SetValue(LED1_R, GPIO_PIN_OUTPUT_STATE_HIGH);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -179,7 +230,9 @@ void led_blink_app (void)
         delay(1000);
 
         ret1 = gpioDrvLed0R->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_LOW);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1R->SetValue(LED1_R, GPIO_PIN_OUTPUT_STATE_LOW);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -191,7 +244,9 @@ void led_blink_app (void)
 
         /* Toggle Green LED */
         ret1 = gpioDrvLed0G->SetValue(LED0_G, GPIO_PIN_OUTPUT_STATE_HIGH);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1G->SetValue(LED1_G, GPIO_PIN_OUTPUT_STATE_HIGH);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -201,7 +256,9 @@ void led_blink_app (void)
         delay(1000);
 
         ret1 = gpioDrvLed0G->SetValue(LED0_G, GPIO_PIN_OUTPUT_STATE_LOW);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1G->SetValue(LED1_G, GPIO_PIN_OUTPUT_STATE_LOW);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -213,7 +270,9 @@ void led_blink_app (void)
 
         /* Toggle Blue LED */
         ret1 = gpioDrvLed0B->SetValue(LED0_B, GPIO_PIN_OUTPUT_STATE_HIGH);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1B->SetValue(LED1_B, GPIO_PIN_OUTPUT_STATE_HIGH);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -223,7 +282,9 @@ void led_blink_app (void)
         delay(1000);
 
         ret1 = gpioDrvLed0B->SetValue(LED0_B, GPIO_PIN_OUTPUT_STATE_LOW);
+#if (BOARD_LEDRGB_COUNT > 1)
         ret2 = gpioDrvLed1B->SetValue(LED1_B, GPIO_PIN_OUTPUT_STATE_LOW);
+#endif
         if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_power_off;
@@ -236,50 +297,84 @@ void led_blink_app (void)
 error_power_off:
 
     ret1 = gpioDrvLed0R->PowerControl(LED0_R, ARM_POWER_OFF);
-    ret2 = gpioDrvLed1R->PowerControl(LED1_R, ARM_POWER_OFF);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     } else {
         printf("LEDs power off \n");
     }
     ret1 = gpioDrvLed0G->PowerControl(LED0_G, ARM_POWER_OFF);
-    ret2 = gpioDrvLed1G->PowerControl(LED1_G, ARM_POWER_OFF);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     } else {
         printf("LEDs power off \n");
     }
     ret1 = gpioDrvLed0B->PowerControl(LED0_B, ARM_POWER_OFF);
-    ret2 = gpioDrvLed1B->PowerControl(LED1_B, ARM_POWER_OFF);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     } else {
         printf("LEDs power off \n");
     }
+#if (BOARD_LEDRGB_COUNT > 1)
+    ret2 = gpioDrvLed1R->PowerControl(LED1_R, ARM_POWER_OFF);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to power off \n");
+    } else {
+        printf("LEDs power off \n");
+    }
+    ret2 = gpioDrvLed1G->PowerControl(LED1_G, ARM_POWER_OFF);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to power off \n");
+    } else {
+        printf("LEDs power off \n");
+    }
+    ret2 = gpioDrvLed1B->PowerControl(LED1_B, ARM_POWER_OFF);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to power off \n");
+    } else {
+        printf("LEDs power off \n");
+    }
+#endif
 
 error_uninitialize:
 
     ret1 = gpioDrvLed0R->Uninitialize(LED0_R);
-    ret2 = gpioDrvLed1R->Uninitialize(LED1_R);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     } else {
         printf("Un-initialized \n");
     }
     ret1 = gpioDrvLed0G->Uninitialize(LED0_G);
-    ret2 = gpioDrvLed1G->Uninitialize(LED1_G);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     } else {
         printf("Un-initialized \n");
     }
     ret1 = gpioDrvLed0B->Uninitialize(LED0_B);
-    ret2 = gpioDrvLed1B->Uninitialize(LED1_B);
-    if ((ret1 != ARM_DRIVER_OK) || (ret2 != ARM_DRIVER_OK)) {
+    if (ret1 != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     } else {
         printf("Un-initialized \n");
     }
+#if (BOARD_LEDRGB_COUNT > 1)
+    ret2 = gpioDrvLed1R->Uninitialize(LED1_R);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("Failed to Un-initialize \n");
+    } else {
+        printf("Un-initialized \n");
+    }
+    ret2 = gpioDrvLed1G->Uninitialize(LED1_G);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("Failed to Un-initialize \n");
+    } else {
+        printf("Un-initialized \n");
+    }
+    ret2 = gpioDrvLed1B->Uninitialize(LED1_B);
+    if (ret2 != ARM_DRIVER_OK) {
+        printf("Failed to Un-initialize \n");
+    } else {
+        printf("Un-initialized \n");
+    }
+#endif
 }
 
 /* Define main entry point.  */

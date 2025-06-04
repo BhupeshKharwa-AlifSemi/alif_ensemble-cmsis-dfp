@@ -19,12 +19,6 @@ extern "C"
 #include <stdint.h>
 #include "soc.h"
 
-#define CMP0_ENABLE                    (1U << 28)    /* To enable the Comp0                          */
-#define CMP1_ENABLE                    (1U << 29)    /* To enable the Comp1                          */
-#define CMP2_ENABLE                    (1U << 30)    /* To enable the Comp2                          */
-#define CMP3_ENABLE                    (1U << 31)    /* To enable the Comp3                          */
-#define LPCMP_ENABLE                   (1U << 24)    /* To enable the LPCMP                          */
-
 #define CMP_FILTER_CONTROL_ENABLE      (1U << 0)     /* To enable the filter control                 */
 
 #define CMP_PRESCALER_MAX_VALUE        (0x3FU)       /* Maximum value of prescaler control           */

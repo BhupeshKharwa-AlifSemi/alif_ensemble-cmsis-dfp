@@ -71,51 +71,51 @@ static int32_t board_lpspi_pins_config(void)
 {
     int32_t ret;
 
-    /* pinmux configurations for LPSPI pins (using A version pins) */
-    ret = pinconf_set(PORT_(BOARD_LPSPI_MISO_GPIO_PORT), BOARD_LPSPI_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+    /* pinmux configurations for LPSPI pins */
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MISO_GPIO_PORT), BOARD_LPSPI_MISO_GPIO_PIN, BOARD_LPSPI_MISO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_MOSI_GPIO_PORT), BOARD_LPSPI_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MOSI_GPIO_PORT), BOARD_LPSPI_MOSI_GPIO_PIN, BOARD_LPSPI_MOSI_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_SCLK_GPIO_PORT), BOARD_LPSPI_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SCLK_GPIO_PORT), BOARD_LPSPI_SCLK_GPIO_PIN, BOARD_LPSPI_SCLK_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for LPSPI_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_SS_GPIO_PORT), BOARD_LPSPI_SS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, 0);
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SS_GPIO_PORT), BOARD_LPSPI_SS_GPIO_PIN, BOARD_LPSPI_SS_ALTERNATE_FUNCTION, 0);
     if (ret)
         {printf("ERROR: Failed to configure PINMUX for LPSPI_SS_PIN\n");
         return ret;
     }
 
-     /* pinmux configurations for SPI0 pins (using B version pins) */
-    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT), BOARD_SPI0_MISO_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
+     /* pinmux configurations for SPI0 pins */
+    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT), BOARD_SPI0_MISO_GPIO_PIN, BOARD_SPI0_MISO_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT), BOARD_SPI0_MOSI_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT), BOARD_SPI0_MOSI_GPIO_PIN, BOARD_SPI0_MOSI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT), BOARD_SPI0_SCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT), BOARD_SPI0_SCLK_GPIO_PIN, BOARD_SPI0_SCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT), BOARD_SPI0_SS0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, 0);
+    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT), BOARD_SPI0_SS0_GPIO_PIN, BOARD_SPI0_SS0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");

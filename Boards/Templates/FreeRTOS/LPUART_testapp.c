@@ -202,14 +202,14 @@ int board_lpuart_pins_config(void)
     int32_t ret;
 
     /* LPUART_RX_A */
-    ret = pinconf_set( PORT_(BOARD_LPUART_RX_GPIO_PORT), BOARD_LPUART_RX_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_READ_ENABLE);
+    ret = pinconf_set( PORT_(BOARD_LPUART_RX_GPIO_PORT), BOARD_LPUART_RX_GPIO_PIN, BOARD_LPUART_RX_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
     if (ret)
     {
         return ret;
     }
 
     /* LPUART_TX_A */
-    ret = pinconf_set( PORT_(BOARD_LPUART_TX_GPIO_PORT), BOARD_LPUART_TX_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_2, 0);
+    ret = pinconf_set( PORT_(BOARD_LPUART_TX_GPIO_PORT), BOARD_LPUART_TX_GPIO_PIN, BOARD_LPUART_TX_ALTERNATE_FUNCTION, 0);
     if (ret)
     {
         return ret;

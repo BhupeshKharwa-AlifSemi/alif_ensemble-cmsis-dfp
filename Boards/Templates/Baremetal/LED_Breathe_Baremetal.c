@@ -38,7 +38,7 @@
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
-/*
+/* For E7:
  * UTIMER Counter value calculation:
  * System CLOCK frequency (F)= 400Mhz
  *
@@ -51,12 +51,27 @@
  *
  * So count for 200us (33 % duty cycle) = (200*(10^-6)/(0.0025*(10^-6)) = 80000
  * DEC = 80000
+ *
+ * For E1C:
+ * UTIMER Counter value calculation:
+ * System CLOCK frequency (F)= 160Mhz
+ *
+ * Time for 1 count T = 1/F = 1/(160*10^6) = 6.25 * 10^-9
+ *
+ * To Increment or Decrement Timer by 1 count, takes 6.25 nano sec
+ *
+ * So count for 600us = (600*(10^-6)/(6.25*(10^-9)) = 96000
+ * DEC = 96000
+ *
+ * So count for 200us (33 % duty cycle) = (200*(10^-6)/(6.25*(10^-9)) = 32000
+ * DEC = 32000
  */
+
 #define UT_INIT_COUNTER_VALUE         0U
-#define UT_MAX_COUNTER_VALUE          240000U
-#define UT_33_PERC_DT_COUNTER_VALUE   80000U
-#define UT_66_PERC_DT_COUNTER_VALUE   UT_33_PERC_DT_COUNTER_VALUE * 2U
-#define UT_100_PERC_DT_COUNTER_VALUE  UT_33_PERC_DT_COUNTER_VALUE * 3U
+#define UT_MAX_COUNTER_VALUE          BOARD_LED_PWM_UT_MAX_COUNTER_VALUE
+#define UT_33_PERC_DT_COUNTER_VALUE   (UT_MAX_COUNTER_VALUE / 3)
+#define UT_66_PERC_DT_COUNTER_VALUE   (UT_33_PERC_DT_COUNTER_VALUE * 2)
+#define UT_100_PERC_DT_COUNTER_VALUE  UT_MAX_COUNTER_VALUE
 #define UT_CHANNEL_RED_LED            BOARD_RED_LED_UTIMER_INSTANCE
 #define UT_CHANNEL_GREEN_LED          BOARD_GREEN_LED_UTIMER_INSTANCE
 #define UT_CHANNEL_BLUE_LED           BOARD_BLUE_LED_UTIMER_INSTANCE
@@ -81,21 +96,21 @@ ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
  */
 static int32_t board_utimer_pins_config(void)
 {
-	int32_t ret;
+    int32_t ret;
 #if (LED_USED == RED_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN, BOARD_LEDRGB0_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Red LED PINMUX.\r\n");
         return ret;
     }
 #elif (LED_USED == GREEN_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN, BOARD_LEDRGB0_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Green LED PINMUX.\r\n");
         return ret;
     }
 #elif (LED_USED == BLUE_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set (PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN, BOARD_LEDRGB0_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Blue LED PINMUX.\r\n");
         return ret;
@@ -135,7 +150,7 @@ static void utimer_led_cb_func (uint8_t event)
  * @param       channel
  * @retval      execution status
  */
-int32_t led_init (uint8_t channel)
+static int32_t led_init (uint8_t channel)
 {
     int32_t ret = 0;
 
@@ -179,7 +194,7 @@ int32_t led_init (uint8_t channel)
  * @param       channel
  * @retval      execution status
  */
-int32_t led_start (uint8_t channel)
+static int32_t led_start (uint8_t channel)
 {
     int32_t ret = 0;
 
@@ -200,7 +215,7 @@ int32_t led_start (uint8_t channel)
  * @param       duty_cycle
  * @retval      execution status
  */
-int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t duty_cycle)
+static int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t duty_cycle)
 {
     int32_t ret = 0;
 
@@ -220,7 +235,7 @@ int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_
  * @param       channel
  * @retval      execution status
  */
-int32_t led_stop (uint8_t channel)
+static int32_t led_stop (uint8_t channel)
 {
     int32_t ret = 0;
 
@@ -232,8 +247,6 @@ int32_t led_stop (uint8_t channel)
 
     return 0;
 }
-
-
 
 /**
  * @function    void led_breathe_app (void)
@@ -269,15 +282,27 @@ static void led_breathe_app (void)
 #if (LED_USED == RED_LED)
     printf("Red LED brightness control has been started\n");
     channel = UT_CHANNEL_RED_LED;
+#if BOARD_RED_LED_UTIMER_COUNTER_TYPE
     counter_type = ARM_UTIMER_COMPARE_B;
+#else
+    counter_type = ARM_UTIMER_COMPARE_A;
+#endif
 #elif (LED_USED == GREEN_LED)
     printf("Green LED brightness control has been started\n");
     channel = UT_CHANNEL_GREEN_LED;
+#if BOARD_GREEN_LED_UTIMER_COUNTER_TYPE
+    counter_type = ARM_UTIMER_COMPARE_B;
+#else
     counter_type = ARM_UTIMER_COMPARE_A;
+#endif
 #elif (LED_USED == BLUE_LED)
     printf("Blue LED brightness control has been started\n");
     channel = UT_CHANNEL_BLUE_LED;
+#if BOARD_BLUE_LED_UTIMER_COUNTER_TYPE
+    counter_type = ARM_UTIMER_COMPARE_B;
+#else
     counter_type = ARM_UTIMER_COMPARE_A;
+#endif
 #else
 #error "ERROR: Selected LED is not correct"
 #endif

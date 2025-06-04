@@ -19,10 +19,14 @@
  *           I2C1 instance is taken as Master (PIN P7_2 and P7_3)
  *           I2C0 instance is taken as Slave  (PIN P3_5 and P3_4)
  *
- *           Hardware setup:
- *           - Connecting GPIO pins of I2C1 TO I2C0 instances
- *             SDA pin P7_2(J15) to P3_5(J11)
- *             SCL pin P7_3(J15) to P3_4(J11).
+ *           E7: Hardware setup:
+ *           - Connecting GPIO pins of I2C1 TO I2C0
+ *             SDA pin P7_2(J15) to P0_2(J11)
+ *             SCL pin P7_3(J15) to P0_3(J11).
+ *           E1C: Hardware setup:
+ *           - Connecting GPIO pins of I2C1 TO I2C0
+ *             SDA pin P7_2(J14) to P7_0(J14)
+ *             SCL pin P7_3(J14) to P7_1(J14).
  * @bug      None.
  * @Note     None.
  ******************************************************************************/
@@ -36,27 +40,13 @@
 
 #include "Driver_I2C.h"
 #include "sys_utils.h"
-
+#include "board_config.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
-
-#if defined(RTE_Board_Config)
-    #include "board_config.h"
-#else
-    #include "pinconf.h"
-    #define  BOARD_MASTER_I2C_INSTANCE          1    /* I2C master instance */
-    #define  BOARD_SLAVE_I2C_INSTANCE           0    /* I2C slave instance */
-#endif
-
-#if !defined(BOARD_MASTER_I2C_INSTANCE) && !defined(BOARD_SLAVE_I2C_INSTANCE)
-#error "ERROR: I2C instances not present in this device or no pins available!"
-#elif !defined(BOARD_MASTER_I2C_INSTANCE) || !defined(BOARD_SLAVE_I2C_INSTANCE)
-#error "ERROR: Two I2C instances are required!"
-#endif
 
 /* Defining Address modes */
 #define ADDRESS_MODE_7BIT   1                   /* I2C 7 bit addressing mode     */
@@ -87,6 +77,7 @@ static StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
 static StaticTask_t IdleTcb;
 static StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 static StaticTask_t TimerTcb;
+
 /* I2C Driver instance */
 extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
 static ARM_DRIVER_I2C *I2C_MstDrv = &ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
@@ -110,7 +101,7 @@ static TaskHandle_t i2c_xHandle;
     /* slave transmit and master receive */
     #define SLV_BYTE_TO_TRANSMIT            10
 
-    /* Tx and Rx buffers arein multiples of 2bytes
+    /* Tx and Rx buffers are in multiples of 2bytes
      * as the DMA processes in 2bytes fashion only */
     /* Master parameter set */
     /* Master TX Data */
@@ -242,60 +233,6 @@ static void i2c_slv_transfer_callback(uint32_t event)
     }
 }
 
-#if !defined(RTE_Board_Config)
-/**
- * @fn      static int32_t pinmux_config(void)
- * @brief   I2C master and I2C slave instances pinmux configuration.
- * @note    none.
- * @param   none.
- * @retval  execution status.
- */
-static int32_t pinmux_config(void)
-{
-    int32_t ret = ARM_DRIVER_OK;
-
-    /* pinmux configurations for I2C slave pins */
-    /* I2C0_SDA_A */
-    ret = pinconf_set(PORT_3, PIN_5, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if (ret)
-    {
-        printf("ERROR: Failed to configure PINMUX for I2C%d_SDA_PIN\n", BOARD_SLAVE_I2C_INSTANCE);
-        return ret;
-    }
-
-    /* I2C0_SCL_A */
-    ret = pinconf_set(PORT_3, PIN_4, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if (ret)
-    {
-        printf("ERROR: Failed to configure PINMUX for I2C%d_SCL_PIN\n", BOARD_SLAVE_I2C_INSTANCE);
-        return ret;
-    }
-
-    /* pinmux configurations for I2C master pins */
-    /* I2C1_SCL_C */
-    ret = pinconf_set(PORT_7, PIN_3, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if (ret)
-    {
-        printf("ERROR: Failed to configure PINMUX for I2C%d_SCL_PIN\n", BOARD_MASTER_I2C_INSTANCE);
-        return ret;
-    }
-
-    /* I2C1_SDA_C */
-    ret = pinconf_set(PORT_7, PIN_2, PINMUX_ALTERNATE_FUNCTION_5,
-         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if (ret)
-    {
-        printf("ERROR: Failed to configure PINMUX for I2C%d_SDA_PIN\n", BOARD_MASTER_I2C_INSTANCE);
-        return ret;
-    }
-
-    return ret;
-}
-#endif
-
 /**
  * @fn      static void I2C_Thread(void *pvParameters)
  * @brief   I2C communication task
@@ -312,15 +249,11 @@ static void I2C_Thread(void *pvParameters)
 
     printf("\r\n >>> I2C demo Thread starting up!!! <<< \r\n");
 
-#if defined(RTE_Board_Config)
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-#else
-    ret = pinmux_config();
-#endif
-    if(ret != ARM_DRIVER_OK)
+    if (ret != 0)
     {
-        printf("ERROR: pin configuration failed: %d\n", ret);
+        printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
 
