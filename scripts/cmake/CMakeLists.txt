@@ -205,12 +205,14 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         set(BLOCKING_MODE_FLAG          RTE_UART${uart_console_num}_BLOCKING_MODE_ENABLE)
     endif()
 
-    GET_MACRO_VALUE("${DEVICE_SKU_CONFIG}/RTE_Device.h"   ${BLOCKING_MODE_FLAG}     uart_blocking_status)
+    GET_MACRO_VALUE("${DEVICE_SKU_RTE}/RTE_Device.h"   ${BLOCKING_MODE_FLAG}     uart_blocking_status)
 
     if( NOT(${uart_blocking_status}))
-        message(STATUS      "🕵️‍♂️SINCE RE-TARGETTING IS ENABLED , ENABLING UART POLLING_MODE")
+        message(STATUS      "✏️ RE-TARGETTING IS ENABLED, BUT UART POLLING_MODE IS NOT ENABLED")
         CHANGE_MACRO_VAL("#define ${BLOCKING_MODE_FLAG}       0"
-            "${DEVICE_SKU_CONFIG}/RTE_Device.h"     "#define ${BLOCKING_MODE_FLAG}       1"    uart_blocking_status_ret    ON)
+            "${DEVICE_SKU_RTE}/RTE_Device.h"     "#define ${BLOCKING_MODE_FLAG}       1"
+            uart_blocking_status_ret    ON)
+        message(STATUS      "🕵️‍♂️ FORCEFULLY UART POLLING_MODE IS ENABLED")
     endif()
 
     if( NOT ("${BLOCKING_MODE_FLAG}" STREQUAL "${PREV_RETARGET_CFG}"))
@@ -219,10 +221,10 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         endif()
 
         CHANGE_MACRO_VAL("#define ${PREV_RETARGET_CFG}        1"
-            "${DEVICE_SKU_CONFIG}/RTE_Device.h"     "#define ${PREV_RETARGET_CFG}       0"    uart_blocking_status_ret    ON)
+            "${DEVICE_SKU_RTE}/RTE_Device.h"     "#define ${PREV_RETARGET_CFG}       0"    uart_blocking_status_ret    ON)
         file(WRITE      ${TMP_FILE2}    "${BLOCKING_MODE_FLAG}")
     else()
-        message(STATUS      "🕵️‍♂️FORCEFULLY ENABLED UART POLLING_MODE")
+        message(STATUS      "🕵️‍♂️ FORCEFULLY CHANGED UART POLLING_MODE WILL BE USED")
     endif()
 endif()
 

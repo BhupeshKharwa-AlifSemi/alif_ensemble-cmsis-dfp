@@ -99,13 +99,9 @@
 /* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
 #define RTE_Drivers_WM8904                            1           /* Driver WM8904                            */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
-/*#define RTE_CMSIS_Compiler_STDIN */
-/*#define RTE_CMSIS_Compiler_STDIN_Custom               1           // All STDIN call will be redirected to custom functions */
+/*#define RTE_CMSIS_Compiler_STDIN                                  // Enable/Disable Re targetting for STDIN */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */
-/*#define RTE_CMSIS_Compiler_STDOUT */
-/*#define RTE_CMSIS_Compiler_STDOUT_Custom              1           // All STDOUT call will be redirected to custom functions*/
+/*#define RTE_CMSIS_Compiler_STDOUT                                 // Enable/Disable Re targetting for STDOUT*/
 /* AlifSemiconductor::Device.SOC STDERR Retargetting */
-/*#define RTE_CMSIS_Compiler_STDERR */
-/*#define RTE_CMSIS_Compiler_STDERR_Custom              1           // All STDERR call will be redirected to custom functions*/
-
+/*#define RTE_CMSIS_Compiler_STDERR                                 // Enable/Disable Re targetting for STDERR*/
 #endif /* RTE_COMPONENTS_H */

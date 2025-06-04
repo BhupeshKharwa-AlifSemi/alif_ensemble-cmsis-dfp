@@ -15,10 +15,34 @@ macro (DEF_BOOL_VAR_BASED_ON_MACRO      header      macro_name      macro_val   
 
             if(${tmp})
                 set(${macro_val}    ON      CACHE   BOOL    ${varMsg})
-                add_definitions(-D${macro_name})
+                #add_definitions(-D${macro_name})
                 break()
             endif()
 
+        endif (foundDefines)
+    endforeach()
+
+    if(NOT DEFINED ${macro_val})
+        set(${macro_val}    OFF     CACHE   BOOL    ${varMsg})
+        add_definitions(-U${macro_name})
+    endif()
+
+endmacro ()
+
+# MACRO DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY will used to check if macro is defined or not and
+#       if it is defined it will define another boolean variable which cmake build can be used
+# argv[0] - header file content
+# argv[1] - marco name which will be searched
+# argv[2] - another variable of boolean type which will be ON or OFF based on 2nd argument
+# argv[3] - description of 3rd argument
+macro (DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY      header      macro_name      macro_val   varMsg)
+
+    FOREACH(arg ${header})
+        string(REGEX MATCHALL "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]+.*" foundDefines "${arg}")
+
+        if (foundDefines)
+            set(${macro_val}    ON      CACHE   BOOL    ${varMsg})
+            break()
         endif (foundDefines)
     endforeach()
 
@@ -410,21 +434,20 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_GPIO                        ENABLE_GPIO             "Enable/disable GPIO Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WM8904                      ENABLE_WM8904           "Enable/disable WM8904 Driver.")
 
-    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN_Custom         ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
-    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT_Custom        ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")
-    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR_Custom        ENABLE_STDERR   "Enable/disable retarget STDERR Driver.")
+    DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN    ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
+    DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT   ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")
+    DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   ENABLE_STDERR   "Enable/disable retarget STDERR Driver.")
 
     if(${ENABLE_STDIN})
-        add_definitions(-DRTE_CMSIS_Compiler_STDIN)
+        add_definitions(-DRTE_CMSIS_Compiler_STDIN_Custom)
     endif()
 
     if(${ENABLE_STDOUT})
-        add_definitions(-DRTE_CMSIS_Compiler_STDOUT)
-        message("======================================================")
+        add_definitions(-DRTE_CMSIS_Compiler_STDOUT_Custom)
     endif()
 
     if(${ENABLE_STDERR})
-        add_definitions(-DRTE_CMSIS_Compiler_STDERR)
+        add_definitions(-DRTE_CMSIS_Compiler_STDERR_Custom)
     endif()
 
 endfunction()
