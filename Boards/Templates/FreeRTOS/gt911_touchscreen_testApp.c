@@ -172,6 +172,9 @@ void touchscreen_demo_thread_entry(void *pvParameters)
                 printf("x%d: %d y%d: %d \r\n",count, state.coordinates[count - 1].x, count, state.coordinates[count - 1].y);
             }
             memset(state.coordinates,0,sizeof(state.coordinates));
+        } else{
+            /* Clear coordinates when no touch is detected to avoid printing old data */
+            memset(state.coordinates, 0, sizeof(state.coordinates));
         }
     }
 
