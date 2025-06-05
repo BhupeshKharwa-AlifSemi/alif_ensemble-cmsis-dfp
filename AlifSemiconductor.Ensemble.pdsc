@@ -1284,6 +1284,7 @@
       <require condition="Ensemble CMSIS_Driver"/>
       <require Cclass="Device" Cgroup="SOC Peripherals" Csub="SDMMC"/>
       <require Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper"/>
+      <require Cclass="USB" Cgroup="CORE"/>
     </condition>
 
     <condition id="MIPI DPHY Driver">
@@ -1348,17 +1349,24 @@
     </condition>
 
     <condition id="Board Config E7">
-      <description>Requirement for Board Config</description>
+      <description>Requirement for Board Config E7</description>
       <require condition="Ensemble CMSIS_Driver"/>
       <require Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper"/>
       <require Dname="AE722F80F55D5*"/>
      </condition>
 
    <condition id="Board Config E8">
-      <description>Requirement for Board Config</description>
+      <description>Requirement for Board Config E8</description>
       <require condition="Ensemble CMSIS_Driver"/>
       <require Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper"/>
       <require Dname="AE822FA0E5597*"/>
+    </condition>
+
+    <condition id="Board Config E1C">
+      <description>Requirement for Board Config E1C</description>
+      <require condition="Ensemble CMSIS_Driver"/>
+      <require Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper"/>
+      <require Dname="AE1C1F4051920*"/>
     </condition>
 
     <condition id="Retarget IO STDERR">
@@ -1451,7 +1459,7 @@
         <file category="source" name="Boards/Templates/Baremetal/MRAM_Baremetal.c" attr="template" select="MRAM Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E7"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_hyperram_e7.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E7"/>
         <file category="source" name="Boards/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/PDM_baremetal.c" attr="template" select="PDM Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/ADC_Potentiometer_Baremetal.c" attr="template" select="Potentiometer Baremetal Demo"/>
@@ -1541,57 +1549,10 @@
         <file category="header" name="Boards/Templates/lwip/httpd/httpd_structs.h" attr="template" select="LWIP httpd Demo"/>
         <file category="source" name="Boards/Templates/lwip/httpd/main.c" attr="template" select="LWIP httpd Demo"/>
 
-        <!-- Baremetal Templates for HE Core -->
-        <file category="source" name="Boards/Templates/Baremetal/LPI2C_Baremetal.c" attr="template" select="LPI2C Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPPDM_baremetal.c" attr="template" select="LPPDM Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPSPI_SPI_baremetal.c" attr="template" select="LPSPI Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPPDM_testApp.c" attr="template" select="LPPDM FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPSPI_SPI_app.c" attr="template" select="LPSPI FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
         <!-- Baremetal Templates for E8  -->
-        <file category="source" name="Boards/DevKit-e8/Templates/Baremetal/HyperRAM_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E8"/>
-
+        <file category="source" name="Boards/Templates/Baremetal/demo_hyperram_e8.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E8"/>
         <!-- Baremetal Templates for E1C  -->
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_NormalMode.c" attr="template" select="CANFD Data Transfer Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CANFD_BlockingMode.c" attr="template" select="CANFD Polling Mode Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CMP_baremetal.c" attr="template" select="CMP Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/CRC_baremetal.c" attr="template" select="CRC Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/diskio.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/diskio.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ff.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffconf.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="header" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ff.h" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffsystem.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FatFS/ffunicode.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Demo_SD_fatFS_Baremetal.c" attr="template" select="SDMMC FATFS Baremetal demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Dac_baremetal.c" attr="template" select="DAC Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/i2c_baremetal.c" attr="template" select="I2C Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/i2c_using_i3c_Baremetal.c" attr="template" select="I2C using I3C Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/mix_bus_i2c_i3c_baremetal.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/I2S_Baremetal.c" attr="template" select="I2S Baremetal Demo" condition="E1C"/>
-        <file category="header" name="Boards/DevKit-e1c/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S Baremetal Demo" condition="E1C"/>
-       <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/I3C_Baremetal_masterside.c" attr="template" select="I3C Master Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/I3C_Baremetal_slaveside.c" attr="template" select="I3C Slave Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LED_blink_baremetal.c" attr="template" select="LED Blinky Baremetal Demo" condition="E1C"/>
-        <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LED_Breathe_Baremetal.c" attr="template" select="LED PWM Baremtal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPI2C_Baremetal.c" attr="template" select="LPI2C Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPPDM_baremetal.c" attr="template" select="LPPDM Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPSPI_SPI_baremetal.c" attr="template" select="LPSPI Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPTimer_Baremetal.c" attr="template" select="LPTIMER Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo" condition="E1C"/>
-                <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/ospi_hyperram_xip_demo.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/UART2_Baremetal.c" attr="template" select="UART2 Baremetal Demo" condition="E1C"/>
-        <file category="source" name="Boards/DevKit-e1c/Templates/Baremetal/Utimer_Baremetal.c" attr="template" select="UTIMER Baremetal Demo" condition="E1C"/>
-
+        <file category="source" name="Boards/Templates/Baremetal/demo_hyperram_e1c.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E1C"/>
 
        </files>
      </component>
@@ -2392,6 +2353,15 @@
         <file category="header" name="Boards/DevKit-e8/board_defs.h" condition="SoC AE822FA0E5597"/>
         <file category="header" name="Boards/DevKit-e8/pins.h" condition="SoC AE822FA0E5597"/>
         <file category="header" name="Boards/DevKit-e8/gpios.h" condition="SoC AE822FA0E5597"/>
+      </files>
+    </component>
+
+    <component Cclass="BSP" Cgroup="Board Config"  Cvariant="DevKit-e1c" Cversion="2.0.0" condition="Board Config E1C">
+      <description>Conductor Tool based board configuration for DevKit-e1c</description>
+      <files>
+        <file category="header" name="Boards/DevKit-e1c/board_defs.h" condition="SoC AE1C1F4051920"/>
+        <file category="header" name="Boards/DevKit-e1c/pins.h" condition="SoC AE1C1F4051920"/>
+        <file category="header" name="Boards/DevKit-e1c/gpios.h" condition="SoC AE1C1F4051920"/>
       </files>
     </component>
 
