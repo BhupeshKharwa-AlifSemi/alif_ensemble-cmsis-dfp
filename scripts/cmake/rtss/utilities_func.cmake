@@ -474,7 +474,7 @@ endmacro()
 # FUNCTION resolve_dependancy will remove or handle all dependency
 function(resolve_dependancy)
     if(NOT ${ENABLE_UTIMER})
-        RESOLVE_TESTAPP_DEPENDANCY(${BARE_METAL_APP_DIR}/ADC_Ext_Trigger_Baremetal.c    ENABLE_UTIMER)
+        RESOLVE_TESTAPP_DEPENDANCY(${BARE_METAL_APP_DIR}/demo_adc_exttrigger.c    ENABLE_UTIMER)
     endif()
 endfunction()
 
