@@ -95,7 +95,7 @@
 /* AlifSemiconductor::CMSIS Driver.GPIO */
 #define RTE_Drivers_GPIO                              1           /* Driver GPIO                              */
 /* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
-#define RTE_Drivers_WM8904                            1           /* Driver WM8904                            */
+#define RTE_Drivers_WM8904_CODEC                      1           /* Driver WM8904                            */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
 /*#define RTE_CMSIS_Compiler_STDIN                                  // Enable/Disable Re targetting for STDIN */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */

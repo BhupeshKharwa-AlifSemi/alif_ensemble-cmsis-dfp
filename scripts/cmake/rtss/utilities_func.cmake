@@ -432,7 +432,7 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MIPI_DSI                    ENABLE_MIPI_DSI         "Enable/disable MIPI DSI Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_CPI                         ENABLE_CPI              "Enable/disable CPI Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_GPIO                        ENABLE_GPIO             "Enable/disable GPIO Driver.")
-    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WM8904                      ENABLE_WM8904           "Enable/disable WM8904 Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WM8904_CODEC                ENABLE_WM8904           "Enable/disable WM8904 Driver.")
 
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN    ENABLE_STDIN    "Enable/disable retarget STDIN  Driver.")
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT   ENABLE_STDOUT   "Enable/disable retarget STDOUT Driver.")

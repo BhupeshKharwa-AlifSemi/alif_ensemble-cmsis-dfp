@@ -46,8 +46,6 @@
 #define RTE_Drivers_OSPI                              1           /* Driver OSPI                              */
 /* AlifSemiconductor::BSP.OSPI Hyper RAM XIP     */
 #define RTE_Drivers_XIP_HYPERRAM                      1           /* Driver Hyper RAM XIP                     */
-/* AlifSemiconductor::BSP.OSPI Hyper RAM XIP  S80K   */
-#define RTE_Drivers_S80K_XIP_HYPERRAM                 1           /* Driver Hyper RAM XIP S80K                */
 /* AlifSemiconductor::BSP.External peripherals.OSPI Flash ISSI     */
 #define RTE_Drivers_ISSI_FLASH                        1           /* Driver Flash ISSI                        */
 /* AlifSemiconductor::CMSIS Driver.Touchscreen.GT911 */
@@ -97,7 +95,7 @@
 /* AlifSemiconductor::CMSIS Driver.GPIO */
 #define RTE_Drivers_GPIO                              1           /* Driver GPIO                              */
 /* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
-#define RTE_Drivers_WM8904                            1           /* Driver WM8904                            */
+#define RTE_Drivers_WM8904_CODEC                      1           /* Driver WM8904                            */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
 /*#define RTE_CMSIS_Compiler_STDIN                                  // Enable/Disable Re targetting for STDIN */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */
