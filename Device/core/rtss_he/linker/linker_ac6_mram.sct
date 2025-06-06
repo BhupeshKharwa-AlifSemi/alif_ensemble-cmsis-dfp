@@ -65,6 +65,9 @@ LR_ROM __ROM_BASE NOCOMPRESS __ROM_SIZE  {    ; load region size_region
     * (usb_dma_buf)
     * (sd_dma_buf)
     * (.driver.usbd0)
+#if __HAS_BULK_SRAM == 0
+    * (.bss.lcd_frame_buf)
+#endif
   }
 
   NS_REGION_0_PAD  (AlignExpr(ImageLimit(NS_REGION_0), TGU_BLOCK_SIZE)) { ; Non secure region 0 Padding
