@@ -9,12 +9,12 @@
  */
 
 /***************************************************************************************
- * @file     demo_hyperram_e8.c
- * @author   Manoj A Murudi
- * @email    manoj.murudi@alifsemi.com
- * @version  V1.0.0
- * @date     20-May-2025
- * @brief    Demo program for the Hyperram devices (ISSI and S80K) using XIP write/read.
+ * @file     : demo_hyperram_e8.c
+ * @author   : Manoj A Murudi
+ * @email    : manoj.murudi@alifsemi.com
+ * @version  : V1.0.0
+ * @date     : 20-May-2025
+ * @brief    : Demo program for the Hyperram devices (ISSI and S80K) using XIP write/read.
  ***************************************************************************************/
 
 #include <stdio.h>
