@@ -63,8 +63,8 @@
 #define IRQ49_Handler            LPPDM_IRQHandler
 #define IRQ50_Handler            LPI3C_IRQHandler
 #define IRQ51_Handler            LPI2C1_IRQHandler
-#define IRQ52_Handler            LPUTIMER0_IRQHandler
-#define IRQ53_Handler            LPUTIMER1_IRQHandler
+#define IRQ52_Handler            GPIO16_IRQHandler
+#define IRQ53_Handler            GPIO17_IRQHandler
 
 #define IRQ54_Handler            LPCPI_IRQHandler
 #define IRQ55_Handler            NPU_HE_IRQHandler

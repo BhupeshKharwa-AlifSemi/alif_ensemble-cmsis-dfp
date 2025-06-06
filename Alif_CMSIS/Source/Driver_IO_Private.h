@@ -75,6 +75,8 @@ typedef enum _GPIO_INSTANCE
     GPIO12_INSTANCE,
     GPIO13_INSTANCE,
     GPIO14_INSTANCE,
+    GPIO16_INSTANCE,
+    GPIO17_INSTANCE,
     LPGPIO_INSTANCE
 } GPIO_INSTANCE;
 
@@ -88,10 +90,20 @@ typedef enum _GPIO_CONTROL_MODE
     GPIO_HARDWARE_CONTROL_MODE
 } GPIO_CONTROL_MODE;
 
+/**
+ * enum GPIO_INTERRUPT_TYPE.
+ * GPIO interrupt type.
+ */
+typedef enum _GPIO_INTERRUPT_TYPE
+{
+    GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+    GPIO_INTERRUPT_TYPE_COMBINED
+} GPIO_INTERRUPT_TYPE;
+
 typedef struct _GPIO_DRV_STATE {
-    uint32_t initialized : 1; /* Driver Initialized*/
-    uint32_t powered     : 1; /* Driver powered */
-    uint32_t reserved    : 30;/* Reserved */
+    uint32_t initialized   : 1; /* Driver Initialized */
+    uint32_t powered       : 1; /* Driver powered */
+    uint32_t reserved      : 30;/* Reserved */
 } GPIO_DRV_STATE;
 
 /**
@@ -101,9 +113,11 @@ typedef struct _GPIO_RESOURCES {
     GPIO_Type           *reg_base;                               /**< GPIO PORT Base Address>**/
     IRQn_Type           IRQ_base_num;                            /**< GPIO PORT IRQ base Num>**/
     uint16_t            db_clkdiv;                               /**< GPIO PORT debounce clk divisor: only for GPIO 0-14 >**/
-    GPIO_DRV_STATE      state;                                   /**< GPIO PORT status flag >**/
+    GPIO_DRV_STATE      state[GPIO_PORT_MAX_PIN_NUMBER];         /**< GPIO PORT status flag >**/
+    GPIO_INTERRUPT_TYPE IRQ_type;                                /**< GPIO IRQ type         >**/
     uint8_t             IRQ_priority[GPIO_PORT_MAX_PIN_NUMBER];  /**< GPIO PIN IRQ priority >**/
     uint8_t             max_pin;                                 /**< GPIO MAX PIN Numbers >**/
+    uint8_t             ref_count;                               /**< GPIO PORT reference count >**/
     GPIO_INSTANCE       gpio_id;                                 /**< GPIO instance >*/
     GPIO_CONTROL_MODE   control_mode;                            /**< GPIO control mode >*/
     bool                gpio_bit_man_en;                         /**< GPIO PORT Bit Manipulation feature >*/

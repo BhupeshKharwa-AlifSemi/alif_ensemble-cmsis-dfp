@@ -26,6 +26,7 @@ extern "C"
 #endif
 
 #include "soc.h"
+#include "RTE_Device.h"
 
 #define GPIO_CTRL_VOLT_1V8                 (1U << 0U)
 
@@ -33,6 +34,15 @@ extern "C"
 #define GPIO_CTRL_DB_CKEN                   (1U  << 12U) /* GPIO Debounce clock enable */
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
 #define GPIO_CTRL_CKEN                      (1U  << 16U) /* GPIO clock enable */
+#endif
+
+#if RTE_GPIO16
+#define GPIO16_CKEN                         (1U  << 10U)
+#define GPIO16_DB_CKEN                      (1U  << 8U)
+#endif
+#if RTE_GPIO17
+#define GPIO17_CKEN                         (1U  << 11U)
+#define GPIO17_DB_CKEN                      (1U  << 9U)
 #endif
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
@@ -44,7 +54,22 @@ extern "C"
 */
 static inline void enable_gpio_clk (GPIO_INSTANCE instance)
 {
-    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_CKEN;
+    switch (instance)
+    {
+#if RTE_GPIO16
+    case GPIO16_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN |= GPIO16_CKEN;
+        break;
+#endif
+#if RTE_GPIO17
+    case GPIO17_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN |= GPIO17_CKEN;
+        break;
+#endif
+    default:
+        CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_CKEN;
+        break;
+    }
 }
 
 /**
@@ -55,7 +80,22 @@ static inline void enable_gpio_clk (GPIO_INSTANCE instance)
 */
 static inline void disable_gpio_clk (GPIO_INSTANCE instance)
 {
-    CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_CKEN;
+    switch (instance)
+    {
+#if RTE_GPIO16
+    case GPIO16_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN &= ~GPIO16_CKEN;
+        break;
+#endif
+#if RTE_GPIO17
+    case GPIO17_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN &= ~GPIO17_CKEN;
+        break;
+#endif
+    default:
+        CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_CKEN;
+        break;
+    }
 }
 #endif
 
@@ -67,7 +107,22 @@ static inline void disable_gpio_clk (GPIO_INSTANCE instance)
 */
 static inline void enable_gpio_debounce_clk (GPIO_INSTANCE instance)
 {
-    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_DB_CKEN;
+    switch (instance)
+    {
+#if RTE_GPIO16
+    case GPIO16_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN |= GPIO16_DB_CKEN;
+        break;
+#endif
+#if RTE_GPIO17
+    case GPIO17_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN |= GPIO17_DB_CKEN;
+        break;
+#endif
+    default:
+        CLKCTL_PER_SLV->GPIO_CTRL[instance] |= GPIO_CTRL_DB_CKEN;
+        break;
+    }
 }
 
 /**
@@ -78,7 +133,22 @@ static inline void enable_gpio_debounce_clk (GPIO_INSTANCE instance)
 */
 static inline void disable_gpio_debounce_clk (GPIO_INSTANCE instance)
 {
-    CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_DB_CKEN;
+    switch (instance)
+    {
+#if RTE_GPIO16
+    case GPIO16_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN &= ~GPIO16_DB_CKEN;
+        break;
+#endif
+#if RTE_GPIO17
+    case GPIO17_INSTANCE:
+        AON->RTSS_HE_LPUART_CKEN &= ~GPIO17_DB_CKEN;
+        break;
+#endif
+    default:
+        CLKCTL_PER_SLV->GPIO_CTRL[instance] &= ~GPIO_CTRL_DB_CKEN;
+        break;
+    }
 }
 
 /**
@@ -90,7 +160,11 @@ static inline void disable_gpio_debounce_clk (GPIO_INSTANCE instance)
 */
 static inline void set_gpio_debounce_clkdiv (uint16_t clk_div, GPIO_INSTANCE instance)
 {
-    CLKCTL_PER_SLV->GPIO_CTRL[instance] |= clk_div;
+    if ((instance != GPIO16_INSTANCE) &&
+        (instance != GPIO17_INSTANCE))
+    {
+        CLKCTL_PER_SLV->GPIO_CTRL[instance] |= clk_div;
+    }
 }
 
 /**

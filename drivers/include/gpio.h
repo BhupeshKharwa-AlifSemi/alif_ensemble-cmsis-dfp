@@ -31,7 +31,6 @@ extern "C"
 #include <stdbool.h>
 #include "soc.h"
 
-
 /**
  * enum GPIO_PIN_DIR.
  * gpio pin direction.
@@ -219,6 +218,17 @@ static inline void gpio_disable_interrupt (GPIO_Type *gpio, uint8_t pin_no)
 }
 
 /**
+  \fn          static inline uint8_t gpio_get_enabled_interrupt (GPIO_Type *gpio)
+  \brief       Get interrupt enabled for GPIO port.
+  \param       gpio     Pointer to the GPIO register map
+  \return      GPIO_INTEN value
+*/
+static inline uint8_t gpio_get_enabled_interrupt (GPIO_Type *gpio)
+{
+    return (uint8_t)gpio->GPIO_INTEN;
+}
+
+/**
   \fn          static inline void gpio_mask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
   \brief       GPIO interrupt mask.
   \param       gpio     Pointer to the GPIO register map
@@ -240,6 +250,17 @@ static inline void gpio_mask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
 static inline void gpio_unmask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTMASK &= ~(1 << pin_no);
+}
+
+/**
+  \fn          static inline uint8_t gpio_interrupt_status (GPIO_Type *gpio)
+  \brief       Get interrupted GPIO pin numbers.
+  \param       gpio     Pointer to the GPIO register map
+  \return      none
+*/
+static inline uint8_t gpio_interrupt_status (GPIO_Type *gpio)
+{
+    return (uint8_t)gpio->GPIO_INTSTATUS;
 }
 
 /**

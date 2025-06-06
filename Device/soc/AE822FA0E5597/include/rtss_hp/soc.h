@@ -561,7 +561,9 @@ typedef enum {
   UTIMER_IRQ92_IRQn         = 469,              /*!< 469  Channel 11, interrupt request 92                                     */
   UTIMER_IRQ93_IRQn         = 470,              /*!< 470  Channel 11, interrupt request 93                                     */
   UTIMER_IRQ94_IRQn         = 471,              /*!< 471  Channel 11, interrupt request 94                                     */
-  UTIMER_IRQ95_IRQn         = 472               /*!< 472  Channel 11, interrupt request 95                                     */
+  UTIMER_IRQ95_IRQn         = 472,              /*!< 472  Channel 11, interrupt request 95                                     */
+  GPIO16_IRQ0_IRQn          = 476,              /*!< 476  GPIO16 Interrupt                                                     */
+  GPIO17_IRQ0_IRQn          = 477               /*!< 477  GPIO17 Interrupt                                                     */
 } IRQn_Type;
 
 /* ========================================  Start of section using anonymous unions  ======================================== */

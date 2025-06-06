@@ -8640,7 +8640,7 @@
 
 // <o> GPIO0 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO0.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO0_DB_CLK_DIV            1
 
 // <o> GPIO0 Bit Manipulation Feature
@@ -8700,7 +8700,7 @@
 
 // <o> GPIO1 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO1.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO1_DB_CLK_DIV            1
 
 // <o> GPIO1 Bit Manipulation Feature
@@ -8760,7 +8760,7 @@
 
 // <o> GPIO2 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO2.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO2_DB_CLK_DIV            1
 
 // <o> GPIO2 Bit Manipulation Feature
@@ -8820,7 +8820,7 @@
 
 // <o> GPIO3 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO3.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO3_DB_CLK_DIV            1
 
 // <o> GPIO3 Bit Manipulation Feature
@@ -8936,7 +8936,7 @@
 
 // <o> GPIO4 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO4.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO4_DB_CLK_DIV            1
 
 // <o> GPIO4 Bit Manipulation Feature
@@ -9053,7 +9053,7 @@
 
 // <o> GPIO5 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO5.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO5_DB_CLK_DIV            1
 
 // <o> GPIO5 Bit Manipulation Feature
@@ -9113,7 +9113,7 @@
 
 // <o> GPIO6 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO6.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO6_DB_CLK_DIV            1
 
 // <o> GPIO6 Bit Manipulation Feature
@@ -9173,7 +9173,7 @@
 
 // <o> GPIO7 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO7.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO7_DB_CLK_DIV            1
 
 // <o> GPIO7 Bit Manipulation Feature
@@ -9289,7 +9289,7 @@
 
 // <o> GPIO8 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO8.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO8_DB_CLK_DIV            1
 
 // <o> GPIO8 Bit Manipulation Feature
@@ -9405,7 +9405,7 @@
 
 // <o> GPIO9 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO9.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO9_DB_CLK_DIV            1
 
 // <o> GPIO9 Bit Manipulation Feature
@@ -9521,8 +9521,15 @@
 
 // <o> GPIO10 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO10.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO10_DB_CLK_DIV            1
+
+// <o> GPIO10 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO10.
+// <i> Default: DISABLED
+#define RTE_GPIO10_BIT_MANIPULATION      0
 
 // <o> GPIO10_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for GPIO10_PIN0.
@@ -9574,8 +9581,15 @@
 
 // <o> GPIO11 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO11.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO11_DB_CLK_DIV            1
+
+// <o> GPIO11 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO11.
+// <i> Default: DISABLED
+#define RTE_GPIO11_BIT_MANIPULATION      0
 
 // <o> GPIO11_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for GPIO11_PIN0.
@@ -9627,8 +9641,15 @@
 
 // <o> GPIO12 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO12.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO12_DB_CLK_DIV            1
+
+// <o> GPIO12 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO12.
+// <i> Default: DISABLED
+#define RTE_GPIO12_BIT_MANIPULATION      0
 
 // <o> GPIO12_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for GPIO12_PIN0.
@@ -9680,13 +9701,20 @@
 
 // <o> GPIO13 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO13.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO13_DB_CLK_DIV            1
 
 // <o> GPIO13_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for GPIO13_PIN0.
 // <i> Default: 0
 #define RTE_GPIO13_PIN0_IRQ_PRIORITY     0
+
+// <o> GPIO13 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO13.
+// <i> Default: DISABLED
+#define RTE_GPIO13_BIT_MANIPULATION      1
 
 // <o> GPIO13_PIN1 IRQ Priority
 // <i> Defines Interrupt priority for GPIO13_PIN1.
@@ -9733,13 +9761,20 @@
 
 // <o> GPIO14 Debounce Clock Divisor <0-1023>
 // <i> Defines debounce clock divisor for GPIO14.
-// <i> Default: 0
+// <i> Default: 1
 #define RTE_GPIO14_DB_CLK_DIV            1
 
 // <o> GPIO14_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for GPIO14_PIN0.
 // <i> Default: 0
 #define RTE_GPIO14_PIN0_IRQ_PRIORITY     0
+
+// <o> GPIO14 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO14.
+// <i> Default: DISABLED
+#define RTE_GPIO14_BIT_MANIPULATION      0
 
 // <o> GPIO14_PIN1 IRQ Priority
 // <i> Defines Interrupt priority for GPIO14_PIN1.
@@ -9777,6 +9812,45 @@
 #define RTE_GPIO14_PIN7_IRQ_PRIORITY     0
 #endif
 // </e> GPIO14
+
+// <e> GPIO16
+// <i> Configuration settings for Driver_GPIO16 in component ::Drivers:GPIO
+#define RTE_GPIO16   1
+
+#if RTE_GPIO16
+
+// <o> GPIO16 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO16.
+// <i> Default: DISABLED
+#define RTE_GPIO16_BIT_MANIPULATION      0
+
+// <o> GPIO16 IRQ Priority
+// <i> Defines Interrupt priority for GPIO16
+// <i> Default: 0
+#define RTE_GPIO16_IRQ_PRIORITY          0
+#endif
+// </e> GPIO16
+
+// <e> GPIO17
+// <i> Configuration settings for Driver_GPIO17 in component ::Drivers:GPIO
+#define RTE_GPIO17   1
+#if RTE_GPIO17
+
+// <o> GPIO17 Bit Manipulation Feature
+//    <0=> DISABLED
+//    <1=> ENABLED
+// <i> Defines Bit Manipulation Control for GPIO17.
+// <i> Default: DISABLED
+#define RTE_GPIO17_BIT_MANIPULATION      0
+
+// <o> GPIO17 IRQ Priority
+// <i> Defines Interrupt priority for GPIO17
+// <i> Default: 0
+#define RTE_GPIO17_IRQ_PRIORITY          0
+#endif
+// </e> GPIO17
 
 // <e> LPGPIO
 // <i> Configuration settings for Driver_LPGPIO in component ::Drivers:GPIO

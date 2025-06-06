@@ -41,11 +41,9 @@ static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    GPIO->control_mode = GPIO_SOFTWARE_CONTROL_MODE;
-
     GPIO->cb_event[pin_no] = cb_event;
 
-    GPIO->state.initialized = 1;
+    GPIO->state[pin_no].initialized = 1;
 
     return ARM_DRIVER_OK;
 }
@@ -61,6 +59,8 @@ static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_
  */
 static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWER_STATE state)
 {
+    uint8_t irq_enabled;
+
     if (pin_no >= GPIO->max_pin)
     {
         return ARM_DRIVER_ERROR_PARAMETER;
@@ -70,39 +70,71 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
     {
         case ARM_POWER_OFF:
         {
-            if (GPIO->state.powered == 0)
+            if (GPIO->state[pin_no].powered == 0)
             {
                 return ARM_DRIVER_OK;
             }
 
+            irq_enabled = gpio_get_enabled_interrupt(GPIO->reg_base);
+            if (irq_enabled & (1U << pin_no))
+            {
+                gpio_disable_interrupt(GPIO->reg_base, pin_no);
+                gpio_mask_interrupt(GPIO->reg_base, pin_no);
+
+                if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
+                {
+                    NVIC_DisableIRQ(GPIO->IRQ_base_num + pin_no);
+                    NVIC_ClearPendingIRQ(GPIO->IRQ_base_num + pin_no);
+                }
+                else
+                {
+                    /* For combined interrupts, disable the IRQ signal in the NVIC domain only if
+                     * no other pins are configured to use the interrupt
+                     * */
+                    irq_enabled &= ~(1U << pin_no);
+
+                    if (irq_enabled == 0)
+                    {
+                        NVIC_DisableIRQ(GPIO->IRQ_base_num);
+                        NVIC_ClearPendingIRQ(GPIO->IRQ_base_num);
+                    }
+                }
+            }
+
+            /* decrementing driver reference count */
+            (GPIO->ref_count)--;
+
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            if (GPIO->gpio_id != LPGPIO_INSTANCE)
+            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0))
             {
                 disable_gpio_clk(GPIO->gpio_id);
             }
 #endif
 
-            GPIO->state.powered = 0;
+            GPIO->state[pin_no].powered = 0;
             break;
         }
         case ARM_POWER_FULL:
         {
-            if (GPIO->state.initialized == 0)
+            if (GPIO->state[pin_no].initialized == 0)
             {
                 return ARM_DRIVER_ERROR;
             }
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            if (GPIO->gpio_id != LPGPIO_INSTANCE)
+            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0))
             {
                 enable_gpio_clk(GPIO->gpio_id);
             }
 #endif
 
             /* mask the interrupt */
-            gpio_mask_interrupt (GPIO->reg_base, pin_no);
+            gpio_mask_interrupt(GPIO->reg_base, pin_no);
 
-            GPIO->state.powered = 1;
+            /* incrementing driver reference count */
+            (GPIO->ref_count)++;
+
+            GPIO->state[pin_no].powered = 1;
             break;
         }
         case ARM_POWER_LOW:
@@ -125,7 +157,7 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
  */
 static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_DIRECTION dir)
 {
-    if (GPIO->state.powered == 0)
+    if (GPIO->state[pin_no].powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -171,7 +203,7 @@ static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN
  */
 static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *dir)
 {
-    if (GPIO->state.powered == 0)
+    if (GPIO->state[pin_no].powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -211,7 +243,7 @@ static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t
  */
 static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    if (GPIO->state.powered == 0)
+    if (GPIO->state[pin_no].powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -299,7 +331,7 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
  */
 static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *value)
 {
-    if (GPIO->state.powered == 0)
+    if (GPIO->state[pin_no].powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -332,7 +364,7 @@ static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *va
  */
 static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    if (GPIO->state.powered == 0)
+    if (GPIO->state[pin_no].powered == 0)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -421,10 +453,18 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
 
             gpio_interrupt_eoi(GPIO->reg_base, pin_no);
 
-            NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
-            NVIC_SetPriority ((GPIO->IRQ_base_num + pin_no), GPIO->IRQ_priority[pin_no]);
-            NVIC_EnableIRQ (GPIO->IRQ_base_num + pin_no);
-
+            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
+            {
+                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
+                NVIC_SetPriority ((GPIO->IRQ_base_num + pin_no), GPIO->IRQ_priority[pin_no]);
+                NVIC_EnableIRQ (GPIO->IRQ_base_num + pin_no);
+            }
+            else
+            {
+                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num);
+                NVIC_SetPriority ((GPIO->IRQ_base_num), GPIO->IRQ_priority[pin_no]);
+                NVIC_EnableIRQ (GPIO->IRQ_base_num);
+            }
             break;
         }
         case ARM_GPIO_DISABLE_INTERRUPT :
@@ -435,8 +475,17 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
             gpio_interrupt_set_polarity_low (GPIO->reg_base, pin_no);
             gpio_interrupt_set_level_trigger (GPIO->reg_base, pin_no);
 
-            NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
-            NVIC_DisableIRQ (GPIO->IRQ_base_num + pin_no);
+            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
+            {
+                NVIC_DisableIRQ (GPIO->IRQ_base_num + pin_no);
+                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
+            }
+            else
+            {
+                NVIC_DisableIRQ (GPIO->IRQ_base_num);
+                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num);
+            }
+
             break;
         }
         case ARM_GPIO_GET_CONFIG_VALUE1 :
@@ -527,7 +576,7 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
  */
 static int32_t GPIO_Uninitialize (GPIO_RESOURCES *GPIO, uint8_t pin_no)
 {
-    if (GPIO->state.initialized == 0)
+    if (GPIO->state[pin_no].initialized == 0)
     {
         return ARM_DRIVER_OK;
     }
@@ -538,28 +587,61 @@ static int32_t GPIO_Uninitialize (GPIO_RESOURCES *GPIO, uint8_t pin_no)
 
     GPIO->cb_event[pin_no] = NULL;
 
-    GPIO->state.initialized = 0;
+    GPIO->state[pin_no].initialized = 0;
 
     return ARM_DRIVER_OK;
 }
 
 /**
+  \fn      void GPIO_Combined_IRQ_Handler(GPIO_RESOURCES *GPIO)
+  \brief   Initialize the gpio group
+  \param   GPIO     : Pointer to gpio device resources
+  \return  None
+*/
+static void GPIO_Combined_IRQ_Handler(GPIO_RESOURCES *GPIO)
+{
+    uint8_t pin_no;
+    uint8_t iter;
+
+    /* Get the interrupted pin numbers */
+    pin_no = gpio_interrupt_status(GPIO->reg_base);
+
+    for(iter = 0; iter < GPIO_PORT_MAX_PIN_NUMBER; iter++)
+    {
+        if (pin_no & (1 << iter))
+        {
+            GPIO->cb_event[iter](ARM_GPIO_IRQ_EVENT_EXTERNAL);
+            /* clear pin interrupt */
+            gpio_interrupt_eoi(GPIO->reg_base, pin_no);
+        }
+    }
+}
+
+/**
   \fn      void GPIO_IRQ_Handler (GPIO_RESOURCES *GPIO, uint8_t pin_no)
   \brief   Initialize the gpio pin
-  \param   cb_event : Pointer to gpio Event \ref GPIO_SignalEvent
   \param   GPIO     : Pointer to gpio device resources
   @param   pin_no   : pin to be configured.
-  \return  execution_status
+  \return  None
 */
 static void GPIO_IRQ_Handler (GPIO_RESOURCES *GPIO, uint8_t pin_no)
 {
-    /* clear pin interrupt */
-    gpio_interrupt_eoi(GPIO->reg_base, pin_no);
-
-    if (GPIO->cb_event[pin_no] != NULL)
+    if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
     {
-        GPIO->cb_event[pin_no](ARM_GPIO_IRQ_EVENT_EXTERNAL);
+        /* clear pin interrupt */
+        gpio_interrupt_eoi(GPIO->reg_base, pin_no);
+
+        if (GPIO->cb_event[pin_no] != NULL)
+        {
+            GPIO->cb_event[pin_no](ARM_GPIO_IRQ_EVENT_EXTERNAL);
+        }
     }
+    else
+    {
+        /* Invoke combbined irq handler */
+        GPIO_Combined_IRQ_Handler(GPIO);
+    }
+
 }
 
 /**<GPIO Instance 0>*/
@@ -573,6 +655,7 @@ static GPIO_RESOURCES GPIO0_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO0_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
         RTE_GPIO0_PIN0_IRQ_PRIORITY,
         RTE_GPIO0_PIN1_IRQ_PRIORITY,
@@ -667,6 +750,7 @@ static GPIO_RESOURCES GPIO1_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO1_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
         RTE_GPIO1_PIN0_IRQ_PRIORITY,
         RTE_GPIO1_PIN1_IRQ_PRIORITY,
@@ -760,6 +844,7 @@ static GPIO_RESOURCES GPIO2_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO2_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
         RTE_GPIO2_PIN0_IRQ_PRIORITY,
         RTE_GPIO2_PIN1_IRQ_PRIORITY,
@@ -853,6 +938,7 @@ static GPIO_RESOURCES GPIO3_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO3_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
         RTE_GPIO3_PIN0_IRQ_PRIORITY,
         RTE_GPIO3_PIN1_IRQ_PRIORITY,
@@ -946,6 +1032,7 @@ static GPIO_RESOURCES GPIO4_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO4_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO4_PIN0_IRQ_PRIORITY,
             RTE_GPIO4_PIN1_IRQ_PRIORITY,
@@ -1040,6 +1127,7 @@ static GPIO_RESOURCES GPIO5_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO5_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO5_PIN0_IRQ_PRIORITY,
             RTE_GPIO5_PIN1_IRQ_PRIORITY,
@@ -1134,6 +1222,7 @@ static GPIO_RESOURCES GPIO6_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO6_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO6_PIN0_IRQ_PRIORITY,
             RTE_GPIO6_PIN1_IRQ_PRIORITY,
@@ -1228,6 +1317,7 @@ static GPIO_RESOURCES GPIO7_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO7_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO7_PIN0_IRQ_PRIORITY,
             RTE_GPIO7_PIN1_IRQ_PRIORITY,
@@ -1321,6 +1411,7 @@ static GPIO_RESOURCES GPIO8_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO8_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO8_PIN0_IRQ_PRIORITY,
             RTE_GPIO8_PIN1_IRQ_PRIORITY,
@@ -1414,6 +1505,7 @@ static GPIO_RESOURCES GPIO9_RES = {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
     .gpio_bit_man_en = RTE_GPIO9_BIT_MANIPULATION,
 #endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO9_PIN0_IRQ_PRIORITY,
             RTE_GPIO9_PIN1_IRQ_PRIORITY,
@@ -1504,7 +1596,10 @@ static GPIO_RESOURCES GPIO10_RES = {
     .gpio_id = GPIO10_INSTANCE,
     .db_clkdiv = RTE_GPIO10_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
-    .gpio_bit_man_en = 0,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO10_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO10_PIN0_IRQ_PRIORITY,
             RTE_GPIO10_PIN1_IRQ_PRIORITY,
@@ -1595,7 +1690,10 @@ static GPIO_RESOURCES GPIO11_RES = {
     .gpio_id = GPIO11_INSTANCE,
     .db_clkdiv = RTE_GPIO11_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
-    .gpio_bit_man_en = 0,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO11_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO11_PIN0_IRQ_PRIORITY,
             RTE_GPIO11_PIN1_IRQ_PRIORITY,
@@ -1686,7 +1784,10 @@ static GPIO_RESOURCES GPIO12_RES = {
     .gpio_id = GPIO12_INSTANCE,
     .db_clkdiv = RTE_GPIO12_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
-    .gpio_bit_man_en = 0,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO12_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO12_PIN0_IRQ_PRIORITY,
             RTE_GPIO12_PIN1_IRQ_PRIORITY,
@@ -1777,7 +1878,10 @@ static GPIO_RESOURCES GPIO13_RES = {
     .gpio_id = GPIO13_INSTANCE,
     .db_clkdiv = RTE_GPIO13_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
-    .gpio_bit_man_en = 0,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO13_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO13_PIN0_IRQ_PRIORITY,
             RTE_GPIO13_PIN1_IRQ_PRIORITY,
@@ -1868,7 +1972,10 @@ static GPIO_RESOURCES GPIO14_RES = {
     .gpio_id = GPIO14_INSTANCE,
     .db_clkdiv = RTE_GPIO14_DB_CLK_DIV,
     .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
-    .gpio_bit_man_en = 0,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO14_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
     .IRQ_priority = {
             RTE_GPIO14_PIN0_IRQ_PRIORITY,
             RTE_GPIO14_PIN1_IRQ_PRIORITY,
@@ -1950,6 +2057,163 @@ ARM_DRIVER_GPIO Driver_GPIO14 = {
 };
 #endif   /* RTE_GPIO14 */
 
+/**<GPIO Instance 16>*/
+#if RTE_GPIO16
+static GPIO_RESOURCES GPIO16_RES = {
+    .reg_base = (GPIO_Type*) GPIO16_BASE,
+    .IRQ_base_num = GPIO16_IRQ0_IRQn,
+    .gpio_id = GPIO16_INSTANCE,
+    .db_clkdiv = 0,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO16_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_COMBINED,
+    .IRQ_priority = {
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY,
+            RTE_GPIO16_IRQ_PRIORITY
+    }
+};
+
+void GPIO16_IRQHandler  (void) {   GPIO_IRQ_Handler (&GPIO16_RES, 0);    }
+
+static int32_t ARM_GPIO16_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize (&GPIO16_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO16_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl (&GPIO16_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO16_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection (&GPIO16_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO16_GetDirection (uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection (&GPIO16_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO16_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue (&GPIO16_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO16_GetValue (uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue (&GPIO16_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO16_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control (&GPIO16_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO16_Uninitialize (uint8_t pin_no)
+{
+    return GPIO_Uninitialize (&GPIO16_RES, pin_no);
+}
+
+extern ARM_DRIVER_GPIO Driver_GPIO16;
+ARM_DRIVER_GPIO Driver_GPIO16 = {
+    ARM_GPIO16_Initialize,
+    ARM_GPIO16_PowerControl,
+    ARM_GPIO16_SetDirection,
+    ARM_GPIO16_GetDirection,
+    ARM_GPIO16_SetValue,
+    ARM_GPIO16_GetValue,
+    ARM_GPIO16_Control,
+    ARM_GPIO16_Uninitialize
+};
+#endif   /* RTE_GPIO16 */
+
+/**<GPIO Instance 17>*/
+#if RTE_GPIO17
+static GPIO_RESOURCES GPIO17_RES = {
+    .reg_base = (GPIO_Type*) GPIO17_BASE,
+    .IRQ_base_num = GPIO17_IRQ0_IRQn,
+    .gpio_id = GPIO17_INSTANCE,
+    .db_clkdiv = 0,
+    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+#if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
+    .gpio_bit_man_en = RTE_GPIO17_BIT_MANIPULATION,
+#endif
+    .IRQ_type = GPIO_INTERRUPT_TYPE_COMBINED,
+    .IRQ_priority = {
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY,
+            RTE_GPIO17_IRQ_PRIORITY
+    }
+};
+
+void GPIO17_IRQHandler  (void) {   GPIO_IRQ_Handler (&GPIO17_RES, 0);    }
+
+static int32_t ARM_GPIO17_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize (&GPIO17_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO17_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl (&GPIO17_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO17_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection (&GPIO17_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO17_GetDirection (uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection (&GPIO17_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO17_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue (&GPIO17_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO17_GetValue (uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue (&GPIO17_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO17_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control (&GPIO17_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO17_Uninitialize (uint8_t pin_no)
+{
+    return GPIO_Uninitialize (&GPIO17_RES, pin_no);
+}
+
+extern ARM_DRIVER_GPIO Driver_GPIO17;
+ARM_DRIVER_GPIO Driver_GPIO17 = {
+    ARM_GPIO17_Initialize,
+    ARM_GPIO17_PowerControl,
+    ARM_GPIO17_SetDirection,
+    ARM_GPIO17_GetDirection,
+    ARM_GPIO17_SetValue,
+    ARM_GPIO17_GetValue,
+    ARM_GPIO17_Control,
+    ARM_GPIO17_Uninitialize
+};
+#endif   /* RTE_GPIO17 */
 
 /**< Low Power GPIO >*/
 #if RTE_LPGPIO
@@ -1959,6 +2223,7 @@ static GPIO_RESOURCES LPGPIO_RES = {
     .IRQ_base_num = LPGPIO_IRQ0_IRQn,
     .max_pin = LPGPIO_MAX_PINS,
     .gpio_bit_man_en = 0,
+    .db_clkdiv = 0,
     .IRQ_priority = {
             RTE_LPGPIO_PIN0_IRQ_PRIORITY,
             RTE_LPGPIO_PIN1_IRQ_PRIORITY,
@@ -2046,6 +2311,6 @@ ARM_DRIVER_GPIO Driver_GPIOLP = {
 extern ARM_DRIVER_GPIO __attribute__((alias("Driver_GPIOLP"))) Driver_GPIO15;
 #endif   /* RTE_LPGPIO */
 
-#endif /* defined(RTE_Drivers_GPIO) */
+#endif /* defined(RTE_Drivers_IO) */
 
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

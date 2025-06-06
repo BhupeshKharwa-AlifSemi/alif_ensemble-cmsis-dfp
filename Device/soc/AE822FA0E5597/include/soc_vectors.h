@@ -378,4 +378,9 @@
 #define IRQ471_Handler           UTIMER_IRQ94Handler
 #define IRQ472_Handler           UTIMER_IRQ95Handler
 
+#if defined(RTSS_HP)
+#define IRQ476_Handler           GPIO16_IRQHandler
+#define IRQ477_Handler           GPIO17_IRQHandler
+#endif
+
 #endif /* SOC_VECTORS_H */

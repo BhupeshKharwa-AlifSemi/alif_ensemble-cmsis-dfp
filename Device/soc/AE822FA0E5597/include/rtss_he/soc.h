@@ -147,10 +147,10 @@ typedef enum {
                                                        (AUDIO_DET_IRQ) Upon interrupt assertion, the LPPDM interrupt
                                                        status registers should be read to identify the source
                                                        of the interrupt.  */
-    LPI3C_IRQ_IRQn            =  50,               /*!< 50 LPI3C Interrupt*/ 
-    LPI2C1_IRQ_IRQn           =  51,               /*!< 51 LPI3C Interrupt*/ 
-    LPUTIMER0_IRQ_IRQn        =  52,               /*!< 52 LPI3C Interrupt*/ 
-    LPUTIMER1_IRQ_IRQn        =  53,               /*!< 53 LPI3C Interrupt*/                                                                         
+    LPI3C_IRQ_IRQn            =  50,               /*!< 50 LPI3C Interrupt*/
+    LPI2C1_IRQ_IRQn           =  51,               /*!< 51 LPI2C1 Interrupt*/
+    GPIO16_IRQ0_IRQn          =  52,               /*!< 52 GPIO16 Interrupt*/
+    GPIO17_IRQ0_IRQn          =  53,               /*!< 53 GPIO17 Interrupt*/
     LPCAM_IRQ_IRQn            =  54,              /*!< 54 LPCPI interrupt                                                        */
     NPU_HE_IRQ_IRQn           =  55,              /*!< 55 Interrupt                                                              */
     LPCMP_IRQ_IRQn            =  56,              /*!< 56 Interrupt                                                              */
