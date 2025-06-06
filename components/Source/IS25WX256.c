@@ -474,7 +474,7 @@ static int32_t ARM_Flash_PowerControl (ARM_POWER_STATE state)
                 /* Prepare buffer with command and address to configure default wait cycles */
                 cmd[0] = CMD_WRITE_VOL_CONFIG;
                 cmd[1] = WAIT_CYCLE_ADDRESS;
-                cmd[2] = (DEFAULT_WAIT_CYCLES >> 8) | DEFAULT_WAIT_CYCLES;
+                cmd[2] = (DEFAULT_WAIT_CYCLES << 8) | DEFAULT_WAIT_CYCLES;
 
                 status = ptrOSPI->Control(ARM_OSPI_SET_FRAME_FORMAT, ARM_OSPI_FRF_OCTAL);
                 if (status != ARM_DRIVER_OK)
