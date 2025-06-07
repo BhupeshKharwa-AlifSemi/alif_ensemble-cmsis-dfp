@@ -51,6 +51,7 @@
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 #if defined(RTE_Compiler_IO_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif  /* RTE_Compiler_IO_STDOUT */
 

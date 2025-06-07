@@ -39,6 +39,7 @@
 /* include the CDC200 driver */
 #include "Driver_CDC200.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 

@@ -38,6 +38,7 @@
 #include "Driver_HWSEM.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 

@@ -27,6 +27,7 @@
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "Driver_Common.h"
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 

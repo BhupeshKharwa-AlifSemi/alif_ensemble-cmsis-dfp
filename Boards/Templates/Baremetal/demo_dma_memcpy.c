@@ -27,6 +27,7 @@
 #include CMSIS_device_header
 
 #ifdef RTE_CMSIS_Compiler_STDOUT
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif
 

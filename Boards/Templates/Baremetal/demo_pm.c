@@ -35,6 +35,10 @@
 #include "clock_runtime.h"
 #include "sys_utils.h"
 
+#if defined(RTE_CMSIS_Compiler_STDOUT) || defined(RTE_CMSIS_Compiler_STDIN)
+#include "retarget_init.h"
+#endif
+
 #if defined(RTE_CMSIS_Compiler_STDIN)
 #include "retarget_stdin.h"
 #endif  /* RTE_CMSIS_Compiler_STDIN */
