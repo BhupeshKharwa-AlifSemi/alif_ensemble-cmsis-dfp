@@ -20,8 +20,9 @@
  ******************************************************************************/
 
 /* System Includes */
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <inttypes.h>
+#include <string.h>
 
 #include "board_config.h"
 #include "RTE_Components.h"
@@ -66,13 +67,14 @@ void touchscreen_demo()
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
     /* Touch screen version */
     version = Drv_Touchscreen->GetVersion();
-    printf("\r\n Touchscreen driver version api:0x%X driver:0x%X \r\n",version.api, version.drv);
+    printf("\r\n Touchscreen driver version api:0x%"PRIx16""
+           "driver:0x%"PRIx16" \r\n",version.api, version.drv);
 
     /* Initialize GT911 touch screen */
     ret = Drv_Touchscreen->Initialize();
@@ -107,7 +109,8 @@ void touchscreen_demo()
             for(count = 1; count <= ACTIVE_TOUCH_POINTS; count++)
             {
                 /* Print coordinates positions of pressing on GT911 touch screen up to max touch points set */
-                printf("x%d: %d y%d: %d \r\n",count, state.coordinates[count - 1].x, count, state.coordinates[count - 1].y);
+                printf("x%"PRId32": %"PRId16" y%"PRId32": %"PRId16" \r\n",
+                        count, state.coordinates[count - 1].x, count, state.coordinates[count - 1].y);
             }
             memset(state.coordinates,0,sizeof(state.coordinates));
         } else{

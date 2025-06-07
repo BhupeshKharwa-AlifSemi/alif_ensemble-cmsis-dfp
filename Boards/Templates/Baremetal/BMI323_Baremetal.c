@@ -20,7 +20,8 @@
 
 /* System Includes */
 #include <stdio.h>
-#include "string.h"
+#include <string.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 
 /* Project Includes */
@@ -97,7 +98,7 @@ static int32_t hardware_init(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return ret;
     }
     return ARM_DRIVER_OK;
@@ -133,7 +134,7 @@ static void imu_bmi323_demo(void)
 
     /* IMU version */
     version = Drv_IMU->GetVersion();
-    printf("\r\n IMU version api:0x%X driver:0x%X \r\n",
+    printf("\r\n IMU version api:0x%"PRId16" driver:0x%"PRId16" \r\n",
             version.api, version.drv);
 
     /* IMU initialization */
@@ -168,7 +169,7 @@ static void imu_bmi323_demo(void)
                 goto error_poweroff;
             }
 
-            printf("\t\tAccel Data--> x:%dmg, y:%dmg, z:%dmg\r\n",
+            printf("\t\tAccel Data--> x:%"PRId16"mg, y:%"PRId16"mg, z:%"PRId16"mg\r\n",
                     data.x,
                     data.y,
                     data.z);
@@ -185,7 +186,7 @@ static void imu_bmi323_demo(void)
                 goto error_poweroff;
             }
 
-            printf("\t\tGyro Data-->  x:%dmdps, y:%dmdps, z:%dmdps\r\n",
+            printf("\t\tGyro Data-->  x:%"PRId16"mdps, y:%"PRId16"mdps, z:%"PRId16"mdps\r\n",
                     data.x,
                     data.y,
                     data.z);

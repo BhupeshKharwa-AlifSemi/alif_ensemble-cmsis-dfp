@@ -36,6 +36,7 @@
 #include "cmsis_os2.h"
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdint.h>
 
 #include "ethernetif.h"
@@ -145,7 +146,7 @@ void app_main (void *argument)
   if(ret != 0)
   {
 #ifdef HTTP_DEMO_DEBUG
-      printf("ERROR: Pin configuration failed: %d\n", ret);
+      printf("ERROR: Pin configuration failed: %"PRId32"\n", ret);
 #endif
       goto error;
   }

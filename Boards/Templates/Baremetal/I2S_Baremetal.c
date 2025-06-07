@@ -178,7 +178,7 @@ void DAC_Init(void)
     status = board_pins_config();
     if (status != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", status);
+        printf("Error in pin-mux configuration: %"PRId32"\n", status);
         return;
     }
 
@@ -190,7 +190,7 @@ void DAC_Init(void)
     status = board_i2s_dac_pins_config();
     if(status != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", status);
+        printf("Error in pin-mux configuration: %"PRId32"\n", status);
         return;
     }
 
@@ -210,21 +210,21 @@ void DAC_Init(void)
     status = wm8904->Initialize();
     if(status)
     {
-        printf("WM8904 codec Init failed status = %" PRId32 "\n", status);
+        printf("WM8904 codec Init failed status = %"PRId32"\n", status);
         goto error_codec_initialize;
     }
 
     status = wm8904->PowerControl(ARM_POWER_FULL);
     if(status)
     {
-        printf("WM8904 codec Power up failed status = %" PRId32 "\n", status);
+        printf("WM8904 codec Power up failed status = %"PRId32"\n", status);
         goto error_codec_power;
     }
 #endif
 
     /* Verify the I2S API version for compatibility */
     version = i2s_dac->GetVersion();
-    printf("I2S API version = %" PRId32 "\n", version.api);
+    printf("I2S API version = %"PRIu16"\n", version.api);
 
     /* Verify if I2S protocol is supported */
     cap = i2s_dac->GetCapabilities();
@@ -238,7 +238,7 @@ void DAC_Init(void)
     status = i2s_dac->Initialize(dac_callback);
     if(status)
     {
-        printf("DAC Init failed status = %" PRId32 "\n", status);
+        printf("DAC Init failed status = %"PRId32"\n", status);
         goto error_dac_initialize;
     }
 
@@ -246,7 +246,7 @@ void DAC_Init(void)
     status = i2s_dac->PowerControl(ARM_POWER_FULL);
     if(status)
     {
-        printf("DAC Power Failed status = %" PRId32 "\n", status);
+        printf("DAC Power Failed status = %"PRId32"\n", status);
         goto error_dac_power;
     }
 
@@ -258,7 +258,7 @@ void DAC_Init(void)
                               ARM_SAI_DATA_SIZE(wlen), wlen*2, sampling_rate);
     if(status)
     {
-        printf("DAC Control status = %" PRId32 "\n", status);
+        printf("DAC Control status = %"PRId32"\n", status);
         goto error_dac_control;
     }
 
@@ -266,7 +266,7 @@ void DAC_Init(void)
     status = i2s_dac->Control(ARM_SAI_CONTROL_TX, 1, 0);
     if(status)
     {
-        printf("DAC TX status = %" PRId32 "\n", status);
+        printf("DAC TX status = %"PRId32"\n", status);
         goto error_dac_control;
     }
 
@@ -274,7 +274,7 @@ void DAC_Init(void)
     status = ADC_Init();
     if(status)
     {
-        printf("ADC Init failed status = %" PRId32 "\n", status);
+        printf("ADC Init failed status = %"PRId32"\n", status);
         goto error_adc_control;
     }
 
@@ -282,7 +282,7 @@ void DAC_Init(void)
     status = i2s_adc->Control(ARM_SAI_CONTROL_RX, 1, 0);
     if(status)
     {
-        printf("ADC RX status = %" PRId32 "\n", status);
+        printf("ADC RX status = %"PRId32"\n", status);
         goto error_adc_control;
     }
 #endif
@@ -301,7 +301,7 @@ void DAC_Init(void)
         status = Receiver();
         if(status)
         {
-            printf("ADC Receive failed status = %" PRId32 "\n", status);
+            printf("ADC Receive failed status = %"PRId32"\n", status);
             goto error_adc_receive;
         }
 #endif
@@ -310,7 +310,7 @@ void DAC_Init(void)
         status = i2s_dac->Send(buf, buf_len);
         if(status)
         {
-            printf("DAC Send status = %" PRId32 "\n", status);
+            printf("DAC Send status = %"PRId32"\n", status);
             goto error_adc_dac;
         }
 
@@ -330,7 +330,7 @@ void DAC_Init(void)
     status = i2s_adc->Control(ARM_SAI_CONTROL_RX, 0, 0);
     if(status)
     {
-      printf("ADC RX status = %" PRId32 "\n", status);
+      printf("ADC RX status = %"PRId32"\n", status);
       goto error_adc_control;
     }
 #endif
@@ -339,7 +339,7 @@ void DAC_Init(void)
     status = i2s_dac->Control(ARM_SAI_CONTROL_TX, 0, 0);
     if(status)
     {
-        printf("DAC TX status = %" PRId32 "\n", status);
+        printf("DAC TX status = %"PRId32"\n", status);
         goto error_adc_dac;
     }
 
@@ -355,17 +355,17 @@ error_dac_control:
 error_dac_power:
     i2s_dac->Uninitialize();
 error_dac_initialize:
-error_codec_control:
 #if BOARD_WM8904_CODEC_PRESENT
-    wm8904->PowerControl(ARM_POWER_OFF);
-#endif
 error_codec_power:
-#if BOARD_WM8904_CODEC_PRESENT
+    wm8904->PowerControl(ARM_POWER_OFF);
     wm8904->Uninitialize();
 #endif
+#if BOARD_WM8904_CODEC_PRESENT
 error_codec_initialize:
+#endif
     while(1) {
     }
+
 }
 
 /**
@@ -438,14 +438,14 @@ int32_t ADC_Init(void)
     status = board_i2s_adc_pins_config();
     if(status != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", status);
+        printf("Error in pin-mux configuration: %"PRId32"\n", status);
         return -1;
     }
 #endif
 
     /* Verify the I2S API version for compatibility*/
     version = i2s_adc->GetVersion();
-    printf("I2S API version = %" PRId32 "\n", version.api);
+    printf("I2S API version = %"PRIu16"\n", version.api);
 
     /* Verify if I2S protocol is supported */
     cap = i2s_adc->GetCapabilities();
@@ -459,7 +459,7 @@ int32_t ADC_Init(void)
     status = i2s_adc->Initialize(adc_callback);
     if(status)
     {
-        printf("ADC Init failed status = %" PRId32 "\n", status);
+        printf("ADC Init failed status = %"PRId32"\n", status);
         return -1;
     }
 
@@ -467,7 +467,7 @@ int32_t ADC_Init(void)
     status = i2s_adc->PowerControl(ARM_POWER_FULL);
     if(status)
     {
-        printf("ADC Power failed status = %" PRId32 "\n", status);
+        printf("ADC Power failed status = %"PRId32"\n", status);
         return -1;
     }
 
@@ -479,7 +479,7 @@ int32_t ADC_Init(void)
                               ARM_SAI_DATA_SIZE(wlen), wlen*2, sampling_rate);
     if(status)
     {
-      printf("ADC Control status = %" PRId32 "\n", status);
+      printf("ADC Control status = %"PRId32"\n", status);
       return -1;
     }
 
@@ -500,7 +500,7 @@ int32_t Receiver(void)
     status = i2s_adc->Receive((uint32_t *)sample_buf, NUM_SAMPLES);
     if(status)
     {
-        printf("ADC Receive status = %" PRId32 "\n", status);
+        printf("ADC Receive status = %"PRId32"\n", status);
         return -1;
     }
 

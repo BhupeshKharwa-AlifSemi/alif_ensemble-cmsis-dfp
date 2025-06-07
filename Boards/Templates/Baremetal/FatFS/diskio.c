@@ -20,12 +20,13 @@
 /* SD Card Instance */
 extern sd_handle_t Hsd;
 const diskio_t  *p_SD_Driver = &SD_Driver;
-static sd_handle_t *pHsd = &Hsd;
 
 /* Interrupt Handler callback */
 volatile uint32_t dma_done_irq;
 void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 {
+    ARG_UNUSED(cmd_status);
+
     if(xfer_status)
         dma_done_irq = 1;
 }
@@ -38,6 +39,7 @@ DSTATUS disk_status (
     BYTE pdrv        /* Physical drive number to identify the drive */
 )
 {
+    ARG_UNUSED(pdrv);
 
     return RES_OK;
 }
@@ -50,9 +52,10 @@ DSTATUS disk_status (
 
 DSTATUS disk_initialize(BYTE drivenum)//FATFS *p_sd_card, char *MEDIA_NAME, void * media_memory, uint32_t media_size)
 {
-    DSTATUS stat;
     int status;
     sd_param_t sd_param;
+
+    ARG_UNUSED(drivenum);
 
     sd_param.dev_id         = SDMMC_DEV_ID;
     sd_param.clock_id       = RTE_SDC_CLOCK_SELECT;
@@ -82,12 +85,11 @@ DRESULT disk_read (
     UINT count        /* Number of sectors to read */
 )
 {
-    DRESULT res;
-    int result;
+    ARG_UNUSED(pdrv);
 
     dma_done_irq = 0;
 
-    result = p_SD_Driver->disk_read(sector, count, buff);
+    (void)p_SD_Driver->disk_read(sector, count, buff);
 
     while(!dma_done_irq);
 
@@ -111,6 +113,8 @@ DRESULT disk_write (
 )
 {
     DRESULT res = RES_OK;
+
+    ARG_UNUSED(pdrv);
 
     dma_done_irq = 0;
     RTSS_CleanDCache_by_Addr((volatile void *)buff, count * SDMMC_BLK_SIZE_512_Msk);
@@ -137,6 +141,9 @@ DRESULT disk_ioctl (
 )
 {
     DRESULT res = 0;
+
+    ARG_UNUSED(cmd);
+    ARG_UNUSED(buff);
 
     switch (pdrv) {
     case DEV_MMC :

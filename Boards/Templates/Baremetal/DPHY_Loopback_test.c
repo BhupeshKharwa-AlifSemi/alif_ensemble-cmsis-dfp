@@ -19,6 +19,7 @@
  * @Note     None.
  ******************************************************************************/
 #include <stdint.h>
+#include <inttypes.h>
 #include "Driver_Common.h"
 #include "RTE_Components.h"
 #include CMSIS_device_header

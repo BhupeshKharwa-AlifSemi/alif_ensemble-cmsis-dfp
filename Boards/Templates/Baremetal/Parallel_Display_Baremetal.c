@@ -21,6 +21,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 
 #include <RTE_Components.h>
@@ -31,7 +32,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
-#include "board_config.h"
+#include "sys_utils.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
@@ -347,7 +348,7 @@ static void Parallel_Display_Demo()
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -359,7 +360,7 @@ static void Parallel_Display_Demo()
     ret = board_cdc200_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -367,7 +368,8 @@ static void Parallel_Display_Demo()
     printf("\r\n >>> CDC demo starting up!!! <<< \r\n");
 
     version = CDCdrv->GetVersion();
-    printf("\r\n CDC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n CDC version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     /* Initialize CDC controller */
     ret = CDCdrv->Initialize(display_callback);
@@ -392,7 +394,7 @@ static void Parallel_Display_Demo()
         goto error_uninitialize;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)lcd_image);
+    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n",(uint32_t)lcd_image);
 
     /* Start CDC controller */
     ret = CDCdrv->Start();

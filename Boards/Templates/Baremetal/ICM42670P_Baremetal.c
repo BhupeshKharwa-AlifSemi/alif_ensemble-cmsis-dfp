@@ -20,7 +20,8 @@
 
 /* System Includes */
 #include <stdio.h>
-#include "string.h"
+#include <inttypes.h>
+#include <string.h>
 #include "sys_utils.h"
 
 /* Project Includes */
@@ -99,7 +100,7 @@ static int32_t hardware_init(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("ERROR: Board pin mux configuration failed: %d\n", ret);
+        printf("ERROR: Board pin mux configuration failed: %"PRId32"\n", ret);
         return ret;
     }
 
@@ -135,7 +136,7 @@ static void imu_icm42670p_demo(void)
 
     /* IMU version */
     version = Drv_IMU->GetVersion();
-    printf("\r\n IMU version api:0x%X driver:0x%X \r\n",
+    printf("\r\n IMU version api:0x%"PRIx16" driver:0x%"PRIx16" \r\n",
             version.api, version.drv);
 
     /* IMU initialization */
@@ -171,10 +172,8 @@ static void imu_icm42670p_demo(void)
                 goto error_poweroff;
             }
 
-            printf("\t\tAccel Data--> x:%dmg, y:%dmg, z:%dmg\r\n",
-                    data.x,
-                    data.y,
-                    data.z);
+            printf("\t\tAccel Data--> x:%"PRId16"mg, y:%"PRId16"mg, z:%"PRId16"mg\r\n",
+                    data.x, data.y, data.z);
 
             /* Read Gyroscope data */
             ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA,
@@ -185,10 +184,8 @@ static void imu_icm42670p_demo(void)
                 goto error_poweroff;
             }
 
-            printf("\t\tGyro Data-->  x:%dmdps, y:%dmdps, z:%dmdps\r\n",
-                    data.x,
-                    data.y,
-                    data.z);
+            printf("\t\tGyro Data-->  x:%"PRId16"mdps, y:%"PRId16"mdps, z:%"PRId16"mdps\r\n",
+                    data.x, data.y, data.z);
 
             /* Read Temperature data */
             ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA,

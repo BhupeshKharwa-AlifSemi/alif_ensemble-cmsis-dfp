@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include "Driver_LPTIMER.h"
 #include "sys_utils.h"
@@ -74,14 +75,14 @@ static void lptimer_Thread ()
     ret = ptrDrv->Initialize (channel, lptimer_cb_fun);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: channel '%d'failed to initialize\r\n", channel);
+        printf("ERROR: channel '%"PRIu8"'failed to initialize\r\n", channel);
         return;
     }
 
     ret = ptrDrv->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: channel '%d'failed to power up\r\n", channel);
+        printf("ERROR: channel '%"PRIu8"'failed to power up\r\n", channel);
         goto error_uninstall;
     }
 
@@ -89,16 +90,16 @@ static void lptimer_Thread ()
     ret = ptrDrv->Control (channel, ARM_LPTIMER_SET_COUNT1, &count);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: channel '%d'failed to load count\r\n", channel);
+        printf("ERROR: channel '%"PRIu8"'failed to load count\r\n", channel);
         goto error_poweroff;
     }
 
-    printf("demo application: lptimer channel '%d' configured for 5 sec \r\n\n", channel);
+    printf("demo application: lptimer channel '%"PRIu8"' configured for 5 sec \r\n\n", channel);
 
     ret = ptrDrv->Start (channel);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: failed to start channel '%d' timer\n", channel);
+        printf("ERROR: failed to start channel '%"PRIu8"' timer\n", channel);
         goto error_poweroff;
     }
     else
@@ -124,7 +125,7 @@ static void lptimer_Thread ()
     ret = ptrDrv->Stop(channel);
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: failed to stop channel %d\n", channel);
+        printf("ERROR: failed to stop channel %"PRIu8"\n", channel);
     }
     else
     {
@@ -136,7 +137,7 @@ error_poweroff:
     ret = ptrDrv->PowerControl(channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: failed to power off channel '%d'\n", channel);
+        printf("ERROR: failed to power off channel '%"PRIu8"'\n", channel);
     }
 
 error_uninstall:
@@ -144,7 +145,7 @@ error_uninstall:
     ret = ptrDrv->Uninitialize(channel);
     if (ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: failed to un-initialize channel %d\n", channel);
+        printf("ERROR: failed to un-initialize channel %"PRIu8"\n", channel);
     }
 
     printf("demo application: completed \r\n");

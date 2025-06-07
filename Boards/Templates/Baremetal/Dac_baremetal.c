@@ -37,6 +37,7 @@
  ******************************************************************************/
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "RTE_Components.h"
 #include CMSIS_device_header
@@ -117,7 +118,7 @@ static void dac_demo(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -129,13 +130,13 @@ static void dac_demo(void)
     ret = board_dac12_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
 
     version = DACdrv->GetVersion();
-    printf("\r\n DAC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n DAC version api:%"PRIu16" driver:%"PRIu16"...\r\n",version.api, version.drv);
 
     /* Initialize DAC driver */
     ret = DACdrv->Initialize();

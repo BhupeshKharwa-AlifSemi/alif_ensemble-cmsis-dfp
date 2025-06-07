@@ -33,6 +33,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_I3C.h"
 #include "sys_utils.h"
 #include "board_config.h"
@@ -114,7 +115,9 @@ void i2c_using_i3c_demo_thread_entry()
     int32_t   i      = 0;
     int32_t   ret    = 0;
     int32_t   len    = 0;
+ #if !RTE_I3C_BLOCKING_MODE_ENABLE
     uint32_t  retry_cnt = 0;
+#endif
 
     /* @NOTE:
      *  I3C expects data to be aligned in 4-bytes (multiple of 4) for DMA.
@@ -135,8 +138,8 @@ void i2c_using_i3c_demo_thread_entry()
 
     /* Get i3c driver version. */
     version = I3Cdrv->GetVersion();
-    printf("\r\n i3c version api:0x%X driver:0x%X \r\n",
-                           version.api, version.drv);
+    printf("\r\n i3c version api:0x%"PRIx16" driver:0x%"PRIx16" \r\n",
+                 version.api, version.drv);
 
     if((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))       ||
        (version.drv < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U)))
@@ -149,7 +152,7 @@ void i2c_using_i3c_demo_thread_entry()
     ret = board_pins_config();
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: Pin configuration failed: %d\n", ret);
+        printf("ERROR: Pin configuration failed: %"PRId32"\n", ret);
         return;
     }
 
@@ -222,7 +225,7 @@ void i2c_using_i3c_demo_thread_entry()
     printf("\r\n Start attaching all i2c slave addr to i3c.\r\n");
     for(i=0; i<MAX_SLAVE_SUPPORTED; i++)
     {
-        printf("\r\n  >> i=%d attaching i2c slave addr:0x%X to i3c...\r\n",  \
+        printf("\r\n  >> i=%"PRId32" attaching i2c slave addr:0x%"PRIx8" to i3c...\r\n",
                            i, slave_addr[i]);
 
         ret = I3Cdrv->AttachSlvDev(ARM_I3C_DEVICE_TYPE_I2C, slave_addr[i]);
@@ -284,8 +287,9 @@ void i2c_using_i3c_demo_thread_entry()
             len = 2;
 
             printf("\r\n ------------------------------------------------------------ \r\n");
-            printf("\r\n >> i=%d TX slave addr:0x%X reg_addr:[0]0x%X [1]0x%X \r\n",  \
-                               i, slave_addr[i], tx_data[0],tx_data[1]);
+            printf("\r\n >> i=%"PRId32" TX slave addr:0x%"PRIx8""
+                   "reg_addr:[0]0x%"PRIx8" [1]0x%"PRIx8" \r\n",
+                   i, slave_addr[i], tx_data[0],tx_data[1]);
 
             /* For TX, User has to pass
              * Slave Address + TX data + length of the TX data.
@@ -300,7 +304,7 @@ void i2c_using_i3c_demo_thread_entry()
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
             /* TX Success: Got ACK from slave */
-            printf("\r\n >> i=%d TX Success: Got ACK from slave:0x%X.\r\n",
+            printf("\r\n >> i=%"PRId32" TX Success: Got ACK from slave:0x%"PRIx8".\r\n",
                     i, slave_addr[i]);
 #else
             /* wait till any event success/error comes in isr callback */
@@ -316,16 +320,16 @@ void i2c_using_i3c_demo_thread_entry()
                 if(cb_event_flag == I3C_CB_EVENT_SUCCESS)
                 {
                     /* TX Success: Got ACK from slave */
-                    printf("\r\n \t\t >> i=%d TX Success: Got ACK from slave addr:0x%X.\r\n",  \
-                                   i, slave_addr[i]);
+                    printf("\r\n \t\t >> i=%"PRId32" TX Success: Got ACK from slave addr:0x%"PRIx8".\r\n",
+                             i, slave_addr[i]);
                     break;
                 }
 
                 if(cb_event_flag == I3C_CB_EVENT_ERROR)
                 {
                     /* TX Error: Got NACK from slave */
-                    printf("\r\n \t\t >> i=%d TX Error: Got NACK from slave addr:0x%X \r\n",  \
-                                   i, slave_addr[i]);
+                    printf("\r\n \t\t >> i=%"PRId32" TX Error: Got NACK from slave addr:0x%"PRIx8" \r\n",
+                            i, slave_addr[i]);
                     break;
                 }
             }
@@ -336,7 +340,7 @@ void i2c_using_i3c_demo_thread_entry()
                 goto error_detach;
             }
 #endif
-            printf("\r\n\r\n >> i=%d RX slave addr:0x%X \r\n",i, slave_addr[i]);
+            printf("\r\n\r\n >> i=%"PRId32" RX slave addr:0x%"PRIx8" \r\n",i, slave_addr[i]);
 
             /* clear rx data buffer. */
             rx_data[0] = 0;
@@ -357,10 +361,11 @@ void i2c_using_i3c_demo_thread_entry()
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
             /* RX Success: Got ACK from slave */
-            printf("\r\n>> i=%d RX Success: Got ACK from slave:0x%X.\r\n",  \
+            printf("\r\n>> i=%"PRId32" RX Success:"
+                   " Got ACK from slave:0x%"PRIx8".\r\n",
                     i, slave_addr[i]);
-            printf("\r\n>> i=%d RX Rcvd Data from slave:", i);
-            printf("[0]0x%X [1]0x%X [2]0x%X\r\n", rx_data[0],
+            printf("\r\n>> i=%"PRId32" RX Rcvd Data from slave:", i);
+            printf("[0]0x%"PRIx8" [1]0x%"PRIx8" [2]0x%"PRIx8"\r\n", rx_data[0],
                     rx_data[1],rx_data[2]);
 #else
             /* wait till any event success/error comes in isr callback */
@@ -376,18 +381,21 @@ void i2c_using_i3c_demo_thread_entry()
                 if(cb_event_flag == I3C_CB_EVENT_SUCCESS)
                 {
                     /* RX Success: Got ACK from slave */
-                    printf("\r\n \t\t >> i=%d RX Success: Got ACK from slave addr:0x%X.\r\n",  \
-                                   i, slave_addr[i]);
-                    printf("\r\n \t\t >> i=%d RX Received Data from slave:[0]0x%X [1]0x%X [2]0x%X\r\n",  \
-                                   i,rx_data[0],rx_data[1],rx_data[2]);
+                    printf("\r\n \t\t >> i=%"PRId32""
+                           " RX Success: Got ACK from slave addr:0x%"PRIx8".\r\n",
+                            i, slave_addr[i]);
+                    printf("\r\n \t\t >> i=%"PRId32" RX Received Data"
+                           " from slave:[0]0x%"PRIx8" [1]0x%"PRIx8" [2]0x%"PRIx8"\r\n",
+                            i,rx_data[0],rx_data[1],rx_data[2]);
                     break;
                 }
 
                 if(cb_event_flag == I3C_CB_EVENT_ERROR)
                 {
                     /* RX Error: Got NACK from slave */
-                    printf("\r\n \t\t >> i=%d RX Error: Got NACK from slave addr:0x%X \r\n",  \
-                                   i, slave_addr[i]);
+                    printf("\r\n \t\t >> i=%"PRId32""
+                           " RX Error: Got NACK from slave addr:0x%"PRIx8" \r\n",
+                            i, slave_addr[i]);
                     break;
                 }
 
@@ -411,7 +419,8 @@ error_detach:
     /* Detach all attached slave address */
     for(i=0; i<MAX_SLAVE_SUPPORTED; i++)
     {
-        printf("\r\n i=%d detaching i2c slave addr:0x%X from i3c.\r\n",i, slave_addr[i]);
+        printf("\r\n i=%"PRId32" detaching i2c slave addr:0x%"PRIx8" from i3c.\r\n",
+                i, slave_addr[i]);
         ret = I3Cdrv->Detachdev(slave_addr[i]);
         if(ret != ARM_DRIVER_OK)
         {

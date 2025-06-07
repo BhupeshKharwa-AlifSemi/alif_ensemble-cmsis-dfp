@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "ospi_hyperram_xip.h"
 #include "S80K_HyperRAM.h"
@@ -389,7 +390,7 @@ int main(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         goto error_exit;
     }
 
@@ -408,7 +409,7 @@ int main(void)
 #endif
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         goto error_exit;
     }
 #endif
@@ -428,7 +429,7 @@ int main(void)
     printf("Writing data to the XIP region:\n");
 
     srand(1);
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint32_t)); i++)
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint32_t)); i++)
     {
         ptr[i] = rand();
     }
@@ -436,17 +437,18 @@ int main(void)
     printf("Reading back:\n");
 
     srand(1);
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint32_t)); i++)
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint32_t)); i++)
     {
         random_val = rand();
         if (ptr[i] != random_val)
         {
-            printf("Data error at addr %x, got %x, expected %x\n", (i * sizeof(uint32_t)), ptr[i], random_val);
+            printf("Data error at addr %"PRIx32", got %"PRIx32", expected %"PRIx32"\n",
+                   (i * sizeof(uint32_t)), ptr[i], random_val);
             total_errors++;
         }
     }
 
-    printf("Done, total errors = %d\n", total_errors);
+    printf("Done, total errors = %"PRIu32"\n", total_errors);
 
 error_exit:
 

@@ -143,13 +143,14 @@ void myUART_Thread_entry()
                            /*bool enable   */ true,
                                               &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %PRIu32\n", error_code);
 #endif /* CLK_38.4MHz */
 
     printf("\r\n >>> UART testApp starting up!!!...<<< \r\n");
 
     version = USARTdrv->GetVersion();
-    printf("\r\n UART version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n UART version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     /* Initialize UART hardware pins using PinMux Driver. */
     ret = hardware_init();
@@ -272,7 +273,7 @@ error_uninitialize:
                        /*bool enable   */ false,
                                           &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %PRIu32\n", error_code);
 #endif
 
     printf("\r\n XXX UART demo thread exiting XXX...\r\n");

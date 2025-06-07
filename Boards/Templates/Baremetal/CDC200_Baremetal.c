@@ -28,6 +28,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <RTE_Device.h>
 #include <RTE_Components.h>
@@ -102,14 +103,14 @@ static void CDC_demo()
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 100MHz clock enable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock enable = %"PRId32"\n", error_code);
         return;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, true, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %"PRId32"\n", error_code);
         goto error_disable_100mhz_clk;
     }
 
@@ -119,7 +120,7 @@ static void CDC_demo()
                                       &service_error_code);
     if(error_code)
     {
-        printf("\r\nSE: get_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: get_run_cfg error = %"PRId32"\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -143,12 +144,12 @@ static void CDC_demo()
                                       &service_error_code);
     if(error_code)
     {
-        printf("\r\nSE: set_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: set_run_cfg error = %"PRId32"\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
     version = CDCdrv->GetVersion();
-    printf("\r\n CDC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n CDC version api:%"PRIu16" driver:%"PRIu16"...\r\n",version.api, version.drv);
 
     /* Initialize CDC driver */
     ret = CDCdrv->Initialize(display_callback);
@@ -171,7 +172,7 @@ static void CDC_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)lcd_image);
+    printf(">>> Allocated memory buffer Address is 0x%"PRIu32" <<<\n",(uint32_t)lcd_image);
 
     /* Start CDC */
     ret = CDCdrv->Start();
@@ -219,14 +220,14 @@ error_disable_hfosc_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, false, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %"PRId32"\n", error_code);
     }
 
 error_disable_100mhz_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 100MHz clock disable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock disable = %"PRId32"\n", error_code);
     }
 
         printf("\r\n XXX CDC demo exiting XXX...\r\n");

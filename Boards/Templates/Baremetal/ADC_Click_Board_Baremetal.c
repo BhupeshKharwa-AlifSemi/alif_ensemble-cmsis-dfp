@@ -26,6 +26,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 
 /* include for ADC Driver */
@@ -91,7 +92,7 @@ void adc_click_board_demo()
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("ERROR: Board pin configuration failed: %d\n", ret);
+        printf("ERROR: Board pin configuration failed: %"PRId32"\n", ret);
         return;
     }
 
@@ -105,14 +106,14 @@ void adc_click_board_demo()
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk enable = %d\n", error_code);
+        printf("SE Error: 160 MHz clk enable = %"PRId32"\n", error_code);
         return;
     }
 
     printf("\t\t\n >>> ADC demo starting up!!! <<< \r\n");
 
     version = ADCdrv->GetVersion();
-    printf("\r\n ADC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n ADC version api:%"PRIx16" driver:%"PRIx16"...\r\n",version.api, version.drv);
 
     /* Initialize ADC driver */
     ret = ADCdrv->Initialize(adc_conversion_callback);
@@ -142,7 +143,7 @@ void adc_click_board_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)(adc_sample + CLICK_BOARD_INPUT));
+    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n",(uint32_t)(adc_sample + CLICK_BOARD_INPUT));
     /* Start ADC */
     ret = ADCdrv->Start();
     if(ret != ARM_DRIVER_OK){
@@ -189,7 +190,7 @@ error_uninitialize:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk disable = %d\n", error_code);
+        printf("SE Error: 160 MHz clk disable = %"PRId32"\n", error_code);
         return;
     }
 

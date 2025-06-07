@@ -21,6 +21,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_RTC.h"
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -76,7 +77,8 @@ void rtc_demo_Thread_entry()
     printf("\r\n >>> RTC demo thread is starting up!!! <<< \r\n");
 
     version = RTCdrv->GetVersion();
-    printf("\r\n RTC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n RTC version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     capabilities = RTCdrv->GetCapabilities();
     if(!capabilities.alarm){
@@ -106,7 +108,7 @@ void rtc_demo_Thread_entry()
             goto error_poweroff;
         }
 
-        printf("\r\n Setting alarm after %d counts \r\n", timeout);
+        printf("\r\n Setting alarm after %"PRIu32" counts \r\n", timeout);
         ret = RTCdrv->Control(ARM_RTC_SET_ALARM, val + timeout);
         if(ret != ARM_DRIVER_OK){
             printf("\r\n Error: RTC Could not set alarm\n");

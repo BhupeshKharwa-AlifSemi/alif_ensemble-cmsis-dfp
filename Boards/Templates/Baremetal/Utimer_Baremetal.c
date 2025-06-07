@@ -32,6 +32,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_UTIMER.h"
 #include "Driver_IO.h"
 #include "pinconf.h"
@@ -329,42 +330,42 @@ static void utimer_basic_mode_app(void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_basic_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_basic_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_BASIC, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_basic_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_basic_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_basic_mode_poweroff;
     }
 
-    printf("utimer channel '%d'configured on basic mode for 500 ms\r\n", channel);
+    printf("utimer channel '%"PRIu8"'configured on basic mode for 500 ms\r\n", channel);
 
     ret = ptrUTIMER->Start (channel);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to start \n", channel);
+        printf("utimer channel %"PRIu8" failed to start \n", channel);
         goto error_basic_mode_poweroff;
     } else {
-        printf("utimer channel '%d': timer started\n", channel);
+        printf("utimer channel '%"PRIu8"': timer started\n", channel);
     }
 
     for(uint32_t count = 0; count < 5; count++)
@@ -372,30 +373,30 @@ static void utimer_basic_mode_app(void)
 
     if (cb_basic_status) {
         cb_basic_status = 0;
-        printf("utimer channel %d :500ms timer expired \n", channel);
+        printf("utimer channel %"PRIu8" :500ms timer expired \n", channel);
     } else {
         printf("Error :utimer basic mode timeout \n");
     }
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     } else {
-        printf("utimer channel %d :timer stopped\n", channel);
+        printf("utimer channel %"PRIu8" :timer stopped\n", channel);
     }
 
 error_basic_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power off \n", channel);
+        printf("utimer channel %"PRIu8" failed power off \n", channel);
     }
 
 error_basic_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize(channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 
     printf("*** demo application: basic mode completed *** \r\n\n");
@@ -477,54 +478,54 @@ static void utimer_buffering_mode_app (void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_buffering_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_buffering_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_BUFFERING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_buffering_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_buffering_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_buffering_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR_BUF1, count_array[2]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_buffering_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR_BUF2, count_array[3]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_buffering_mode_poweroff;
     }
 
-    printf("channel '%d'configured on buffering mode for 500, 1000, and 1500 ms \r\n", channel);
+    printf("channel '%"PRIu8"'configured on buffering mode for 500, 1000, and 1500 ms \r\n", channel);
 
     ret = ptrUTIMER->Start(channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to start \n", channel);
+        printf("utimer channel %"PRIu8" failed to start \n", channel);
         goto error_buffering_mode_poweroff;
     } else {
-        printf("utimer channel %d :timer started\n", channel);
+        printf("utimer channel %"PRIu8" :timer started\n", channel);
     }
 
     for (index=1; index<=3; index++)
@@ -534,7 +535,8 @@ static void utimer_buffering_mode_app (void)
 
         if (cb_buffer_status) {
             cb_buffer_status = 0;
-            printf("utimer channel %d: %d ms timer expired\n", channel, (500*index));
+            printf("utimer channel %"PRIu8": %"PRIu32" ms timer expired\n",
+                    channel, (uint32_t)(500*index));
         } else {
             printf("Error :Utimer buffer mode timeout \n");
         }
@@ -542,23 +544,23 @@ static void utimer_buffering_mode_app (void)
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     } else {
-        printf("utimer channel %d: timer stopped\n", channel);
+        printf("utimer channel %"PRIu8": timer stopped\n", channel);
     }
 
 error_buffering_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("uTIMER channel %d failed power off \n", channel);
+        printf("uTIMER channel %"PRIu8" failed power off \n", channel);
     }
 
 error_buffering_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize (channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 
     printf("*** demo application: buffering mode completed *** \r\n\n");
@@ -640,45 +642,45 @@ static void utimer_trigger_mode_app(void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_trigger_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_trigger_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_TRIGGERING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_trigger_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_trigger_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_trigger_mode_poweroff;
     }
 
     /* Config Trigger for counter start using chan_event_a_rising_b_0 */
     ret = ptrUTIMER->ConfigTrigger (channel, &trig_config);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d trigger configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" trigger configuration failed \n", channel);
         goto error_trigger_mode_poweroff;
     } else {
-        printf("utimer channel %d triggered for counter start \n", channel);
+        printf("utimer channel %"PRIu8" triggered for counter start \n", channel);
     }
 
     value = ptrUTIMER->GetCount (channel, ARM_UTIMER_CNTR);
-    printf("counter value before triggering : %d\n",value);
+    printf("counter value before triggering : %"PRIu32"\n",value);
 
     ret = ptrTrig0GPO->SetValue(BOARD_UT_TRIGGER_MODE_GPIO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if ((ret != ARM_DRIVER_OK)) {
@@ -686,7 +688,7 @@ static void utimer_trigger_mode_app(void)
     }
 
     value = ptrUTIMER->GetCount (channel, ARM_UTIMER_CNTR);
-    printf("counter value immediately after triggering : %d\n",value);
+    printf("counter value immediately after triggering : %"PRIu32"\n",value);
 
     while(1)
     {
@@ -699,23 +701,23 @@ static void utimer_trigger_mode_app(void)
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     } else {
-        printf("utimer channel %d :timer stopped\n", channel);
+        printf("utimer channel %"PRIu8" :timer stopped\n", channel);
     }
 
 error_trigger_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power off \n", channel);
+        printf("utimer channel %"PRIu8" failed power off \n", channel);
     }
 
 error_trigger_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize (channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 
     printf("*** demo application: trigger mode completed *** \r\n\n");
@@ -797,49 +799,49 @@ static void utimer_capture_mode_app(void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_capture_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_capture_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_CAPTURING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_capture_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_capture_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_capture_mode_poweroff;
     }
 
     /* Config Trigger for counter start using chan_event_a_rising_b_0 */
     ret = ptrUTIMER->ConfigTrigger (channel, &trig_config);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d trigger configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" trigger configuration failed \n", channel);
         goto error_capture_mode_poweroff;
     } else {
-        printf("utimer channel %d triggered for counter start \n", channel);
+        printf("utimer channel %"PRIu8" triggered for counter start \n", channel);
     }
 
     ret = ptrUTIMER->Start (channel);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to start \n", channel);
+        printf("utimer channel %"PRIu8" failed to start \n", channel);
         goto error_capture_mode_poweroff;
     } else {
-        printf("utimer channel '%d': timer started\n", channel);
+        printf("utimer channel '%"PRIu8"': timer started\n", channel);
     }
 
     for(int index=0; index<3; index++)
@@ -863,27 +865,30 @@ static void utimer_capture_mode_app(void)
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     } else {
-        printf("utimer channel %d :timer stopped \n", channel);
+        printf("utimer channel %"PRIu8" :timer stopped \n", channel);
     }
 
-    printf("counter value at capture a : 0x%x \n", ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A));
-    printf("counter value at capture a buf1 : 0x%x \n", ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A_BUF1));
-    printf("counter value at capture a buf2 : 0x%x \n", ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A_BUF2));
+    printf("counter value at capture a : 0x%"PRIu32" \n",
+            ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A));
+    printf("counter value at capture a buf1 : 0x%"PRIu32" \n",
+            ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A_BUF1));
+    printf("counter value at capture a buf2 : 0x%"PRIu32" \n",
+            ptrUTIMER->GetCount (channel, ARM_UTIMER_CAPTURE_A_BUF2));
 
 error_capture_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power off \n", channel);
+        printf("utimer channel %"PRIu8" failed power off \n", channel);
     }
 
 error_capture_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize (channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 
     printf("*** demo application: capture mode completed *** \r\n\n");
@@ -968,58 +973,58 @@ static void utimer_compare_mode_app(void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_compare_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_compare_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_COMPARE_A, count_array[2]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_COMPARE_A_BUF1, count_array[3]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_COMPARE_A_BUF2, count_array[4]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->Start(channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to start \n", channel);
+        printf("utimer channel %"PRIu8" failed to start \n", channel);
         goto error_compare_mode_poweroff;
     } else {
-        printf("utimer channel %d :timer started\n", channel);
+        printf("utimer channel %"PRIu8" :timer started\n", channel);
     }
 
     for (int index = 0; index <= 11; index++)
@@ -1051,23 +1056,23 @@ static void utimer_compare_mode_app(void)
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     } else {
-        printf("utimer channel %d: timer stopped\n", channel);
+        printf("utimer channel %"PRIu8": timer stopped\n", channel);
     }
 
 error_compare_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power off \n", channel);
+        printf("utimer channel %"PRIu8" failed power off \n", channel);
     }
 
 error_compare_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize (channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 
     printf("*** demo application: compare mode completed *** \r\n\n");
@@ -1100,7 +1105,7 @@ int main()
 #endif
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return ret;
     }
 

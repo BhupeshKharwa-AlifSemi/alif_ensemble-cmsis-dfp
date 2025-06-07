@@ -25,6 +25,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Project Includes */
 /* include for UART Driver */
@@ -147,19 +148,20 @@ void myUART_Thread_entry()
                            /*bool enable   */ true,
                                               &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %"PRId32"\n", error_code);
 #endif /* CLK_38.4MHz */
 
     printf("\r\n >>> UART testApp starting up!!!...<<< \r\n");
 
     version = USARTdrv->GetVersion();
-    printf("\r\n UART version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n UART version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: Pin configuration failed: %d\n", ret);
+        printf("ERROR: Pin configuration failed: %"PRId32"\n", ret);
         return;
     }
 
@@ -307,7 +309,7 @@ error_uninitialize:
                        /*bool enable   */ false,
                                           &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %"PRIu32"\n", error_code);
 #endif
 
     printf("\r\n XXX UART demo thread exiting XXX...\r\n");

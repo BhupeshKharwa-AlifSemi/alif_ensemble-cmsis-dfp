@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #include "pinconf.h"
@@ -196,7 +197,7 @@ static void canfd_lbi_demo_thread_entry(void)
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: HFOSC clk enable = %d\n", (int)error_code);
+        printf("SE Error: HFOSC clk enable = %"PRId32"\n", error_code);
         return;
     }
 
@@ -208,7 +209,7 @@ static void canfd_lbi_demo_thread_entry(void)
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk enable = %d\n", (int)error_code);
+        printf("SE Error: 160 MHz clk enable = %"PRId32"\n", error_code);
         return;
     }
 
@@ -222,7 +223,7 @@ static void canfd_lbi_demo_thread_entry(void)
 
     /* Get CANFD capabilities */
     can_capabilities = CANFD_instance->GetCapabilities();
-    printf("Num of objects supported: %d\r\n", can_capabilities.num_objects);
+    printf("Num of objects supported: %"PRIu8"\r\n", can_capabilities.num_objects);
 
     /* Initializing CANFD Access struct */
     ret_val = CANFD_instance->Initialize(cb_unit_event, cb_object_event);
@@ -389,7 +390,7 @@ uninitialise_canfd:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: HFOSC clk disable = %d\n", (int)error_code);
+        printf("SE Error: HFOSC clk disable = %"PRId32"\n", error_code);
         return;
     }
     /* Disables the 160MHz clock */
@@ -399,7 +400,7 @@ uninitialise_canfd:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk disable = %d\n", (int)error_code);
+        printf("SE Error: 160 MHz clk disable = %"PRId32"\n", error_code);
         return;
     }
 
@@ -449,7 +450,7 @@ static void canfd_check_error(void)
         /* Getting the current CANFD status */
         cur_sts = CANFD_instance->GetStatus();
 
-        printf("Error in CANFD-->Error Code:%d\r\n", cur_sts.last_error_code);
+        printf("Error in CANFD-->Error Code:%"PRIu8"\r\n", cur_sts.last_error_code);
 
         canfd_error = false;
     }
@@ -473,8 +474,8 @@ static bool canfd_process_rx_message(void)
          * performs the below operations */
         if(rx_msg_header.rtr == 1U)
         {
-            printf("Rx msg:\r\n    Type:Remote frame, Id:%lu",
-                   (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
+            printf("Rx msg:\r\n    Type:Remote frame, Id:%"PRIu32"",
+                   (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
         }
         else
         {
@@ -494,8 +495,8 @@ static bool canfd_process_rx_message(void)
                         return msg_rx_sts;
                     }
 
-                    printf("Id:%lu, Len:%d:\r\n    Data:",
-                           (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)),
+                    printf("Id:%"PRIu32", Len:%"PRIu8":\r\n    Data:",
+                           (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)),
                             rx_msg_size);
                     for(iter = 0; iter < rx_msg_size; iter++)
                     {
@@ -618,8 +619,8 @@ static void canfd_transmit_message(const CANFD_FRAME msg_type)
     if(status == ARM_DRIVER_OK)
     {
         rx_msg_size = tx_msg_size;
-        printf("Tx Msg:\r\n    Id:%lu, Len:%d: \r\n    Data:",
-                (tx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), tx_msg_size);
+        printf("Tx Msg:\r\n    Id:%"PRIu32", Len:%"PRIu8": \r\n    Data:",
+                (uint32_t)(tx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), tx_msg_size);
         for(iter = 0; iter < tx_msg_size; iter++)
         {
             printf("%c", tx_data[iter]);

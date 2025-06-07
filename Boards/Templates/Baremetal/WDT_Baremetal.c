@@ -21,6 +21,7 @@
 
 /* Project Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_WDT.h"
 #include "sys_utils.h"
 
@@ -67,7 +68,8 @@ void watchdog_demo_entry()
 	printf("\r\n >>> watchdog demo starting up!!! <<< \r\n");
 
 	version = WDTdrv->GetVersion();
-	printf("\r\n watchdog version api:%X driver:%X...\r\n",version.api, version.drv);
+	printf("\r\n watchdog version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+			version.api, version.drv);
 
 	/* Watchdog timeout is set to 5000 msec (5 sec). */
 	wdog_timeout_msec = 5000;
@@ -113,7 +115,7 @@ void watchdog_demo_entry()
 			goto error_stop;
 		}
 
-		printf("\r\n Feed the WatchDog: %d...\r\n",iter);
+		printf("\r\n Feed the WatchDog: %"PRIu32"...\r\n",iter);
 		ret = WDTdrv->Feed();
 		if(ret != ARM_DRIVER_OK){
 			printf("\r\n Error: watchdog feed failed\n");

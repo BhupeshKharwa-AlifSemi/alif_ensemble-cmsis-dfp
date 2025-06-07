@@ -20,6 +20,7 @@
  * @Note     Demo application will work only on M55-HE core.
  ******************************************************************************/
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_SPI.h"
 #include "pinconf.h"
 #include "Driver_IO.h"
@@ -187,7 +188,7 @@ void lpspi_spi0_transfer(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -199,7 +200,7 @@ void lpspi_spi0_transfer(void)
     ret = board_lpspi_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -260,7 +261,7 @@ void lpspi_spi0_transfer(void)
 
     spi0_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
 
-    ret = ptrSPI0->Control(spi0_control, NULL);
+    ret = ptrSPI0->Control(spi0_control, 0);
     if (ret != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to configure SPI0\n");
@@ -323,9 +324,9 @@ void lpspi_spi0_transfer(void)
     while (!((ptrLPSPI->GetStatus().busy == 0) && (ptrSPI0->GetStatus().busy == 0)));
     printf("Data Transfer completed\n");
 
-    printf("SPI0 received value 0x%x\n", spi0_rx_buff);
+    printf("SPI0 received value 0x%"PRIx32"\n", spi0_rx_buff);
 #if DATA_TRANSFER_TYPE
-    printf("LPSPI received value 0x%x\n", lpspi_rx_buff);
+    printf("LPSPI received value 0x%"PRIx32"\n", lpspi_rx_buff);
 #endif
 
 error_spi0_power_off :

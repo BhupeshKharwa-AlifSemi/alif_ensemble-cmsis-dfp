@@ -26,7 +26,8 @@
 #include CMSIS_device_header
 
 #include <stdio.h>
-#include "string.h"
+#include <inttypes.h>
+#include <string.h>
 
 /* Project Includes */
 /* include for MRAM Driver */
@@ -85,7 +86,8 @@ void MRAM_Thread_entry()
 
     /* MRAM driver version. */
     version = MRAM_drv->GetVersion();
-    printf("\r\n MRAM version: api:0x%X driver:0x%X...\r\n",version.api, version.drv);
+    printf("\r\n MRAM version: api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
+            version.api, version.drv);
     ARG_UNUSED(version);
 
     /* Initialize MRAM driver */
@@ -110,7 +112,7 @@ void MRAM_Thread_entry()
         ret = MRAM_drv->ProgramData(addr, buff_TX, BUFFER_SIZE);
         if(ret != BUFFER_SIZE)
         {
-            printf("\r\n Error: MRAM ProgramData failed: addr:0x%X data:%0x.\r\n", \
+            printf("\r\n Error: MRAM ProgramData failed: addr:0x%"PRIx32" data:%0"PRIx32".\r\n", \
                                     addr, (uint32_t)buff_TX);
             goto error_poweroff;
         }
@@ -125,7 +127,7 @@ void MRAM_Thread_entry()
         ret = MRAM_drv->ReadData(addr, buff_RX, BUFFER_SIZE);
         if(ret != BUFFER_SIZE)
         {
-            printf("\r\n Error: MRAM ReadData failed: addr:0x%X data:%0x.\r\n", \
+            printf("\r\n Error: MRAM ReadData failed: addr:0x%"PRIx32" data:%0"PRIx32".\r\n", \
                                     addr, (uint32_t)buff_RX);
             goto error_poweroff;
         }
@@ -134,7 +136,7 @@ void MRAM_Thread_entry()
         cmp = memcmp(buff_TX, buff_RX, BUFFER_SIZE);
         if(cmp != 0)
         {
-            printf("\r\n Error: MRAM write-read failed: addr:0x%X data:%0x.\r\n", \
+            printf("\r\n Error: MRAM write-read failed: addr:0x%"PRIx32" data:%0"PRIx32".\r\n", \
                                     addr, (uint32_t)buff_RX);
             err_cnt++;
         }

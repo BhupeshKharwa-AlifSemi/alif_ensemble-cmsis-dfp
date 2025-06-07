@@ -32,6 +32,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 
 /* Project Includes */
@@ -121,7 +122,7 @@ int32_t hardware_init(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return ret;
     }
     return ARM_DRIVER_OK;
@@ -196,8 +197,10 @@ void mix_bus_i2c_i3c_demo_entry()
 
     uint32_t  i         = 0;
     uint32_t  len       = 0;
-    uint32_t  retry_cnt = 0;
     int32_t   ret       = 0;
+#if !RTE_I3C_BLOCKING_MODE_ENABLE
+    uint32_t  retry_cnt = 0;
+#endif
 
     /* Array of slave address :
      *       Dynamic Address for i3c and
@@ -247,7 +250,7 @@ void mix_bus_i2c_i3c_demo_entry()
 
     /* Get i3c driver version. */
     version = I3Cdrv->GetVersion();
-    printf("\r\n i3c version api:0x%X driver:0x%X \r\n",
+    printf("\r\n i3c version api:0x%"PRIx16" driver:0x%"PRIx16" \r\n",
             version.api, version.drv);
 
     if((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))       ||
@@ -261,7 +264,7 @@ void mix_bus_i2c_i3c_demo_entry()
     ret = hardware_init();
     if(ret != 0)
     {
-        printf("Error: i3c hardware_init failed: %d\n", ret);
+        printf("Error: i3c hardware_init failed: %"PRId32"\n", ret);
         return;
     }
 
@@ -358,7 +361,7 @@ void mix_bus_i2c_i3c_demo_entry()
 #endif
 
     /* Assign Dynamic Address for Accelerometer */
-    printf("\r\n >> i3c: Get dynamic addr for static addr:0x%X.\r\n",
+    printf("\r\n >> i3c: Get dynamic addr for static addr:0x%"PRIx8".\r\n",
             I3C_ACCERO_ADDR);
 
     /* clear callback event flag. */
@@ -397,7 +400,7 @@ void mix_bus_i2c_i3c_demo_entry()
     }
     else
     {
-        printf("\r\n >> i3c: Rcvd dyn_addr:0x%X for static addr:0x%X\r\n",
+        printf("\r\n >> i3c: Rcvd dyn_addr:0x%"PRIx8" for static addr:0x%"PRIx8"\r\n",
                 slave_addr[0],I3C_ACCERO_ADDR);
     }
 
@@ -488,7 +491,7 @@ void mix_bus_i2c_i3c_demo_entry()
     sys_busy_loop_us(1000);
 
     /* Attach i2c BMI slave using static address */
-    printf("\r\n >> Attaching i2c BMI slave addr: 0x%X to i3c...\r\n",
+    printf("\r\n >> Attaching i2c BMI slave addr: 0x%"PRIx8" to i3c...\r\n",
             slave_addr[1]);
 
     ret = I3Cdrv->AttachSlvDev(ARM_I3C_DEVICE_TYPE_I2C, slave_addr[1]);
@@ -551,7 +554,7 @@ void mix_bus_i2c_i3c_demo_entry()
             len = 1;
 
             printf("\r\n -------------------------------------------- \r\n");
-            printf("\r\n >> i=%d TX slave addr:0x%X reg_addr:[0]0x%X \r\n",
+            printf("\r\n >> i=%"PRIu32" TX slave addr:0x%"PRIx8" reg_addr:[0]0x%"PRIx8" \r\n",
                     i, slave_addr[i], slave_reg_addr[i]);
 
             /* Delay for 1000 micro second. */
@@ -573,7 +576,7 @@ void mix_bus_i2c_i3c_demo_entry()
             }
 
 #if RTE_I3C_BLOCKING_MODE_ENABLE
-            printf("\r\n>> i=%d TX Success: Got ACK from slave :0x%X\r\n",
+            printf("\r\n>> i=%"PRIu32" TX Success: Got ACK from slave :0x%"PRIx8"\r\n",
                     i, slave_addr[i]);
 #else
             /* wait till any event success/error comes in isr callback */
@@ -586,14 +589,14 @@ void mix_bus_i2c_i3c_demo_entry()
 
                 if(cb_event_flag == I3C_CB_EVENT_SUCCESS)
                 {
-                    printf("\r\n>> i=%d TX Success: Got ACK from slave :0x%X\r\n",
+                    printf("\r\n>> i=%"PRIu32" TX Success: Got ACK from slave :0x%"PRIx8"\r\n",
                             i, slave_addr[i]);
                     break;
                 }
                 if(cb_event_flag == I3C_CB_EVENT_ERROR)
                 {
                     /* TX Error: Got NACK from slave */
-                    printf("\r\n>> i=%d TX Error: Got NACK from slave:0x%X\r\n",
+                    printf("\r\n>> i=%"PRIu32" TX Error: Got NACK from slave:0x%"PRIx8"\r\n",
                             i, slave_addr[i]);
                     break;
                 }
@@ -606,7 +609,7 @@ void mix_bus_i2c_i3c_demo_entry()
             }
 #endif
             /* RX */
-            printf("\r\n\r\n >> i=%d RX slave addr:0x%X \r\n",i, slave_addr[i]);
+            printf("\r\n\r\n >> i=%"PRIu32" RX slave addr:0x%"PRIx8" \r\n",i, slave_addr[i]);
 
             /* clear rx data buffer. */
             rx_data[0] = 0;
@@ -655,15 +658,15 @@ void mix_bus_i2c_i3c_demo_entry()
             }
 
             /* RX Success: Got ACK from slave */
-            printf("\r\n>> i=%d RX Success: Got ACK from slave addr:0x%X.\r\n",
+            printf("\r\n>> i=%"PRIu32" RX Success: Got ACK from slave addr:0x%"PRIx8".\r\n",
                     i, slave_addr[i]);
 
-            printf("\r\n>> i=%d RX rcvd data from slv: [0]0x%X.", i,cmp_rx_data);
-            printf("\t\t Actual data:0x%X\r\n",actual_rx_data[i]);
+            printf("\r\n>> i=%"PRIu32" RX rcvd data from slv: [0]0x%"PRIx8".", i,cmp_rx_data);
+            printf("\t\t Actual data:0x%"PRIx8"\r\n",actual_rx_data[i]);
 
             if(cmp_rx_data == actual_rx_data[i])
             {
-                printf("\r\n>> i=%d RX rcvd Data from slave is VALID\r\n",i);
+                printf("\r\n>> i=%"PRIu32" RX rcvd Data from slave is VALID\r\n",i);
             }
 #else
             /* wait till any event success/error comes in isr callback */
@@ -685,20 +688,20 @@ void mix_bus_i2c_i3c_demo_entry()
                     }
 
                     /* RX Success: Got ACK from slave */
-                    printf("\r\n>> i=%d RX Success: Got ACK from slv:0x%X\r\n",
+                    printf("\r\n>> i=%"PRIu32" RX Success: Got ACK from slv:0x%"PRIx8"\r\n",
                             i, slave_addr[i]);
 
-                    printf("\r\n>> i=%d Rcvd data from slave: [0]0x%X.",
+                    printf("\r\n>> i=%"PRIu32" Rcvd data from slave: [0]0x%"PRIx8".",
                             i,cmp_rx_data);
-                    printf("\t\t Actual data:0x%X\r\n", actual_rx_data[i]);
+                    printf("\t\t Actual data:0x%"PRIx8"\r\n", actual_rx_data[i]);
 
                     if(cmp_rx_data == actual_rx_data[i])
                     {
-                        printf("\r\n>> i=%d RX rcvd VALID data \r\n",i);
+                        printf("\r\n>> i=%"PRIu32" RX rcvd VALID data \r\n",i);
                     }
                     else
                     {
-                        printf("\r\n >> i=%d RX rcvd INVALID data\r\n",i);
+                        printf("\r\n >> i=%"PRIu32" RX rcvd INVALID data\r\n",i);
                     }
 
                     break;
@@ -707,7 +710,7 @@ void mix_bus_i2c_i3c_demo_entry()
                 if(cb_event_flag == I3C_CB_EVENT_ERROR)
                 {
                     /* RX Error: Got NACK from slave */
-                    printf("\r\n>> i=%d RX Error: Got NACK from slave:0x%X \r\n",
+                    printf("\r\n>> i=%"PRIu32" RX Error: Got NACK from slave:0x%"PRIx8" \r\n",
                             i, slave_addr[i]);
                     break;
                 }
@@ -729,7 +732,7 @@ error_detach:
     /* Detach all attached i2c/i3c slave device. */
     for(i=0; i<TOTAL_SLAVE; i++)
     {
-        printf("\r\n i=%d detaching slave:0x%X from i3c.\r\n",i, slave_addr[i]);
+        printf("\r\n i=%"PRIu32" detaching slave:0x%"PRIx8" from i3c.\r\n",i, slave_addr[i]);
         ret = I3Cdrv->Detachdev(slave_addr[i]);
         if(ret != ARM_DRIVER_OK)
         {

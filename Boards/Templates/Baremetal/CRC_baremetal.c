@@ -23,6 +23,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 /* Project Includes */
 /* include for CRC Driver */
@@ -119,7 +120,7 @@ static void crc_demo(void)
     printf("\r\n >>> CRC demo starting up!!! <<< \r\n");
 
     version = CRCdrv->GetVersion();
-    printf("\r\n CRC version api:%X driver:%X...\r\n", version.api, version.drv);
+    printf("\r\n CRC version api:%"PRIu16" driver:%"PRIu16"...\r\n", version.api, version.drv);
 
     /* Initialize CRC driver */
     ret = CRCdrv->Initialize(crc_compute_callback);
@@ -169,7 +170,7 @@ static void crc_demo(void)
 
     /*sending User input */
     ret = CRCdrv->Compute(input_value, len, &crc_output);
-    printf("8 bit output : %x\n", crc_output);
+    printf("8 bit output : %"PRIx32"\n", crc_output);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: CRC 8 bit data sending failed\n");
         goto error_send;
@@ -202,7 +203,7 @@ static void crc_demo(void)
 
     /*sending user input */
     ret = CRCdrv->Compute (input_value, len, &crc_output);
-    printf("16 bit output : %x\n", crc_output);
+    printf("16 bit output : %"PRIx32"\n", crc_output);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: CRC 16 bit data sending failed\n");
         goto error_send;
@@ -237,7 +238,7 @@ static void crc_demo(void)
 
     /*sending user input */
     ret = CRCdrv->Compute(input_value, len, &crc_output);
-    printf("32 bit output : %x\n", crc_output);
+    printf("32 bit output : %"PRIx32"\n", crc_output);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: CRC 32 bit data sending failed\n");
         goto error_send;
@@ -285,7 +286,7 @@ static void crc_demo(void)
 
     /*sending user input */
     ret = CRCdrv->Compute (input_value, len, &crc_output);
-    printf("32 bit CUSTOM POLY output value: %x\n", crc_output);
+    printf("32 bit CUSTOM POLY output value: %"PRIx32"\n", crc_output);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: CRC 32 bit custom polynomial data sending failed\n");
         goto error_send;

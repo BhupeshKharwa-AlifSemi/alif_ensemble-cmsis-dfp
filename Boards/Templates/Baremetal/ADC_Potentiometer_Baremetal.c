@@ -27,6 +27,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 
 /* include for ADC Driver */
@@ -96,19 +97,19 @@ void adc_potentiometer_demo()
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk enable = %d\n", error_code);
+        printf("SE Error: 160 MHz clk enable = %"PRId32"\n", error_code);
         return;
     }
 
     printf("\t\t\n >>> ADC demo starting up!!! <<< \r\n");
 
     version = ADCdrv->GetVersion();
-    printf("\r\n ADC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n ADC version api:%"PRIx16" driver:%"PRIx16"...\r\n",version.api, version.drv);
 
     /* pinmux and configurations for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret) {
-        printf("ERROR: Board pin configuration failed: %d\n", ret);
+        printf("ERROR: Board pin configuration failed: %"PRId32"\n", ret);
     }
 
     /* Initialize ADC driver */
@@ -139,7 +140,7 @@ void adc_potentiometer_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)(adc_sample + BOARD_POTENTIOMETER_ADC12_INPUT));
+    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n",(uint32_t)(adc_sample + BOARD_POTENTIOMETER_ADC12_INPUT));
     /* Start ADC */
     ret = ADCdrv->Start();
     if(ret != ARM_DRIVER_OK){
@@ -186,7 +187,7 @@ error_uninitialize:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk disable = %d\n", error_code);
+        printf("SE Error: 160 MHz clk disable = %"PRId32"\n", error_code);
         return;
     }
 

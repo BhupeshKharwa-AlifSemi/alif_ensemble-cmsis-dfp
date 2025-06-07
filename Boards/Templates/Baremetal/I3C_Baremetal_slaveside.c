@@ -42,6 +42,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Project Includes */
 /* I3C Driver */
@@ -144,7 +145,7 @@ int32_t hardware_init(void)
     ret = board_pins_config();
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: Pin configuration failed: %d\n", ret);
+        printf("ERROR: Pin configuration failed: %"PRId32"\n", ret);
         return ret;
     }
 
@@ -189,7 +190,7 @@ void i3c_slave_loopback_demo(void)
 
     /* Get i3c driver version. */
     version = I3Cdrv->GetVersion();
-    printf("\r\n i3c version api:0x%X driver:0x%X \r\n",
+    printf("\r\n i3c version api:0x%"PRIx16" driver:0x%"PRIx16" \r\n",
                            version.api, version.drv);
 
     if((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))       ||

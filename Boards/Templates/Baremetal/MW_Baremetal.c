@@ -24,8 +24,9 @@
  ******************************************************************************/
 
 #include <stdio.h>
-#include "stdint.h"
-#include "string.h"
+#include <inttypes.h>
+#include <stdint.h>
+#include <string.h>
 #include "pinconf.h"
 #include "Driver_SPI.h"
 #include "RTE_Components.h"
@@ -177,7 +178,7 @@ static void MW_Demo_func(void)
     status = board_pins_config();
     if (status != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", status);
+        printf("Error in pin-mux configuration: %"PRId32"\n", status);
         return;
     }
 
@@ -189,7 +190,7 @@ static void MW_Demo_func(void)
     status = board_spi_pins_config();
     if(status != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", status);
+        printf("Error in pin-mux configuration: %"PRId32"\n", status);
         return;
     }
 #endif
@@ -235,7 +236,7 @@ static void MW_Demo_func(void)
 
     slave_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_MICROWIRE | ARM_SPI_DATA_BITS(32));
 
-    status = slaveDrv->Control(slave_control, NULL);
+    status = slaveDrv->Control(slave_control, 0);
     if (status != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to configure SPI Slave\n");

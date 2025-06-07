@@ -39,6 +39,7 @@
  ******************************************************************************/
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -221,14 +222,15 @@ void pdm_demo()
     printf("\r\n >>> PDM demo starting up!!! <<< \r\n");
 
     version = PDMdrv->GetVersion();
-    printf("\r\n PDM version api:%X driver:%X...\r\n", version.api, version.drv);
+    printf("\r\n PDM version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -240,7 +242,7 @@ void pdm_demo()
     ret = board_pdm_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -260,21 +262,21 @@ void pdm_demo()
     }
 
     /* To select the PDM channel 4 and channel 5 */
-    ret = PDMdrv->Control(ARM_PDM_SELECT_CHANNEL, ARM_PDM_MASK_CHANNEL_4 |ARM_PDM_MASK_CHANNEL_5, NULL);
+    ret = PDMdrv->Control(ARM_PDM_SELECT_CHANNEL, ARM_PDM_MASK_CHANNEL_4 |ARM_PDM_MASK_CHANNEL_5, 0);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: PDM channel select control failed\n");
         goto error_poweroff;
     }
 
     /* Select Standard voice PDM mode */
-    ret = PDMdrv->Control(ARM_PDM_MODE, ARM_PDM_MODE_AUDIOFREQ_8K_DECM_64, NULL);
+    ret = PDMdrv->Control(ARM_PDM_MODE, ARM_PDM_MODE_AUDIOFREQ_8K_DECM_64, 0);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: PDM Standard voice control mode failed\n");
         goto error_poweroff;
     }
 
     /* Select the DC blocking IIR filter */
-    ret = PDMdrv->Control(ARM_PDM_BYPASS_IIR_FILTER, ENABLE, NULL);
+    ret = PDMdrv->Control(ARM_PDM_BYPASS_IIR_FILTER, ENABLE, 0);
     if(ret != ARM_DRIVER_OK){
         printf("\r\n Error: PDM DC blocking IIR control failed\n");
         goto error_poweroff;
@@ -389,7 +391,9 @@ void pdm_demo()
     call_back_event = 0;
 
     printf("\n------> Stop recording ------> \n");
-    printf("\n--> PCM samples will be stored in 0x%p address and size of buffer is %d\n", sample_buf, sizeof(sample_buf));
+    printf("\n--> PCM samples will be stored in 0x%"PRIxPTR" address and"
+           " size of buffer is %"PRIu16"\n",
+           (uintptr_t)sample_buf, sizeof(sample_buf));
     printf("\n ---END--- \r\n <<< wait forever >>> \n");
     while(1);
 

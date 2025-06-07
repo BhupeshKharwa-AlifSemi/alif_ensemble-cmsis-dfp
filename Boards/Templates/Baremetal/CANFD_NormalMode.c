@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #include "pinconf.h"
@@ -255,7 +256,7 @@ void canfd_demo_thread_entry(void)
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: HFOSC clk enable = %d\n", (int)error_code);
+        printf("SE Error: HFOSC clk enable = %"PRIu32"\n", error_code);
         return;
     }
 
@@ -266,7 +267,7 @@ void canfd_demo_thread_entry(void)
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk enable = %d\n", (int)error_code);
+        printf("SE Error: 160 MHz clk enable = %"PRIu32"\n", error_code);
         return;
     }
 
@@ -277,7 +278,7 @@ void canfd_demo_thread_entry(void)
     ret_val = board_pins_config();
     if (ret_val != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret_val);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret_val);
         return;
     }
 
@@ -289,14 +290,14 @@ void canfd_demo_thread_entry(void)
     ret_val = board_canfd_pins_config();
     if(ret_val != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret_val);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret_val);
         return;
     }
 #endif
 
     /* Get CANFD capabilities */
     can_capabilities = CANFD_instance->GetCapabilities();
-    printf("Num of objects supported: %d\r\n", can_capabilities.num_objects);
+    printf("Num of objects supported: %"PRIu8"\r\n", can_capabilities.num_objects);
 
     /* Initializing CANFD Access struct */
     ret_val = CANFD_instance->Initialize(cb_unit_event, cb_object_event);
@@ -449,7 +450,7 @@ uninitialise_canfd:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: HFOSC clk disable = %d\n", (int)error_code);
+        printf("SE Error: HFOSC clk disable = %"PRIu32"\n", error_code);
         return;
     }
     /* Disables the 160MHz clock */
@@ -459,7 +460,7 @@ uninitialise_canfd:
                                               &service_error_code);
     if(error_code)
     {
-        printf("SE Error: 160 MHz clk disable = %d\n", (int)error_code);
+        printf("SE Error: 160 MHz clk disable = %"PRIu32"\n", error_code);
         return;
     }
 
@@ -511,7 +512,7 @@ static void canfd_check_error(void)
         {
             printf("Error: CANFD Bus OFF:\r\n");
         }
-        printf("Error in CANFD-->Error Code:%d\r\n", cur_sts.last_error_code);
+        printf("Error in CANFD-->Error Code:%"PRIu8"\r\n", cur_sts.last_error_code);
 
         bus_error = false;
     }
@@ -539,8 +540,8 @@ static void canfd_process_rx_message(void)
          * performs the below operations */
         if(rx_msg_header.rtr == 1U)
         {
-            printf("Rx msg:\r\n    Type:Remote frame, Id:%lu",
-                   (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
+            printf("Rx msg:\r\n    Type:Remote frame, Id:%"PRIu32"",
+                   (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
         }
         else
         {
@@ -556,8 +557,8 @@ static void canfd_process_rx_message(void)
                     return;
                 }
 
-                printf("Id:%lu, Len:%d:\r\n    Data:",
-                      (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), rx_msg_size);
+                printf("Id:%"PRIu32", Len:%"PRIu8":\r\n    Data:",
+                      (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), rx_msg_size);
                 for(iter = 0; iter < rx_msg_size; iter++)
                 {
                     printf("%c", rx_data[iter]);
@@ -669,8 +670,8 @@ static void canfd_transmit_message(const CANFD_FRAME msg_type)
                                      tx_data, tx_msg_size);
     if(status == ARM_DRIVER_OK)
     {
-        printf("Tx Msg:\r\n    Id:%lu, Len:%d: \r\n    Data:",
-               (tx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), tx_msg_size);
+        printf("Tx Msg:\r\n    Id:%"PRIu32", Len:%"PRIu8": \r\n    Data:",
+               (uint32_t)(tx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), tx_msg_size);
         for(iter = 0; iter < tx_msg_size; iter++)
         {
             printf("%c", tx_data[iter]);

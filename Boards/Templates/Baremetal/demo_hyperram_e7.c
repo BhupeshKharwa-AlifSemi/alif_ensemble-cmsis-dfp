@@ -42,6 +42,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #define OSPI_RESET_PIN      BOARD_IS66_HYPERRAM_RESET_GPIO_PIN
 #define OSPI0_XIP_BASE      0xA0000000
@@ -195,7 +196,7 @@ static int32_t pinmux_setup()
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret) {
-        printf("ERROR: Board pin mux configuration failed: %d\n", ret);
+        printf("ERROR: Board pin mux configuration failed: %"PRId32"\n", ret);
         return ret;
     }
 
@@ -238,16 +239,17 @@ void read_8bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint8_t *ptr8 = ptr;
     const uint8_t *buff8 = buff;
 
-    for (int i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
     {
         if (ptr8[i] != buff8[i])
         {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr8[i], buff8[i]);
+            printf("Data error at addr %"PRIx32", got %"PRIx8", expected %"PRIx8"\n",
+                    i, ptr8[i], buff8[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 8-bit read memory %d\n", errors);
+    printf("Total Errors for 8-bit read memory %"PRIu32"\n", errors);
 }
 
 void read_16bit(const void *ptr, const void *buff, uint32_t size)
@@ -256,16 +258,17 @@ void read_16bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint16_t *ptr16 = ptr;
     const uint16_t *buff16 = buff;
 
-    for (int i = 0; i < (size/sizeof(uint16_t)); i++)
+    for (uint32_t i = 0; i < (size/sizeof(uint16_t)); i++)
     {
         if (ptr16[i] != buff16[i])
         {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr16[i], buff16[i]);
+            printf("Data error at addr %"PRIx32", got %"PRIx16", expected %"PRIx16"\n",
+                    i, ptr16[i], buff16[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 16-bit read memory %d\n", errors);
+    printf("Total Errors for 16-bit read memory %"PRIu32"\n", errors);
 }
 
 void read_32bit(const void *ptr, const void *buff, uint32_t size)
@@ -274,16 +277,17 @@ void read_32bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint32_t *ptr32 = ptr;
     const uint32_t *buff32 = buff;
 
-    for (int i = 0; i < (size/sizeof(uint32_t)); i++)
+    for (uint32_t i = 0; i < (size/sizeof(uint32_t)); i++)
     {
         if (ptr32[i] != buff32[i])
         {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr32[i], buff32[i]);
+            printf("Data error at addr %"PRIx32", got %"PRIx32", expected %"PRIx32"\n",
+                    i, ptr32[i], buff32[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 32-bit read memory %d\n", errors);
+    printf("Total Errors for 32-bit read memory %"PRIu32"\n", errors);
 }
 
 void read_with_device_attr(const void *ptr, uint32_t size)
@@ -318,7 +322,7 @@ void read_with_normal_cacheable_attr(const void *ptr, uint32_t size)
     mpu_set_ospi0_xip_cacheable_attr();
 
     total_errors = memcmp(ptr, buff, size);
-    printf("Total Errors %d\n", total_errors);
+    printf("Total Errors %"PRIu32"\n", total_errors);
 }
 
 void hyperram_test(void)
@@ -341,7 +345,7 @@ void hyperram_test(void)
         SCB_InvalidateDCache_by_Addr(ptr, BUFFER_SIZE);
 
         /* writing 16KB data to hyperram memory in device attr */
-        for (int i = 0; i < (BUFFER_SIZE/sizeof(uint16_t)); i++)
+        for (uint32_t i = 0; i < (BUFFER_SIZE/sizeof(uint16_t)); i++)
         {
             val = (rand() % 0xFFFF);
             buff[i] = val;
@@ -365,7 +369,7 @@ void hyperram_test(void)
     mpu_set_ospi0_xip_device_attr();
     SCB_InvalidateDCache_by_Addr((void *)OSPI0_XIP_BASE, HRAM_SIZE_BYTES);
 
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
     {
         ptr[i] = (rand() % 0xFFFF);
     }
@@ -373,17 +377,18 @@ void hyperram_test(void)
     mpu_set_ospi0_xip_cacheable_attr();
 
     srand(3);
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
     {
         val = rand() % 0xFFFF;
         if (ptr[i] != val)
         {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr[i], val);
+            printf("Data error at addr %"PRIx32", got %"PRIx16", expected %"PRIx16"\n",
+                    i, ptr[i], val);
             errors++;
         }
     }
 
-    printf("Total errors after read complete: %d\n", errors);
+    printf("Total errors after read complete: %"PRIu32"\n", errors);
 }
 
 int main(void)

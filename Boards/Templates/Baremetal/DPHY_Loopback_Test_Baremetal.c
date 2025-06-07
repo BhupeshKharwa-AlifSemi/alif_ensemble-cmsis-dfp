@@ -18,9 +18,10 @@
  ******************************************************************************/
 
 /* System Includes */
-#include "stdio.h"
-#include "stdint.h"
-#include "string.h"
+#include <stdio.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <string.h>
 
 /* Loopback test header */
 #include "DPHY_Loopback_test.h"

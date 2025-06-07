@@ -21,6 +21,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /*RTE configuration includes */
 #include <RTE_Device.h>
@@ -36,6 +37,7 @@
 /* PINMUX Driver */
 #include "pinconf.h"
 #include "board_config.h"
+#include "sys_utils.h"
 
 /* SE Services */
 #include "se_services_port.h"
@@ -110,14 +112,14 @@ static void hw_disp_init(void)
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 100MHz clock enable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock enable = %"PRIu32"\n", error_code);
         return;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, true, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
     {
-        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %"PRIu32"\n", error_code);
         goto error_disable_100mhz_clk;
     }
 
@@ -127,7 +129,7 @@ static void hw_disp_init(void)
                                       &service_error_code);
     if(error_code)
     {
-        printf("\r\nSE: get_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: get_run_cfg error = %"PRIu32"\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -152,7 +154,7 @@ static void hw_disp_init(void)
                                       &service_error_code);
     if(error_code)
     {
-        printf("\r\nSE: set_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: set_run_cfg error = %"PRIu32"\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -224,12 +226,12 @@ error_CDC200_uninitialize:
 error_disable_hfosc_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, false, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
-        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %"PRIu32"\n", error_code);
 
 error_disable_100mhz_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
     if(error_code != SERVICES_REQ_SUCCESS)
-        printf("SE: MIPI 100MHz clock disable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock disable = %"PRIu32"\n", error_code);
 }
 
 #if(I2C_TOUCH_ENABLE == 1)
@@ -282,7 +284,7 @@ static void hw_touch_init(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("ERROR: Board pin configuration failed: %d\n", ret);
+        printf("ERROR: Board pin configuration failed: %"PRIu32"\n", ret);
         return;
     }
 

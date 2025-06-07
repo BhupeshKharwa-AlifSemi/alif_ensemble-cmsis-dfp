@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "board_config.h"
 #include "Driver_Flash.h"
 #include "Driver_IO.h"
@@ -58,7 +59,7 @@ static int32_t setup_PinMUX(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: ret = %d\n", ret);
+        printf("Error in pin-mux configuration: ret = %"PRId32"\n", ret);
         return ret;
     }
 
@@ -126,14 +127,15 @@ int main ()
 
     if (ret != ARM_DRIVER_OK)
     {
-        printf("Set up pinmux failed: %d\n", ret);
+        printf("Set up pinmux failed: %"PRId32"\n", ret);
         goto error_pinmux;
     }
 
     /* Get version of the flash */
     version = ptrFLASH->GetVersion();
 
-    printf("\r\n FLASH version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n FLASH version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     /* Initialize the flash */
     status = ptrFLASH->Initialize(NULL);
@@ -155,9 +157,10 @@ int main ()
     /* Get Flash Info.*/
     flash_info = ptrFLASH->GetInfo();
 
-    printf("\r\n FLASH Info : \n Sector Count : %d\n Sector Size : %d Bytes\n Page Size : %d\n Program Unit : %d\n "
-             "Erased Value : 0x%X \r\n",flash_info->sector_count, flash_info->sector_size, flash_info->page_size,
-             flash_info->program_unit, flash_info->erased_value);
+    printf("\r\n FLASH Info : \n Sector Count : %"PRIu32"\n Sector Size : %"PRIu32" Bytes\n" 
+            "Page Size : %"PRIu32"\n Program Unit : %"PRIu32"\n Erased Value : 0x%"PRIx8" \r\n",
+            flash_info->sector_count, flash_info->sector_size, flash_info->page_size,
+            flash_info->program_unit, flash_info->erased_value);
 
     printf("\nErasing the chip\n");
 
@@ -191,7 +194,7 @@ int main ()
         iter++;
     }
 
-    printf("Total errors after reading erased chip = %d\n", count);
+    printf("Total errors after reading erased chip = %"PRIu32"\n", count);
 
     printf("Starting writing\n");
 
@@ -226,7 +229,7 @@ int main ()
         iter++;
     }
 
-    printf("Total errors after reading data written to flash = %d\n", count);
+    printf("Total errors after reading data written to flash = %"PRIu32"\n", count);
 
     iter = 0;
     count = 0;
@@ -258,7 +261,7 @@ int main ()
         iter++;
     }
 
-    printf("Total errors after erasing a sector = %d\n", count);
+    printf("Total errors after erasing a sector = %"PRIu32"\n", count);
 
     while (1);
 

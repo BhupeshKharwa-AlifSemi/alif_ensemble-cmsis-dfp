@@ -18,10 +18,10 @@
  * @bug      None.
  * @Note     None.
  ******************************************************************************/
-
+#include <stdio.h>
+#include <inttypes.h>
 #include "Driver_IO.h"
 #include "board_config.h"
-#include <stdio.h>
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -112,7 +112,7 @@ void led_blink_app (void)
     ret1 = board_pins_config();
     if(ret1 != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret1);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret1);
         return;
     }
 

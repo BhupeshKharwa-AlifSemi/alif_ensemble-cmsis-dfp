@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 
 #include "RTE_Device.h"
@@ -234,12 +235,12 @@ void uart_hwsem_demo()
         while (!(event_flags_uart & (UART_CB_TX_EVENT)));
 #endif
         /* Print 10 messages */
-        for (int iter = 1; iter <= 10; iter++)
+        for (uint8_t iter = 1; iter <= 10; iter++)
         {
 #if !RTE_UART4_BLOCKING_MODE_ENABLE
             event_flags_uart &= ~UART_CB_TX_EVENT;
 #endif
-            len = sprintf(uart_msg, "%s %d\r\n", msg, iter);
+            len = sprintf(uart_msg, "%s %"PRIu8"\r\n", msg, iter);
 
             ret = USARTdrv->Send(uart_msg, len);
 
@@ -325,7 +326,8 @@ int main()
     #endif
 
     version = HWSEMdrv->GetVersion();
-    printf("\r\n HWSEM version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n HWSEM version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
     /* Initialize the HWSEM Driver */
     ret = HWSEMdrv->Initialize(myHWSEM_callback);
@@ -368,7 +370,7 @@ int main()
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         goto error_unlock;
     }
 

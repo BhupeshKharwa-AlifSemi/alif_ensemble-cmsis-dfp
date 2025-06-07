@@ -18,14 +18,16 @@
  * @Note     None
  ******************************************************************************/
 /* System Includes */
+#include <stdio.h>
+#include <inttypes.h>
 #include "RTE_Device.h"
-#include "stdio.h"
 #include "se_services_port.h"
 
 /* include for SD Driver */
 #include "sd.h"
 #include "pinconf.h"
 #include "board_config.h"
+#include "sys_utils.h"
 
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -51,6 +53,9 @@ volatile uint32_t dma_done_irq = 0;
   \return       none
 */
 void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
+
+    ARG_UNUSED(cmd_status);
+
     if(xfer_status)
         dma_done_irq = 1;
 }
@@ -69,11 +74,12 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector){
     sd_param_t sd_param;
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    int32_t ret;
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -121,16 +127,17 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector){
 
         while(!dma_done_irq); //wait for dma completion interrupt callback
 
-        printf("Sector %d\n",startSec);
+        printf("Sector %"PRIu32"\n",startSec);
         j = 0;
 
         while(j<128){
-            printf("%08x %08x %08x %08x\n",p[j+0], p[j+1], p[j+2], p[j+3]);
+            printf("%08"PRIx32" %08"PRIx32" %08"PRIx32" %08"PRIx32"\n",
+                    p[j+0], p[j+1], p[j+2], p[j+3]);
             j += 4;
         }
 
         if(p_SD_Driver->disk_write(startSec, 1, sdbuffer) != SD_DRV_STATUS_OK)
-            printf("Unable to write Back sector: %d\n",startSec);
+            printf("Unable to write Back sector: %"PRIu32"\n",startSec);
         startSec++;
     }
 
@@ -160,13 +167,13 @@ int main()
     /* Enable SDMMC Clocks */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
     if(error_code){
-        printf("SE: SDMMC 100MHz clock enable = %d\n", error_code);
+        printf("SE: SDMMC 100MHz clock enable = %"PRIu32"\n", error_code);
         return 0;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, true, &service_error_code);
     if(error_code){
-        printf("SE: SDMMC 20MHz clock enable = %d\n", error_code);
+        printf("SE: SDMMC 20MHz clock enable = %"PRIu32"\n", error_code);
         return 0;
     }
 
@@ -175,13 +182,13 @@ int main()
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
     if(error_code){
-        printf("SE: SDMMC 100MHz clock disable = %d\n", error_code);
+        printf("SE: SDMMC 100MHz clock disable = %"PRIu32"\n", error_code);
         return 0;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, false, &service_error_code);
     if(error_code){
-        printf("SE: SDMMC 20MHz clock disable = %d\n", error_code);
+        printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);
         return 0;
     }
 

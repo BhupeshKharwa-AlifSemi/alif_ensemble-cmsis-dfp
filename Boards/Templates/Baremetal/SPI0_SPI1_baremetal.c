@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "Driver_SPI.h"
 #include "pinconf.h"
 #include "RTE_Components.h"
@@ -180,7 +181,7 @@ static void spi0_spi1_transfer(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -192,7 +193,7 @@ static void spi0_spi1_transfer(void)
     ret = board_spi_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -239,7 +240,7 @@ static void spi0_spi1_transfer(void)
 
     spi1_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
 
-    ret = ptrSPI1->Control(spi1_control, NULL);
+    ret = ptrSPI1->Control(spi1_control, 0);
     if (ret != ARM_DRIVER_OK)
     {
         printf("ERROR: Failed to configure SPI1\n");
@@ -302,9 +303,9 @@ static void spi0_spi1_transfer(void)
     while (!((ptrSPI0->GetStatus().busy == 0) && (ptrSPI1->GetStatus().busy == 0)));
     printf("Data Transfer completed\n");
 
-    printf("SPI1 received value : 0x%x\n", spi1_rx_buff);
+    printf("SPI1 received value : 0x%"PRIx32"\n", spi1_rx_buff);
 #if DATA_TRANSFER_TYPE
-    printf("SPI0 received value : 0x%x\n", spi0_rx_buff);
+    printf("SPI0 received value : 0x%"PRIx32"\n", spi0_rx_buff);
 #endif
 
 error_spi1_power_off :

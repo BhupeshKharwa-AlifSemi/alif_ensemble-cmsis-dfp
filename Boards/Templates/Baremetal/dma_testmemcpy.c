@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <Driver_DMA.h>
 #include <string.h>
 #include <RTE_Components.h>
@@ -158,16 +159,14 @@ static void dma_memcpy_task(void)
     uint8_t              blen = DMA_BLEN;
     uint32_t             len  = DMA_XFER_LEN;
 
-
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA1);
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA2);
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA0);
-
 #if defined(TEST_DMA0)
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA0);
     dma_drv = &ARM_Driver_DMA_(DMA0);
 #elif defined(TEST_DMA1)
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA1);
     dma_drv = &ARM_Driver_DMA_(DMA1);
 #elif defined(TEST_DMA2)
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA2);
     dma_drv = &ARM_Driver_DMA_(DMA2);
 #else
     #error Select the DMA
@@ -175,13 +174,13 @@ static void dma_memcpy_task(void)
 
     /* Verify the DMA API version for compatibility*/
     version = dma_drv->GetVersion();
-    printf ("DMA API version = %d\n", version.api);
+    printf ("DMA API version = %"PRIu16"\n", version.api);
 
     /* Initializes DMA interface */
     status = dma_drv->Initialize();
     if(status)
     {
-        printf ("DMA Init FAILED = %d\n", status);
+        printf ("DMA Init FAILED = %"PRId32"\n", status);
         while(1);
     }
 
@@ -189,7 +188,7 @@ static void dma_memcpy_task(void)
     status = dma_drv->PowerControl(ARM_POWER_FULL);
     if(status)
     {
-        printf ("DMA Power FAILED = %d\n", status);
+        printf ("DMA Power FAILED = %"PRId32"\n", status);
         while(1);
     }
 
@@ -197,7 +196,7 @@ static void dma_memcpy_task(void)
     status = dma_drv->Allocate(&handle);
     if(status)
     {
-        printf ("DMA Channel Allocation FAILED = %d\n", status);
+        printf ("DMA Channel Allocation FAILED = %"PRId32"\n", status);
         while(1);
     }
 
@@ -211,13 +210,14 @@ static void dma_memcpy_task(void)
     params.burst_len  = blen;
     params.num_bytes  = len;
 
-    printf("DMA MEMCPY STARTED : Burst Size = %d, Burst len = %d, Transfer Len = %d\n", bs, blen, len);
+    printf("DMA MEMCPY STARTED : Burst Size = %"PRId16", Burst len = %"PRId8","
+           "Transfer Len = %"PRIu32"\n", bs, blen, len);
 
     /* Start transfer */
     status = dma_drv->Start(&handle, &params);
     if(status || (handle < 0))
     {
-        printf("DMA Start FAILED = %d\n", status);
+        printf("DMA Start FAILED = %"PRId32"\n", status);
         while(1);
     }
 
@@ -249,7 +249,7 @@ static void dma_memcpy_task(void)
     status = dma_drv->DeAllocate(&handle);
     if(status)
     {
-        printf("DMA DeAllocate Failed = %d\n", status);
+        printf("DMA DeAllocate Failed = %"PRId32"\n", status);
         while(1);
     }
 
@@ -257,7 +257,7 @@ static void dma_memcpy_task(void)
     status = dma_drv->PowerControl(ARM_POWER_OFF);
     if(status)
     {
-        printf ("DMA PowerOff failed = %d\n", status);
+        printf ("DMA PowerOff failed = %"PRId32"\n", status);
         while(1);
     }
 

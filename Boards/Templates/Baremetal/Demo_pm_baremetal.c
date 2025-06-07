@@ -28,6 +28,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #include "se_services_port.h"
@@ -136,7 +137,7 @@ static int set_rtc(uint32_t  timeout)
         rtc_error_power_off();
         return ret;
     }
-    printf("\r\n Setting alarm after %d (curr %d, future %d) counts \r\n",
+    printf("\r\n Setting alarm after %"PRIu32" (curr %"PRIu32", future %"PRIu32") counts \r\n",
             timeout, val, ( val + timeout));
     return ret;
 }
@@ -207,7 +208,7 @@ static void lptimer_callback(uint8_t event)
         ret = lptimerDrv->Stop(LPTIMER_CHANNEL);
         if(ret != ARM_DRIVER_OK)
         {
-            printf("ERROR: Failed to Stop channel %d\n", LPTIMER_CHANNEL);
+            printf("ERROR: Failed to Stop channel %"PRId16"\n", LPTIMER_CHANNEL);
         }
     }
 
@@ -276,17 +277,17 @@ static int set_lptimer(uint32_t  timeout)
     ret = lptimerDrv->Control(LPTIMER_CHANNEL, ARM_LPTIMER_SET_COUNT1, &count);
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: channel '%d'failed to load count\r\n", LPTIMER_CHANNEL);
+        printf("ERROR: channel '%"PRId16"'failed to load count\r\n", LPTIMER_CHANNEL);
         lptimer_error_power_off();
         return ret;
     }
 
-    printf("\r\n Setting lptimer for %d seconds \r\n", timeout);
+    printf("\r\n Setting lptimer for %"PRIu32" seconds \r\n", timeout);
 
     ret = lptimerDrv->Start(LPTIMER_CHANNEL);
     if(ret != ARM_DRIVER_OK)
     {
-        printf("ERROR: failed to start channel '%d'\r\n", LPTIMER_CHANNEL);
+        printf("ERROR: failed to start channel '%"PRId16"'\r\n", LPTIMER_CHANNEL);
         lptimer_error_uninitialize();
         return ret;
     }
@@ -615,7 +616,7 @@ int main(void)
         break;
     default:
 #if DEBUG_PM
-        printf("\r\nLast Reset Reason = %x\n", last_reset_reason);
+        printf("\r\nLast Reset Reason = %"PRIx32"\n", last_reset_reason);
 #endif
         break;
     }
@@ -631,7 +632,7 @@ int main(void)
     ret = rtc_init();
     if(ret != ARM_DRIVER_OK)
     {
-        printf(" RTC Initialization failed (%d)\n", ret);
+        printf(" RTC Initialization failed (%"PRId32")\n", ret);
         return ret;
     }
 #else
@@ -639,7 +640,7 @@ int main(void)
     ret = lptimer_init();
     if(ret != ARM_DRIVER_OK)
     {
-        printf(" LPTIMER Initialization failed (%d)\n", ret);
+        printf(" LPTIMER Initialization failed (%"PRId32")\n", ret);
         return ret;
     }
 #endif
@@ -652,8 +653,8 @@ int main(void)
 #else
     printf("\r\nRTSS_HP: Enter Sleep mode option:  ");
 #endif
-        scanf("%d", &selectedSleepType);
-        printf("%d\n", selectedSleepType);
+        scanf("%"PRIu32"", (uint32_t *)&selectedSleepType);
+        printf("%"PRId32"\n", (int32_t)selectedSleepType);
 
         switch(selectedSleepType) {
 
@@ -721,7 +722,7 @@ int main(void)
                                               &service_error_code);
             if(error_code)
             {
-                printf("\r\nSE: get_off_cfg error = %d\n", error_code);
+                printf("\r\nSE: get_off_cfg error = %"PRIu32"\n", error_code);
                 while(1);
             }
 
@@ -786,7 +787,7 @@ int main(void)
                                               &service_error_code);
             if(error_code)
             {
-                printf("\r\nSE: set_off_cfg error = %d\n", error_code);
+                printf("\r\nSE: set_off_cfg error = %"PRIu32"\n", error_code);
                 while(1);
             }
 
@@ -806,7 +807,7 @@ int main(void)
 #else
             printf("\r\nWakeup Source Set : RTC & GPIO P15_4 \r\n");
 #endif
-            printf("\r\nVTOR = %x\n", offp.vtor_address);
+            printf("\r\nVTOR = %"PRIx32"\n", offp.vtor_address);
 
             //Disable all interrupt
             __disable_irq();
@@ -828,8 +829,8 @@ int main(void)
             if( (tempstr[0] == 'y') || (tempstr[0] == 'Y'))
             {
                 printf("\r\nEnter Sleep duration (in sec) : ");
-                scanf("%d", &sleepDuration);
-                printf("%d", sleepDuration);
+                scanf("%"PRIu32"", &sleepDuration);
+                printf("%"PRIu32"", sleepDuration);
                 printf("\n");
             }
             else

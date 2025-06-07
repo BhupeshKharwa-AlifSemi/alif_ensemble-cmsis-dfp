@@ -20,8 +20,9 @@
  ******************************************************************************/
 /* System Includes */
 #include "RTE_Device.h"
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <inttypes.h>
+#include <string.h>
 #include "se_services_port.h"
 #include "ff.h"
 #include "diskio.h"
@@ -35,6 +36,7 @@
 /* include for Pin Mux config */
 #include "pinconf.h"
 #include "board_config.h"
+#include "sys_utils.h"
 
 // Set to 0: Use application-defined SDC A revision pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -74,18 +76,24 @@ FIL test_file;
   */
 void SD_Baremetal_fatfs_test(unsigned long int args)
 {
-    unsigned long int   actual;
-    unsigned long int   startCnt, EndCnt;
     FRESULT fr;
-    UINT br,bw;
-    FILE *fp = NULL;
+
+#if defined(FILE_READ_TEST)
+    UINT br;
+#endif
+#if defined(FILE_WRITE_TEST)
+    UINT bw;
+#endif
+
+    ARG_UNUSED(args);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
+    int32_t ret;
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -110,7 +118,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     /* Check the media open status.  */
     if (fr)
     {
-        printf("media open fail status = %d...\n",fr);
+        printf("media open fail status = %"PRId16"...\n",fr);
         while(1);
     }
     printf("SD Mounted Successfully...\n");
@@ -123,7 +131,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
 
     if (fr)
     {
-        printf("File open status: %d\n",fr);
+        printf("File open status: %"PRId32"\n",fr);
         /* Error opening file, break the loop.  */
         while(1);
     }
@@ -137,7 +145,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     /* Check the file open status.  */
     if (fr)
     {
-        printf("File open status: %d\n",fr);
+        printf("File open status: %"PRId16"\n",fr);
         /* Error opening file, break the loop.  */
         while(1);
     }
@@ -154,7 +162,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
         if (fr)
         {
             /* Error performing file read, break the loop.  */
-            printf("File read status: %d\n",fr);
+            printf("File read status: %"PRId16"\n",fr);
             break;
         }
 
@@ -164,7 +172,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
             break;
         }
 
-        printf("size = %u\n %s\n",br, (const char *)filebuffer);
+        printf("size = %"PRIu16"\n %s\n",br, (const char *)filebuffer);
 
     }
 
@@ -176,7 +184,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     /* Check the file open status.  */
     if (fr)
     {
-        printf("File open status: %d\n",fr);
+        printf("File open status: %"PRId32"\n",fr);
         /* Error opening file, break the loop.  */
         while(1);
     }
@@ -195,7 +203,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
         /* Check the file write status.  */
         if (fr)
         {
-            printf("ittr: %d File write status: %d\n",i, fr);
+            printf("ittr: %"PRId32" File write status: %"PRId32"\n",i, fr);
             break;
         }
     }
@@ -212,7 +220,7 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     /* Check the file close status.  */
     if (fr)
     {
-        printf("File close status: %d\n",fr);
+        printf("File close status: %"PRId16"\n",fr);
         /* Error closing the file, break the loop.  */
         while(1);
     }
@@ -222,14 +230,14 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
     if(error_code)
     {
-        printf("SE: SDMMC 100MHz clock disable = %d\n", error_code);
+        printf("SE: SDMMC 100MHz clock disable = %"PRIu32"\n", error_code);
         return;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, false, &service_error_code);
     if(error_code)
     {
-        printf("SE: SDMMC 20MHz clock disable = %d\n", error_code);
+        printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);
         return;
     }
 
@@ -258,18 +266,18 @@ int main()
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
     if(error_code)
     {
-        printf("SE: SDMMC 100MHz clock enable = %d\n", error_code);
+        printf("SE: SDMMC 100MHz clock enable = %"PRIu32"\n", error_code);
         return 0;
     }
 
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, true, &service_error_code);
     if(error_code)
     {
-        printf("SE: SDMMC 20MHz clock enable = %d\n", error_code);
+        printf("SE: SDMMC 20MHz clock enable = %"PRIu32"\n", error_code);
         return 0;
     }
 
-    SD_Baremetal_fatfs_test(NULL);
+    SD_Baremetal_fatfs_test(0);
 
     return 0;
 }

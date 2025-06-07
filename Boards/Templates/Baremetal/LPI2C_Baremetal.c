@@ -25,6 +25,7 @@
 
 /* Include */
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 
 #include "RTE_Components.h"
@@ -32,6 +33,7 @@
 
 #include "Driver_I2C.h"
 #include "pinconf.h"
+#include "sys_utils.h"
 #include "board_config.h"
 
 #if !defined(RTSS_HE)
@@ -188,7 +190,7 @@ static void LPI2C_demo(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -200,17 +202,17 @@ static void LPI2C_demo(void)
     ret = board_lpi2c_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
 
     version = I2C_mstdrv->GetVersion();
-    printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",
+    printf("\r\n I2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
             version.api, version.drv);
 
     version = LPI2C_slvdrv->GetVersion();
-    printf("\r\n LPI2C version api:0x%X driver:0x%X...\r\n",
+    printf("\r\n LPI2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
             version.api, version.drv);
 
 

@@ -21,6 +21,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Project Includes */
 /* include for UART Driver */
@@ -161,14 +162,15 @@ void myUART_Thread_entry()
     printf("\r\n >>> LPUART testApp starting up!!!...<<< \r\n");
 
     version = USARTdrv->GetVersion();
-    printf("\r\n UART version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n UART version api:%"PRIx16" driver:%"PRIx16"...\r\n",
+            version.api, version.drv);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -180,7 +182,7 @@ void myUART_Thread_entry()
     ret = board_lpuart_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif

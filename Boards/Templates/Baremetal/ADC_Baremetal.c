@@ -114,6 +114,7 @@
 
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 
 /* include for ADC Driver */
@@ -149,15 +150,15 @@
 //#define ADC_SCAN       ARM_ADC_MULTIPLE_CH_SCAN
 
 /* Macro */
-#define ADC12    1
-#define ADC24    0
+#define ADC_12    1
+#define ADC_24    0
 
 /* For ADC12 use ADC_INSTANCE ADC12  */
 /* For ADC24 use ADC_INSTANCE ADC24  */
-#define ADC_INSTANCE         ADC12
-//#define ADC_INSTANCE         ADC24
+#define ADC_INSTANCE         ADC_12
+//#define ADC_INSTANCE         ADC_24
 
-#if (ADC_INSTANCE == ADC12)
+#if (ADC_INSTANCE == ADC_12)
 /* Instance for ADC12 */
 extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
 static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
@@ -192,7 +193,7 @@ volatile uint32_t num_samples = 0;
 static int32_t board_adc_pins_config(void)
 {
     int32_t ret = 0U;
-    if (ADC_INSTANCE == ADC12)
+    if (ADC_INSTANCE == ADC_12)
         {
             if (ADC_SCAN == ARM_ADC_SINGLE_CH_SCAN)
             {
@@ -257,7 +258,7 @@ static int32_t board_adc_pins_config(void)
             }
         }
 
-    if (ADC_INSTANCE == ADC24)
+    if (ADC_INSTANCE == ADC_24)
     {
         if (ADC_SCAN == ARM_ADC_SINGLE_CH_SCAN)
         {
@@ -408,19 +409,19 @@ void ADC_demo()
                            /*bool enable   */ true,
                                               &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %"PRId32"\n", error_code);
 
     printf("\r\n >>> ADC demo starting up!!! <<< \r\n");
 
     version = ADCdrv->GetVersion();
-    printf("\r\n ADC version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n ADC version api:%"PRIx16" driver:%"PRIx16"...\r\n",version.api, version.drv);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
@@ -432,7 +433,7 @@ void ADC_demo()
     ret = board_adc_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -532,7 +533,7 @@ void ADC_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)adc_sample);
+    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n",(uint32_t)adc_sample);
     /* Start ADC */
     ret = ADCdrv->Start();
     if(ret != ARM_DRIVER_OK){
@@ -577,7 +578,7 @@ error_poweroff:
                            /*bool enable   */ false,
                                               &service_error_code);
     if(error_code)
-        printf("SE: clk enable = %d\n", error_code);
+        printf("SE: clk enable = %"PRId32"\n", error_code);
 
 error_uninitialize:
 

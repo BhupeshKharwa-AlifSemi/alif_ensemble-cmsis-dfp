@@ -33,6 +33,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 #include "sys_utils.h"
 
@@ -185,7 +186,7 @@ static void i2c_slv_conversion_callback(uint32_t event)
  */
 static void I2C_demo(void)
 {
-    int   ret      = 0;
+    int32_t ret      = 0;
     ARM_DRIVER_VERSION version;
 
     printf("\r\n >>> I2C demo starting up!!! <<< \r\n");
@@ -194,12 +195,12 @@ static void I2C_demo(void)
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
         return;
     }
 
     version = I2C_MstDrv->GetVersion();
-    printf("\r\n I2C version api:0x%X driver:0x%X...\r\n",
+    printf("\r\n I2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
             version.api, version.drv);
     /* Initialize Master I2C driver */
     ret = I2C_MstDrv->Initialize(i2c_mst_conversion_callback);

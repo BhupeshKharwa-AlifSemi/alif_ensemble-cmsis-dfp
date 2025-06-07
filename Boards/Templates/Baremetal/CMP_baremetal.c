@@ -37,11 +37,12 @@
  ******************************************************************************/
 
 /* System Includes */
-#include "Driver_IO.h"
 #include <stdio.h>
+#include <inttypes.h>
 #include "sys_utils.h"
 #include "board_config.h"
 #include "pinconf.h"
+#include "Driver_IO.h"
 #include "Driver_UTIMER.h"
 
 /* include for Comparator Driver */
@@ -69,11 +70,11 @@
 
 #define NUM_TAPS                        3  /* Filter taps: choose between 2 and 8 */
 
-#define LPCMP                0
+#define LP_CMP               0
 #define HSCMP                1
 
-/* To configure for HSCMP, use CMP_INSTANCE HSCMP */
-/* To configure for LPCMP, use CMP_INSTANCE LPCMP */
+/* To configure for HSCMP, use CMP_INSTANCE HSCMP   */
+/* To configure for LP_CMP, use CMP_INSTANCE LP_CMP */
 #define CMP_INSTANCE         HSCMP
 
 /* To enable comparator window control, change the macro value from 0 to 1
@@ -98,7 +99,7 @@ ARM_DRIVER_GPIO *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 
-#if(CMP_INSTANCE == LPCMP)
+#if(CMP_INSTANCE == LP_CMP)
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
@@ -178,43 +179,43 @@ static void utimer_compare_mode_app(void)
 
     ret = ptrUTIMER->Initialize (channel, utimer_compare_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed initialize \n", channel);
         return;
     }
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power up \n", channel);
+        printf("utimer channel %"PRIu8" failed power up \n", channel);
         goto error_compare_mode_uninstall;
     }
 
     ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d mode configuration failed \n", channel);
+        printf("utimer channel %"PRIu8" mode configuration failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_COMPARE_A, count_array[2]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d set count failed \n", channel);
+        printf("utimer channel %"PRIu8" set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->Start(channel);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to start \n", channel);
+        printf("utimer channel %"PRIu8" failed to start \n", channel);
         goto error_compare_mode_poweroff;
     }
 
@@ -229,21 +230,21 @@ static void utimer_compare_mode_app(void)
 
     ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to stop \n", channel);
+        printf("utimer channel %"PRIu8" failed to stop \n", channel);
     }
 
 error_compare_mode_poweroff:
 
     ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed power off \n", channel);
+        printf("utimer channel %"PRIu8" failed power off \n", channel);
     }
 
 error_compare_mode_uninstall:
 
     ret = ptrUTIMER->Uninitialize (channel);
     if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %d failed to un-initialize \n", channel);
+        printf("utimer channel %"PRIu8" failed to un-initialize \n", channel);
     }
 }
 
@@ -462,7 +463,7 @@ static void CMP_demo_entry()
     ret = board_pins_config();
     if (ret != 0)
     {
-        printf("Error in pin-mux configuration %d\n", ret);
+        printf("Error in pin-mux configuration %"PRId32"\n", ret);
         return;
     }
 
@@ -474,7 +475,7 @@ static void CMP_demo_entry()
     ret = board_cmp_pins_config();
     if(ret != 0)
     {
-        printf("Error in pin-mux configuration %d\n", ret);
+        printf("Error in pin-mux configuration %"PRId32"\n", ret);
         return;
     }
 #endif
@@ -489,7 +490,7 @@ static void CMP_demo_entry()
 #endif
 
     version = CMPdrv->GetVersion();
-    printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);
+    printf("\r\n Comparator version api:%"PRIu16" driver:%"PRIu16"...\r\n", version.api, version.drv);
 
     /* Initialize the Comparator driver */
     ret = CMPdrv->Initialize(CMP_filter_callback);
@@ -604,7 +605,7 @@ static void CMP_demo_entry()
         goto error_poweroff;
     }
 
-    printf("\n Comparator Filter event completed and the call_back_counter value is %d\n",call_back_counter );
+    printf("\n Comparator Filter event completed and the call_back_counter value is %"PRIu32"\n",call_back_counter );
 
 error_poweroff:
     /* Power off Comparator peripheral */
