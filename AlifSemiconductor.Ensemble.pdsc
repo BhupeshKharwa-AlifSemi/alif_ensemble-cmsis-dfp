@@ -1424,50 +1424,50 @@
         <file category="header" name="libs/board_config/board_config.h"/>
 
         <!-- Baremetal Common Templates for HP and HE Core -->
-        <file category="source" name="Boards/Templates/Baremetal/ADC_Baremetal.c" attr="template" select="ADC Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/ADC_Click_Board_Baremetal.c" attr="template" select="ADC Click Board Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/ADC_Ext_Trigger_Baremetal.c" attr="template" select="ADC External Trigger Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CANFD_NormalMode.c" attr="template" select="CANFD Data Transfer Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CANFD_BlockingMode.c" attr="template" select="CANFD Polling Mode Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CDC200_Baremetal.c" attr="template" select="CDC200 Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CMP_baremetal.c" attr="template" select="CMP Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/CRC_baremetal.c" attr="template" select="CRC Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Dac_baremetal.c" attr="template" select="DAC Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/dma_testmemcpy.c" attr="template" select="DMA Mem-Mem Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/DPHY_Loopback_Test_Baremetal.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/DPHY_Loopback_test.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/GT911_Baremetal.c" attr="template" select="GT911 Touch Screen Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/HWSEM_Baremetal.c" attr="template" select="HWSEM Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/i2c_baremetal.c" attr="template" select="I2C Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/i2c_using_i3c_Baremetal.c" attr="template" select="I2C using I3C Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/mix_bus_i2c_i3c_baremetal.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo" />
-        <file category="source" name="Boards/Templates/Baremetal/I2S_Baremetal.c" attr="template" select="I2S Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_adc.c" attr="template" select="ADC Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_adc_clickboard.c" attr="template" select="ADC Click Board Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_adc_exttrigger.c" attr="template" select="ADC External Trigger Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_canfd_busmonitor.c" attr="template" select="CANFD Bus Monitor Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_canfd_normalmode.c" attr="template" select="CANFD Data Transfer Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_canfd_extloopback.c" attr="template" select="CANFD External Loopback Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_canfd_intloopback.c" attr="template" select="CANFD Internal Loopback Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_canfd_blockingmode.c" attr="template" select="CANFD Polling Mode Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_cdc200.c" attr="template" select="CDC200 Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_cmp.c" attr="template" select="CMP Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_crc.c" attr="template" select="CRC Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_dac.c" attr="template" select="DAC Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_dma_memcpy.c" attr="template" select="DMA Mem-Mem Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_dphy_loopback.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/dphy_loopback.c" attr="template" select="DPHY Loopback Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_gt911.c" attr="template" select="GT911 Touch Screen Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_hwsem.c" attr="template" select="HWSEM Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_i2c.c" attr="template" select="I2C Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_i3c_i2cbusproxy.c" attr="template" select="I2C using I3C Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_i3c_i2cmixbus.c" attr="template" select="I2C I3C Mix Bus Baremetal Demo" />
+        <file category="source" name="Boards/Templates/Baremetal/demo_i2s.c" attr="template" select="I2S Baremetal Demo"/>
         <file category="header" name="Boards/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/I3C_Baremetal_masterside.c" attr="template" select="I3C Master Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/I3C_Baremetal_slaveside.c" attr="template" select="I3C Slave Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/ICM42670P_Baremetal.c" attr="template" select="ICM42670P 3-axis accelerometer Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/LED_blink_baremetal.c" attr="template" select="LED Blinky Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_i3c_master.c" attr="template" select="I3C Master Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_i3c_slave.c" attr="template" select="I3C Slave Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_icm42670p.c" attr="template" select="ICM42670P 3-axis accelerometer Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_led_blinky.c" attr="template" select="LED Blinky Baremetal Demo"/>
         <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/LED_Breathe_Baremetal.c" attr="template" select="LED PWM Baremtal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPTimer_Baremetal.c" attr="template" select="LPTIMER Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPUART_Baremetal.c" attr="template" select="LPUART Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/LVGL_baremetal.c" attr="template" select="LVGL Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/lv_port_disp.c" attr="template" select="LVGL Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/MRAM_Baremetal.c" attr="template" select="MRAM Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/MW_Baremetal.c" attr="template" select="Microwire Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/FLASH_ISSI_Baremetal.c" attr="template" select="OSPI FLASH Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_led_breathe.c" attr="template" select="LED PWM Baremtal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lptimer.c" attr="template" select="LPTIMER Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lpuart.c" attr="template" select="LPUART Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lvgl.c" attr="template" select="LVGL Baremetal Demo"/>
+        <!--file category="source" name="Boards/Templates/Baremetal/lv_port_disp.c" attr="template" select="LVGL Baremetal Demo"/-->
+        <file category="source" name="Boards/Templates/Baremetal/demo_mram.c" attr="template" select="MRAM Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_spi_microwire.c" attr="template" select="Microwire Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_flash_issi.c" attr="template" select="OSPI FLASH Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_hyperram_e7.c" attr="template" select="OSPI Hyperram XIP Baremetal Demo" condition="E7"/>
-        <file category="source" name="Boards/Templates/Baremetal/Parallel_Display_Baremetal.c" attr="template" select="Parallel Display Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/PDM_baremetal.c" attr="template" select="PDM Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/ADC_Potentiometer_Baremetal.c" attr="template" select="Potentiometer Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Demo_pm_baremetal.c" attr="template" select="Power Management Baremetal Demo"/>
-        <!--<file category="source" name="Boards/Templates/Baremetal/QEC_Baremetal.c" attr="template" select="QEC Baremetal Demo"/>-->
-        <file category="source" name="Boards/Templates/Baremetal/RTC_Baremetal.c" attr="template" select="RTC Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Demo_SDIO_Baremetal.c" attr="template" select="SDIO Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Demo_SD_Baremetal.c" attr="template" select="SDMMC Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_parallel_display.c" attr="template" select="Parallel Display Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_pdm.c" attr="template" select="PDM Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_adc_potentiometer.c" attr="template" select="Potentiometer Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_pm.c" attr="template" select="Power Management Baremetal Demo"/>
+        <!--<file category="source" name="Boards/Templates/Baremetal/demo_qec.c" attr="template" select="QEC Baremetal Demo"/>-->
+        <file category="source" name="Boards/Templates/Baremetal/demo_rtc.c" attr="template" select="RTC Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_sdio.c" attr="template" select="SDIO Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_sd.c" attr="template" select="SDMMC Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/FatFS/diskio.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
         <file category="header" name="Boards/Templates/Baremetal/FatFS/diskio.h" attr="template" select="SDMMC FATFS Baremetal demo"/>
         <file category="source" name="Boards/Templates/Baremetal/FatFS/ff.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
@@ -1475,73 +1475,73 @@
         <file category="header" name="Boards/Templates/Baremetal/FatFS/ff.h" attr="template" select="SDMMC FATFS Baremetal demo"/>
         <file category="source" name="Boards/Templates/Baremetal/FatFS/ffsystem.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
         <file category="source" name="Boards/Templates/Baremetal/FatFS/ffunicode.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Demo_SD_fatFS_Baremetal.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/SPI0_SPI1_baremetal.c" attr="template" select="SPI Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/TSENS_Baremetal.c" attr="template" select="TSENS Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_sd_fatfs.c" attr="template" select="SDMMC FATFS Baremetal demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_spi_loopback.c" attr="template" select="SPI Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_tsens.c" attr="template" select="TSENS Baremetal Demo"/>
         <file category="header" name="Boards/Templates/Common/Include/temperature.h" attr="template" select="TSENS Baremetal Demo" />
-        <file category="source" name="Boards/Templates/Baremetal/UART2_Baremetal.c" attr="template" select="UART2 Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/UART4_Baremetal.c" attr="template" select="UART4 Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/Utimer_Baremetal.c" attr="template" select="UTIMER Baremetal Demo" />
-        <file category="source" name="Boards/Templates/Baremetal/WDT_Baremetal.c" attr="template" select="WDT Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/BMI323_Baremetal.c" attr="template" select="BMI323 Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_uart2.c" attr="template" select="UART2 Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_uart4.c" attr="template" select="UART4 Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_utimer.c" attr="template" select="UTIMER Baremetal Demo" />
+        <file category="source" name="Boards/Templates/Baremetal/demo_wdt.c" attr="template" select="WDT Baremetal Demo"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_bmi323.c" attr="template" select="BMI323 Baremetal Demo"/>
 
         <!-- Baremetal Templates for HE Core -->
-        <file category="source" name="Boards/Templates/Baremetal/LPI2C_Baremetal.c" attr="template" select="LPI2C Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPPDM_baremetal.c" attr="template" select="LPPDM Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/Baremetal/LPSPI_SPI_baremetal.c" attr="template" select="LPSPI Baremetal Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPPDM_testApp.c" attr="template" select="LPPDM FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPSPI_SPI_app.c" attr="template" select="LPSPI FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPI2C_TestApp.c" attr="template" select="LPI2C FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lpi2c.c" attr="template" select="LPI2C Baremetal Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lppdm.c" attr="template" select="LPPDM Baremetal Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lpspi.c" attr="template" select="LPSPI Baremetal Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lppdm_freertos.c" attr="template" select="LPPDM FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lpspi_freertos.c" attr="template" select="LPSPI FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lpi2c_freertos.c" attr="template" select="LPI2C FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
 	<!--  FreeRTOS templates -->
-        <file category="source" name="Boards/Templates/FreeRTOS/ADC_testApp.c" attr="template" select="ADC FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/ADC_Click_Board_testapp.c" attr="template" select="ADC Click Board FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/ADC_Ext_Trigger_testapp.c" attr="template" select="ADC External Trigger FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/ADC_Potentiometer_testapp.c" attr="template" select="ADC Potentiometer FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/arx3A0_camera_sensor_testApp.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_freertos.c" attr="template" select="ADC FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_clickboard_freertos.c" attr="template" select="ADC Click Board FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_exttrigger_freertos.c" attr="template" select="ADC External Trigger FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_potentiometer_freertos.c" attr="template" select="ADC Potentiometer FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_camera_arx3a0_freertos.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/bayer2rgb/bayer.c" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
         <file category="header"	name="Boards/Templates/bayer2rgb/bayer.h" attr="template" select="ARX3A0 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CANFD_Bus_Monitor.c" attr="template" select="CANFD Bus Monitor FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CANFD_NormalMode.c" attr="template" select="CANFD Data transfer FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CANFD_Ext_Loopback.c" attr="template" select="CANFD External Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CANFD_Int_Loopback.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/cdc_testApp.c" attr="template" select="CDC200 FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CMP_testApp.c" attr="template" select="CMP FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/CRC_testApp.c" attr="template" select="CRC FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/DAC_testapp.c" attr="template" select="DAC FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/dma_testmemcpy.c" attr="template" select="DMA MEM-MEM FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/gt911_touchscreen_testApp.c" attr="template" select="GT911 Touch Screen FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/HWSEM_FreeRTOS.c" attr="template" select="HWSEM FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/i2c_testApp.c" attr="template" select="I2C FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/i2c_using_i3c_testApp.c" attr="template" select="I2C using I3C FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/mix_bus_i2c_i3c_testApp.c" attr="template" select="I2C I3C Mix Bus FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/i3c_masterside_testapp.c" attr="template" select="I3C Master FreeRTOS Demo"/>
-	    <file category="source" name="Boards/Templates/FreeRTOS/i3c_slaveside_testapp.c" attr="template" select="I3C Slave FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LED_Blinky_testapp.c" attr="template" select="LED Blinky FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LED_Breathe_app.c" attr="template" select="LED PWM FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPTimer_testApp.c" attr="template" select="LPTIMER FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/MRAM_FreeRTOS.c" attr="template" select="MRAM FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/MW_app.c" attr="template" select="Microwire FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/mt9m114_camera_sensor_testapp.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_busmonitor_freertos.c" attr="template" select="CANFD Bus Monitor FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_normalmode_freertos.c" attr="template" select="CANFD Data transfer FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_extloopback_freertos.c" attr="template" select="CANFD External Loopback FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_intloopback_freertos.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_cdc_freertos.c" attr="template" select="CDC200 FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_cmp_freertos.c" attr="template" select="CMP FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_crc_freertos.c" attr="template" select="CRC FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_dac_freertos.c" attr="template" select="DAC FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_dma_memcpy_freertos.c" attr="template" select="DMA MEM-MEM FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_gt911_freertos.c" attr="template" select="GT911 Touch Screen FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_hwsem_freertos.c" attr="template" select="HWSEM FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_i2c_freertos.c" attr="template" select="I2C FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_i3c_i2cbusproxy_freertos.c" attr="template" select="I2C using I3C FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_i3c_i2cmixbus_freertos.c" attr="template" select="I2C I3C Mix Bus FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_i3c_master_freertos.c" attr="template" select="I3C Master FreeRTOS Demo"/>
+	    <file category="source" name="Boards/Templates/FreeRTOS/demo_i3c_slave_freertos.c" attr="template" select="I3C Slave FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_led_blinky_freertos.c" attr="template" select="LED Blinky FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_led_breathe_freertos.c" attr="template" select="LED PWM FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lptimer_freertos.c" attr="template" select="LPTIMER FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_mram_freertos.c" attr="template" select="MRAM FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_spi_microwire_freertos.c" attr="template" select="Microwire FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_camera_mt9m114_freertos.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/bayer2rgb/bayer2rgb.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/bayer2rgb/bayer.c" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
         <file category="header" name="Boards/Templates/bayer2rgb/bayer.h" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/Flash_ISSI_FreeRTOS_app.c" attr="template" select="OSPI Flash FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/ospi_hyperram_xip_testapp.c" attr="template" select="OSPI Hyperram XIP FreeRTOS Demo" condition="E7"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/parallel_display_testApp.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/PDM_testApp.c" attr="template" select="PDM FreeRTOS Demo"/>
-        <!--<file category="source" name="Boards/Templates/FreeRTOS/QEC_app.c" attr="template" select="QEC FreeRTOS Demo"/>-->
-        <file category="source" name="Boards/Templates/FreeRTOS/rtc_testApp.c" attr="template" select="RTC FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/SPI0_SPI1_app.c" attr="template" select="SPI FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/uart2_testapp.c" attr="template" select="UART2 FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/uart4_testapp.c" attr="template" select="UART4 FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/UTIMER_app.c" attr="template" select="UTIMER FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/TSENS_testapp.c" attr="template" select="TSENS FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_flash_issi_freertos.c" attr="template" select="OSPI Flash FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_hyperram_freertos.c" attr="template" select="OSPI Hyperram XIP FreeRTOS Demo" condition="E7"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_display_parallel_freertos.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_pdm_freertos.c" attr="template" select="PDM FreeRTOS Demo"/>
+        <!--<file category="source" name="Boards/Templates/FreeRTOS/demo_qec_freertos.c" attr="template" select="QEC FreeRTOS Demo"/>-->
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_rtc_freertos.c" attr="template" select="RTC FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_spi_loopback_freertos.c" attr="template" select="SPI FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_uart2_freertos.c" attr="template" select="UART2 FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_uart4_freertos.c" attr="template" select="UART4 FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_utimer_freertos.c" attr="template" select="UTIMER FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_tsens_freertos.c" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/i2s_testApp.c" attr="template" select="I2S FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_i2s_freertos.c" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="header" name="Boards/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/LPUART_testapp.c" attr="template" select="LPUART FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/cmsis_rtos2/mci-mdk-testApp.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lpuart_freertos.c" attr="template" select="LPUART FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/cmsis_rtos2/demo_mci_mdk_cmsisrtos2.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
 
 	<!--  LWIP templates -->
         <file category="source" name="Boards/Templates/lwip/httpd/fs.c" attr="template" select="LWIP httpd Demo"/>
