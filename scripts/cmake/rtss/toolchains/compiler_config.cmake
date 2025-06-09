@@ -12,18 +12,20 @@ set (CMAKE_CROSSCOMPILING                   true)
 # C-Compiler configurations
 set (C_OPT_LEVEL                            "-O0")
 set (C_DEBUG_LEVEL                          "-g")
-set (C_WARNINGS_ERRORS                      "-Wall -Wextra")
+set (C_WARNINGS_ERRORS                      "-Wall -Wextra -Wno-unused-function -Wvla -Wno-error=cpp -fdata-sections -ffunction-sections -fshort-enums -funsigned-char")
+
+# Coding Language Configurations
+set (C_LANGUAGE_MODE                        "-std=c99")
+set (CMAKE_C_STANDARD                       99)
 
 # Assembler Configurations
 set (ASM_DEBUG_LEVEL                        "-g3")
 set (ASM_OPT_LEVEL                          "-O0")
 set (ASM_WARNINGS_ERRORS                    "-Wall")
+set (ASSEMLBER_ADDITIONAL_FLAGS             "-masm=auto")
 
 if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
-    set (CMAKE_C_STANDARD                   99)
-    set (C_LANGUAGE_MODE                    "-std=c99")
-    set (COMPILER_ADDITIONAL_FLAGS          "-fshort-enums -fshort-wchar -ferror-limit=2048")
-    set (ASSEMLBER_ADDITIONAL_FLAGS         "-masm=auto")
+    set (COMPILER_ADDITIONAL_FLAGS          "-ferror-limit=2048 -Wno-ignored-optimization-argument -Wno-unused-command-line-argument")
     set (RETARGET_IO_SRC                    "${CMSIS_COMPILER_PATH}/source/armcc/retarget_io.c")
 
     if(COMPILER STREQUAL CLANG)
@@ -32,10 +34,7 @@ if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
 
 elseif (COMPILER STREQUAL GCC)
     # Changing C99 to GNU11 because of asm instruction (which comes under compiler retargetting)
-    set (CMAKE_C_STANDARD                   11)
-    set (C_LANGUAGE_MODE                    "-std=gnu11")
-    set (COMPILER_ADDITIONAL_FLAGS          "-fshort-enums -fmax-errors=2048")
-    set (ASSEMLBER_ADDITIONAL_FLAGS         "-masm=auto")
+    set (COMPILER_ADDITIONAL_FLAGS          "-fmax-errors=2048")
     set (RETARGET_IO_SRC                    "${CMSIS_COMPILER_PATH}/source/gcc/retarget_syscalls.c")
 
 endif()
