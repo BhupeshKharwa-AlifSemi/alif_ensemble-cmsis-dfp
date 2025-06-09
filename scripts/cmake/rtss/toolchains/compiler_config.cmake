@@ -12,7 +12,9 @@ set (CMAKE_CROSSCOMPILING                   true)
 # C-Compiler configurations
 set (C_OPT_LEVEL                            "-O0")
 set (C_DEBUG_LEVEL                          "-g")
-set (C_WARNINGS_ERRORS                      "-Wall -Wextra -Wno-unused-function -Wvla -Wno-error=cpp -fdata-sections -ffunction-sections -fshort-enums -funsigned-char")
+set (C_WARNINGS_ERRORS                      "-Wall -Wextra -Werror -Wno-unused-function -Wvla  \
+                                            -Wno-error=cpp -fdata-sections -ffunction-sections \
+                                            -fshort-enums -funsigned-char")
 
 # Coding Language Configurations
 set (C_LANGUAGE_MODE                        "-std=c99")
@@ -25,7 +27,8 @@ set (ASM_WARNINGS_ERRORS                    "-Wall")
 set (ASSEMLBER_ADDITIONAL_FLAGS             "-masm=auto")
 
 if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
-    set (COMPILER_ADDITIONAL_FLAGS          "-ferror-limit=2048 -Wno-ignored-optimization-argument -Wno-unused-command-line-argument")
+    set (COMPILER_ADDITIONAL_FLAGS          "-ferror-limit=2048 -Wno-ignored-optimization-argument \
+                                            -Wno-unused-command-line-argument")
     set (RETARGET_IO_SRC                    "${CMSIS_COMPILER_PATH}/source/armcc/retarget_io.c")
 
     if(COMPILER STREQUAL CLANG)
@@ -43,14 +46,17 @@ endif()
 if (COMPILER_USER_ARG)
     set (C_COMPILER_FLAGS                   "${COMPILER_USER_ARG}")
 else ()
-    set (C_COMPILER_FLAGS                   "${C_LANGUAGE_MODE} ${C_OPT_LEVEL} ${C_DEBUG_LEVEL} ${C_WARNINGS_ERRORS} ${COMPILER_ADDITIONAL_FLAGS}")
+    set (C_COMPILER_FLAGS                   "${C_LANGUAGE_MODE} ${C_OPT_LEVEL} ${C_DEBUG_LEVEL} \
+                                            ${C_WARNINGS_ERRORS} ${COMPILER_ADDITIONAL_FLAGS}")
 endif (COMPILER_USER_ARG)
 
 # Checking if user has provided ASM-Compiler arguments or not
 if (ASM_USER_ARGS)
     set (ASM_FLAGS                          "${ASM_USER_ARGS}")
 else ()
-    set (ASM_FLAGS                          "${ASM_DEBUG_LEVEL} ${ASM_OPT_LEVEL} ${ASM_WARNINGS_ERRORS} ${ASSEMLBER_ADDITIONAL_FLAGS}")
+    set (ASM_FLAGS                          "${ASM_DEBUG_LEVEL} ${ASM_OPT_LEVEL} \
+                                            ${ASM_WARNINGS_ERRORS} \
+                                            ${ASSEMLBER_ADDITIONAL_FLAGS}")
 endif (ASM_USER_ARGS)
 
 # Include directories wrt CMSIS pack
