@@ -35,6 +35,8 @@
 #include "retarget_stdout.h"
 #include "Driver_Common.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
+#include "Driver_IO.h"
+#include "board_config.h"
 
 // Set to 0: Use application-defined SDC A revision pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -60,6 +62,58 @@ void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
     if(xfer_status)
         dma_done_irq = 1;
 }
+
+#ifdef BOARD_SD_RESET_GPIO_PORT
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+/**
+  \fn           sd_reset(void)
+  \brief        Perform SD reset sequence
+  \return       none
+  */
+int sd_reset(void) {
+    int status;
+    ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0); //SD reset
+
+    status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to initialize SD RST GPIO\n");
+        return 1;
+    }
+    status = gpioSD_RST->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to powered full\n");
+        return 1;
+    }
+    status = gpioSD_RST->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to configure\n");
+        return 1;
+    }
+
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+    sys_busy_loop_us(100);
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+    sys_busy_loop_us(100);
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+
+    return 0;
+}
+#endif
 
 /**
   \fn           BareMetalSDTest(uint32_t startSec, uint32_t EndSector)
@@ -89,11 +143,17 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector){
      * NOTE: The SDC A revision pins used in this test application are not configured
      * in the board support library. Therefore, pins are configured manually here.
      */
+#ifdef BOARD_SD_RESET_GPIO_PORT
+    if (sd_reset()) {
+        printf("Error reseting SD interface..\n");
+        return;
+    }
+#endif
     pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT), BOARD_SD_CMD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
     pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT), BOARD_SD_CLK_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
     pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT), BOARD_SD_D0_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
 
-#if RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE
+#if (RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE) || (RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE)
     pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT), BOARD_SD_D1_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
     pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT), BOARD_SD_D2_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
     pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT), BOARD_SD_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3

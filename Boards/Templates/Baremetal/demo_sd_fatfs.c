@@ -36,6 +36,7 @@
 
 /* include for Pin Mux config */
 #include "pinconf.h"
+#include "Driver_IO.h"
 #include "board_config.h"
 #include "sys_utils.h"
 
@@ -60,14 +61,62 @@
 #define NUM_BLK_TEST 1
 #define SD_TEST_ITTR_CNT 10
 
-uint32_t count1, count2, total_cnt=0;
-uint32_t service_error_code;
-uint32_t error_code = SERVICES_REQ_SUCCESS;
-
 /* Buffer for FileX FF_Disk_t sector cache. This must be large enough for at least one sector , which are typically 512 bytes in size. */
 unsigned char filebuffer[(SD_BLK_SIZE*NUM_BLK_TEST) + 1] __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
 FATFS sd_card __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
 FIL test_file;
+
+#ifdef BOARD_SD_RESET_GPIO_PORT
+extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+/**
+  \fn           sd_reset(void)
+  \brief        Perform SD reset sequence
+  \return       none
+  */
+int sd_reset(void) {
+    int status;
+    ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0); //SD reset
+
+    status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to initialize SD RST GPIO\n");
+        return 1;
+    }
+    status = gpioSD_RST->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to powered full\n");
+        return 1;
+    }
+    status = gpioSD_RST->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to configure\n");
+        return 1;
+    }
+
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+    sys_busy_loop_us(100);
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+    sys_busy_loop_us(100);
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status != ARM_DRIVER_OK) {
+        printf("ERROR: Failed to toggle LEDs\n");
+        return 1;
+    }
+
+    return 0;
+}
+#endif
 
 /**
   \fn           mySD_Thread_entry(unsigned long int args)
@@ -75,7 +124,7 @@ FIL test_file;
   \param[in]    args - Thread argument
   \return       none
   */
-void SD_Baremetal_fatfs_test(unsigned long int args)
+void SD_Baremetal_fatfs_test()
 {
     FRESULT fr;
 
@@ -85,8 +134,6 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
 #if defined(FILE_WRITE_TEST)
     UINT bw;
 #endif
-
-    ARG_UNUSED(args);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     int32_t ret;
@@ -103,6 +150,14 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
      * NOTE: The SDC A revision pins used in this test application are not configured
      * in the board support library. Therefore, pins are configured manually here.
      */
+
+#ifdef BOARD_SD_RESET_GPIO_PORT
+    if (sd_reset()) {
+        printf("Error reseting SD interface..\n");
+        return;
+    }
+#endif
+
     pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT), BOARD_SD_CMD_A_GPIO_PIN, BOARD_SD_CMD_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //cmd
     pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT), BOARD_SD_CLK_A_GPIO_PIN, BOARD_SD_CLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //clk
     pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT), BOARD_SD_D0_A_GPIO_PIN, BOARD_SD_D0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d0
@@ -228,26 +283,12 @@ void SD_Baremetal_fatfs_test(unsigned long int args)
 
     printf("File R/W Test Completed!!!\n");
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
-    if(error_code)
-    {
-        printf("SE: SDMMC 100MHz clock disable = %"PRIu32"\n", error_code);
-        return;
-    }
-
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, false, &service_error_code);
-    if(error_code)
-    {
-        printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);
-        return;
-    }
-
-    while(1);
-
 }
 
 int main()
 {
+    uint32_t service_error_code;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
     #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init (void);
     int32_t ret;
@@ -278,7 +319,21 @@ int main()
         return 0;
     }
 
-    SD_Baremetal_fatfs_test(0);
+    SD_Baremetal_fatfs_test();
+
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
+    if (error_code)
+    {
+        printf("SE: SDMMC 100MHz clock disable = %"PRIu32"\n", error_code);
+        return 0;
+    }
+
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, false, &service_error_code);
+    if (error_code)
+    {
+        printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);
+        return 0;
+    }
 
     return 0;
 }
