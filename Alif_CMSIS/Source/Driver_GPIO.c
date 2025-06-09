@@ -128,6 +128,7 @@ static GPIO_RESOURCES gpio_res[] = {
 #endif
 };
 
+#ifndef CMSIS_GPIO_DISABLE_EVENTS
 /* Common GPIO IRQ Handler */
 static void GPIO_IRQHandler (uint32_t gpio_num, uint32_t pin_num) {
   GPIO_Type *gpio = (GPIO_Type *)gpio_res[gpio_num].base;
@@ -330,6 +331,8 @@ void LPGPIO_IRQ7Handler (void){ GPIO_IRQHandler(15U, 7U); }
 #endif
 #endif
 
+#endif /* CMSIS_GPIO_DISABLE_EVENTS */
+
 /* Setup GPIO Interface */
 static int32_t GPIO_Setup (ARM_GPIO_Pin_t pin, ARM_GPIO_SignalEvent_t cb_event) {
   GPIO_Type *gpio;
@@ -362,6 +365,7 @@ static int32_t GPIO_Setup (ARM_GPIO_Pin_t pin, ARM_GPIO_SignalEvent_t cb_event) 
       gpio_disable_interrupt(gpio, pin_num);
     }
     else {
+      #ifndef CMSIS_GPIO_DISABLE_EVENTS
       /* Save pin callback event */
       gpio_res[gpio_num].cb_event[pin_num] = cb_event;
 
@@ -373,9 +377,10 @@ static int32_t GPIO_Setup (ARM_GPIO_Pin_t pin, ARM_GPIO_SignalEvent_t cb_event) 
 
       /* Enable interrupt */
       gpio_enable_interrupt(gpio, pin_num);
+      #else
+      status = ARM_DRIVER_ERROR_UNSUPPORTED;
+      #endif /* CMSIS_GPIO_DISABLE_EVENTS */
     }
-
-    status = ARM_DRIVER_OK;
   }
 
   return status;
@@ -510,6 +515,7 @@ static int32_t GPIO_SetPullResistor (ARM_GPIO_Pin_t pin, ARM_GPIO_PULL_RESISTOR 
 
 /* Set GPIO Event Trigger */
 static int32_t GPIO_SetEventTrigger (ARM_GPIO_Pin_t pin, ARM_GPIO_EVENT_TRIGGER trigger) {
+#ifndef CMSIS_GPIO_DISABLE_EVENTS
   GPIO_Type *gpio;
   uint32_t   gpio_num;
   uint32_t   pin_num;
@@ -551,7 +557,11 @@ static int32_t GPIO_SetEventTrigger (ARM_GPIO_Pin_t pin, ARM_GPIO_EVENT_TRIGGER 
       status = ARM_DRIVER_ERROR_PARAMETER;
     }
   }
-
+#else
+  (void)pin;
+  (void)trigger;
+  int32_t status = ARM_DRIVER_ERROR_UNSUPPORTED;
+#endif /* CMSIS_GPIO_DISABLE_EVENTS */
   return status;
 }
 
