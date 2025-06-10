@@ -1,4 +1,4 @@
-/* 
+/*
 *   Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
 *   Use, distribution and modification of this code is permitted under the
 *   terms stated in the Alif Semiconductor Software License Agreement
@@ -62,9 +62,9 @@ const struct pinconf board_pinconf[] = {
     /* Selected: I3C_SDA_A */
     {PORT_0, PIN_6, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
-    /* P0_7 on pin J4. Functions: [0]: GPIO0_7, [1]: JTAG0_TCK, [2]: UART1_RTS_A, [3]: FAULT3_A, [4]: >>>ANA_S7<<<, [5]: BLE_DBG7 */
-    /* Selected: ANA_S7 for "POTENTIOMETER". Can be used with ADC121_IN1 (ADC121 input 1); ADC24_IN3_N (ADC24 differential input 3 negative); CMP1_IN1 (CMP1 input 1) */
-    {PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE},
+    /* P0_7 on pin J4. Functions: [0]: GPIO0_7, [1]: >>>JTAG0_TCK<<<, [2]: UART1_RTS_A, [3]: FAULT3_A, [4]: ANA_S7, [5]: BLE_DBG7 */
+    /* Selected: JTAG0_TCK */
+    {PORT_0, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE},
 
     /* P1_0 on pin D8. Functions: [0]: GPIO1_0, [1]: >>>JTAG0_TMS<<<, [2]: LPPDM_D0_A, [3]: SPI0_MOSI_A */
     /* Selected: JTAG0_TMS */
@@ -174,9 +174,9 @@ const struct pinconf board_pinconf[] = {
     /* Selected: OSPI0_SCLK_A */
     {PORT_4, PIN_2, PINMUX_ALTERNATE_FUNCTION_2, PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
 
-    /* P4_3 on pin F6. Functions: [0]: >>>GPIO4_3<<<, [1]: JTAG0_TRACECLK, [2]: LPI2S_SDI_B, [3]: UT1_T1_A, [4]: LPCAM_D3_A, [5]: SD_D3_A, [6]: CMP0_OUT_B, [7]: CS_MWS_ID0 */
-    /* Selected: GPIO4_3 */
-    {PORT_4, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+    /* P4_3 on pin F6. Functions: [0]: GPIO4_3, [1]: >>>JTAG0_TRACECLK<<<, [2]: LPI2S_SDI_B, [3]: UT1_T1_A, [4]: LPCAM_D3_A, [5]: SD_D3_A, [6]: CMP0_OUT_B, [7]: CS_MWS_ID0 */
+    /* Selected: JTAG0_TRACECLK */
+    {PORT_4, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P4_4 on pin A6. Functions: [0]: GPIO4_4, [1]: >>>JTAG0_TDATA0<<<, [2]: LPI2S_SDO_B, [3]: LPSPI_SCLK_B, [4]: UT2_T0_A, [5]: LPCAM_D4_A, [6]: SD_D4_A, [7]: CS_MWS_ID1 */
     /* Selected:  JTAG0_TDATA0 */
@@ -190,9 +190,9 @@ const struct pinconf board_pinconf[] = {
     /* Selected:  JTAG0_TDATA2  */
     {PORT_4, PIN_6, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
 
-    /* P4_7 on pin D6. Functions: [0]: >>> GPIO4_7<<<, [1]:jtag0_tdata3, [2]: ospi0_sclk_b, [3]: ut3_t1_a [4]: lpcam_d7_a, [5]: sd_d7_a, [6]: cmp1_out_b, [7]: cs_mws_id4 */
-    /* Selected: GPIO4_7 */
-    {PORT_4, PIN_7, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
+    /* P4_7 on pin D6. Functions: [0]: GPIO4_7, [1]: >>>JTAG0_TDATA2<<<, [2]: ospi0_sclk_b, [3]: ut3_t1_a [4]: lpcam_d7_a, [5]: sd_d7_a, [6]: cmp1_out_b, [7]: cs_mws_id4 */
+    /* Selected: JTAG0_TDATA2 */
+    {PORT_4, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_SCHMITT_TRIGGER_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
 
     /* P5_0 on pin H12. Functions: [0]: >>>GPIO5_0<<<, [1]: OSPI0_D0_B, [2]: UART1_RX_B, [3]: SPI0_MISO_B, [4]: CDC_D0_A, [5]: CAN0_RXD_B, [6]: DEBUG_PORT0, [7]: BLE_DBG8 */
     /* Selected: GPIO5_0 */
