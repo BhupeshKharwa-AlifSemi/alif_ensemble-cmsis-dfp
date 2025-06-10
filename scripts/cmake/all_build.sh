@@ -28,13 +28,14 @@ skipped_cfg_run_cnt=0
 actual_cfg_run_cnt=0
 fail_cfg_run_cnt=0
 success_cfg_run_cnt=0
-total_cmakeError=0
+total_cmakeError=-1
 collective_total_Error=0
+number_of_iter=0
 
 CURR_OS=("NONE")
 CURR_COMPILER=("armclang" "gcc")
-CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597")
-CURR_BOARDS=("DevKit-e7" "DevKit-e1c" "DevKit-e8")
+CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597" "AE402FA0E5597")
+CURR_BOARDS=("DevKit-e7" "DevKit-e1c" "DevKit-e8" "DevKit-e4")
 CURR_RTSS=("HE" "HP")
 CURR_BOOT=("TCM" "MRAM")
 
@@ -50,12 +51,14 @@ do
                 do
                     devShortName="${CURR_BOARDS[brdName]#*-}"
                     alifDevShortName="A$(echo "$devShortName" | tr '[:lower:]' '[:upper:]')"
-                    echo "Device : ${CURR_DEV[devName]}, Board: ${CURR_BOARDS[brdName]}, ShortName:${alifDevShortName}." 
-                    
+                    echo "Device : ${CURR_DEV[devName]}, Board: ${CURR_BOARDS[brdName]}, ShortName:${alifDevShortName}."
+                    number_of_iter=$((number_of_iter + 1))
+
+                    echo "🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱 # ${number_of_iter} starts 🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱"
                     if [[ "${CURR_DEV[devName]}" == "$alifDevShortName"* ]]; then
                         for osName in ${!CURR_OS[@]}
                         do
-                            echo "===================================================================================="
+                            echo "======================================================================================"
                             if [ -d build ]; then
                                 echo -e "Deleting Build directory..."
                                 rm -rf build
@@ -74,21 +77,33 @@ do
                             ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DBOARD_NAME=${CURR_BOARDS[brdName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
 
                             tmp=$?
-                            total_cmakeError=$((total_cmakeError + tmp))
+                            if [[ "$total_cmakeError" -eq -1 ]] ; then 
+                                total_cmakeError=$tmp
+                            else
+                                total_cmakeError=$((total_cmakeError + tmp))
+                            fi
                             echo -e "🚫Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
                             if [ "$tmp" -ne 0 ] ; then
                                 fail_cfg_run_cnt=$((fail_cfg_run_cnt + 1))
                             fi
-                            echo "===================================================================================="
+                            echo "======================================================================================"
                         done
                     fi
+                    echo "🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩 # ${number_of_iter} ends 🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩"
+                    echo -e "\n"
                 done
             done
         done
     done
 done
-echo -e "\n"
+echo -e ""
 echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
 echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
 collective_total_Error=$((total_cmakeError))
+
+echo -e "\n\n"
+total_run_elapsed_time=$(( SECONDS - start_time ))
+eval "echo  Total Elapsed Time: $(date -ud "@$total_run_elapsed_time" +'$((%s/3600/24)) days %H hr %M min %S sec')"
+echo -e "\n"
+
 exit $collective_total_Error
