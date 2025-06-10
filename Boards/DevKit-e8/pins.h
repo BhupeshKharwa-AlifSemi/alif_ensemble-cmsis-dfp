@@ -1,4 +1,4 @@
-/* 
+/*
 *   Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
 *   Use, distribution and modification of this code is permitted under the
 *   terms stated in the Alif Semiconductor Software License Agreement
@@ -360,7 +360,7 @@ const struct pinconf board_pinconf[] = {
 
 	/* P10_7 on pin P1. Functions: [0]: GPIO10_7, [1]: UART7_RX_A, [2]: I2S2_SCLK_B, [3]: SPI3_SCLK_B, [4]: I2C1_SCL_D, [5]: UT3_T1_C, [6]: CDC_D23_A, [7]: >>>OSPI1_RXDS_C<<< */
 	/* Selected: OSPI1_RXDS_C for "ISSI Flash" */
-	{PORT_10, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+	{PORT_10, PIN_7, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
 	/* P11_0 on pin P2. Functions: [0]: GPIO11_0, [1]: OSPI1_D0_A, [2]: UART7_TX_A, [3]: I2S2_WS_B, [4]: SPI3_SS0_B, [5]: UT4_T0_C, [6]: >>>ETH_REFCLK_B<<<, [7]: CDC_D0_B */
 	/* Selected: ETH_REFCLK_B for "RTL8201" */
@@ -508,8 +508,8 @@ const struct pinconf board_pinconf[] = {
 
 	/* P15_7 on pin W5. Functions: [0]: >>>GPIOV_7<<<. Note that LPGPIO_CTRL_n register has a different layout! */
 	/* Selected: GPIOV_7 for "OSPI1_RESET" */
-	{PORT_15, PIN_7, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA}, 
-	
+	{PORT_15, PIN_7, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+
 	/* P16_0 Functions: [0]: >>>GPIO16_0<<<, [1]: OSPI0_D8_B  */
 	/* Selected: GPIO16_0 */
 	{PORT_16, PIN_0, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
@@ -521,7 +521,7 @@ const struct pinconf board_pinconf[] = {
 	/* P16_2 Functions: [0]: >>>GPIO16_2<<<, [1]: OSPI0_D10_B */
 	/* Selected: GPIO16_2 */
 	{PORT_16, PIN_2, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
-	
+
 	/* P16_3 Functions: [0]: >>>GPIO16_3<<<, [1]: OSPI0_D11_B */
 	/* Selected: GPIO16_3 */
 	{PORT_16, PIN_3, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
@@ -541,7 +541,7 @@ const struct pinconf board_pinconf[] = {
 	/* P16_7 Functions: [0]: >>>GPIO16_7<<<, [1]: OSPI0_D15_B */
 	/* Selected: GPIO16_7 */
 	{PORT_16, PIN_7, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
-	
+
 	/* P17_0 Functions: [0]: GPIO17_0, [1]: >>>OSPI0_D8_C<<<  */
 	/* Selected: OSPI0_D8_C */
 	{PORT_17, PIN_0, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
@@ -553,7 +553,7 @@ const struct pinconf board_pinconf[] = {
 	/* P17_2 Functions: [0]: GPIO17_2, [1]: >>>OSPI0_D10_C<<< */
 	/* Selected: OSPI0_D10_C */
 	{PORT_17, PIN_2, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
-	
+
 	/* P17_3 Functions: [0]: GPIO17_3, [1]: >>>OSPI0_D11_C<<< */
 	/* Selected: OSPI0_D11_C */
 	{PORT_17, PIN_3, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
