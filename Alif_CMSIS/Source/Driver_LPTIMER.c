@@ -223,7 +223,7 @@ static int32_t ARM_LPTIMER_Control (LPTIMER_RESOURCES *LPTIMER_RES, uint8_t chan
         }
 
         /* get current count value */
-        *(uint32_t*)arg |= lptimer_get_count (LPTIMER_RES->regs, channel);
+        *(uint32_t*)arg = lptimer_get_count (LPTIMER_RES->regs, channel);
         break;
     }
     default:
