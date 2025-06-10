@@ -21,8 +21,8 @@
  *             
  *             E7: Hardware setup:
  *             - Connecting GPIO pins of I2C1 TO I2C0
- *               SDA pin P7_2(J15) to P0_2(J11)
- *               SCL pin P7_3(J15) to P0_3(J11).
+ *               SDA pin P7_2(J15) to P3_5(J11)
+ *               SCL pin P7_3(J15) to P3_4(J11).
  *             E1C: Hardware setup:
  *             - Connecting GPIO pins of I2C1 TO I2C0
  *               SDA pin P7_2(J14) to P7_0(J14)
