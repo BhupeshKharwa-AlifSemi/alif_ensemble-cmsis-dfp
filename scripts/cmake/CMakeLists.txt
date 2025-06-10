@@ -110,8 +110,18 @@ set (RETARGET_SRC_DIR       "${ALIF_DEV_SRC_DIR}/libs")
 set (BOARD_DIR              "${ALIF_DEV_SRC_DIR}/libs/board_config")
 set (BOARD_CMAKE_FILE       "${USER_CMAKE_SCRIPT_DIR}/board_cmake/board.cmake")
 
+string(REGEX REPLACE    "^[^-]*-"   ""      BOARD_ABERRATION    "${BOARD_NAME}")
+string(TOUPPER  "${BOARD_ABERRATION}"   BOARD_ABERRATION_IN_UPPER)
+string(FIND     "${DEVICE}"    "A${BOARD_ABERRATION_IN_UPPER}"      found_subStr)
+
+if(found_subStr EQUAL -1)
+    message(STATUS     "${Red} ⚠️ [WARNING] BOARD NAME (${BOARD_NAME}) AND DEVICE (${DEVICE}) IS NOT IN SYNC !!!${ColourReset}")
+endif()
+
 #Include Retarget Include path
-set(RETARGET_IO_INC     "${CMSIS_COMPILER_PATH}/include;${RETARGET_SRC_DIR}/retarget_io/config")
+set(RETARGET_IO_INC     "${CMSIS_COMPILER_PATH}/include;${RETARGET_SRC_DIR}/retarget_io/include")
+set(RETARGET_IO_INC     "${RETARGET_IO_INC};${RETARGET_SRC_DIR}/retarget_io/config/${BOARD_ABERRATION}")
+set(RETARGET_CFG_FILE   "${RETARGET_SRC_DIR}/retarget_io/config/${BOARD_ABERRATION}/retarget_config.h")
 
 include_directories("${RETARGET_IO_INC};${CMSIS_PACK_PATH}/CMSIS/RTOS2/Include")
 include("${USER_CMAKE_SCRIPT_DIR}/toolchains/compiler_config.cmake")
@@ -127,7 +137,7 @@ set(TMP_CFG_FILE            "${CMAKE_TEMP_FOLDER}/.cfg" )
 get_rte_macros()
 
 set(MSG           "-- 📌 SELECTED COMPILER        --> ${HCyan}${COMPILER}${ColourReset}\n")
-set(MSG     "${MSG}-- 📌 SELECTED DEVICE          --> ${HCyan}${DEVICE}${ColourReset}\n")
+set(MSG     "${MSG}-- 📌 SELECTED DEVICE          --> ${HCyan}${DEVICE} (${BOARD_ABERRATION})${ColourReset}\n")
 set(MSG     "${MSG}-- 📌 SELECTED CORE            --> ${HCyan}${CPU} (${RTSS}, Rev-${BOARD_REV})${ColourReset}\n")
 set(MSG     "${MSG}-- 📌 SELECTED BOOT            --> ${HCyan}${BOOT}${ColourReset}\n")
 set(MSG     "${MSG}-- 📌 SELECTED BOARD           --> ${HCyan}${BOARD_NAME}${ColourReset}\n")
@@ -148,41 +158,9 @@ if( ${ENABLE_STDIN} OR ${ENABLE_STDOUT} OR ${ENABLE_STDERR})
     if(${ENABLE_USART})
         set(RETARGET_EN_NO_SEMIHOSTING        ON)
     else()
-        message(STATUS     "[WARNING]${Yellow}RETARGETTING IS ENABLED BUT UART DRIVER IS NOT ENABLED ${ColourReset}")
+        message(STATUS     "${Yellow} ⚠️ [WARNING] RETARGETTING IS ENABLED BUT UART DRIVER IS NOT ENABLED ${ColourReset}")
     endif()
 endif()
-
-if(${RETARGET_EN_NO_SEMIHOSTING})
-    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}UART${ColourReset}")
-else()
-    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}DEBUGGER CONSOLE${ColourReset}")
-endif()
-
-# Mark the language as C so that CMake doesn't try to test the C++
-# cross-compiler's ability to compile a simple program because that will fail
-project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
-        VERSION 2.0.0
-        DESCRIPTION "COLLECTION_OF_ALIF_TESTAPPS "
-        LANGUAGES C ASM)
-
-message("")
-message(${MSG})
-file(WRITE          ${TMP_CFG_FILE}     "${MSG}\n")
-
-# Directory paths of OS cmake files
-if (OS STREQUAL NONE)
-    set(OS_CMAKE_FILE           "${OS_CMAKE_DIR}/baremetal.cmake")
-    message (STATUS "📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
-    file(APPEND          ${TMP_CFG_FILE}     "-- 📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
-
-else()
-    # OS is not proper
-    file(APPEND          ${TMP_CFG_FILE}     "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}\n")
-    message (FATAL_ERROR "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}")
-
-endif ()
-
-include (${OS_CMAKE_FILE})
 
 if(${RETARGET_EN_NO_SEMIHOSTING})
     # Collect all retargeting source files
@@ -197,7 +175,7 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         set(PREV_RETARGET_CFG              "")
     endif()
 
-    GET_MACRO_VALUE(${RETARGET_SRC_DIR}/retarget_io/config/retarget_config.h    PRINTF_UART_CONSOLE      uart_console_num)
+    GET_MACRO_VALUE(${RETARGET_CFG_FILE}    PRINTF_UART_CONSOLE      uart_console_num)
 
     if( "${uart_console_num}" STREQUAL "LP")
         set(BLOCKING_MODE_FLAG          RTE_${uart_console_num}UART_BLOCKING_MODE_ENABLE)
@@ -227,6 +205,38 @@ if(${RETARGET_EN_NO_SEMIHOSTING})
         message(STATUS      "🕵️‍♂️ FORCEFULLY CHANGED UART POLLING_MODE WILL BE USED")
     endif()
 endif()
+
+if(${RETARGET_EN_NO_SEMIHOSTING})
+    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}UART (#${uart_console_num})${ColourReset}")
+else()
+    set(MSG     "${MSG}-- 📌 SELECTED STANDARD I/O    --> ${HCyan}DEBUGGER CONSOLE${ColourReset}")
+endif()
+
+# Mark the language as C so that CMake doesn't try to test the C++
+# cross-compiler's ability to compile a simple program because that will fail
+project(ALIF_RTSS_${PROC}_${TEST_APP}_Testapps
+        VERSION 2.0.0
+        DESCRIPTION "COLLECTION_OF_ALIF_TESTAPPS "
+        LANGUAGES C ASM)
+
+message("")
+message(${MSG})
+file(WRITE          ${TMP_CFG_FILE}     "${MSG}\n")
+
+# Directory paths of OS cmake files
+if (OS STREQUAL NONE)
+    set(OS_CMAKE_FILE           "${OS_CMAKE_DIR}/baremetal.cmake")
+    message (STATUS "📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
+    file(APPEND          ${TMP_CFG_FILE}     "-- 📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
+
+else()
+    # OS is not proper
+    file(APPEND          ${TMP_CFG_FILE}     "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}\n")
+    message (FATAL_ERROR "${Red}PROPER OS IS NOT GIVEN or \"${OS}\" OS IS NOT SUPPORTED ${ColourReset}")
+
+endif ()
+
+include (${OS_CMAKE_FILE})
 
 #Remove Dependancy
 resolve_dependancy()
