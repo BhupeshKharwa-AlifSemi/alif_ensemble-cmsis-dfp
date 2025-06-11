@@ -473,6 +473,14 @@ typedef enum {
     CSI_IRQ_IRQn              = 344,              /*!< 344  CSI interrupt                                                        */
     CAM_IRQ_IRQn              = 345,              /*!< 345  CPI interrupt                                                        */
 
+    LPUTIMER_IRQ0_IRQn        = 351,               /*!< 351  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ1_IRQn        = 352,              /*!< 352  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ2_IRQn        = 353,              /*!< 353  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ3_IRQn        = 354,              /*!< 354  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ4_IRQn        = 355,              /*!< 355  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ5_IRQn        = 356,              /*!< 356  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ6_IRQn        = 357,              /*!< 357  LPUTIMER interrupt                                                   */
+    LPUTIMER_IRQ7_IRQn        = 358,              /*!< 358  LPUTIMER interrupt                                                   */
     QEC0_CMPA_IRQ_IRQn        = 369,              /*!< 369  Channel 12 interrupt request at driver A                             */
     QEC0_CMPB_IRQ_IRQn        = 370,              /*!< 370  Channel 12 interrupt request at driver B                             */
     QEC1_CMPA_IRQ_IRQn        = 371,              /*!< 371  Channel 13 interrupt request at driver A                             */

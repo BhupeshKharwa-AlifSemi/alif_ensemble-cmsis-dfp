@@ -273,6 +273,15 @@
 #define IRQ344_Handler           CSI_IRQHandler
 #define IRQ345_Handler           CAM_IRQHandler
 
+#define IRQ351_Handler           LPUTIMER_IRQ0Handler
+#define IRQ352_Handler           LPUTIMER_IRQ1Handler
+#define IRQ353_Handler           LPUTIMER_IRQ2Handler
+#define IRQ354_Handler           LPUTIMER_IRQ3Handler
+#define IRQ355_Handler           LPUTIMER_IRQ4Handler
+#define IRQ356_Handler           LPUTIMER_IRQ5Handler
+#define IRQ357_Handler           LPUTIMER_IRQ6Handler
+#define IRQ358_Handler           LPUTIMER_IRQ7Handler
+
 #define IRQ369_Handler           QEC0_CMPA_IRQHandler
 #define IRQ370_Handler           QEC0_CMPB_IRQHandler
 #define IRQ371_Handler           QEC1_CMPA_IRQHandler
