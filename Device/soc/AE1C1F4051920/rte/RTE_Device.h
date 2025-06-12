@@ -2221,12 +2221,12 @@
 // <i> Default: DISABLED
 #define RTE_UTIMER_CHANNEL0_FIXED_BUFFER            0
 
-// <o> CHANNEL0 DMA CONTROL
+// <o> CHANNEL0 DMA CLEAR ENABLE
 //    <0=> DISABLED
 //    <1=> ENABLED
 // <i> Defines DMA feature control for UT channel 0.
 // <i> Default: DISABLED
-#define RTE_UTIMER_CHANNEL0_DMA_CONTROL            0
+#define RTE_UTIMER_CHANNEL0_DMA_CLEAR_ENABLE            0
 
 // <o> CHANNEL0 FAULT TYPE
 //    <0=> LOW_UNTIL_CYCLE_END
@@ -2433,12 +2433,12 @@
 // <i> Default: DISABLED
 #define RTE_UTIMER_CHANNEL1_FIXED_BUFFER            0
 
-// <o> CHANNEL1 DMA CONTROL
+// <o> CHANNEL1 DMA CLEAR ENABLE
 //    <0=> DISABLED
 //    <1=> ENABLED
 // <i> Defines DMA feature control for UT channel 1.
 // <i> Default: DISABLED
-#define RTE_UTIMER_CHANNEL1_DMA_CONTROL            0
+#define RTE_UTIMER_CHANNEL1_DMA_CLEAR_ENABLE            0
 
 // <o> CHANNEL1 FAULT TYPE
 //    <0=> LOW_UNTIL_CYCLE_END
@@ -2645,12 +2645,12 @@
 // <i> Default: DISABLED
 #define RTE_UTIMER_CHANNEL2_FIXED_BUFFER            0
 
-// <o> CHANNEL2 DMA CONTROL
+// <o> CHANNEL2 DMA CLEAR ENABLE
 //    <0=> DISABLED
 //    <1=> ENABLED
 // <i> Defines DMA feature control for UT channel 2.
 // <i> Default: DISABLED
-#define RTE_UTIMER_CHANNEL2_DMA_CONTROL            0
+#define RTE_UTIMER_CHANNEL2_DMA_CLEAR_ENABLE            0
 
 // <o> CHANNEL2 FAULT TYPE
 //    <0=> LOW_UNTIL_CYCLE_END
@@ -2857,12 +2857,12 @@
 // <i> Default: DISABLED
 #define RTE_UTIMER_CHANNEL3_FIXED_BUFFER            0
 
-// <o> CHANNEL3 DMA CONTROL
+// <o> CHANNEL3 DMA CLEAR ENABLE
 //    <0=> DISABLED
 //    <1=> ENABLED
 // <i> Defines DMA feature control for UT channel 0.
 // <i> Default: DISABLED
-#define RTE_UTIMER_CHANNEL3_DMA_CONTROL            0
+#define RTE_UTIMER_CHANNEL3_DMA_CLEAR_ENABLE            0
 
 // <o> CHANNEL3 FAULT TYPE
 //    <0=> LOW_UNTIL_CYCLE_END

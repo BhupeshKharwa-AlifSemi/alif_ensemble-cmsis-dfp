@@ -23,9 +23,13 @@
 #include "Driver_UTIMER_Private.h"
 #include "utimer.h"
 
+#if RTE_LPUTIMER
+#include "sys_ctrl_utimer.h"
+#endif
+
 #if defined(RTE_Drivers_UTIMER)
 
-#if !(RTE_UTIMER)
+#if !(RTE_UTIMER || RTE_LPUTIMER)
     #error "UTIMER is not enabled in RTE_Device.h"
 #endif
 
@@ -47,9 +51,9 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
             {
                 utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_OVER_FLOW);
 
-                NVIC_ClearPendingIRQ (UTIMER_OVERFLOW_IRQ(channel));
-                NVIC_SetPriority (UTIMER_OVERFLOW_IRQ(channel), UTIMER_RES->ch_info[channel].over_flow_irq_priority);
-                NVIC_EnableIRQ (UTIMER_OVERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
+                NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq), UTIMER_RES->ch_info[channel].overflow_irq_priority);
+                NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
             }
             break;
         }
@@ -60,9 +64,9 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
             {
                 utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_UNDER_FLOW);
 
-                NVIC_ClearPendingIRQ (UTIMER_UNDERFLOW_IRQ(channel));
-                NVIC_SetPriority (UTIMER_UNDERFLOW_IRQ(channel), UTIMER_RES->ch_info[channel].under_flow_irq_priority);
-                NVIC_EnableIRQ (UTIMER_UNDERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
+                NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq), UTIMER_RES->ch_info[channel].underflow_irq_priority);
+                NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
             }
             break;
         }
@@ -73,13 +77,13 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
             {
                 utimer_unmask_interrupt(UTIMER_RES->regs, channel, (CHAN_INTERRUPT_OVER_FLOW|CHAN_INTERRUPT_OVER_FLOW));
 
-                NVIC_ClearPendingIRQ (UTIMER_OVERFLOW_IRQ(channel));
-                NVIC_SetPriority (UTIMER_OVERFLOW_IRQ(channel), UTIMER_RES->ch_info[channel].over_flow_irq_priority);
-                NVIC_EnableIRQ (UTIMER_OVERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
+                NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq), UTIMER_RES->ch_info[channel].overflow_irq_priority);
+                NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
 
-                NVIC_ClearPendingIRQ (UTIMER_UNDERFLOW_IRQ(channel));
-                NVIC_SetPriority (UTIMER_UNDERFLOW_IRQ(channel), UTIMER_RES->ch_info[channel].under_flow_irq_priority);
-                NVIC_EnableIRQ (UTIMER_UNDERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
+                NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq), UTIMER_RES->ch_info[channel].underflow_irq_priority);
+                NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
             }
             break;
         }
@@ -95,9 +99,9 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
 
                 if (UTIMER_RES->ch_info[channel].ch_config.utimer_mode)
                 {
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_A_IRQ(channel));
-                    NVIC_SetPriority (UTIMER_CAPTURE_A_IRQ(channel), UTIMER_RES->ch_info[channel].capture_A_irq_priority);
-                    NVIC_EnableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
+                    NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq), UTIMER_RES->ch_info[channel].capture_A_irq_priority);
+                    NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
                 }
 #if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
@@ -114,9 +118,9 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
 
                 if (UTIMER_RES->ch_info[channel].ch_config.utimer_mode)
                 {
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_B_IRQ(channel));
-                    NVIC_SetPriority (UTIMER_CAPTURE_B_IRQ(channel), UTIMER_RES->ch_info[channel].capture_B_irq_priority);
-                    NVIC_EnableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
+                    NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq), UTIMER_RES->ch_info[channel].capture_B_irq_priority);
+                    NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
                 }
 #if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
@@ -137,25 +141,25 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
                 {
                     utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_CAPTURE_A);
 
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_A_IRQ(channel));
-                    NVIC_SetPriority (UTIMER_CAPTURE_A_IRQ(channel), UTIMER_RES->ch_info[channel].capture_A_irq_priority);
-                    NVIC_EnableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
+                    NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq), UTIMER_RES->ch_info[channel].capture_A_irq_priority);
+                    NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
 
                     if (UTIMER_RES->ch_info[channel].ch_config.buffer_operation)
                     {
                         utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_A_BUF1);
 
-                        NVIC_ClearPendingIRQ (UTIMER_CAPTURE_C_IRQ(channel));
-                        NVIC_SetPriority (UTIMER_CAPTURE_C_IRQ(channel), UTIMER_RES->ch_info[channel].capture_C_irq_priority);
-                        NVIC_EnableIRQ (UTIMER_CAPTURE_C_IRQ(channel));
+                        NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_C_irq));
+                        NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_C_irq), UTIMER_RES->ch_info[channel].capture_C_irq_priority);
+                        NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_C_irq));
 
                         if (UTIMER_RES->ch_info[channel].ch_config.buffering_type)
                         {
                             utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_A_BUF2);
 
-                            NVIC_ClearPendingIRQ (UTIMER_CAPTURE_D_IRQ(channel));
-                            NVIC_SetPriority (UTIMER_CAPTURE_D_IRQ(channel), UTIMER_RES->ch_info[channel].capture_D_irq_priority);
-                            NVIC_EnableIRQ (UTIMER_CAPTURE_D_IRQ(channel));
+                            NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_D_irq));
+                            NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_D_irq), UTIMER_RES->ch_info[channel].capture_D_irq_priority);
+                            NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_D_irq));
                         }
                     }
                 }
@@ -163,25 +167,25 @@ static void UTIMER_Interrupt_Enable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chann
                 {
                     utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_CAPTURE_B);
 
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_B_IRQ(channel));
-                    NVIC_SetPriority (UTIMER_CAPTURE_B_IRQ(channel), UTIMER_RES->ch_info[channel].capture_B_irq_priority);
-                    NVIC_EnableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
+                    NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq), UTIMER_RES->ch_info[channel].capture_B_irq_priority);
+                    NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
 
                     if (UTIMER_RES->ch_info[channel].ch_config.buffer_operation)
                     {
                         utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_A_BUF1);
 
-                        NVIC_ClearPendingIRQ (UTIMER_CAPTURE_E_IRQ(channel));
-                        NVIC_SetPriority (UTIMER_CAPTURE_E_IRQ(channel), UTIMER_RES->ch_info[channel].capture_E_irq_priority);
-                        NVIC_EnableIRQ (UTIMER_CAPTURE_E_IRQ(channel));
+                        NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_E_irq));
+                        NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_E_irq), UTIMER_RES->ch_info[channel].capture_E_irq_priority);
+                        NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_E_irq));
 
                         if (UTIMER_RES->ch_info[channel].ch_config.buffering_type)
                         {
                             utimer_unmask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_B_BUF2);
 
-                            NVIC_ClearPendingIRQ (UTIMER_CAPTURE_F_IRQ(channel));
-                            NVIC_SetPriority (UTIMER_CAPTURE_F_IRQ(channel), UTIMER_RES->ch_info[channel].capture_F_irq_priority);
-                            NVIC_EnableIRQ (UTIMER_CAPTURE_F_IRQ(channel));
+                            NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_F_irq));
+                            NVIC_SetPriority (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_F_irq), UTIMER_RES->ch_info[channel].capture_F_irq_priority);
+                            NVIC_EnableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_F_irq));
                         }
                     }
                 }
@@ -215,8 +219,8 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
             {
                 utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_OVER_FLOW);
 
-                NVIC_ClearPendingIRQ (UTIMER_OVERFLOW_IRQ(channel));
-                NVIC_DisableIRQ (UTIMER_OVERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
+                NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
             }
             break;
         }
@@ -227,8 +231,8 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
             {
                 utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_UNDER_FLOW);
 
-                NVIC_ClearPendingIRQ (UTIMER_UNDERFLOW_IRQ(channel));
-                NVIC_DisableIRQ (UTIMER_UNDERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
+                NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
             }
             break;
         }
@@ -239,10 +243,10 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
             {
                 utimer_mask_interrupt(UTIMER_RES->regs, channel, (CHAN_INTERRUPT_OVER_FLOW|CHAN_INTERRUPT_UNDER_FLOW));
 
-                NVIC_ClearPendingIRQ (UTIMER_OVERFLOW_IRQ(channel));
-                NVIC_ClearPendingIRQ (UTIMER_UNDERFLOW_IRQ(channel));
-                NVIC_DisableIRQ (UTIMER_OVERFLOW_IRQ(channel));
-                NVIC_DisableIRQ (UTIMER_UNDERFLOW_IRQ(channel));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
+                NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
+                NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->overflow_irq));
+                NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->underflow_irq));
             }
             break;
         }
@@ -258,8 +262,8 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
 
                 if (UTIMER_RES->ch_info[channel].ch_config.utimer_mode)
                 {
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_A_IRQ(channel));
-                    NVIC_DisableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
+                    NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
                 }
 #if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
@@ -275,8 +279,8 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
 
                 if (UTIMER_RES->ch_info[channel].ch_config.utimer_mode)
                 {
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_B_IRQ(channel));
-                    NVIC_DisableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
+                    NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
                 }
 #if SOC_FEAT_QEC_HAS_SEP_CHANNELS
                 else
@@ -296,22 +300,22 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
                 {
                     utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_CAPTURE_A);
 
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_A_IRQ(channel));
-                    NVIC_DisableIRQ (UTIMER_CAPTURE_A_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
+                    NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_A_irq));
 
                     if (UTIMER_RES->ch_info[channel].ch_config.buffer_operation)
                     {
                         utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_A_BUF1);
 
-                        NVIC_ClearPendingIRQ (UTIMER_CAPTURE_C_IRQ(channel));
-                        NVIC_DisableIRQ (UTIMER_CAPTURE_C_IRQ(channel));
+                        NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_C_irq));
+                        NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_C_irq));
 
                         if (UTIMER_RES->ch_info[channel].ch_config.buffering_type)
                         {
                             utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_A_BUF2);
 
-                            NVIC_ClearPendingIRQ (UTIMER_CAPTURE_D_IRQ(channel));
-                            NVIC_DisableIRQ (UTIMER_CAPTURE_D_IRQ(channel));
+                            NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_D_irq));
+                            NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_D_irq));
                         }
                     }
                 }
@@ -319,22 +323,22 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
                 {
                     utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_CAPTURE_B);
 
-                    NVIC_ClearPendingIRQ (UTIMER_CAPTURE_B_IRQ(channel));
-                    NVIC_DisableIRQ (UTIMER_CAPTURE_B_IRQ(channel));
+                    NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
+                    NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_B_irq));
 
                     if (UTIMER_RES->ch_info[channel].ch_config.buffer_operation)
                     {
                         utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_B_BUF1);
 
-                        NVIC_ClearPendingIRQ (UTIMER_CAPTURE_E_IRQ(channel));
-                        NVIC_DisableIRQ (UTIMER_CAPTURE_E_IRQ(channel));
+                        NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_E_irq));
+                        NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_E_irq));
 
                         if (UTIMER_RES->ch_info[channel].ch_config.buffering_type)
                         {
                             utimer_mask_interrupt(UTIMER_RES->regs, channel, CHAN_INTERRUPT_COMPARE_B_BUF2);
 
-                            NVIC_ClearPendingIRQ (UTIMER_CAPTURE_F_IRQ(channel));
-                            NVIC_DisableIRQ (UTIMER_CAPTURE_F_IRQ(channel));
+                            NVIC_ClearPendingIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_F_irq));
+                            NVIC_DisableIRQ (UTIMER_CHANNEL_IRQN(channel, UTIMER_RES->capture_F_irq));
                         }
                     }
                 }
@@ -361,7 +365,9 @@ static void UTIMER_Interrupt_Disable (UTIMER_RESOURCES *UTIMER_RES, uint8_t chan
  */
 static int32_t ARM_UTIMER_Initialize (UTIMER_RESOURCES *UTIMER_RES, uint8_t channel, ARM_UTIMER_SignalEvent_t cb_unit_event)
 {
-    if((cb_unit_event == NULL) && (channel < ARM_UTIMER_CHANNEL12))
+    if((cb_unit_event == NULL) &&
+       (((UTIMER_RES->instance == UTIMER0_INSTANCE) && (channel < ARM_UTIMER_CHANNEL12)) ||
+       ((UTIMER_RES->instance == LPUTIMER_INSTANCE) && (channel == ARM_UTIMER_CHANNEL0))))
     {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -415,8 +421,9 @@ static int32_t ARM_UTIMER_PowerControl (UTIMER_RESOURCES *UTIMER_RES, uint8_t ch
 
             utimer_driver_output_disable(UTIMER_RES->regs, channel);
 
-            if (UTIMER_RES->ch_info[channel].ch_config.utimer_mode == 0 &&
-                UTIMER_RES->ch_info[channel].channel_mode_backup == ARM_UTIMER_MODE_CAPTURING)
+            if ((UTIMER_RES->ch_info[channel].ch_config.utimer_mode == 0 &&
+                UTIMER_RES->ch_info[channel].channel_mode_backup == ARM_UTIMER_MODE_CAPTURING) &&
+                (!((UTIMER_RES->instance == LPUTIMER_INSTANCE) && (channel != ARM_UTIMER_CHANNEL0))))
             {
                 UTIMER_Interrupt_Disable(UTIMER_RES, channel);
             }
@@ -425,6 +432,16 @@ static int32_t ARM_UTIMER_PowerControl (UTIMER_RESOURCES *UTIMER_RES, uint8_t ch
 
             /* disable channel clock */
             utimer_clock_disable(UTIMER_RES->regs, channel);
+
+            /* decrementing driver reference count */
+            (UTIMER_RES->ref_count)--;
+
+#if RTE_LPUTIMER
+            if ((UTIMER_RES->instance == LPUTIMER_INSTANCE) && (UTIMER_RES->ref_count == 0))
+            {
+                disable_lputimer_clk();
+            }
+#endif
 
             UTIMER_RES->ch_info[channel].state.powered = 0;
             break;
@@ -440,10 +457,20 @@ static int32_t ARM_UTIMER_PowerControl (UTIMER_RESOURCES *UTIMER_RES, uint8_t ch
                 return ARM_DRIVER_ERROR;
             }
 
+#if RTE_LPUTIMER
+            if ((UTIMER_RES->instance == LPUTIMER_INSTANCE) && (UTIMER_RES->ref_count == 0))
+            {
+                enable_lputimer_clk();
+            }
+#endif
+
             /* enabling channel clock */
             utimer_clock_enable (UTIMER_RES->regs, channel);
 
             utimer_control_enable (UTIMER_RES->regs, channel);
+
+            /* incrementing driver reference count */
+            (UTIMER_RES->ref_count)++;
 
             UTIMER_RES->ch_info[channel].state.powered = 1;
             break;
@@ -502,7 +529,10 @@ static int32_t ARM_UTIMER_ConfigCounter (UTIMER_RESOURCES *UTIMER_RES, uint8_t c
         }
     }
 
-    UTIMER_Interrupt_Enable (UTIMER_RES, channel);
+    if (!((UTIMER_RES->instance == LPUTIMER_INSTANCE) && (channel != ARM_UTIMER_CHANNEL0)))
+    {
+        UTIMER_Interrupt_Enable (UTIMER_RES, channel);
+    }
 
     UTIMER_RES->ch_info[channel].state.configured = 1;
 
@@ -827,17 +857,27 @@ static void UTIMER_UnderFlow_IRQHandler (UTIMER_RESOURCES *UTIMER_RES, uint8_t c
     UTIMER_RES->ch_info[channel].CB_function_ptr(ARM_UTIMER_EVENT_UNDER_FLOW);
 }
 
+
 /* UTIMER0 driver instance */
 #if RTE_UTIMER
 static UTIMER_RESOURCES UTIMER0 = {
     .regs        = (UTIMER_Type*) UTIMER_BASE,
+    .instance    = UTIMER0_INSTANCE,
     .max_channels = UTIMER_MAX_CHANNELS,
+    .capture_A_irq = UTIMER_IRQ0_IRQn,
+    .capture_B_irq = UTIMER_IRQ1_IRQn,
+    .capture_C_irq = UTIMER_IRQ2_IRQn,
+    .capture_D_irq = UTIMER_IRQ3_IRQn,
+    .capture_E_irq = UTIMER_IRQ4_IRQn,
+    .capture_F_irq = UTIMER_IRQ5_IRQn,
+    .underflow_irq = UTIMER_IRQ6_IRQn,
+    .overflow_irq = UTIMER_IRQ7_IRQn,
     .ch_info[ARM_UTIMER_CHANNEL0]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL0_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL0_DRIVER_A,
             .driver_B = RTE_UTIMER_CHANNEL0_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL0_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL0_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL0_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL0_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL0_DRV_A_OP_AT_MATCH_COUNT,
@@ -863,15 +903,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL0_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL0_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL0_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL0_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL0_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL0_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL0_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL1]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL1_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL1_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL1_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL1_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL1_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL1_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL1_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL1_DRV_A_OP_AT_MATCH_COUNT,
@@ -897,15 +937,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL1_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL1_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL1_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL1_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL1_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL1_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL1_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL2]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL2_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL2_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL2_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL2_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL2_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL2_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL2_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL2_DRV_A_OP_AT_MATCH_COUNT,
@@ -931,15 +971,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL2_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL2_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL2_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL2_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL2_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL2_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL2_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL3]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL3_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL3_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL3_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL3_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL3_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL3_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL3_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL3_DRV_A_OP_AT_MATCH_COUNT,
@@ -965,8 +1005,8 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL3_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL3_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL3_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL3_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL3_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL3_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL3_UNDER_FLOW_IRQ_PRIORITY
     },
 #if (SOC_FEAT_HAS_UTIMER4_15)
     .ch_info[ARM_UTIMER_CHANNEL4]  = {
@@ -974,7 +1014,7 @@ static UTIMER_RESOURCES UTIMER0 = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL4_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL4_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL4_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL4_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL4_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL4_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL4_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL4_DRV_A_OP_AT_MATCH_COUNT,
@@ -1000,15 +1040,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL4_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL4_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL4_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL4_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL4_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL4_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL4_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL5]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL5_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL5_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL5_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL5_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL5_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL5_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL5_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL5_DRV_A_OP_AT_MATCH_COUNT,
@@ -1034,15 +1074,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL5_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL5_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL5_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL5_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL5_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL5_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL5_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL6]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL6_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL6_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL6_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL6_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL6_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL6_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL6_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL6_DRV_A_OP_AT_MATCH_COUNT,
@@ -1068,15 +1108,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL6_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL6_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL6_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL6_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL6_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL6_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL6_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL7]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL7_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL7_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL7_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL7_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL7_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL7_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL7_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL7_DRV_A_OP_AT_MATCH_COUNT,
@@ -1102,15 +1142,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL7_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL7_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL7_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL7_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL7_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL7_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL7_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL8]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL8_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL8_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL8_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL8_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL8_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL8_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL8_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL8_DRV_A_OP_AT_MATCH_COUNT,
@@ -1136,15 +1176,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL8_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL8_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL8_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL8_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL8_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL8_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL8_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL9]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL9_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL9_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL9_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL9_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL9_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL9_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL9_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL9_DRV_A_OP_AT_MATCH_COUNT,
@@ -1170,15 +1210,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL9_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL9_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL9_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL9_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL9_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL9_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL9_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL10]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL10_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL10_DRIVER_A,
             .driver_B = RTE_UTIMER_CHANNEL10_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL10_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL10_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL10_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL10_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL10_DRV_A_OP_AT_MATCH_COUNT,
@@ -1204,15 +1244,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL10_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL10_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL10_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL10_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL10_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL10_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL10_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL11]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL11_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL11_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL11_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL11_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL11_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL11_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL11_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL11_DRV_A_OP_AT_MATCH_COUNT,
@@ -1238,15 +1278,15 @@ static UTIMER_RESOURCES UTIMER0 = {
         .capture_D_irq_priority = RTE_UTIMER_CHANNEL11_CAPTURE_D_IRQ_PRIORITY,
         .capture_E_irq_priority = RTE_UTIMER_CHANNEL11_CAPTURE_E_IRQ_PRIORITY,
         .capture_F_irq_priority = RTE_UTIMER_CHANNEL11_CAPTURE_F_IRQ_PRIORITY,
-        .over_flow_irq_priority = RTE_UTIMER_CHANNEL11_OVER_FLOW_IRQ_PRIORITY,
-        .under_flow_irq_priority = RTE_UTIMER_CHANNEL11_UNDER_FLOW_IRQ_PRIORITY
+        .overflow_irq_priority = RTE_UTIMER_CHANNEL11_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_UTIMER_CHANNEL11_UNDER_FLOW_IRQ_PRIORITY
     },
     .ch_info[ARM_UTIMER_CHANNEL12]  = {
         .ch_config = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL12_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL12_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL12_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL12_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL12_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL12_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL12_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL12_DRV_A_OP_AT_MATCH_COUNT,
@@ -1274,7 +1314,7 @@ static UTIMER_RESOURCES UTIMER0 = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL13_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL13_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL13_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL13_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL13_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL13_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL13_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL13_DRV_A_OP_AT_MATCH_COUNT,
@@ -1302,7 +1342,7 @@ static UTIMER_RESOURCES UTIMER0 = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL14_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL14_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL14_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL14_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL14_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL14_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL14_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL14_DRV_A_OP_AT_MATCH_COUNT,
@@ -1330,7 +1370,7 @@ static UTIMER_RESOURCES UTIMER0 = {
             .buf_trough_n_crest = RTE_UTIMER_CHANNEL15_BUF_TROUGH_N_CREST,
             .driver_A = RTE_UTIMER_CHANNEL15_DRIVER_A,
             .driver_B =RTE_UTIMER_CHANNEL15_DRIVER_B,
-            .dma_ctrl = RTE_UTIMER_CHANNEL15_DMA_CONTROL,
+            .dma_clear_en = RTE_UTIMER_CHANNEL15_DMA_CLEAR_ENABLE,
             .fault_type = RTE_UTIMER_CHANNEL15_FAULT_TYPE,
             .fixed_buffer = RTE_UTIMER_CHANNEL15_FIXED_BUFFER,
             .driver_a_at_comp_match = RTE_UTIMER_CHANNEL15_DRV_A_OP_AT_MATCH_COUNT,
@@ -1419,7 +1459,7 @@ void QEC1_CMPB_IRQHandler(void)
 
 void QEC2_CMPA_IRQHandler(void)
 {
-	UTIMER_IRQHandler_Capture_A(ARM_UTIMER_CHANNEL14);
+    UTIMER_IRQHandler_Capture_A(ARM_UTIMER_CHANNEL14);
 }
 
 void QEC2_CMPB_IRQHandler(void)
@@ -1978,4 +2018,221 @@ ARM_DRIVER_UTIMER Driver_UTIMER0 = {
     ARM_UTIMER0_Uninitialize
 };
 #endif /* RTE_UTIMER */
+
+/* LPUTIMER driver instance */
+#if RTE_LPUTIMER
+static UTIMER_RESOURCES LPUTIMER_RES = {
+    .regs        = (UTIMER_Type *) LPUTIMER_BASE,
+    .instance = LPUTIMER_INSTANCE,
+    .max_channels = LPUTIMER_MAX_CHANNELS,
+    .capture_A_irq = LPUTIMER_IRQ0_IRQn,
+    .capture_B_irq = LPUTIMER_IRQ1_IRQn,
+    .capture_C_irq = LPUTIMER_IRQ2_IRQn,
+    .capture_D_irq = LPUTIMER_IRQ3_IRQn,
+    .capture_E_irq = LPUTIMER_IRQ4_IRQn,
+    .capture_F_irq = LPUTIMER_IRQ5_IRQn,
+    .underflow_irq = LPUTIMER_IRQ6_IRQn,
+    .overflow_irq = LPUTIMER_IRQ7_IRQn,
+    .ch_info[ARM_UTIMER_CHANNEL0]  = {
+        .ch_config = {
+            .buf_trough_n_crest = RTE_LPUTIMER_CHANNEL0_BUF_TROUGH_N_CREST,
+            .driver_A = RTE_LPUTIMER_CHANNEL0_DRIVER_A,
+            .driver_B = RTE_LPUTIMER_CHANNEL0_DRIVER_B,
+            .dma_clear_en = RTE_UTIMER_CHANNEL0_DMA_CLEAR_ENABLE,
+            .fault_type = RTE_LPUTIMER_CHANNEL0_FAULT_TYPE,
+            .fixed_buffer = RTE_LPUTIMER_CHANNEL0_FIXED_BUFFER,
+            .driver_a_at_comp_match = RTE_LPUTIMER_CHANNEL0_DRV_A_OP_AT_MATCH_COUNT,
+            .driver_a_at_cycle_end = RTE_LPUTIMER_CHANNEL0_DRV_A_OP_AT_CYCLE_END,
+            .driver_a_start_state = RTE_LPUTIMER_CHANNEL0_DRV_A_START_STATE,
+            .driver_a_stop_state = RTE_LPUTIMER_CHANNEL0_DRV_A_STOP_STATE,
+            .driver_b_at_comp_match = RTE_LPUTIMER_CHANNEL0_DRV_B_OP_AT_MATCH_COUNT,
+            .driver_b_at_cycle_end = RTE_LPUTIMER_CHANNEL0_DRV_B_OP_AT_CYCLE_END,
+            .driver_b_start_state = RTE_LPUTIMER_CHANNEL0_DRV_B_START_STATE,
+            .driver_b_stop_state = RTE_LPUTIMER_CHANNEL0_DRV_B_STOP_STATE,
+            .comp_buffer_at_crest = RTE_LPUTIMER_CHANNEL0_EVENT_AT_CREST,
+            .comp_buffer_at_trough = RTE_LPUTIMER_CHANNEL0_EVENT_AT_TROUGH,
+            .buffering_type = RTE_LPUTIMER_CHANNEL0_BUFFERING_TYPE,
+            .capt_buffer_type_A = RTE_LPUTIMER_CHANNEL0_BUFFERING_TYPE_A,
+            .capt_buffer_type_B = RTE_LPUTIMER_CHANNEL0_BUFFERING_TYPE_B,
+            .buffer_operation  = RTE_LPUTIMER_CHANNEL0_BUFFER_OPERATION,
+            .dc_value = RTE_LPUTIMER_CHANNEL0_DUTY_CYCLE_VALUE
+        },
+        .dc_enable = RTE_LPUTIMER_CHANNEL0_DUTY_CYCLE_ENABLE,
+        .capture_A_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_A_IRQ_PRIORITY,
+        .capture_B_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_B_IRQ_PRIORITY,
+        .capture_C_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_C_IRQ_PRIORITY,
+        .capture_D_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_D_IRQ_PRIORITY,
+        .capture_E_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_E_IRQ_PRIORITY,
+        .capture_F_irq_priority = RTE_LPUTIMER_CHANNEL0_CAPTURE_F_IRQ_PRIORITY,
+        .overflow_irq_priority = RTE_LPUTIMER_CHANNEL0_OVER_FLOW_IRQ_PRIORITY,
+        .underflow_irq_priority = RTE_LPUTIMER_CHANNEL0_UNDER_FLOW_IRQ_PRIORITY
+    },
+    .ch_info[ARM_UTIMER_CHANNEL1]  = {
+            .ch_config = {
+                .buf_trough_n_crest = RTE_LPUTIMER_CHANNEL1_BUF_TROUGH_N_CREST,
+                .driver_A = RTE_LPUTIMER_CHANNEL1_DRIVER_A,
+                .driver_B =RTE_LPUTIMER_CHANNEL1_DRIVER_B,
+                .dma_clear_en = RTE_UTIMER_CHANNEL1_DMA_CLEAR_ENABLE,
+                .fault_type = RTE_LPUTIMER_CHANNEL1_FAULT_TYPE,
+                .fixed_buffer = RTE_LPUTIMER_CHANNEL1_FIXED_BUFFER,
+                .driver_a_at_comp_match = RTE_LPUTIMER_CHANNEL1_DRV_A_OP_AT_MATCH_COUNT,
+                .driver_a_at_cycle_end = RTE_LPUTIMER_CHANNEL1_DRV_A_OP_AT_CYCLE_END,
+                .driver_a_start_state = RTE_LPUTIMER_CHANNEL1_DRV_A_START_STATE,
+                .driver_a_stop_state = RTE_LPUTIMER_CHANNEL1_DRV_A_STOP_STATE,
+                .driver_b_at_comp_match = RTE_LPUTIMER_CHANNEL1_DRV_B_OP_AT_MATCH_COUNT,
+                .driver_b_at_cycle_end = RTE_LPUTIMER_CHANNEL1_DRV_B_OP_AT_CYCLE_END,
+                .driver_b_start_state = RTE_LPUTIMER_CHANNEL1_DRV_B_START_STATE,
+                .driver_b_stop_state = RTE_LPUTIMER_CHANNEL1_DRV_B_STOP_STATE,
+                .comp_buffer_at_crest = RTE_LPUTIMER_CHANNEL1_EVENT_AT_CREST,
+                .comp_buffer_at_trough = RTE_LPUTIMER_CHANNEL1_EVENT_AT_TROUGH,
+                .buffering_type = RTE_LPUTIMER_CHANNEL1_BUFFERING_TYPE,
+                .capt_buffer_type_A = RTE_LPUTIMER_CHANNEL1_BUFFERING_TYPE_A,
+                .capt_buffer_type_B = RTE_LPUTIMER_CHANNEL1_BUFFERING_TYPE_B,
+                .buffer_operation  = RTE_LPUTIMER_CHANNEL1_BUFFER_OPERATION,
+                .dc_value = RTE_LPUTIMER_CHANNEL1_DUTY_CYCLE_VALUE
+            },
+            .dc_enable = RTE_LPUTIMER_CHANNEL1_DUTY_CYCLE_ENABLE,
+            .capture_A_irq_priority = 0,
+            .capture_B_irq_priority = 0,
+            .capture_C_irq_priority = 0,
+            .capture_D_irq_priority = 0,
+            .capture_E_irq_priority = 0,
+            .capture_F_irq_priority = 0,
+            .overflow_irq_priority = 0,
+            .underflow_irq_priority = 0
+        },
+        .ch_info[ARM_UTIMER_CHANNEL2]  = {
+            .ch_config = {
+                .buf_trough_n_crest = RTE_LPUTIMER_CHANNEL2_BUF_TROUGH_N_CREST,
+                .driver_A = RTE_LPUTIMER_CHANNEL2_DRIVER_A,
+                .driver_B =RTE_LPUTIMER_CHANNEL2_DRIVER_B,
+                .dma_clear_en = RTE_UTIMER_CHANNEL2_DMA_CLEAR_ENABLE,
+                .fault_type = RTE_LPUTIMER_CHANNEL2_FAULT_TYPE,
+                .fixed_buffer = RTE_LPUTIMER_CHANNEL2_FIXED_BUFFER,
+                .driver_a_at_comp_match = RTE_LPUTIMER_CHANNEL2_DRV_A_OP_AT_MATCH_COUNT,
+                .driver_a_at_cycle_end = RTE_LPUTIMER_CHANNEL2_DRV_A_OP_AT_CYCLE_END,
+                .driver_a_start_state = RTE_LPUTIMER_CHANNEL2_DRV_A_START_STATE,
+                .driver_a_stop_state = RTE_LPUTIMER_CHANNEL2_DRV_A_STOP_STATE,
+                .driver_b_at_comp_match = RTE_LPUTIMER_CHANNEL2_DRV_B_OP_AT_MATCH_COUNT,
+                .driver_b_at_cycle_end = RTE_LPUTIMER_CHANNEL2_DRV_B_OP_AT_CYCLE_END,
+                .driver_b_start_state = RTE_LPUTIMER_CHANNEL2_DRV_B_START_STATE,
+                .driver_b_stop_state = RTE_LPUTIMER_CHANNEL2_DRV_B_STOP_STATE,
+                .comp_buffer_at_crest = RTE_LPUTIMER_CHANNEL2_EVENT_AT_CREST,
+                .comp_buffer_at_trough = RTE_LPUTIMER_CHANNEL2_EVENT_AT_TROUGH,
+                .buffering_type = RTE_LPUTIMER_CHANNEL2_BUFFERING_TYPE,
+                .capt_buffer_type_A = RTE_LPUTIMER_CHANNEL2_BUFFERING_TYPE_A,
+                .capt_buffer_type_B = RTE_LPUTIMER_CHANNEL2_BUFFERING_TYPE_B,
+                .buffer_operation  = RTE_LPUTIMER_CHANNEL2_BUFFER_OPERATION,
+                .dc_value = RTE_LPUTIMER_CHANNEL2_DUTY_CYCLE_VALUE
+            },
+            .dc_enable = RTE_LPUTIMER_CHANNEL2_DUTY_CYCLE_ENABLE,
+            .capture_A_irq_priority = 0,
+            .capture_B_irq_priority = 0,
+            .capture_C_irq_priority = 0,
+            .capture_D_irq_priority = 0,
+            .capture_E_irq_priority = 0,
+            .capture_F_irq_priority = 0,
+            .overflow_irq_priority = 0,
+            .underflow_irq_priority = 0
+        }
+};
+
+void LPUTIMER_IRQ0Handler(void)
+{
+    UTIMER_Capture_A_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ1Handler(void)
+{
+    UTIMER_Capture_B_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ2Handler(void)
+{
+    UTIMER_Compare_A_Buf1_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ3Handler(void)
+{
+    UTIMER_Compare_A_Buf2_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+void LPUTIMER_IRQ4Handler(void)
+{
+    UTIMER_Compare_B_Buf1_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ5Handler(void)
+{
+    UTIMER_Compare_B_Buf2_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ6Handler(void)
+{
+    UTIMER_UnderFlow_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+void LPUTIMER_IRQ7Handler(void)
+{
+    UTIMER_OverFlow_IRQHandler(&LPUTIMER_RES, ARM_UTIMER_CHANNEL0);
+}
+
+static int32_t ARM_LPUTIMER_Initialize(uint8_t channel, ARM_UTIMER_SignalEvent_t cb_unit_event)
+{
+    return ARM_UTIMER_Initialize(&LPUTIMER_RES, channel, cb_unit_event);
+}
+
+static int32_t ARM_LPUTIMER_PowerControl(uint8_t channel, ARM_POWER_STATE state)
+{
+    return ARM_UTIMER_PowerControl(&LPUTIMER_RES, channel, state);
+}
+
+static int32_t ARM_LPUTIMER_ConfigCounter(uint8_t channel, ARM_UTIMER_MODE mode, ARM_UTIMER_COUNTER_DIR dir)
+{
+    return ARM_UTIMER_ConfigCounter(&LPUTIMER_RES, channel, mode, dir);
+}
+
+static int32_t ARM_LPUTIMER_SetCount(uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t value)
+{
+    return ARM_UTIMER_SetCount(&LPUTIMER_RES, channel, counter, value);
+}
+
+static uint32_t ARM_LPUTIMER_GetCount(uint8_t channel, ARM_UTIMER_COUNTER counter)
+{
+    return ARM_UTIMER_GetCount(&LPUTIMER_RES, channel, counter);
+}
+
+static int32_t ARM_LPUTIMER_ConfigTrigger(uint8_t channel, ARM_UTIMER_TRIGGER_CONFIG *arg)
+{
+    return ARM_UTIMER_ConfigTrigger(&LPUTIMER_RES, channel, arg);
+}
+
+static int32_t ARM_LPUTIMER_Start(uint8_t channel)
+{
+    return ARM_UTIMER_Start(&LPUTIMER_RES, channel);
+}
+
+static int32_t ARM_LPUTIMER_Stop(uint8_t channel, bool count_clear_option)
+{
+    return ARM_UTIMER_Stop(&LPUTIMER_RES, channel, count_clear_option);
+}
+
+static int32_t ARM_LPUTIMER_Uninitialize(uint8_t channel)
+{
+    return ARM_UTIMER_Uninitialize(&LPUTIMER_RES, channel);
+}
+
+/*LPUTIMER Control Block */
+extern ARM_DRIVER_UTIMER Driver_UTIMERLP;
+ARM_DRIVER_UTIMER Driver_UTIMERLP = {
+    ARM_LPUTIMER_Initialize,
+    ARM_LPUTIMER_PowerControl,
+    ARM_LPUTIMER_ConfigCounter,
+    ARM_LPUTIMER_SetCount,
+    ARM_LPUTIMER_GetCount,
+    ARM_LPUTIMER_ConfigTrigger,
+    ARM_LPUTIMER_Start,
+    ARM_LPUTIMER_Stop,
+    ARM_LPUTIMER_Uninitialize
+};
+#endif /* RTE_LPUTIMER */
 #endif /* defined(RTE_Drivers_UTIMER) */

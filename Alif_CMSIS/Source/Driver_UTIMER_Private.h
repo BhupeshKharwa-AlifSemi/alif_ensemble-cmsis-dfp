@@ -40,6 +40,10 @@ extern "C"
 #define UTIMER_MAX_CHANNELS                        4
 #endif
 
+#if RTE_LPUTIMER
+#define LPUTIMER_MAX_CHANNELS                      3
+#endif
+
 #define UTIMER_MODE_ENABLE                          1U
 #define QEC_MODE_ENABLE                             0U
 
@@ -52,23 +56,7 @@ extern "C"
 #define CHAN_INTERRUPT_UNDER_FLOW                   (1U << 6)
 #define CHAN_INTERRUPT_OVER_FLOW                    (1U << 7)
 
-#define UTIMER_CAPTURE_A_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 0U)
-#define UTIMER_CAPTURE_B_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 1U)
-#define UTIMER_CAPTURE_C_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 2U)
-#define UTIMER_CAPTURE_D_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 3U)
-#define UTIMER_CAPTURE_E_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 4U)
-#define UTIMER_CAPTURE_F_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 5U)
-#define UTIMER_UNDERFLOW_IRQ_BASE                   (UTIMER_IRQ0_IRQn + 6U)
-#define UTIMER_OVERFLOW_IRQ_BASE                    (UTIMER_IRQ0_IRQn + 7U)
-
-#define UTIMER_CAPTURE_A_IRQ(channel)               (UTIMER_CAPTURE_A_IRQ_BASE + (channel*8U))
-#define UTIMER_CAPTURE_B_IRQ(channel)               (UTIMER_CAPTURE_B_IRQ_BASE + (channel*8U))
-#define UTIMER_CAPTURE_C_IRQ(channel)               (UTIMER_CAPTURE_C_IRQ_BASE + (channel*8U))
-#define UTIMER_CAPTURE_D_IRQ(channel)               (UTIMER_CAPTURE_D_IRQ_BASE + (channel*8U))
-#define UTIMER_CAPTURE_E_IRQ(channel)               (UTIMER_CAPTURE_E_IRQ_BASE + (channel*8U))
-#define UTIMER_CAPTURE_F_IRQ(channel)               (UTIMER_CAPTURE_F_IRQ_BASE + (channel*8U))
-#define UTIMER_UNDERFLOW_IRQ(channel)               (UTIMER_UNDERFLOW_IRQ_BASE + (channel*8U))
-#define UTIMER_OVERFLOW_IRQ(channel)                (UTIMER_OVERFLOW_IRQ_BASE + (channel*8U))
+#define UTIMER_CHANNEL_IRQN(ch, n)                  (n + (ch * 8))
 
 #if SOC_FEAT_QEC_HAS_SEP_CHANNELS
 #define QEC_CAPTURE_A_IRQ_BASE                      (QEC0_CMPA_IRQ_IRQn + 0U)
@@ -88,6 +76,16 @@ typedef struct _UTIMER_DRV_STATE {
     uint32_t reserved    : 27;   /* Reserved bits */
 }UTIMER_DRV_STATE;
 
+/**
+ * enum UTIMER_INSTANCE.
+ * UTIMER instances.
+ */
+typedef enum _UTIMER_INSTANCE
+{
+    UTIMER0_INSTANCE,
+    LPUTIMER_INSTANCE
+} UTIMER_INSTANCE;
+
 /** \brief UTIMER channel specific configurations. */
 typedef struct _UTIMER_CHANNEL_INFO
 {
@@ -99,8 +97,8 @@ typedef struct _UTIMER_CHANNEL_INFO
     uint8_t                    capture_D_irq_priority;      /**< IRQ Priority for Compare/Capture A Buffer 2 match event >*/
     uint8_t                    capture_E_irq_priority;      /**< IRQ Priority for Compare/Capture B Buffer 1 match event >*/
     uint8_t                    capture_F_irq_priority;      /**< IRQ Priority for Compare/Capture B Buffer 2 match event >*/
-    uint8_t                    over_flow_irq_priority;      /**< IRQ Priority for Over Flow event >*/
-    uint8_t                    under_flow_irq_priority;     /**< IRQ Priority for Under Flow event >*/
+    uint8_t                    overflow_irq_priority;       /**< IRQ Priority for Over Flow event >*/
+    uint8_t                    underflow_irq_priority;      /**< IRQ Priority for Under Flow event >*/
     ARM_UTIMER_MODE            channel_mode_backup;         /**< UTIMER Channel mode back up >*/
     ARM_UTIMER_COUNTER_DIR     channel_counter_dir_backup;  /**< UTIMER Channel counter direction back up >*/
     UTIMER_DRV_STATE           state;                       /**< UTIMER channel status flag >*/
@@ -110,9 +108,19 @@ typedef struct _UTIMER_CHANNEL_INFO
 /** \brief UTIMER resource. */
 typedef struct _UTIMER_RESOURCES
 {
-    UTIMER_Type *regs;                /**< Pointer to UTIMER registers >*/
-    uint8_t max_channels;             /**< number of channels >*/
-    UTIMER_CHANNEL_INFO ch_info[UTIMER_MAX_CHANNELS]; /**< Pointer to Info structure of UTIMER >*/
+    UTIMER_Type              *regs;                        /**< Pointer to UTIMER registers >*/
+    uint8_t                  max_channels;                 /**< number of channels >*/
+    uint8_t                  ref_count;                    /**< UTIMER reference count >*/
+    UTIMER_INSTANCE          instance;                     /**< UTIMER instance >*/
+    IRQn_Type                capture_A_irq;                /**< Compare/Capture A match IRQ number >*/
+    IRQn_Type                capture_B_irq;                /**< Compare/Capture B match IRQ number >*/
+    IRQn_Type                capture_C_irq;                /**< Compare A Buf1 match IRQ number >*/
+    IRQn_Type                capture_D_irq;                /**< Compare A Buf2 match IRQ number >*/
+    IRQn_Type                capture_E_irq;                /**< Compare B Buf1 match IRQ number >*/
+    IRQn_Type                capture_F_irq;                /**< Compare B Buf2 match IRQ number >*/
+    IRQn_Type                underflow_irq;                /**< Under flow IRQ number >*/
+    IRQn_Type                overflow_irq;                 /**< Over flow IRQ number >*/
+    UTIMER_CHANNEL_INFO      ch_info[UTIMER_MAX_CHANNELS]; /**< Pointer to Info structure of UTIMER >*/
 } UTIMER_RESOURCES;
 
 /**

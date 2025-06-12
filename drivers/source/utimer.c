@@ -189,7 +189,7 @@ void utimer_config_mode (UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
                 {
                     utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_BUF_OP_CTRL |= BUF_OP_CTRL_FORCE_COMPARE_BUF_OP;
                 }
-                if (ch_config->dma_ctrl)
+                if (ch_config->dma_clear_en)
                 {
                     utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_A |= COMPARE_CTRL_DRV_DMA_CLEAR_EN;
                 }
@@ -214,7 +214,7 @@ void utimer_config_mode (UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
                 {
                     utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_BUF_OP_CTRL |= BUF_OP_CTRL_FORCE_COMPARE_BUF_OP;
                 }
-                if (ch_config->dma_ctrl)
+                if (ch_config->dma_clear_en)
                 {
                     utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_B |= COMPARE_CTRL_DRV_DMA_CLEAR_EN;
                 }

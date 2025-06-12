@@ -303,7 +303,7 @@ typedef struct _utimer_channel_config
     bool     utimer_mode;                            /**< SET: UTIMER(channel 0-11), CLEAR: QEC(channel 12-15) >*/
     bool     driver_A;                               /**< output drive type A, SET: enabled, CLEAR: disabled >*/
     bool     driver_B;                               /**< output drive type B, SET: enabled, CLEAR: disabled >*/
-    bool     dma_ctrl;                               /**< SET: Enable DMA control, CLEAR: Disable DMA control >*/
+    bool     dma_clear_en;                           /**< SET: Enable DMA clear, CLEAR: Disable DMA clear >*/
     bool     fault_type;                             /**< For fault triggers: SET: low until counter stop, CLEAR: until overflow/underflow event >*/
     bool     fixed_buffer;                           /**< SET: Enable Fixed buffer feature, CLEAR: Disable Fixed buffer feature in compare mode >*/
     bool     driver_a_start_state;                   /**< initial state of output driver A, SET: Driver state is HIGH, CLEAR: Driver state is LOW >*/

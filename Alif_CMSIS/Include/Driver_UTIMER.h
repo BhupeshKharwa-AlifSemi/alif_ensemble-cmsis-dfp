@@ -23,6 +23,9 @@
 
 #include "Driver_Common.h"
 
+#define _ARM_Driver_UTIMER_(n)      Driver_UTIMER##n
+#define  ARM_Driver_UTIMER_(n) _ARM_Driver_UTIMER_(n)
+
 typedef void (*ARM_UTIMER_SignalEvent_t) (uint8_t event);   /**< Initialization UTIMER call back function declaration >*/
 
 /**< UTIMER Events >*/
