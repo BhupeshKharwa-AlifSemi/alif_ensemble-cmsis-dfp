@@ -2554,6 +2554,7 @@
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDIN" Cversion="2.0.0" condition="Retarget IO STDIN">
       <description>Retarget STDIN to UART</description>
       <files>
+        <file category="header" name="libs/retarget_io/include/retarget_init.h"/>
         <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
         <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
         <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
@@ -2563,6 +2564,7 @@
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDOUT" Cversion="2.0.0" condition="Retarget IO STDOUT">
       <description>Retarget STDOUT to UART</description>
       <files>
+        <file category="header" name="libs/retarget_io/include/retarget_init.h"/>
         <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
         <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
         <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
@@ -2572,6 +2574,7 @@
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDERR" Cversion="2.0.0" condition="Retarget IO STDERR">
       <description>Retarget STDERR to UART</description>
       <files>
+        <file category="header" name="libs/retarget_io/include/retarget_init.h"/>
         <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
         <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
         <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
