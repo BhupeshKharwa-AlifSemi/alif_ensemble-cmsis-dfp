@@ -23,12 +23,7 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_adc_clickboard.c      ENABLE_ADC       
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_adc_exttrigger.c      ENABLE_ADC         TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_adc_potentiometer.c   ENABLE_ADC         TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_tsens.c               ENABLE_ADC         TEST_APP_SRCS   "test-apps")
-
-if (EN_APP_FLAG  AND (${TEST_APP} STREQUAL "demo_bmi323" ))  #TODO
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_bmi323.c          ENABLE_IO          TEST_APP_SRCS   "test-apps")
-else()
-    list(APPEND     RM_TEST_APPS_LIST      "demo_bmi323")
-endif()
+COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_bmi323.c              ENABLE_BMI323      TEST_APP_SRCS   "test-apps")
 
 eval_flags(TMP_FLAG     AND     ENABLE_CANFD    RTE_CANFD0_BLOCKING_MODE_ENABLE)
 if(${TMP_FLAG})

@@ -60,6 +60,8 @@
 #define RTE_Drivers_I2C                               1           /* Driver I2C                               */
 /* AlifSemiconductor::Device.SOC Peripherals.WM8904 */
 #define RTE_Drivers_WM8904_CODEC                      1           /* Driver WM8904                            */
+/* AlifSemiconductor::BSP.External peripherals.BMI323 */
+#define RTE_Drivers_BMI323                            1           /* Driver BMI323                            */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
 /*#define RTE_CMSIS_Compiler_STDIN                                  // Enable/Disable Re targetting for STDIN */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */
