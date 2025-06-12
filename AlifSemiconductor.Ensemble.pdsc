@@ -12,7 +12,19 @@
   -->
 
   <releases>
-     <release version="2.0.0-rc1"  tag="v2.0.0-rc1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc1/AlifSemiconductor.Ensemble.2.0.0-rc1.pack" date="2025-06-03">
+     <release version="2.0.0-rc2"  tag="v2.0.0-rc2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc2/AlifSemiconductor.Ensemble.2.0.0-rc2.pack" date="2025-06-12">
+      - Fix pin assignments for E1C and E8 board
+      - Fix counter reading for LPTIMER
+      - Fix I2C HW connection comments in template
+      - Fix warnings and errors across DFP
+      - Fix default waitcycle for IS25xx
+      - Add E4 soc support
+      - remove se services init call from board_config
+      - Update new GPIO instances
+      - Update Board support Lib for E1C
+      - Fix board based retargeting config
+      - Fix testapps names
+      - Fix clearing untouched coordinates for touchscreen
       - Updates in I2C, SPI, ADC, I3C, USART, DPHY, PDM, CMP, HWSEM, SD Drivers
       - Update MRAM FLM file
       - I2C Restart feature support
@@ -2542,24 +2554,27 @@
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDIN" Cversion="2.0.0" condition="Retarget IO STDIN">
       <description>Retarget STDIN to UART</description>
       <files>
-        <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
-        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
+        <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
+        <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
+        <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stdin_USART.c"/>
       </files>
     </component>
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDOUT" Cversion="2.0.0" condition="Retarget IO STDOUT">
       <description>Retarget STDOUT to UART</description>
       <files>
-        <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
-        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
+        <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
+        <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
+        <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stdout_USART.c"/>
       </files>
     </component>
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDERR" Cversion="2.0.0" condition="Retarget IO STDERR">
       <description>Retarget STDERR to UART</description>
       <files>
-        <file category="header" name="libs/retarget_io/config/retarget_config.h" version="2.0.0" attr="config"/>
-        <file category="header" name="libs/retarget_io/config-e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
+        <file category="header" name="libs/retarget_io/config/e8/retarget_config.h" version="2.0.0" attr="config" condition="E8"/>
+        <file category="header" name="libs/retarget_io/config/e7/retarget_config.h" version="2.0.0" attr="config" condition="E7"/>
+        <file category="header" name="libs/retarget_io/config/e1c/retarget_config.h" version="2.0.0" attr="config" condition="E1C"/>
         <file category="source" name="libs/retarget_io/source/stderr_USART.c"/>
       </files>
     </component>
