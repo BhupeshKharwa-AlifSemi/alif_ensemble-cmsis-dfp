@@ -121,7 +121,6 @@ static void imu_bmi323_demo(void)
     ARM_IMU_STATUS      status;
     int32_t             ret;
     uint8_t             iter;
-    uint32_t            data_sts;
 
     printf("\r\n BMI323 IMU demo Starting...\r\n");
 
@@ -238,7 +237,6 @@ error_uninitialize:
 
 int main()
 {
-    int val;
     #if defined(RTE_Compiler_IO_STDOUT_User)
         int32_t ret;
         ret = stdout_init();
