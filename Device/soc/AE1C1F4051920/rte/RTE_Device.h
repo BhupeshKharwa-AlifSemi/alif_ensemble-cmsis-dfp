@@ -684,6 +684,32 @@
 #endif
 // </e> I3C (Improved Inter-Integrated Circuit) [Driver_I3C]
 
+// <e> IMU (Initial Measurement Unit) [Driver_IMU]
+// <i> Configuration settings for Driver_IMU in component ::Drivers:IMU
+#define RTE_IMU                             1
+
+#if RTE_IMU
+
+// <e> BMI323 (Initial Measurement Unit) [Driver_BMI323]
+// <i> Configuration settings for Driver_BMI323 in component ::Drivers:IMU
+#define RTE_BMI323                          1
+
+#if RTE_BMI323
+
+// <o> BMI323 IMU INT pin GPIO port number range <0-15>
+// <i> Defines BMI323 IMU INT pin GPIO port number.
+// <i> Default: 8
+#define RTE_BMI323_INT_IO_PORT            8
+
+// <o> BMI323 IMU INT pin number range <0-7>
+// <i> Defines BMI323 IMU INT pin number.
+// <i> Default: 4
+#define RTE_BMI323_INT_PIN_NO               4
+
+#endif
+//</e> BMI323 (Initial Measurement Unit) [Driver_BMI323]
+#endif
+// </e> IMU (Initial Measurement Unit) [Driver_IMU]
 
 // <h> SPI (Serial Peripheral Interface)
 // <e> SPI0 (Serial Peripheral Interface 0) [Driver_SPI0]
