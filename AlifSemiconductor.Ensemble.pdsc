@@ -36,7 +36,7 @@
       - Restructured DFP
       - Add Csolution Examples
      </release>
-     <release version="1.3.0"  tag="v1.3.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.0/AlifSemiconductor.Ensemble.1.3.0.pack" date="2025-10-04">
+     <release version="1.3.0"  tag="v1.3.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.0/AlifSemiconductor.Ensemble.1.3.0.pack" date="2024-10-04">
       - ICM42670 driver
       - New component for MIPI DPHY
       - Support for ILI9488 1-lane Display
