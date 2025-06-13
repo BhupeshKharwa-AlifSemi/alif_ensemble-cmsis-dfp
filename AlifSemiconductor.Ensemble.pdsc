@@ -35,8 +35,37 @@
       - Add E1C Support
       - Restructured DFP
       - Add Csolution Examples
-     </release>
-     <release version="1.3.0"  tag="v1.3.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.0/AlifSemiconductor.Ensemble.1.3.0.pack" date="2024-10-04">
+    </release>
+    <release version="1.3.4"  tag="v1.3.4" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.4/AlifSemiconductor.Ensemble.1.3.4.pack" date="2025-05-09">
+      - Fix the OSPI HyperRAM XIP demo
+      - Fix rx transfer in UART irq handler
+      - Update SE host services to SE FWv105
+      - wm8904 driver support
+      - hm360 camera sensor Snapshot-mode support
+      - remove WA for P10_7 pinmux issue for OSPI
+      - add restart support and peripheral sync support to I2C
+      - update msg xfer method for LPI2C
+    </release>
+    <release version="1.3.3"  tag="v1.3.3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.3/AlifSemiconductor.Ensemble.1.3.3.pack" date="2025-02-25">
+      - Fixed SD, HWSEM App issues
+      - Fixed FLM Flashing
+      - Fixed CAN-FD build
+    </release>
+    <release version="1.3.2"  tag="v1.3.2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.2/AlifSemiconductor.Ensemble.1.3.2.pack" date="2025-02-13">
+      - Update SE services to v1.103.0
+      - Minor Fixes in PDSC file
+    </release>
+    <release version="1.3.1"  tag="v1.3.1" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.1/AlifSemiconductor.Ensemble.1.3.1.pack" date="2024-10-29">
+      - Power off will wait till all queued data is transmitted in UART
+      - update se services to FWv1.101
+      - Build fix for LP timer as retargetting uart.
+      - BECP-2265 Support for OV5675 Camera Sensor
+      - Add LPSPI Blocking mode macro in RTE_Device.h
+      - Add ifdef guards for M55 SYSTEM_CLOCK
+      - LLVM CLang fixes   - add copy and zero table handling for llvm clang builds
+      - Fix CMSIS_6 related Warnings
+    </release>
+    <release version="1.3.0"  tag="v1.3.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v1.3.0/AlifSemiconductor.Ensemble.1.3.0.pack" date="2024-10-04">
       - ICM42670 driver
       - New component for MIPI DPHY
       - Support for ILI9488 1-lane Display
@@ -81,7 +110,7 @@
       - Update drivers and testapps
       - Rename HSCMP component as CMP
     </release>
-  <release version="1.0.0" date="2023-11-15">
+    <release version="1.0.0" date="2023-11-15">
       Initial release
     </release>
   </releases>
