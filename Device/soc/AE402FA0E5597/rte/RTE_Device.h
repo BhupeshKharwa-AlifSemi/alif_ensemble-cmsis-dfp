@@ -10426,6 +10426,13 @@
 
 #if RTE_LPGPIO
 
+// <o> LPGPIO Fast mode enable
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines Enable Fast mode
+// <i> Default: DISABLE
+#define RTE_LPGPIO_FAST_MODE_ENABLE      0
+
 // <o> LPGPIO_PIN0 IRQ Priority
 // <i> Defines Interrupt priority for LPGPIO_PIN0.
 // <i> Default: 0

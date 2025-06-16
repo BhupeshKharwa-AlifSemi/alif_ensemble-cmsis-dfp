@@ -2218,7 +2218,11 @@ ARM_DRIVER_GPIO Driver_GPIO17 = {
 /**< Low Power GPIO >*/
 #if RTE_LPGPIO
 static GPIO_RESOURCES LPGPIO_RES = {
+#if RTE_LPGPIO_FAST_MODE_ENABLE
+    .reg_base = (GPIO_Type*) LPGPIO_FAST_BASE,
+#else
     .reg_base = (GPIO_Type*) LPGPIO_BASE,
+#endif
     .gpio_id = LPGPIO_INSTANCE,
     .IRQ_base_num = LPGPIO_IRQ0_IRQn,
     .max_pin = LPGPIO_MAX_PINS,

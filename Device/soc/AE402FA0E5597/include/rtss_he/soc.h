@@ -3377,6 +3377,7 @@ typedef struct {                                /*!< (@ 0xE000E100) M55HE_NVIC_S
 #define GPIO16_BASE                 0x4300A000UL
 #define GPIO17_BASE                 0x4300B000UL
 #define LPUTIMER_BASE               0x4300C000UL
+#define LPGPIO_FAST_BASE            0x43010000UL
 #define UTIMER_BASE                 0x48000000UL
 #define ETH_BASE                    0x48100000UL
 #define SDMMC_BASE                  0x48102000UL
