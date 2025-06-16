@@ -610,9 +610,9 @@ static void GPIO_Combined_IRQ_Handler(GPIO_RESOURCES *GPIO)
     {
         if (pin_no & (1 << iter))
         {
-            GPIO->cb_event[iter](ARM_GPIO_IRQ_EVENT_EXTERNAL);
             /* clear pin interrupt */
-            gpio_interrupt_eoi(GPIO->reg_base, pin_no);
+            gpio_interrupt_eoi(GPIO->reg_base, iter);
+            GPIO->cb_event[iter](ARM_GPIO_IRQ_EVENT_EXTERNAL);
         }
     }
 }
