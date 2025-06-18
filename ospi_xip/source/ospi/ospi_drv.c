@@ -20,10 +20,6 @@
 
 #include "ospi_drv.h"
 #include "ospi_xip_user.h"
-
-#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-#include "sys_ctrl_ospi.h"
-#endif
 #include "sys_clocks.h"
 
 /**
@@ -347,10 +343,10 @@ void ospi_xip_exit(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t w
   \param[in] ospi_cfg : OSPI configuration structure
   \return    none
 */
-void ospi_init(ospi_flash_cfg_t *ospi_cfg)
+void ospi_init(ospi_flash_cfg_t *ospi_cfg, OSPI_INSTANCE drv_instance)
 {
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-    enable_ospi_clk();
+    enable_ospi_clk(drv_instance);
 #endif
     ospi_xip_disable(ospi_cfg);
     spi_disable(ospi_cfg);

@@ -27,6 +27,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 #include "ospi_private.h"
+#include "sys_ctrl_ospi.h"
 
 typedef struct {
     ssi_regs_t *regs;                  ///< Pointer to OSPI0 or OSPI1 base address
@@ -43,7 +44,7 @@ typedef struct {
 } ospi_flash_cfg_t ;
 
 /* Function Prototypes */
-void ospi_init(ospi_flash_cfg_t *ospi_cfg);
+void ospi_init(ospi_flash_cfg_t *ospi_cfg, OSPI_INSTANCE drv_instance);
 void ospi_xip_enter(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t wrap_command);
 void ospi_recv_blocking(ospi_flash_cfg_t *ospi_cfg, uint32_t command, uint8_t *buffer);
 void ospi_push(ospi_flash_cfg_t *ospi_cfg, uint32_t data);

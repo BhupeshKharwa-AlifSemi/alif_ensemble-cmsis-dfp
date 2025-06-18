@@ -24,20 +24,12 @@
 
 #include "soc.h"
 #include "soc_features.h"
+#include "sys_ctrl_ospi.h"
 
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
-
-/**
- * enum OSPI_INSTANCE.
- * OSPI instances.
- */
-typedef enum _OSPI_INSTANCE {
-    OSPI_INSTANCE_0,
-    OSPI_INSTANCE_1,
-} OSPI_INSTANCE;
 
 /**
  * enum OSPI_SPI_MODE.

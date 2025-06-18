@@ -19,12 +19,24 @@
 #ifndef SYS_CTRL_OSPI_H_
 #define SYS_CTRL_OSPI_H_
 
+#include "soc.h"
+
 #ifdef  __cplusplus
 extern "C"
 {
 #endif
 
-#include "soc.h"
+/**
+ * enum OSPI_INSTANCE.
+ * OSPI instances.
+ */
+typedef enum _OSPI_INSTANCE {
+    OSPI_INSTANCE_0,
+    OSPI_INSTANCE_1,
+} OSPI_INSTANCE;
+
+
+#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 
 /**
   \fn          static inline void enable_ospi_clk(OSPI_INSTANCE drv_instance)
@@ -47,6 +59,8 @@ static inline void disable_ospi_clk(OSPI_INSTANCE drv_instance)
 {
     CLKCTL_PER_SLV->OSPI_CTRL &= ~(1 << drv_instance);
 }
+
+#endif /*SOC_FEAT_OSPI_HAS_CLK_ENABLE*/
 
 #ifdef __cplusplus
 }

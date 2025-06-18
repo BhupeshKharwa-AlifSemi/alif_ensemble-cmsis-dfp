@@ -31,10 +31,6 @@
 
 #include "sys_ctrl_aes.h"
 
-#if SOC_FEAT_OSPI_HAS_CLK_ENABLE
-#include "sys_ctrl_ospi.h"
-#endif
-
 /**
   \fn          int ospi_set_speed(OSPI_Type *ospi, AES_Type *aes, const ospi_hyperram_xip_config *config)
   \brief       Set OSPI bus speed for spi transfer.

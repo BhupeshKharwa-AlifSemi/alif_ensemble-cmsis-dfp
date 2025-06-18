@@ -168,15 +168,18 @@ bool flash_xip_enabled(void)
 int setup_flash_xip(void)
 {
     ospi_flash_cfg_t *ospi_cfg = &ospi_flash_config;
+    OSPI_INSTANCE drv_instance;
 
 #if (OSPI_XIP_INSTANCE == 0)
     ospi_cfg->regs = (ssi_regs_t *) OSPI0_BASE;
     ospi_cfg->aes_regs = (aes_regs_t *) AES0_BASE;
     ospi_cfg->xip_base = (volatile void *) OSPI0_XIP_BASE;
+    drv_instance = OSPI_INSTANCE_0;
 #else
     ospi_cfg->regs = (ssi_regs_t *) OSPI1_BASE;
     ospi_cfg->aes_regs = (aes_regs_t *) AES1_BASE;
     ospi_cfg->xip_base = (volatile void *) OSPI1_XIP_BASE;
+    drv_instance = OSPI_INSTANCE_1;
 #endif
 
     ospi_cfg->ser = 1;
@@ -185,7 +188,7 @@ int setup_flash_xip(void)
     ospi_cfg->ddr_en = 0;
     ospi_cfg->wait_cycles = OSPI_XIP_FLASH_WAIT_CYCLES;
 
-    ospi_init(ospi_cfg);
+    ospi_init(ospi_cfg, drv_instance);
 
     if (issi_flash_probe(ospi_cfg))
     {

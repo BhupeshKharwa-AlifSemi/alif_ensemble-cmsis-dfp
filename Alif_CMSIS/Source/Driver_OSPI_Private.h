@@ -33,6 +33,7 @@ extern "C"
 #include "ospi.h"
 #include "sys_clocks.h"
 #include "sys_ctrl_aes.h"
+#include "sys_ctrl_ospi.h"
 
 #if (RTE_OSPI0_DMA_ENABLE || RTE_OSPI1_DMA_ENABLE)
 #define OSPI_DMA_ENABLE  1
@@ -43,12 +44,6 @@ extern "C"
 #if OSPI_DMA_ENABLE
 #include <DMA_Common.h>
 #endif
-
-typedef enum _OSPI_INSTANCE
-{
-    OSPI_INSTANCE_0,                         /* SPI instance - 0 */
-    OSPI_INSTANCE_1,                         /* SPI instance - 1 */
-} OSPI_INSTANCE;
 
 typedef volatile struct _OSPI_DRIVER_STATE {
     uint32_t initialized: 1;                /* SPI driver initialized status */
