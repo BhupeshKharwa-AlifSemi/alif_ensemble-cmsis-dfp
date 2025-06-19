@@ -1399,7 +1399,6 @@
     <condition id="CMSIS-Core">
       <description>Generic Alif Semiconductor M55_HP and M55_HE device startup and depends on CMSIS Core</description>
       <require Cclass="CMSIS" Cgroup="CORE"/>
-      <require Cclass="BSP"    Cgroup="Board Config"/>
     </condition>
     <condition id="Ensemble">
       <description>Alif Semiconductor Ensemble Series devices</description>
@@ -1715,10 +1714,6 @@
         <file category="header" name="Device/soc/AE1C1F4051920/config/app_mem_regions.h" version="2.0.0" attr="config" condition="SoC AE1C1F4051920"/>
         <file category="header" name="Device/soc/AE1C1F4051920/rte/RTE_Device.h"         version="2.0.0" attr="config" condition="SoC AE1C1F4051920"/>
         <file category="include" name="Device/soc/AE1C1F4051920/include/rtss_he/" condition="SoC AE1C1F4051920 M55_HE"/>
-
-        <!-- board config -->
-        <file category="source" name="libs/board_config/board_config.c"/>
-        <file category="header" name="libs/board_config/board_config.h"/>
 
         <!-- Baremetal Common Templates for HP and HE Core -->
         <file category="source" name="Boards/Templates/Baremetal/demo_adc.c" attr="template" select="ADC Baremetal Demo"/>
@@ -2610,6 +2605,8 @@
         <file category="header" name="Boards/DevKit-e7/board_defs.h" condition="SoC AE722F80F55D5"/>
         <file category="header" name="Boards/DevKit-e7/pins.h" condition="SoC AE722F80F55D5"/>
         <file category="header" name="Boards/DevKit-e7/gpios.h" condition="SoC AE722F80F55D5"/>
+        <file category="source" name="libs/board_config/board_config.c"/>
+        <file category="header" name="libs/board_config/board_config.h"/>
       </files>
     </component>
 
@@ -2619,6 +2616,8 @@
         <file category="header" name="Boards/DevKit-e8/board_defs.h" condition="SoC AE822FA0E5597"/>
         <file category="header" name="Boards/DevKit-e8/pins.h" condition="SoC AE822FA0E5597"/>
         <file category="header" name="Boards/DevKit-e8/gpios.h" condition="SoC AE822FA0E5597"/>
+        <file category="source" name="libs/board_config/board_config.c"/>
+        <file category="header" name="libs/board_config/board_config.h"/>
       </files>
     </component>
 
@@ -2628,6 +2627,8 @@
         <file category="header" name="Boards/DevKit-e4/board_defs.h" condition="SoC AE402FA0E5597"/>
         <file category="header" name="Boards/DevKit-e4/pins.h" condition="SoC AE402FA0E5597"/>
         <file category="header" name="Boards/DevKit-e4/gpios.h" condition="SoC AE402FA0E5597"/>
+        <file category="source" name="libs/board_config/board_config.c"/>
+        <file category="header" name="libs/board_config/board_config.h"/>
       </files>
     </component>
 
@@ -2637,6 +2638,8 @@
         <file category="header" name="Boards/DevKit-e1c/board_defs.h" condition="SoC AE1C1F4051920"/>
         <file category="header" name="Boards/DevKit-e1c/pins.h" condition="SoC AE1C1F4051920"/>
         <file category="header" name="Boards/DevKit-e1c/gpios.h" condition="SoC AE1C1F4051920"/>
+        <file category="source" name="libs/board_config/board_config.c"/>
+        <file category="header" name="libs/board_config/board_config.h"/>
       </files>
     </component>
 
