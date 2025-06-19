@@ -44,6 +44,10 @@
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */
 
+#if !defined(RTSS_HE)
+#error "This Demo application works only on RTSS_HE"
+#endif
+
 // Set to 0: Use application-defined lpuart pin configuration (via board_lpuart_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
