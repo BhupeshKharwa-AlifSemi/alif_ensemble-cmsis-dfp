@@ -1750,7 +1750,6 @@
         <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_led_breathe.c" attr="template" select="LED PWM Baremtal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lptimer.c" attr="template" select="LPTIMER Baremetal Demo"/>
-        <file category="source" name="Boards/Templates/Baremetal/demo_lpuart.c" attr="template" select="LPUART Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lvgl.c" attr="template" select="LVGL Baremetal Demo"/>
         <!--file category="source" name="Boards/Templates/Baremetal/lv_port_disp.c" attr="template" select="LVGL Baremetal Demo"/-->
         <file category="source" name="Boards/Templates/Baremetal/demo_mram.c" attr="template" select="MRAM Baremetal Demo"/>
@@ -1786,9 +1785,11 @@
         <file category="source" name="Boards/Templates/Baremetal/demo_lpi2c.c" attr="template" select="LPI2C Baremetal Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lppdm.c" attr="template" select="LPPDM Baremetal Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lpspi.c" attr="template" select="LPSPI Baremetal Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/Baremetal/demo_lpuart.c" attr="template" select="LPUART Baremetal Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_lppdm_freertos.c" attr="template" select="LPPDM FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_lpspi_freertos.c" attr="template" select="LPSPI FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_lpi2c_freertos.c" attr="template" select="LPI2C FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_lpuart_freertos.c" attr="template" select="LPUART FreeRTOS Demo" condition="M55_HE CMSIS-Core"/>
 	<!--  FreeRTOS templates -->
         <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_freertos.c" attr="template" select="ADC FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_adc_clickboard_freertos.c" attr="template" select="ADC Click Board FreeRTOS Demo"/>
@@ -1837,7 +1838,6 @@
         <file category="source" name="Boards/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_i2s_freertos.c" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="header" name="Boards/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/demo_lpuart_freertos.c" attr="template" select="LPUART FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_mci_mdk_cmsisrtos2.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
 
 	<!--  LWIP templates -->
