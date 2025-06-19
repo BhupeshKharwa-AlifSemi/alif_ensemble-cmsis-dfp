@@ -42,9 +42,13 @@ const struct pinconf board_pinconf[] = {
 	/* Selected: UT0_T1_A for "Capture Mode" */
 	{PORT_0, PIN_1, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
-	/* P0_3 on pin R11. Functions: [0]: GPIO0_3, [1]: OSPI0_D3_A, [2]: UART0_RTS_A, [3]: I2C0_SCL_A, [4]: UT1_T1_A, [5]: >>>LPCAM_XVCLK_B<<<, [6]: CAM_XVCLK_A, [7]: ANA_S3 */
-	/* Selected: LPCAM_XVCLK_B for "" */
-	{PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_DRIVER_DISABLED_BUS_REPEATER | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+        /* P0_2 on pin R13. Functions: [0]: GPIO0_2, [1]: OSPI0_D2_A, [2]: UART0_CTS_A, [3]: >>>I2C0_SDA_A<<<, [4]: UT1_T0_A, [5]: LPCAM_PCLK_B, [6]: CAM_PCLK_A, [7]: ANA_S2 */
+        /* Selected: I2C0_SDA_A for "I2C0 SDA signal" */
+        {PORT_0, PIN_2, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
+
+        /* P0_3 on pin R11. Functions: [0]: GPIO0_3, [1]: OSPI0_D3_A, [2]: UART0_RTS_A, [3]: >>>I2C0_SCL_A<<<, [4]: UT1_T1_A, [5]: LPCAM_XVCLK_B, [6]: CAM_XVCLK_A, [7]: ANA_S3 */
+        /* Selected: I2C0_SCL_A for "I2C0 SCL signal" */
+        {PORT_0, PIN_3, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA},
 
 	/* P0_4 on pin R10. Functions: [0]: GPIO0_4, [1]: OSPI0_D4_A, [2]: UART1_RX_A, [3]: PDM_D0_A, [4]: I2C1_SDA_A, [5]: >>>UT2_T0_A<<<, [6]: CAN_RXD_B, [7]: ANA_S4 */
 	/* Selected: UT2_T0_A for "Trigger Mode" */
