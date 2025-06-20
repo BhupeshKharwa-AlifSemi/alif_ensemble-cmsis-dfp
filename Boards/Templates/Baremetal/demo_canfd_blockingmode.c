@@ -466,7 +466,7 @@ static void canfd_process_rx_message(void)
          * performs the below operations */
         if(rx_msg_header.rtr == 1U)
         {
-            printf("Rx msg:\r\n    Type:Remote frame, Id:%"PRIu32",
+            printf("Rx msg:\r\n    Type:Remote frame, Id:%"PRIu32"",
                    (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
         }
         else
@@ -620,7 +620,7 @@ static void canfd_transmit_message(const CANFD_FRAME msg_type)
     if(status == ARM_DRIVER_OK)
     {
         rx_msg_size = tx_msg_size;
-        printf("Tx Msg:\r\n    Id:%"PRIu32", Len:%"PRId32": \r\n    Data:",
+        printf("Tx Msg:\r\n    Id:%"PRIu32", Len:%"PRId8": \r\n    Data:",
                 (uint32_t)(tx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)), tx_msg_size);
         for(iter = 0; iter < tx_msg_size; iter++)
         {
