@@ -190,7 +190,9 @@ static int32_t CDC200_PowerCtrl (ARM_POWER_STATE state,
                                  DISPLAY_PANEL_DEVICE *display_panel,
                                  CDC_RESOURCES *cdc)
 {
+#if (RTE_MIPI_DSI)
     int32_t ret = ARM_DRIVER_OK;
+#endif
     uint32_t htotal, vtotal;
     int pixclk_div;
 
