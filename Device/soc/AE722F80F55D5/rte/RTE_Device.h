@@ -1162,7 +1162,9 @@
 
 // <e> MIPI_DSI (mipi dsi) [Driver_MIPI_DSI]
 // <i> Configuration settings for Driver_MIPI_DSI in component ::Drivers:MIPI_DSI
+#ifndef RTE_MIPI_DSI
 #define RTE_MIPI_DSI 1
+#endif  // RTE_MIPI_DSI
 
 #if RTE_MIPI_DSI
 
@@ -1587,7 +1589,9 @@
 //     <1=> ENABLE
 // <i> Defines Parallel ILI6122 LCD PANEL
 // <i> Default: ENABLE
+#ifndef RTE_ILI6122_PANEL
 #define RTE_ILI6122_PANEL  0
+#endif  // RTE_ILI6122_PANEL
 
 #if RTE_ILI6122_PANEL
 
