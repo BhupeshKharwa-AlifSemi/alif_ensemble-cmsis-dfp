@@ -90,6 +90,10 @@
 #define RTE_Drivers_MIPI_CSI2                         1           /* Driver MIPI CSI2                         */
 /* AlifSemiconductor::Device.SOC Peripherals.MIPI DSI */
 #define RTE_Drivers_MIPI_DSI                          1           /* Driver MIPI DSI                          */
+/* AlifSemiconductor::Device.SOC Peripherals MIPI_DSI_CSI2_DPHY */
+#define RTE_Drivers_MIPI_DSI_CSI2_DPHY                1           /* Driver MIPI DSI CSI2 DHY                 */
+/* AlifSemiconductor::BSP.External peripherals Ethernet PHY */
+#define RTE_Drivers_PHY_GENERIC                       1           /* Driver MIPI DSI CSI2 DHY                 */
 /* AlifSemiconductor::Device.SOC Peripherals.CPI */
 #define RTE_Drivers_CPI                               1           /* Driver CPI                               */
 /* AlifSemiconductor::CMSIS Driver.GPIO */
