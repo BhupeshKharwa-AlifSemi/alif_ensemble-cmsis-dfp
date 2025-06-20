@@ -25,9 +25,17 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_adc_potentiometer.c   ENABLE_ADC       
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_tsens.c               ENABLE_ADC         TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_bmi323.c              ENABLE_BMI323      TEST_APP_SRCS   "test-apps")
 
+if( ${EN_APP_FLAG} AND (TEST_APP STREQUAL "demo_canfd_blockingmode"))
+    message(STATUS      "✏️ CANFD IS BY_DEFAULT DISABLED, SO ENABLING CANFD BLOCKING MODE")
+    CHANGE_MACRO_VAL("#define RTE_CANFD0_BLOCKING_MODE_ENABLE      0"     "${DEVICE_SKU_RTE}/RTE_Device.h"
+        "#define RTE_CANFD0_BLOCKING_MODE_ENABLE      1"    canfd_blocking_status_ret    ON)
+    message(STATUS      "🕵️‍♂️ FORCEFULLY CANFD BLOCKING MODE IS ENABLED")
+    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_blockingmode.c  ENABLE_CANFD   TEST_APP_SRCS   "test-apps")
 
-COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_blockingmode.c  ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
+else()
+    list(APPEND     RM_TEST_APPS_LIST      "demo_canfd_blockingmode")
 
+endif()
 
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_busmonitor.c    ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_extloopback.c   ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
