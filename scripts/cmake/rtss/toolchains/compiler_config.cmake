@@ -39,15 +39,19 @@ elseif (COMPILER STREQUAL GCC)
     # Changing C99 to GNU11 because of asm instruction (which comes under compiler retargetting)
     set (COMPILER_ADDITIONAL_FLAGS          "-fmax-errors=2048")
     set (RETARGET_IO_SRC                    "${CMSIS_COMPILER_PATH}/source/gcc/retarget_syscalls.c")
+    string(REPLACE      "-Werror"       ""      CMAKE_C_FLAGS_SPEC_FILE     "${C_WARNINGS_ERRORS}")
+    set_source_files_properties("${RETARGET_IO_SRC}"     PROPERTIES      COMPILE_FLAGS    "-w")
 
 endif()
 
 # Checking if user has provided C-Compiler arguments or not
 if (COMPILER_USER_ARG)
     set (C_COMPILER_FLAGS                   "${COMPILER_USER_ARG}")
+
 else ()
     set (C_COMPILER_FLAGS                   "${C_LANGUAGE_MODE} ${C_OPT_LEVEL} ${C_DEBUG_LEVEL} \
                                             ${C_WARNINGS_ERRORS} ${COMPILER_ADDITIONAL_FLAGS}")
+
 endif (COMPILER_USER_ARG)
 
 # Checking if user has provided ASM-Compiler arguments or not

@@ -73,6 +73,23 @@ macro (GET_MACRO_VALUE    headerFileName      macro_name      macro_val)
 
 endmacro ()
 
+# MACRO CHECK_MACRO_DEF to see macro is defined or not
+# argv[0] - header file name with path
+# argv[1] - marco name which will be searched
+# argv[2] - flag : TRUE if macro enable/exit FLASE if not exist
+macro (CHECK_MACRO_DEF    headerFileName      macro_name      macroExist)
+
+    set(${macroExist}           OFF)
+    FOREACH(arg     ${file_content})
+        string(REGEX MATCHALL "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]*.*" foundDefines "${arg}")
+
+        if (foundDefines)
+            set(${macroExist}     ON)
+        endif (foundDefines)
+    endforeach()
+
+endmacro ()
+
 # MACRO CHANGE_MACRO_VAL to read macro value (integer value 0-9) and change that macro value
 # argv[0] - marco name which will be searched
 # argv[1] - header file name with path
@@ -187,17 +204,17 @@ macro (BUILD_PROJECT)
     if (OS STREQUAL FREERTOS)
 
         # Linking all the library files to the test application
-        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
 
     elseif (OS STREQUAL THREADX)
 
         # Linking all the library files to the test application
-        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB} ${OS_LIB_FILE})
 
     elseif (OS STREQUAL NONE)
 
         # Linking all the library files to the test application
-        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB} ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB})
+        target_link_libraries(${EXECUTABLE} PRIVATE ${BOARD_LIB} ${SE_HOST_SERVICES_LIB} ${DRIVER_LIB} ${DEVICE_LIB})
 
     endif ()
 
@@ -210,6 +227,7 @@ macro (BUILD_PROJECT)
         target_link_options(${EXECUTABLE} PRIVATE  -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
         target_link_libraries(${EXECUTABLE} PRIVATE m)
         set_target_properties(${EXECUTABLE} PROPERTIES OUTPUT_NAME ${EXECUTABLE}.elf)
+        target_link_libraries(${EXECUTABLE} PRIVATE   -Wl,--whole-archive    PRIVATE     ${COMMON_LIB}   -Wl,--no-whole-archive)
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
@@ -224,6 +242,7 @@ macro (BUILD_PROJECT)
     elseif (COMPILER STREQUAL ARMCLANG)
 
         target_link_options(${EXECUTABLE} PRIVATE  --list=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB})
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
@@ -238,6 +257,7 @@ macro (BUILD_PROJECT)
     elseif (COMPILER STREQUAL CLANG)
 
         target_link_options(${EXECUTABLE} PRIVATE   -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
+        target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB})
         set_target_properties(${EXECUTABLE}     PROPERTIES      OUTPUT_NAME     ${EXECUTABLE}.elf)
 
         add_custom_command(TARGET  ${EXECUTABLE}
@@ -442,14 +462,29 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   ENABLE_STDERR   "Enable/disable retarget STDERR Driver.")
 
     if(${ENABLE_STDIN})
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN   MACRO_DEFINED)
+
+        if(NOT ${MACRO_DEFINED})
+            add_definitions(-DRTE_CMSIS_Compiler_STDIN)
+        endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDIN_Custom)
     endif()
 
     if(${ENABLE_STDOUT})
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT   MACRO_DEFINED)
+
+        if(NOT ${MACRO_DEFINED})
+            add_definitions(-DRTE_CMSIS_Compiler_STDOUT)
+        endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDOUT_Custom)
     endif()
 
     if(${ENABLE_STDERR})
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   MACRO_DEFINED)
+
+        if(NOT ${MACRO_DEFINED})
+            add_definitions(-DRTE_CMSIS_Compiler_STDERR)
+        endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDERR_Custom)
     endif()
 
