@@ -52,6 +52,7 @@ elseif(COMPILER STREQUAL GCC)
 
     # Tell linker that reset interrupt handler is our entry point
     add_link_options(-Wl,--gc-sections)
+    add_link_options(-Wl,--no-warn-rwx-segment)
 
     # Link Options
     add_link_options(
