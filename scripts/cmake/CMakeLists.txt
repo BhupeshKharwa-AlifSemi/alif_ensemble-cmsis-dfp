@@ -361,11 +361,50 @@ foreach (testApp ${TEST_APPS})
 endforeach (testApp)
 
 message("\n")
-message("${HCyan}Disabled/Removed (because of improper flags selection) App List as follows ${ColourReset}")
+message("${HCyan}Disabled/Removed (because of improper flags selection) App List as follows : ${ColourReset}")
 
 foreach(element IN LISTS RM_TEST_APPS_LIST)
     message(STATUS  "🚫 ${Yellow} ${element} ${ColourReset}")
 endforeach()
+
+list(LENGTH    ALL_DEMO_FILES       TOTAL_AVAILABLE_DEMO_FILES_CNT)
+list(LENGTH    RM_TEST_APPS_LIST    REMOVED_TEST_APP_CNT)
+string(FIND    "${TEST_APP}"        "ALL"       POS_ALL)
+string(FIND    "${TEST_APP}"        "ALL,"      POS_ALL_COMMA)
+
+if ((NOT POS_ALL EQUAL -1 OR NOT POS_ALL_COMMA EQUAL -1))
+    MATH(EXPR   TOTAL_ACCOUNTED_TEST_APP_CNT  "${REMOVED_TEST_APP_CNT}+${TOTAL_NUM_OF_APPLICATION}")
+
+    if(NOT (${TOTAL_AVAILABLE_DEMO_FILES_CNT} STREQUAL ${TOTAL_ACCOUNTED_TEST_APP_CNT}))
+        message("${HCyan}\nNot Included Test App List as follows (in current config) : ${ColourReset}")
+        foreach(element IN LISTS ALL_DEMO_FILES)
+            # Collectiong Test app names one by one
+            get_filename_component (tempname "${element}" NAME)
+            string (REPLACE ".c" "" testname ${tempname})
+
+            set(FOUND_APP_FLAG      OFF)
+            foreach(testAppName IN LISTS TEST_APP_SRCS)
+                # Collectiong Test app names one by one
+                get_filename_component (tempname1 "${testAppName}" NAME)
+                string (REPLACE ".c" "" testname1 ${tempname1})
+                if(testname1 STREQUAL testname)
+                    set(FOUND_APP_FLAG      ON)
+                endif()
+            endforeach()
+
+            if(NOT ${FOUND_APP_FLAG})
+                foreach(testAppName IN LISTS RM_TEST_APPS_LIST)
+                    if(testAppName STREQUAL testname)
+                        set(FOUND_APP_FLAG      ON)
+                    endif()
+                endforeach()
+            endif()
+            if(NOT ${FOUND_APP_FLAG})
+                message(STATUS  "🔴 ${Yellow} ${testname} ${ColourReset}")
+            endif()
+        endforeach()
+    endif()
+endif()
 
 message("")
 file(APPEND ${TMP_FILE} "\n${INVALID_TESTAPP_CNT}")

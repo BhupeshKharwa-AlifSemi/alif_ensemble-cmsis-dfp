@@ -25,29 +25,24 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_adc_potentiometer.c   ENABLE_ADC       
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_tsens.c               ENABLE_ADC         TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_bmi323.c              ENABLE_BMI323      TEST_APP_SRCS   "test-apps")
 
-eval_flags(TMP_FLAG     AND     ENABLE_CANFD    RTE_CANFD0_BLOCKING_MODE_ENABLE)
-if(${TMP_FLAG})
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_blockingmode.c        ${TMP_FLAG}        TEST_APP_SRCS   "test-apps")
-else()
-    list(APPEND     RM_TEST_APPS_LIST      "demo_canfd_blockingmode")
-endif()
+
+COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_blockingmode.c  ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
+
 
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_busmonitor.c    ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_extloopback.c   ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_intloopback.c   ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_canfd_normalmode.c    ENABLE_CANFD       TEST_APP_SRCS   "test-apps")
 
-set(TMP_FLAG            OFF)
-if(${ENABLE_CDC200})
-    eval_flags(TMP_FLAG     OR     ENABLE_MIPI_DSI_ILI9806E_PANEL   ENABLE_CDC_ILI6122E_PANEL   ENABLE_MIPI_DSI_ILI9488E_PANEL)
-
-    if(NOT ${TMP_FLAG})
-        message(STATUS        "${Yellow}⚠️[WARNING] Display testapp is selected but display is not selected (ILI9806E/ILI6122E/ILI6122E) ${ColourReset}")
-    endif()
+eval_flags(TMP_FLAG     AND     ENABLE_CDC200    ENABLE_IO      ENABLE_MIPI_DSI     ENABLE_MIPI_DSI_CSI2_DPHY)
+set(TMP1_FLAG           OFF)
+if((ENABLE_MIPI_DSI_ILI9806E_PANEL AND NOT ENABLE_MIPI_DSI_ILI9488E_PANEL) OR
+    (NOT ENABLE_MIPI_DSI_ILI9806E_PANEL AND ENABLE_MIPI_DSI_ILI9488E_PANEL))
+    set(TMP1_FLAG       ON)
 endif()
-
-if(${TMP_FLAG})
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_cdc200.c          ${TMP_FLAG}        TEST_APP_SRCS   "test-apps")
+eval_flags(TMP2_FLAG    AND     TMP_FLAG  TMP1_FLAG)
+if( ${TMP2_FLAG} AND (NOT ${ENABLE_CDC_ILI6122E_PANEL}))
+    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_cdc200.c          ON       TEST_APP_SRCS   "test-apps")
 else()
     list(APPEND     RM_TEST_APPS_LIST      "demo_cdc200")
 endif()
@@ -58,7 +53,7 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_dac.c                 ENABLE_DAC       
 
 if (EN_APP_FLAG  AND (${TEST_APP} STREQUAL "demo_dphy_loopback" ))  #TODO
     COND_FILE_ADD(${BARE_METAL_APP_DIR}/dphy_loopback.c        ENABLE_IO          DPHY_LOOPBACK_TEST_APP_DEP_SRCS   "dependency")
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_dphy_loopback.c   ENABLE_IO       TEST_APP_SRCS   "test-apps")
+    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_dphy_loopback.c   ENABLE_IO          TEST_APP_SRCS   "test-apps")
 else()
     list(APPEND     RM_TEST_APPS_LIST      "demo_dphy_loopback")
 endif()
@@ -90,7 +85,7 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_icm42670p.c           ENABLE_ICM42670P 
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_led_blinky.c          ENABLE_IO          TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_led_breathe.c         ENABLE_IO          TEST_APP_SRCS   "test-apps")
 
-eval_flags(TMP_FLAG     AND     ENABLE_UTIMER       ENABLE_IO       ENABLE_E7_DEVKIT)
+eval_flags(TMP_FLAG     AND     ENABLE_UTIMER       ENABLE_IO)
 if(${TMP_FLAG})
     COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_qec.c             ${TMP_FLAG}        TEST_APP_SRCS   "test-apps")
 else()
@@ -140,9 +135,13 @@ else()
     list(APPEND     RM_TEST_APPS_LIST      "demo_pm")
 endif()
 
-eval_flags(TMP_FLAG     AND     ENABLE_CDC200       ENABLE_MIPI_DSI)
-if( (${TMP_FLAG}) AND (${ENABLE_E7_DEVKIT}) )
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_parallel_display.c    ${TMP_FLAG}    TEST_APP_SRCS   "test-apps")
+eval_flags(TMP_FLAG     AND     ENABLE_CDC200    ENABLE_IO      ENABLE_CDC_ILI6122E_PANEL)
+eval_flags(TMP1_FLAG    OR      ENABLE_MIPI_DSI_ILI9806E_PANEL  ENABLE_MIPI_DSI_ILI9488E_PANEL)
+
+if( ${TMP_FLAG} AND (NOT ${TMP1_FLAG}) AND (NOT ${ENABLE_MIPI_DSI}) AND (NOT ${ENABLE_MIPI_DSI_CSI2_DPHY}))
+    add_definitions(-DRTE_MIPI_DSI=0)
+    add_definitions(-DRTE_ILI6122_PANEL=1)
+    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_parallel_display.c    ON      TEST_APP_SRCS   "test-apps")
 else()
     list(APPEND     RM_TEST_APPS_LIST      "demo_parallel_display")
 endif()
@@ -164,3 +163,5 @@ elseif (${ENABLE_E1C_DEVKIT})
 elseif (${ENABLE_E4_DEVKIT})
     message(STATUS             "${Yellow}⚠️ [WARNING] demo_hyperram_e4 is missing ${ColourReset}")
 endif()
+
+file(GLOB   ALL_DEMO_FILES    "${BARE_METAL_APP_DIR}/demo_*")
