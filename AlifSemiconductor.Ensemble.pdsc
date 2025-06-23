@@ -2602,9 +2602,9 @@
     <component Cclass="BSP" Cgroup="Board Config"  Cvariant="Devkit-e7" Cversion="2.0.0" condition="Board Config E7">
       <description>Conductor Tool based board configuration for DevKit-e7</description>
       <files>
-        <file category="header" name="Boards/DevKit-e7/board_defs.h" condition="SoC AE722F80F55D5"/>
-        <file category="header" name="Boards/DevKit-e7/pins.h" condition="SoC AE722F80F55D5"/>
-        <file category="header" name="Boards/DevKit-e7/gpios.h" condition="SoC AE722F80F55D5"/>
+        <file category="header" name="Boards/DevKit-e7/board_defs.h" version="2.0.0" attr="config" condition="SoC AE722F80F55D5"/>
+        <file category="header" name="Boards/DevKit-e7/pins.h" version="2.0.0" attr="config" condition="SoC AE722F80F55D5"/>
+        <file category="header" name="Boards/DevKit-e7/gpios.h" version="2.0.0" attr="config" condition="SoC AE722F80F55D5"/>
         <file category="source" name="libs/board_config/board_config.c"/>
         <file category="header" name="libs/board_config/board_config.h"/>
       </files>
@@ -2613,9 +2613,9 @@
     <component Cclass="BSP" Cgroup="Board Config"  Cvariant="DevKit-e8" Cversion="2.0.0" condition="Board Config E8">
       <description>Conductor Tool based board configuration for DevKit-e8</description>
       <files>
-        <file category="header" name="Boards/DevKit-e8/board_defs.h" condition="SoC AE822FA0E5597"/>
-        <file category="header" name="Boards/DevKit-e8/pins.h" condition="SoC AE822FA0E5597"/>
-        <file category="header" name="Boards/DevKit-e8/gpios.h" condition="SoC AE822FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e8/board_defs.h" version="2.0.0" attr="config" condition="SoC AE822FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e8/pins.h" version="2.0.0" attr="config" condition="SoC AE822FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e8/gpios.h" version="2.0.0" attr="config" condition="SoC AE822FA0E5597"/>
         <file category="source" name="libs/board_config/board_config.c"/>
         <file category="header" name="libs/board_config/board_config.h"/>
       </files>
@@ -2624,9 +2624,9 @@
     <component Cclass="BSP" Cgroup="Board Config"  Cvariant="DevKit-e4" Cversion="2.0.0" condition="Board Config E4">
       <description>Conductor Tool based board configuration for DevKit-e4</description>
       <files>
-        <file category="header" name="Boards/DevKit-e4/board_defs.h" condition="SoC AE402FA0E5597"/>
-        <file category="header" name="Boards/DevKit-e4/pins.h" condition="SoC AE402FA0E5597"/>
-        <file category="header" name="Boards/DevKit-e4/gpios.h" condition="SoC AE402FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e4/board_defs.h" version="2.0.0" attr="config" condition="SoC AE402FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e4/pins.h" version="2.0.0" attr="config" condition="SoC AE402FA0E5597"/>
+        <file category="header" name="Boards/DevKit-e4/gpios.h" version="2.0.0" attr="config" condition="SoC AE402FA0E5597"/>
         <file category="source" name="libs/board_config/board_config.c"/>
         <file category="header" name="libs/board_config/board_config.h"/>
       </files>
@@ -2635,9 +2635,9 @@
     <component Cclass="BSP" Cgroup="Board Config"  Cvariant="DevKit-e1c" Cversion="2.0.0" condition="Board Config E1C">
       <description>Conductor Tool based board configuration for DevKit-e1c</description>
       <files>
-        <file category="header" name="Boards/DevKit-e1c/board_defs.h" condition="SoC AE1C1F4051920"/>
-        <file category="header" name="Boards/DevKit-e1c/pins.h" condition="SoC AE1C1F4051920"/>
-        <file category="header" name="Boards/DevKit-e1c/gpios.h" condition="SoC AE1C1F4051920"/>
+        <file category="header" name="Boards/DevKit-e1c/board_defs.h" version="2.0.0" attr="config" condition="SoC AE1C1F4051920"/>
+        <file category="header" name="Boards/DevKit-e1c/pins.h" version="2.0.0" attr="config" condition="SoC AE1C1F4051920"/>
+        <file category="header" name="Boards/DevKit-e1c/gpios.h" version="2.0.0" attr="config" condition="SoC AE1C1F4051920"/>
         <file category="source" name="libs/board_config/board_config.c"/>
         <file category="header" name="libs/board_config/board_config.h"/>
       </files>
