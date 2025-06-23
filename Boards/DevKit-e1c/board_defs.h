@@ -1596,19 +1596,19 @@
 #define BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION             2
 
 // <o> "MIC_INPUT_WS" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_MIC_INPUT_WS_GPIO_PORT                       8
+#define BOARD_MIC_INPUT_WS_GPIO_PORT                       4
 
 // <o> "MIC_INPUT_WS" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_MIC_INPUT_WS_GPIO_PIN                        7
+#define BOARD_MIC_INPUT_WS_GPIO_PIN                        6
 
 // <o> "MIC_INPUT_WS" GPIO pin alternate function
-#define BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION              2
+#define BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION              3
 
 // <o> "MIC_INPUT_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_MIC_INPUT_SCLK_GPIO_PORT                     8
+#define BOARD_MIC_INPUT_SCLK_GPIO_PORT                     9
 
 // <o> "MIC_INPUT_SCLK" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_MIC_INPUT_SCLK_GPIO_PIN                      6
+#define BOARD_MIC_INPUT_SCLK_GPIO_PIN                      2
 
 // <o> "MIC_INPUT_SCLK" GPIO pin alternate function
 #define BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION            2

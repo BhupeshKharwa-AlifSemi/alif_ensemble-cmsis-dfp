@@ -95,8 +95,10 @@
 // <o> LPI2C module enabled flag
 #define  BOARD_LPI2C_ENABLED                  1
 
+#if defined(RTSS_HE)
 // <o> "MIC Input" I2S instance number <0-3>
-#define BOARD_MIC_INPUT_I2S_INSTANCE             3
+#define BOARD_MIC_INPUT_I2S_INSTANCE             LP
+#endif
 
 // <o> LPSPI module enabled flag
 #define  BOARD_LPSPI_ENABLED                  1
@@ -1787,7 +1789,7 @@
 #define BOARD_WM8904_CODEC_I2C_SDA_GPIO_PIN                      2
 
 // <o> "WM8904_CODEC_I2C_SDA" GPIO pin alternate function
-#define BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION            4
+#define BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION            5
 
 // <o> "WM8904_CODEC_I2C_SCL" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
 #define BOARD_WM8904_CODEC_I2C_SCL_GPIO_PORT                     7
@@ -1796,77 +1798,53 @@
 #define BOARD_WM8904_CODEC_I2C_SCL_GPIO_PIN                      3
 
 // <o> "WM8904_CODEC_I2C_SCL" GPIO pin alternate function
-#define BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION            4
+#define BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION            5
 
-#if defined (RTSS_HE)
 // <o> "DAC Output" I2S instance number <0=> I2S0 <1=> I2S1 <2=> I2S2  <3=> I2S3  <LP=> LPI2S
-#define BOARD_DAC_OUTPUT_I2S_INSTANCE                       LP
+#define BOARD_DAC_OUTPUT_I2S_INSTANCE                       3
 
 // <o> "DAC_OUTPUT_SDO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_SDO_GPIO_PORT                      13
-// <o> "DAC_OUTPUT_SDO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_DAC_OUTPUT_SDO_GPIO_PIN                       5
-// <o> "DAC_OUTPUT_SDO" GPIO pin alternate function <0-7>
-#define BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION             2
-
-// <o> "DAC_OUTPUT_WS" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_WS_GPIO_PORT                       13
-// <o> "DAC_OUTPUT_WS" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_DAC_OUTPUT_WS_GPIO_PIN                        7
-// <o> "DAC_OUTPUT_WS" GPIO pin alternate function <0-7>
-#define BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION              2
-
-// <o> "DAC_OUTPUT_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_SCLK_GPIO_PORT                     13
-// <o> "DAC_OUTPUT_SCLK" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_DAC_OUTPUT_SCLK_GPIO_PIN                      6
-// <o> "DAC_OUTPUT_SCLK" GPIO pin alternate function <0-7>
-#define BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION            2
-#else
-// <o> "DAC Output" I2S instance number <0=> I2S0 <1=> I2S1 <2=> I2S2  <3=> I2S3  <LP=> LPI2S
-#define BOARD_DAC_OUTPUT_I2S_INSTANCE                       1
-
-// <o> "DAC_OUTPUT_SDO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_SDO_GPIO_PORT                      3
+#define BOARD_DAC_OUTPUT_SDO_GPIO_PORT                      9
 // <o> "DAC_OUTPUT_SDO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_DAC_OUTPUT_SDO_GPIO_PIN                       3
 // <o> "DAC_OUTPUT_SDO" GPIO pin alternate function <0-7>
 #define BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION             3
 
 // <o> "DAC_OUTPUT_WS" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_WS_GPIO_PORT                       4
+#define BOARD_DAC_OUTPUT_WS_GPIO_PORT                       8
 // <o> "DAC_OUTPUT_WS" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_DAC_OUTPUT_WS_GPIO_PIN                        0
+#define BOARD_DAC_OUTPUT_WS_GPIO_PIN                        7
 // <o> "DAC_OUTPUT_WS" GPIO pin alternate function <0-7>
-#define BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION              3
+#define BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION              2
 
 // <o> "DAC_OUTPUT_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_DAC_OUTPUT_SCLK_GPIO_PORT                     3
+#define BOARD_DAC_OUTPUT_SCLK_GPIO_PORT                     8
 // <o> "DAC_OUTPUT_SCLK" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_DAC_OUTPUT_SCLK_GPIO_PIN                      4
+#define BOARD_DAC_OUTPUT_SCLK_GPIO_PIN                      6
 // <o> "DAC_OUTPUT_SCLK" GPIO pin alternate function <0-7>
-#define BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION            4
-#endif
+#define BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION            2
 
+#ifdef BOARD_MIC_INPUT_I2S_INSTANCE
 // <o> "MIC_INPUT_SDI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_MIC_INPUT_SDI_GPIO_PORT                      9
+#define BOARD_MIC_INPUT_SDI_GPIO_PORT                      13
 // <o> "MIC_INPUT_SDI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_MIC_INPUT_SDI_GPIO_PIN                       0
+#define BOARD_MIC_INPUT_SDI_GPIO_PIN                       4
 // <o> "MIC_INPUT_SDI" GPIO pin alternate function <0-7>
 #define BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION             2
 
 // <o> "MIC_INPUT_WS" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_MIC_INPUT_WS_GPIO_PORT                       8
+#define BOARD_MIC_INPUT_WS_GPIO_PORT                       13
 // <o> "MIC_INPUT_WS" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MIC_INPUT_WS_GPIO_PIN                        7
 // <o> "MIC_INPUT_WS" GPIO pin alternate function <0-7>
 #define BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION              2
 
 // <o> "MIC_INPUT_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_MIC_INPUT_SCLK_GPIO_PORT                     8
+#define BOARD_MIC_INPUT_SCLK_GPIO_PORT                     13
 // <o> "MIC_INPUT_SCLK" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MIC_INPUT_SCLK_GPIO_PIN                      6
 // <o> "MIC_INPUT_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION            2
+#endif
 
 // </h>

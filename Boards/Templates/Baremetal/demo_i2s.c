@@ -44,20 +44,32 @@
 #include "WM8904_driver.h"
 #endif
 
+/* Enable this macro to play the predefined sample */
+//#define DAC_PREDEFINED_SAMPLES
+
 // Set to 0: Use application-defined I2S pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
+#ifdef DAC_PREDEFINED_SAMPLES
 /*Audio samples */
 #include "i2s_samples.h"
+#endif
 
 #if (BOARD_WM8904_CODEC_PRESENT) && !defined(RTE_Drivers_WM8904_CODEC)
 #error "WM8904 codec driver not configured in RTE_Components.h"
 #endif
 
+#define NUM_SAMPLES                 40000
+
 void DAC_Init (void);
+#if !defined(DAC_PREDEFINED_SAMPLES)
 int32_t ADC_Init (void);
 int32_t Receiver (void);
+
+/* Buffer for ADC samples */
+static uint32_t sample_buf[NUM_SAMPLES];
+#endif
 
 /* 1 to send the data stream continuously , 0 to send data only once */
 #define REPEAT_TX 1
@@ -65,19 +77,15 @@ int32_t Receiver (void);
 #define ERROR  -1
 #define SUCCESS 0
 
-/* comment below macro to get input from on board I2S mics */
-//#define DAC_PREDEFINED_SAMPLES
+#if !defined(BOARD_MIC_INPUT_I2S_INSTANCE) && !defined (DAC_PREDEFINED_SAMPLES)
+#error Use Predefined Samples as I2S MICS are not available
+#endif
 
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)
 #define ADC_RECEIVE_OVERFLOW_EVENT (1U << 2)
 
-#define NUM_SAMPLES                 40000
-
 static volatile  uint32_t event_flag = 0;
-
-/* Buffer for ADC samples */
-static uint32_t sample_buf[NUM_SAMPLES];
 
 static uint32_t wlen = 24;
 static uint32_t sampling_rate = 48000;        /* 48Khz audio sampling rate */
@@ -85,8 +93,10 @@ static uint32_t sampling_rate = 48000;        /* 48Khz audio sampling rate */
 extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 static ARM_DRIVER_SAI *i2s_dac = &ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
 extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
 static ARM_DRIVER_SAI *i2s_adc = &ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
+#endif
 
 #if BOARD_WM8904_CODEC_PRESENT
 extern ARM_DRIVER_WM8904 WM8904;
@@ -173,6 +183,22 @@ void DAC_Init(void)
     int32_t              status;
     uint32_t             buf_len = 0;
     uint32_t *buf;
+
+#if SOC_FEAT_CLK76P8M_CLK_ENABLE
+    uint32_t error_code        = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+/* enable the HFOSCx2 clock */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                           /*clock_enable_t*/ CLKEN_HFOSCx2,
+                           /*bool enable   */ true,
+                                              &service_error_code);
+    if (error_code)
+        printf("SE: clk enable = %"PRId32"\n", error_code);
+#endif
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
@@ -271,7 +297,7 @@ void DAC_Init(void)
         goto error_dac_control;
     }
 
-#ifndef DAC_PREDEFINED_SAMPLES
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     status = ADC_Init();
     if(status)
     {
@@ -326,7 +352,7 @@ void DAC_Init(void)
         }
     }while(REPEAT_TX);
 
-#ifndef DAC_PREDEFINED_SAMPLES
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     /* Stop the RX */
     status = i2s_adc->Control(ARM_SAI_CONTROL_RX, 0, 0);
     if(status)
@@ -345,9 +371,9 @@ void DAC_Init(void)
     }
 
 error_adc_dac:
-#ifndef DAC_PREDEFINED_SAMPLES
 error_adc_receive:
 error_adc_control:
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     i2s_adc->PowerControl(ARM_POWER_OFF);
     i2s_adc->Uninitialize();
 #endif
@@ -360,15 +386,23 @@ error_dac_initialize:
 error_codec_power:
     wm8904->PowerControl(ARM_POWER_OFF);
     wm8904->Uninitialize();
-#endif
-#if BOARD_WM8904_CODEC_PRESENT
 error_codec_initialize:
+#endif
+#if SOC_FEAT_CLK76P8M_CLK_ENABLE
+    /* disable the HFOSCx2 clock */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_HFOSCx2,
+                                              false,
+                                              &service_error_code);
+    if (error_code)
+        printf("SE Error: HFOSCx2 clk disable = %"PRIu32"\n", error_code);
 #endif
     while(1) {
     }
 
 }
 
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
 /**
   \fn          void adc_callback(uint32_t event)
   \brief       Callback routine from the i2s driver
@@ -522,6 +556,7 @@ int32_t Receiver(void)
 
     return 0;
 }
+#endif
 
 /**
   \fn          int main(void)
