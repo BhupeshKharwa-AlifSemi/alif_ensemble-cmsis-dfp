@@ -1,4 +1,4 @@
-/* 
+/*
 *   Copyright (C) 2025 Alif Semiconductor - All Rights Reserved.
 *   Use, distribution and modification of this code is permitted under the
 *   terms stated in the Alif Semiconductor Software License Agreement
@@ -812,25 +812,25 @@
 #define BOARD_LEDRGB1_B_GPIO_PIN                 6
 
 // <o> "CAN_RXD" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CAN_RXD_GPIO_PORT                  7
+#define BOARD_CAN_RXD_GPIO_PORT                  0
 // <o> "CAN_RXD_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_CAN_RXD_GPIO_PIN                   0
+#define BOARD_CAN_RXD_GPIO_PIN                   4
 // <o> "CAN_RXD" GPIO pin alternate function <0-7>
-#define BOARD_CAN_RXD_ALTERNATE_FUNCTION         7
+#define BOARD_CAN_RXD_ALTERNATE_FUNCTION         6
 
 // <o> "CAN_TXD" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CAN_TXD_GPIO_PORT                7
+#define BOARD_CAN_TXD_GPIO_PORT                  0
 // <o> "CAN_TXD" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_CAN_TXD_GPIO_PIN                 1
+#define BOARD_CAN_TXD_GPIO_PIN                   5
 // <o> "CAN_TXD" GPIO pin alternate function <0-7>
-#define BOARD_CAN_TXD_ALTERNATE_FUNCTION         7
+#define BOARD_CAN_TXD_ALTERNATE_FUNCTION         6
 
 // <o> "CAN_STBY" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CAN_STBY_GPIO_PORT                7
+#define BOARD_CAN_STBY_GPIO_PORT                 0
 // <o> "CAN_STBY" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_CAN_STBY_GPIO_PIN                 3
+#define BOARD_CAN_STBY_GPIO_PIN                  6
 // <o> "CAN_STBY" GPIO pin alternate function <0-7>
-#define BOARD_CAN_STBY_ALTERNATE_FUNCTION         7
+#define BOARD_CAN_STBY_ALTERNATE_FUNCTION        6
 
 // <o> "CAM_XVCLK_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_CAM_XVCLK_A_GPIO_PORT            0
