@@ -48,6 +48,8 @@ static const uint8_t s_alif_oid[] = {0x78, 0x59, 0x94};
  *  C O D E
  ******************************************************************************/
 
+void TEST_print(uint32_t services_handle, char *fmt, ...);
+
 /**
  * @fn      uint32_t SERVICES_system_get_toc_version(uint32_t * toc_version)
  * @brief   Retrieves the SES SW Version number
@@ -375,6 +377,9 @@ uint32_t SERVICES_system_get_device_data(uint32_t services_handle,
 
   /* unpack and return */
   device_info->revision_id = p_svc->revision_id;
+  device_info->flags2 = p_svc->flags2;
+  device_info->LCS = p_svc->LCS,
+
   memcpy((uint8_t*)&device_info->SerialN[0], (uint8_t*)p_svc->SerialN,
          sizeof(device_info->SerialN));
   memcpy((uint8_t*)&device_info->ALIF_PN[0], (uint8_t*)p_svc->ALIF_PN,
@@ -391,7 +396,8 @@ uint32_t SERVICES_system_get_device_data(uint32_t services_handle,
          sizeof(device_info->HBK_FW));
   memcpy((uint8_t*)&device_info->MfgData[0],(uint8_t*)p_svc->MfgData,
          sizeof(device_info->MfgData));
-  device_info->LCS = p_svc->LCS,
+  memcpy((uint8_t*)&device_info->external_config,(uint8_t*)p_svc->external_config,
+          sizeof(device_info->external_config));
 
   *error_code = p_svc->resp_error_code;
 
@@ -579,6 +585,12 @@ uint32_t SERVICES_system_get_eui_extension(uint32_t services_handle,
     return return_code;
   }
 
+  mfg_data_t *p_mfg_data = (mfg_data_t *)device_data.MfgData;
+  TEST_print(services_handle, "******* x-loc:%d y-loc:%d fab:%d, wafer:%d\n",
+      p_mfg_data->x_loc, p_mfg_data->y_loc, p_mfg_data->fab_id, p_mfg_data->wfr_id);
+  TEST_print(services_handle, "******* year:%d, week:%d, lot:%d\n",
+      p_mfg_data->year, p_mfg_data->week, p_mfg_data->lot_no);
+
   //init_test_mgf_data(device_data.MfgData);
 
   if (is_eui48)
@@ -628,4 +640,37 @@ uint32_t SERVICES_system_get_device_id64(uint32_t services_handle,
   memcpy(device_id + 5, s_alif_oid, sizeof(s_alif_oid));
 
   return SERVICES_REQ_SUCCESS;
+}
+
+/**
+ * @fn uint32_t SERVICES_system_get_ecc_public_key(uint32_t,
+ *                                                 uint8_t *ecc_pubkey_buffer,
+ *                                                 uint32_t*)
+ * @brief  Get device's public ECC key
+ *
+ * @param services_handle
+ * @param ecc_pubkey_buffer
+ * @param error_code
+ * @return
+ * @ingroup services-host-system
+ */
+uint32_t SERVICES_system_get_ecc_public_key(uint32_t services_handle,
+                                            uint8_t *ecc_pubkey_buffer,
+                                            uint32_t *error_code)
+{
+  get_ecc_pubkey_t *p_svc = (get_ecc_pubkey_t *)
+      SERVICES_prepare_packet_buffer(sizeof(get_ecc_pubkey_t));
+  uint32_t return_code;
+
+ return_code = SERVICES_send_request(services_handle,
+                                     SERVICE_SYSTEM_MGMT_GET_ECC_PUBLIC_KEY,
+                                     DEFAULT_TIMEOUT);
+
+ *error_code = p_svc->resp_error_code;
+ if (return_code == SERVICES_REQ_SUCCESS)
+ {
+   memcpy(ecc_pubkey_buffer, (const void *)p_svc->resp_ecc_pubkey, sizeof(p_svc->resp_ecc_pubkey));
+ }
+
+ return return_code;
 }

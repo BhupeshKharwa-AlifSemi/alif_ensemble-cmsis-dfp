@@ -36,7 +36,7 @@
 #endif
 
 #include "alif.h"
-
+#include "sys_utils.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
 #endif  /* RTE_CMSIS_Compiler_STDOUT */

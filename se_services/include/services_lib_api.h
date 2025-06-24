@@ -39,6 +39,11 @@ extern "C" {
 #define DEFAULT_TIMEOUT                            (0)
 
 /**
+ * Maximum size of a Services packet
+ */
+#define SERVICES_MAX_PACKET_BUFFER_SIZE            600
+
+/**
  * Common Service error codes - follow the pattern from the PLL services
  */
 #define SERVICE_SUCCESS                            0x0
@@ -140,6 +145,8 @@ extern "C" {
 
 #define SERVICES_MAX_PACKET_BUFFER_SIZE            600
 
+#define OTP_CUSTOM_AREA_START                      0x70
+
 /**
  * MBED TLS
  */
@@ -184,6 +191,8 @@ extern "C" {
 #define OSPI_WRITE_OTP_KEY_OSPI1                   1
 #define OSPI_WRITE_EXTERNAL_KEY_OSPI0              2
 #define OSPI_WRITE_EXTERNAL_KEY_OSPI1              3
+
+#define OSPI_KEY_LENGTH_BYTES                      16
 
 /**
  * TOC related
@@ -295,6 +304,8 @@ typedef struct {
 	uint8_t MfgData[32];  /*!< Manufacturing data    */
 	uint8_t SerialN[8];   /*!< SoC Serial number     */
 	uint8_t LCS;          /*!< SoC lifecycle state   */
+	uint32_t external_config[4]; /*!< External mem   */
+	uint32_t flags2;      /*!< Alt path options      */
 } SERVICES_version_data_t;
 
 /**
@@ -389,13 +400,27 @@ typedef enum {
 	CLKEN_CPUPLL,  /**< CLKEN_CPUPLL */
 	CLKEN_ES0,     /**< CLKEN_ES0 */
 	CLKEN_ES1,     /**< CLKEN_ES1 */
-	CLKEN_HFXO_OUT,/**< CLKEN_HFXO_OUT */
+	CLKEN_HFXO_OUT,/**< CLKEN_HFXO_OUT*/
 	CLKEN_CLK_160M,/**< CLKEN_CLK_160M */
 	CLKEN_CLK_100M,/**< CLKEN_CLK_100M */
-	CLKEN_USB,     /**< CLKEN_USB */
+	CLKEN_CLK_20M, /**< Renamed from CLKEN_USB */
 	CLKEN_HFOSC,   /**< CLKEN_HFOSC */
 	CLKEN_SRAM0,   /**< CLKEN_SRAM0 */
-	CLKEN_SRAM1    /**< CLKEN_SRAM1 */
+	CLKEN_SRAM1,   /**< CLKEN_SRAM1 */
+	CLKEN_HFOSCx2, /**< 76.8MHz, double the frequency of HFOSC above */
+	CLKEN_CLK_10M,
+	CLKEN_CLK_25M,
+	CLKEN_CLK_50M,
+	CLKEN_CLK_80M,
+	CLKEN_CLK_200M,
+	CLKEN_CLK_266M,
+	CLKEN_CLK_400M,
+	CLKEN_MRAM,
+	CLKEN_APB,
+	CLKEN_AHB,
+	CLKEN_ISP,
+	CLKEN_JPEG,
+	CLKEN_NPU
 } clock_enable_t;
 
 /**
@@ -675,6 +700,10 @@ uint32_t SERVICES_system_write_otp(uint32_t services_handle,
 				   uint32_t otp_offset,
 				   uint32_t otp_value_word,
 				   uint32_t *error_code);
+uint32_t SERVICES_system_get_ecc_public_key(uint32_t services_handle,
+                   uint8_t *ecc_pubkey_buffer,
+                   uint32_t *error_code);
+
 
 uint32_t SERVICES_system_get_eui_extension(uint32_t services_handle,
 					bool is_eui48,
@@ -682,7 +711,7 @@ uint32_t SERVICES_system_get_eui_extension(uint32_t services_handle,
 					uint32_t *error_code);
 uint32_t SERVICES_system_get_device_id64(uint32_t services_handle,
                     uint8_t *device_id,
-					uint32_t *error_code);
+                    uint32_t *error_code);
 
 uint32_t SERVICES_boot_process_toc_entry(uint32_t services_handle,
 					 const uint8_t *image_id,
@@ -758,6 +787,25 @@ uint32_t SERVICES_power_setting_get(uint32_t services_handle,
 				    power_setting_t setting_type,
 				    uint32_t *value,
 				    uint32_t *error_code);
+
+uint32_t SERVICES_power_stop_mode_raw_req(uint32_t services_handle,
+                                          uint32_t * error_code);
+uint32_t SERVICES_power_ewic_config_raw(uint32_t services_handle,
+                                        uint32_t ewic_source,
+                                        uint32_t *error_code);
+uint32_t SERVICES_power_wakeup_config_raw(uint32_t services_handle,
+                                          uint32_t vbat_wakeup_source,
+                                          uint32_t *error_code);
+uint32_t
+SERVICES_power_mem_retention_config_raw(uint32_t services_handle,
+                                        uint32_t mem_retention,
+                                        uint32_t *error_code);
+uint32_t
+SERVICES_power_m55_he_vtor_save_raw(uint32_t services_handle,
+                                    uint32_t ns_vtor_addr,
+                                    uint32_t se_vtor_addr,
+                                    uint32_t *error_code);
+
 
 // Clocks services
 uint32_t SERVICES_clocks_select_osc_source(uint32_t services_handle, oscillator_source_t source, oscillator_target_t target, uint32_t *error_code);

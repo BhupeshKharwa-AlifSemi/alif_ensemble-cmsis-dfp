@@ -29,6 +29,8 @@
 #include "services_lib_interface.h"
 #endif
 
+#define PERFORMANCE_TESTS  0
+
 static char s_print_buf[256] = {0};
 
 /**
@@ -767,12 +769,171 @@ static void test_mbedtls_chachapoly(uint32_t services_handle)
 }
 
 /**
+ * @brief Test AES performance
+ */
+static void test_performance_aes(uint32_t services_handle, uint32_t cycles)
+{
+  static const uint8_t PLAIN[] = {
+      0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96,
+      0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A,
+      0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96,
+      0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A,
+      0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96,
+      0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A,
+      0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96,
+      0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A
+  };
+  static const uint8_t KEY[] = { 0x60, 0x3D, 0xEB, 0x10, 0x15, 0xCA, 0x71, 0xBE,
+                                 0x2B, 0x73, 0xAE, 0xF0, 0x85, 0x7D, 0x77, 0x81 };
+
+  // Mode-specific vectors and parameters
+  // OFB, CBC
+  static const uint8_t IV[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+  uint8_t key[MBEDTLS_AES_KEY_128 / 8];
+  uint8_t iv[MBEDTLS_AES_BLOCK_SIZE];
+  uint8_t buf[MBEDTLS_AES_BLOCK_SIZE];
+
+  uint32_t aes_ctx[24] = {0};
+
+  uint32_t error_code;
+
+  // Initialize aes engine
+  SERVICES_cryptocell_mbedtls_aes_init(services_handle, &error_code,
+                                       (uint32_t)aes_ctx);
+  memcpy(key, KEY, sizeof(key));
+  memcpy(buf, PLAIN, sizeof(buf));
+
+  // encrypt
+  memcpy(iv, IV, sizeof(iv));
+  // set key into context
+  SERVICES_cryptocell_mbedtls_aes_set_key(services_handle,
+                                          &error_code,
+                                          (uint32_t)aes_ctx,
+                                          (uint32_t)key,
+                                          MBEDTLS_AES_KEY_128,
+                                          MBEDTLS_OP_ENCRYPT);
+
+  for (uint32_t i = 0; i < cycles; i++)
+  {
+    // perform cryptographic operation
+    SERVICES_cryptocell_mbedtls_aes_crypt(services_handle,
+                                          &error_code,
+                                          (uint32_t)aes_ctx,
+                                          MBEDTLS_AES_CRYPT_CBC,
+                                          MBEDTLS_OP_ENCRYPT,     // not used in CTR and OFB modes
+                                          sizeof(buf),
+                                          (uint32_t)iv,           // not used in ECB mode
+                                          (uint32_t)buf,
+                                          (uint32_t)buf);
+  }
+}
+
+/**
+ * @brief Test SHA256 performance
+ */
+static void test_performance_sha(uint32_t services_handle, uint32_t cycles)
+{
+#define SHA256_BYTES         32  // 256 bits
+
+  char * test_payload = "SHA-256-01234567SHA-256-01234567SHA-256-01234567SHA-256-01234567";
+
+  uint32_t sha_ctx[60] = {0};
+  uint8_t sha256sum[SHA256_BYTES];
+
+  uint32_t error_code;
+
+  SERVICES_cryptocell_mbedtls_sha_starts(services_handle,
+                                         &error_code,
+                                         (uint32_t)sha_ctx,
+                                         MBEDTLS_HASH_SHA256);
+
+  for (uint32_t i = 0; i < cycles; i++)
+  {
+    SERVICES_cryptocell_mbedtls_sha_update(services_handle,
+                                           &error_code,
+                                           (uint32_t)sha_ctx,
+                                           MBEDTLS_HASH_SHA256,
+                                           (uint32_t)test_payload,
+                                           strlen(test_payload));
+  }
+
+  SERVICES_cryptocell_mbedtls_sha_finish(services_handle,
+                                         &error_code,
+                                         (uint32_t)sha_ctx,
+                                         MBEDTLS_HASH_SHA256,
+                                         (uint32_t)sha256sum);
+
+}
+
+static void print_performance(uint32_t services_handle,
+                              const char * message,
+                              uint32_t start, uint32_t end,
+                              uint32_t t1, uint32_t t2)
+{
+  TEST_print(services_handle, "%s: %d (%fs)\n",message,
+             end - start,
+             (end - start) / 100000000.0); // REFCLK is 100MHz
+
+  TEST_print(services_handle, "%s DWT: %fs\n", message,
+             (t2 - t1) / 160000000.0);     // M55-HE - 160MHz
+}
+
+static void test_performance(uint32_t services_handle)
+{
+#define MEM_RW(base,offset)   (*((volatile unsigned int *)base + (offset >> 2)))
+
+  // make a crypto call to initialize the TRNG
+  test_performance_aes(services_handle, 16);
+
+  // start the REFCLK counter
+  MEM_RW(0x1A200000, 0) = 0x1;
+  MEM_RW(0x1A200008, 0) = 0x0;
+
+  // DWT_CYCCNT
+  MEM_RW(0xE0001000, 0) = 0x1;
+  MEM_RW(0xE000EDFC, 0) |= (0x1<<24);
+  MEM_RW(0xE0001004, 0) = 0x0;
+
+  uint32_t start = MEM_RW(0x1A200008, 0);
+  uint32_t t1 = MEM_RW(0xE0001004, 0);
+  test_performance_aes(services_handle, 16);
+  uint32_t t2 = MEM_RW(0xE0001004, 0);
+  uint32_t end = MEM_RW(0x1A200008, 0);
+  print_performance(services_handle, "AES 1K", start, end, t1, t2);
+
+  start = MEM_RW(0x1A200008, 0);
+  t1 = MEM_RW(0xE0001004, 0);
+  test_performance_sha(services_handle, 16);
+  t2 = MEM_RW(0xE0001004, 0);
+  end = MEM_RW(0x1A200008, 0);
+  print_performance(services_handle, "SHA 1K", start, end, t1, t2);
+
+  start = MEM_RW(0x1A200008, 0);
+  t1 = MEM_RW(0xE0001004, 0);
+  test_performance_aes(services_handle, 160);
+  t2 = MEM_RW(0xE0001004, 0);
+  end = MEM_RW(0x1A200008, 0);
+  print_performance(services_handle, "AES 10K", start, end, t1, t2);
+
+  start = MEM_RW(0x1A200008, 0);
+  t1 = MEM_RW(0xE0001004, 0);
+  test_performance_sha(services_handle, 160);
+  t2 = MEM_RW(0xE0001004, 0);
+  end = MEM_RW(0x1A200008, 0);
+  print_performance(services_handle, "SHA 10K", start, end, t1, t2);
+}
+
+/**
  * @fn void test_crypto(uint32_t)
  * @brief
  * @param services_handle
  */
 void test_crypto(uint32_t services_handle)
 {
+#if PERFORMANCE_TESTS == 1
+  test_performance(services_handle);
+#else
   test_mbedtls_aes(services_handle);
   test_mbedtls_sha(services_handle);
   test_mbedtls_cmac(services_handle);
@@ -780,4 +941,5 @@ void test_crypto(uint32_t services_handle)
   test_mbedtls_ccm_star(services_handle);
   test_mbedtls_gcm(services_handle);
   test_mbedtls_chachapoly(services_handle);
+#endif
 }

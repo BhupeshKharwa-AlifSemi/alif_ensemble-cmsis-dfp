@@ -312,7 +312,7 @@ int main()
         return 0;
     }
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, true, &service_error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_20M, true, &service_error_code);
     if(error_code)
     {
         printf("SE: SDMMC 20MHz clock enable = %"PRIu32"\n", error_code);
@@ -328,7 +328,7 @@ int main()
         return 0;
     }
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_USB, false, &service_error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_20M, false, &service_error_code);
     if (error_code)
     {
         printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);

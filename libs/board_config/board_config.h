@@ -38,7 +38,7 @@ extern "C"
 #define    CLKEN_HFXO_OUT_MASK     (1 << CLKEN_HFXO_OUT)
 #define    CLKEN_CLK_160M_MASK     (1 << CLKEN_CLK_160M)
 #define    CLKEN_CLK_100M_MASK     (1 << CLKEN_CLK_100M)
-#define    CLKEN_USB_MASK          (1 << CLKEN_USB)
+#define    CLKEN_USB_MASK          (1 << CLKEN_CLK_20M)
 #define    CLKEN_HFOSC_MASK        (1 << CLKEN_HFOSC)
 #define    CLKEN_SRAM0_MASK        (1 << CLKEN_SRAM0)
 #define    CLKEN_SRAM1_MASK        (1 << CLKEN_SRAM1)

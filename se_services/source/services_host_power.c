@@ -229,6 +229,20 @@ uint32_t SERVICES_power_stop_mode_req(uint32_t services_handle,
                                DEFAULT_TIMEOUT);
 }
 
+uint32_t SERVICES_power_stop_mode_raw_req(uint32_t services_handle,
+                                          uint32_t * error_code)
+{
+  generic_svc_t * p_svc =
+      (generic_svc_t *)SERVICES_prepare_packet_buffer(sizeof(generic_svc_t));
+
+  uint32_t ret = SERVICES_send_request(services_handle,
+                                       SERVICE_POWER_STOP_MODE_REQ_RAW_ID,
+                                       DEFAULT_TIMEOUT);
+
+  *error_code = p_svc->resp_error_code;
+  return ret;
+}
+
 /**
  * @brief Function to disable SERAM 0, 1 or MRAM
  * @param services_handle
@@ -277,6 +291,23 @@ uint32_t SERVICES_power_ewic_config(uint32_t services_handle,
                                DEFAULT_TIMEOUT);
 }
 
+uint32_t SERVICES_power_ewic_config_raw(uint32_t services_handle,
+                                        uint32_t ewic_source,
+                                        uint32_t *error_code)
+{
+  ewic_config_raw_request_svc_t * p_svc = (ewic_config_raw_request_svc_t *)
+    SERVICES_prepare_packet_buffer(sizeof(ewic_config_raw_request_svc_t));
+
+  p_svc->send_ewic_source = ewic_source;
+
+  uint32_t ret =  SERVICES_send_request(services_handle,
+                                        SERVICE_POWER_EWIC_CONFIG_REQ_RAW_ID,
+                                        DEFAULT_TIMEOUT);
+
+  *error_code = p_svc->resp_error_code;
+  return ret;
+}
+
 /**
  * @brief Function to configure VBAT wake up source
  * @param services_handle
@@ -299,6 +330,24 @@ uint32_t SERVICES_power_wakeup_config(uint32_t services_handle,
   return SERVICES_send_request(services_handle,
                                SERVICE_POWER_VBAT_WAKEUP_CONFIG_REQ_ID,
                                DEFAULT_TIMEOUT);
+}
+
+uint32_t SERVICES_power_wakeup_config_raw(uint32_t services_handle,
+                                          uint32_t vbat_wakeup_source,
+                                          uint32_t *error_code)
+{
+  vbat_wakeup_config_raw_req_svc_t * p_svc =
+    (vbat_wakeup_config_raw_req_svc_t *)
+    SERVICES_prepare_packet_buffer(sizeof(vbat_wakeup_config_raw_req_svc_t));
+
+  p_svc->send_vbat_wakeup_source = vbat_wakeup_source;
+
+  uint32_t ret =  SERVICES_send_request(services_handle,
+                                        SERVICE_POWER_VBAT_WAKEUP_CONFIG_REQ_RAW_ID,
+                                        DEFAULT_TIMEOUT);
+
+  *error_code = p_svc->resp_error_code;
+  return ret;
 }
 
 /**
@@ -324,6 +373,25 @@ SERVICES_power_mem_retention_config(uint32_t services_handle,
   return SERVICES_send_request(services_handle,
                                SERVICE_POWER_MEM_RETENTION_CONFIG_REQ_ID,
                                DEFAULT_TIMEOUT);
+}
+
+uint32_t
+SERVICES_power_mem_retention_config_raw(uint32_t services_handle,
+                                        uint32_t mem_retention,
+                                        uint32_t *error_code)
+{
+  mem_ret_config_raw_request_svc_t * p_svc =
+      (mem_ret_config_raw_request_svc_t *)
+      SERVICES_prepare_packet_buffer(sizeof(mem_ret_config_raw_request_svc_t));
+
+  p_svc->send_mem_retention = mem_retention;
+
+  uint32_t ret =  SERVICES_send_request(services_handle,
+                                        SERVICE_POWER_MEM_RETENTION_CONFIG_REQ_RAW_ID,
+                                        DEFAULT_TIMEOUT);
+
+  *error_code = p_svc->resp_error_code;
+  return ret;
 }
 
 /**
@@ -352,6 +420,27 @@ SERVICES_power_m55_he_vtor_save(uint32_t services_handle,
   return SERVICES_send_request(services_handle,
                                SERVICE_POWER_M55_HE_VTOR_SAVE_REQ_ID,
                                DEFAULT_TIMEOUT);
+}
+
+uint32_t
+SERVICES_power_m55_he_vtor_save_raw(uint32_t services_handle,
+                                    uint32_t ns_vtor_addr,
+                                    uint32_t se_vtor_addr,
+                                    uint32_t *error_code)
+{
+  m55_vtor_save_request_raw_svc_t *p_svc =
+      (m55_vtor_save_request_raw_svc_t *)
+      SERVICES_prepare_packet_buffer(sizeof(m55_vtor_save_request_raw_svc_t));
+
+  p_svc->ns_vtor_addr       = ns_vtor_addr;
+  p_svc->se_vtor_addr       = se_vtor_addr;
+
+  uint32_t ret =  SERVICES_send_request(services_handle,
+                                        SERVICE_POWER_M55_HE_VTOR_SAVE_REQ_RAW_ID,
+                                        DEFAULT_TIMEOUT);
+
+  *error_code = p_svc->resp_error_code;
+  return ret;
 }
 
 /**

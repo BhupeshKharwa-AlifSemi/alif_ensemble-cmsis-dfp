@@ -170,6 +170,8 @@
 
         <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
+        <compile Pname="M55_HP" Pdefine="ENSEMBLE_SOC_GEN2"/>
+        <compile Pname="M55_HE" Pdefine="ENSEMBLE_SOC_GEN2"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00200000"/>
         <accessportV2 __apid="1" address="0x00300000"/>
@@ -288,6 +290,8 @@
 
         <compile Pname="M55_HP" Pdefine="RTSS_HP"/>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
+        <compile Pname="M55_HP" Pdefine="ENSEMBLE_SOC_GEN2"/>
+        <compile Pname="M55_HE" Pdefine="ENSEMBLE_SOC_GEN2"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00200000"/>
         <accessportV2 __apid="1" address="0x00300000"/>
@@ -2540,7 +2544,7 @@
       </files>
     </component>
 
-    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.105.0" condition="SE SERVICES MHU">
+    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="MHU" Cversion="1.106.0" condition="SE SERVICES MHU">
       <description>Message Handling Unit driver for Alif Soc</description>
       <files>
         <file category="header" name="drivers/include/drivers_common.h"/>
@@ -2562,10 +2566,10 @@
       </files>
     </component> -->
 
-    <component Cclass="Services" Cgroup="Secure Enclave" Csub="core" Cvariant="Source" Cversion="1.105.0" condition="SE SERVICES SRC">
+    <component Cclass="Services" Cgroup="Secure Enclave" Csub="core" Cvariant="Source" Cversion="1.106.0" condition="SE SERVICES SRC">
       <description>SE runtime Services for RTSS cores</description>
       <files>
-        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.105.0.pdf"/>
+        <file category="doc" name="se_services/document/SE_Host_Services_API_v1.106.0.pdf"/>
         <file category="include" name="se_services/include/"/>
         <file category="source" name="se_services/source/services_host_application.c"/>
         <file category="source" name="se_services/source/services_host_boot.c"/>
@@ -2580,17 +2584,19 @@
         <file category="source" name="se_services/source/services_host_clocks.c"/>
         <file category="source" name="se_services/source/services_host_extsys0.c"/>
         <file category="source" name="se_services/source/services_host_update.c"/>
+        <file category="header" name="se_services/templates/services_lib_interface.h"/>
+        <file category="source" name="se_services/templates/services_lib_interface.c"/>
          <!--se services example-->
         <file category="source" name="se_services/templates/m55_services_main.c" attr="template" select="SE Services Example"/>
-        <file category="header" name="se_services/templates/services_lib_interface.h" attr="template" select="SE Services Example"/>
-        <file category="source" name="se_services/templates/services_lib_interface.c" attr="template" select="SE Services Example"/>
+        <!--file category="header" name="se_services/templates/services_lib_interface.h" attr="template" select="SE Services Example"/>
+        <file category="source" name="se_services/templates/services_lib_interface.c" attr="template" select="SE Services Example"/-->
         <file category="source" name="se_services/templates/services_test.c" attr="template" select="SE Services Example"/>
         <file category="source" name="se_services/templates/services_test_crypto.c" attr="template" select="SE Services Example"/>
       </files>
     </component>
 
 
-    <component Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper" Cvariant="Source" Cversion="1.105.0" condition="SE SERVICES INIT">
+    <component Cclass="Services" Cgroup="Secure Enclave" Csub="Initialization Helper" Cvariant="Source" Cversion="1.106.0" condition="SE SERVICES INIT">
       <description>SE runtime Services initialization helper for RTSS cores</description>
       <files>
         <file category="include" name="se_services/port/include/"/>

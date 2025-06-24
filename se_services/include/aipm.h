@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 /**
  * @file aipm.h
  * @brief Autonomous Intelligent Power Management API header
@@ -208,6 +207,70 @@ typedef enum {
 #define FWRAM_MASK      (1 << MB_FWRAM)          // bit18
 #define BACKUP4K_MASK   (1 << MB_BACKUP4K)       // bit19
 
+#define SERAM_MASK      (SERAM_1_MASK | SERAM_2_MASK | SERAM_3_MASK | SERAM_4_MASK)
+
+#elif defined(ENSEMBLE_SOC_GEN2)
+/**
+ * @enum memory_block_t
+ * @brief Memory Blocks
+ */
+typedef enum {
+  MB_SRAM0_1 = 0,/**< MB_SRAM0 */
+  MB_SRAM0_2 = 0,/**< MB_SRAM0 */
+  MB_SRAM0_3 = 0,/**< MB_SRAM0 */
+  MB_SRAM0_4 = 0,/**< MB_SRAM0 */
+  MB_SRAM1,    /**< MB_SRAM1 */
+  MB_SRAM2,    /**< MB_SRAM2 */
+  MB_SRAM3,    /**< MB_SRAM3 */
+  MB_SRAM4_1, // M55-HE ITCM RET1 itcm 128kb;
+  MB_SRAM4_2, // M55-HE ITCM RET2 itcm 128kb;
+  MB_SRAM5_1, // M55-HE DTCM RET1 dtcm 128kb
+  MB_SRAM5_2, // M55-HE DTCM RET2 dtcm 128kb
+  MB_SRAM6A,
+  MB_SRAM6B,
+  MB_SRAM7_1,
+  MB_SRAM7_2,
+  MB_SRAM7_3,
+  MB_SRAM8,    /**< MB_SRAM8 */
+  MB_SRAM9,    /**< MB_SRAM9 */
+  MB_MRAM,     /**< MB_MRAM */
+  MB_OSPI0,    /**< MB_OSPI0 */
+  MB_OSPI1,    /**< MB_OSPI1 */
+  MB_SERAM_1,
+  MB_SERAM_2,
+  MB_FWRAM,    /**< MB_FWRAM */
+  MB_BACKUP4K  /**< MB_BACKUP4K */
+} memory_block_t;
+
+/* Memory block bit mask */
+#define SRAM0_1_MASK    (1 << MB_SRAM0_1)     // bit0
+#define SRAM0_2_MASK    (1 << MB_SRAM0_2)     // bit1
+#define SRAM0_3_MASK    (1 << MB_SRAM0_3)     // bit2
+#define SRAM0_4_MASK    (1 << MB_SRAM0_4)     // bit3
+#define SRAM1_MASK      (1 << MB_SRAM1)      // bit4
+#define SRAM2_MASK      (1 << MB_SRAM2)       // bit5
+#define SRAM3_MASK      (1 << MB_SRAM3)       // bit6
+#define SRAM4_1_MASK    (1 << MB_SRAM4_1)     // bit7
+#define SRAM4_2_MASK    (1 << MB_SRAM4_2)     // bit8
+#define SRAM5_1_MASK    (1 << MB_SRAM5_1)     // bit9
+#define SRAM5_2_MASK    (1 << MB_SRAM5_2)     // bit10
+#define SRAM6A_MASK     (1 << MB_SRAM6A)      // bit11
+#define SRAM6B_MASK     (1 << MB_SRAM6B)      // bit12
+#define SRAM7_1_MASK    (1 << MB_SRAM7_1)     // bit13
+#define SRAM7_2_MASK    (1 << MB_SRAM7_2)     // bit14
+#define SRAM7_3_MASK    (1 << MB_SRAM7_3)     // bit15
+#define SRAM8_MASK      (1 << MB_SRAM8)       // bit16
+#define SRAM9_MASK      (1 << MB_SRAM9)       // bit17
+#define MRAM_MASK       (1 << MB_MRAM)        // bit18
+#define OSPI0_MASK      (1 << MB_OSPI0)       // bit19
+#define OSPI1_MASK      (1 << MB_OSPI1)       // bit20
+#define SERAM_1_MASK    (1 << MB_SERAM_1)     // bit21
+#define SERAM_2_MASK    (1 << MB_SERAM_2)     // bit22
+#define FWRAM_MASK      (1 << MB_FWRAM)       // bit23
+#define BACKUP4K_MASK   (1 << MB_BACKUP4K)    // bit24
+
+#define SERAM_MASK      (SERAM_1_MASK | SERAM_2_MASK)
+
 #else
 /**
  * @enum memory_block_t
@@ -283,7 +346,7 @@ typedef enum {
 #define WE_LPGPIO   0XFF0000  // bit23:16
 
 // EWIC
-#ifdef BALLETTO_DEVICE
+#if defined(BALLETTO_DEVICE)
 #define EWIC_RTC_SE                  (1)         // bit0
 #define EWIC_ES0_WAKEUP              (1 << 1)    // bit1
 #define EWIC_ES0_OSC_EN              (1 << 2)    // bit2
@@ -296,6 +359,18 @@ typedef enum {
 #define EWIC_ES1_LP_UART_IRQ         (1 << 19)   // bit19
 #define EWIC_BROWN_OUT               (1 << 20)   // bit20
 #define EWIC_RTC_B                   (1 << 21)   // bit21
+
+#elif defined(ENSEMBLE_SOC_GEN2)
+#define EWIC_RTC_SE                  (1)         // bit0
+#define EWIC_UNUSED_1                (7 << 1)    // bit3:1
+#define EWIC_LPGPIO                  (3 << 4)    // bit5:4
+#define EWIC_RTC_A                   (1 << 6)    // bit6
+#define EWIC_VBAT_TIMER              (0xF << 7)  // bit10:7
+#define EWIC_VBAT_GPIO               (0xFF << 11)// bit18:11
+#define EWIC_VBAT_LP_CMP_IRQ         (1 << 19)   // bit19
+#define EWIC_ES1_LP_I2C_IRQ          (1 << 20)   // bit20
+#define EWIC_ES1_LP_UART_IRQ         (1 << 21)   // bit21
+#define EWIC_BROWN_OUT               (1 << 22)   // bit22
 
 #else
 
@@ -416,7 +491,7 @@ typedef struct {
  */
 typedef struct {
 	uint32_t power_domains;         /* Power domains to stay on */
-  uint32_t dcdc_voltage;          /* DCDC output voltage 750-850mv */
+        uint32_t dcdc_voltage;          /* DCDC output voltage 750-850mv */
 	dcdc_mode_t dcdc_mode;          /* DCDC mode - PWM or PFM based on the workload */
 	lfclock_t aon_clk_src;          /* LFRC/LFXO */
 	hfclock_t stby_clk_src;         /* HFRC/HFXO/PLL */

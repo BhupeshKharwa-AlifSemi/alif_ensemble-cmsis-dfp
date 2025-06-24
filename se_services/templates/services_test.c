@@ -94,7 +94,7 @@ static uint32_t test_services_get_bus_frequencies(char *p_test_name, uint32_t se
 
 static uint32_t test_services_get_eui(char *p_test_name, uint32_t services_handle);
 static uint32_t test_services_get_device_id(char *p_test_name, uint32_t services_handle);
-
+static uint32_t test_services_get_ecc_public_key(char *p_test_name, uint32_t services_handle);
 
 /*******************************************************************************
  *  M A C R O   D E F I N E S
@@ -223,6 +223,7 @@ static services_test_t s_tests[] =
     { test_services_get_bus_frequencies,     "Get BUS frequencies    "     , false},  /*53*/
     { test_services_get_eui,                 "Get EUI-48/EUI-64 extensions", false},  /*54*/
     { test_services_get_device_id,           "Get 64-bit unique Device ID ", false},  /*55*/
+    { test_services_get_ecc_public_key,      "Get the device ECC public key", false}, /*56*/
 };
 
 static SERVICES_toc_data_t     toc_info;    /*!< Global to test harness */
@@ -356,19 +357,22 @@ static char *version_string_pack(uint32_t major, uint32_t minor, uint32_t patch)
  * @param src
  * @param num_bytes
  */
-static void format_and_print(char *dest, uint8_t *src, int num_bytes)
+static int format_and_print(char *dest, uint8_t *src, int num_bytes)
 {
   int next_pos = 0;
 
   for (int i=0; i < num_bytes; i++)
   {
-    next_pos += sprintf((char *)(dest+next_pos), "%X", src[i]);
+    next_pos += sprintf((char *)(dest+next_pos), "%02X", src[i]);
   }
+  dest[next_pos] = '\0'; /* NULL terminate */
+
+  return (int)next_pos;  /* Return number of characters written */
 }
 
 /**
-  * APPLICATION Services
-  */
+ * APPLICATION Services
+ */
 
 /**
  * @fn    static uint32_t test_services_pinmux(uint32_t services_handle)
@@ -542,7 +546,7 @@ static uint32_t test_services_read_otp(char *p_test_name,
     * OTP Word Address = 0x0005F, Size = 4 bytes
     */
    error_code = SERVICES_system_read_otp(services_handle,
-                                         OTP_CUSTOMER_SECURITY_FLAGS_START,
+                                         OTP_CUSTOM_AREA_START,
                                          &otp_value,
                                          &service_error_code);
    PRINT_TEST_RESULT;
@@ -997,6 +1001,16 @@ static uint32_t test_services_get_device_data(char *p_test_name,
   format_and_print((char*)&print_buffer[0],
                     &device_data.SerialN[0],sizeof(device_data.SerialN));
   TEST_print(services_handle,"     ** Serial#   %s\n", print_buffer);
+
+  format_and_print((char*)&print_buffer[0],
+                   (uint8_t *)&device_data.external_config[0],
+                   sizeof(device_data.external_config));
+  TEST_print(services_handle,"     ** Ext Conf  %s\n", print_buffer);
+
+  format_and_print((char*)&print_buffer[0],
+                   (uint8_t *)&device_data.flags2,
+                   sizeof(device_data.flags2));
+  TEST_print(services_handle,"     ** flags     %s\n", print_buffer);
 
   TEST_print(services_handle,"     ** LCS       %X\n", device_data.LCS);
 
@@ -2032,7 +2046,7 @@ static uint32_t test_services_get_device_id(char *p_test_name, uint32_t services
   uint8_t device_id[8];
   error_code = SERVICES_system_get_device_id64(services_handle,
                                                device_id,
-                                          &service_error_code);
+                                               &service_error_code);
   TEST_print(services_handle,
               "** TEST %s error_code=%s service_resp=0x%08X\n",
               p_test_name,
@@ -2042,6 +2056,38 @@ static uint32_t test_services_get_device_id(char *p_test_name, uint32_t services
   TEST_print(services_handle, "Device ID: %02X-%02X-%02X-%02X-%02X-%02X-%02X-%02X\n",
       device_id[0], device_id[1], device_id[2], device_id[3],
       device_id[4], device_id[5], device_id[6], device_id[7]);
+
+  return error_code;
+}
+
+/**
+ * @brief Test the service SERVICES_system_get_ecc_public_key
+ */
+static uint32_t test_services_get_ecc_public_key(char *p_test_name, uint32_t services_handle)
+{
+  uint32_t error_code = SERVICES_REQ_SUCCESS;
+  uint32_t service_error_code;
+
+  uint8_t ecc_key[64];
+  error_code = SERVICES_system_get_ecc_public_key(services_handle,
+                                                  ecc_key,
+                                                  &service_error_code);
+  TEST_print(services_handle,
+              "** TEST %s error_code=%s service_resp=0x%08X\n",
+              p_test_name,
+              SERVICES_error_to_string(error_code),
+              service_error_code);
+
+  char text_buffer[33] = {0};
+  for (int i = 0; i < 32; i++)
+  {
+    char ch[3];
+    sprintf(ch, "%02X", ecc_key[i]);
+    strcat(text_buffer, ch);
+  }
+
+
+  TEST_print(services_handle, "Public ECC key (truncated): %s...\n", text_buffer);
 
   return error_code;
 }

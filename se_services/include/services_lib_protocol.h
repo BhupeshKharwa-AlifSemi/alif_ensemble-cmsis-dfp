@@ -58,10 +58,10 @@ extern "C" {
  *  M A C R O   D E F I N E S
  ******************************************************************************/
 /* See SERVICES documentation for change log */
-#define SE_SERVICES_VERSION_STRING                 "0.50.5"
+#define SE_SERVICES_VERSION_STRING                 "0.50.6"
 #define SE_SERVICES_VERSION_MAJOR                  0
 #define SE_SERVICES_VERSION_MINOR                  50
-#define SE_SERVICES_VERSION_PATCH                  5
+#define SE_SERVICES_VERSION_PATCH                  6
 
 #define IMAGE_NAME_LENGTH                          8
 #define VERSION_RESPONSE_LENGTH                    80
@@ -636,6 +636,16 @@ typedef struct {
 } get_otp_data_t;
 
 /**
+ * @struct get_ecc_pubkey_t
+ * @brief  Get the device's ECC public key
+  */
+typedef struct {
+    service_header_t header;
+    volatile uint8_t  resp_ecc_pubkey[64];
+    volatile uint32_t resp_error_code;
+} get_ecc_pubkey_t;
+
+/**
  * @struct  otp_data_t
  * @brief   request for otp read or write
  */
@@ -673,7 +683,10 @@ typedef struct {
 	volatile uint8_t MfgData[32];
 	volatile uint8_t SerialN[8];
 	volatile uint8_t LCS;
-	volatile uint32_t  resp_error_code;
+        volatile uint8_t padding[3];
+	volatile uint32_t external_config[4];
+	volatile uint32_t flags2;
+	volatile uint32_t resp_error_code;
 } get_device_revision_data_t;
 
 /**
@@ -682,7 +695,7 @@ typedef struct {
  * @note for now it is limited to debug toggle
  */
 typedef struct {
-	service_header_t header;
+	service_header_t   header;
 	volatile bool      send_services_debug;
 	volatile uint32_t  resp_error_code;
 } set_services_capabilities_t;
@@ -792,6 +805,38 @@ typedef struct {
 	uint32_t power_profile;
 	uint32_t resp_error_code;
 } m55_vtor_save_request_svc_t;
+
+// RAW services
+typedef struct {
+  service_header_t header;
+  uint32_t value;
+} stop_mode_raw_request_svc_t;
+
+typedef struct {
+  service_header_t header;
+  uint32_t send_ewic_source;
+  uint32_t resp_error_code;
+} ewic_config_raw_request_svc_t;
+
+typedef struct {
+  service_header_t header;
+  uint32_t send_vbat_wakeup_source;
+  uint32_t resp_error_code;
+} vbat_wakeup_config_raw_req_svc_t;
+
+typedef struct {
+  service_header_t header;
+  uint32_t send_mem_retention;
+  uint32_t resp_error_code;
+} mem_ret_config_raw_request_svc_t;
+
+typedef struct {
+  service_header_t header;
+  uint32_t ns_vtor_addr;
+  uint32_t se_vtor_addr;
+  uint32_t resp_error_code;
+} m55_vtor_save_request_raw_svc_t;
+
 
 //----------------------------------------------------------------
 // DCDC voltage control Request
