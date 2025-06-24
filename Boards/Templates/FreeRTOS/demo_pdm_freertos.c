@@ -41,6 +41,7 @@
  ******************************************************************************/
 /* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Project Includes */
 /* include for PDM Driver */
@@ -60,7 +61,7 @@
 
 // Set to 0: Use application-defined PDM pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  1
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /* PDM driver instance */
 extern ARM_DRIVER_PDM Driver_PDM;
@@ -291,6 +292,22 @@ void pdm_demo_thread_entry(void *pvParameters)
     }
 #endif
 
+#if SOC_FEAT_CLK76P8M_CLK_ENABLE
+    uint32_t error_code        = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+/* enable the HFOSCx2 clock */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                           /*clock_enable_t*/ CLKEN_HFOSCx2,
+                           /*bool enable   */ true,
+                                              &service_error_code);
+    if (error_code)
+        printf("SE: clk enable = %"PRId32"\n", error_code);
+#endif
+
     /* Initialize PDM driver */
     ret = PDMdrv->Initialize(PDM_fifo_callback);
     if(ret != ARM_DRIVER_OK){
@@ -454,6 +471,16 @@ error_uninitialize:
     {
         printf("\n Error: PDM Uninitialize failed\n");
     }
+
+#if SOC_FEAT_CLK76P8M_CLK_ENABLE
+    /* disable the HFOSCx2 clock */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_HFOSCx2,
+                                              false,
+                                              &service_error_code);
+    if (error_code)
+        printf("SE Error: HFOSCx2 clk disable = %"PRIu32"\n", error_code);
+#endif
 
     printf("\r\n XXX PDM demo exiting XXX...\r\n");
 }
