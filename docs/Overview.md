@@ -36,7 +36,7 @@ Example                  | Tool           | Description
 Blinky_M55_HE            | uVision IDE    | Blinky example running on M55 High Efficiency core
 Blinky_M55_HE_TCM        | uVision IDE    | Blinky example running on M55 High Efficiency core from TCM
 Csolution Project        | CMSIS-Toolbox  | Blinky examples configured for M55 High Performance or High Efficiency code
-Dual Core (M55_HE/M55_HP)| CMSIS-Toolbox  | Dual Core example running on M55 High Efficiency and High Performance core
+DualCore_HE_HP           | CMSIS-Toolbox  | Dual Core example running on M55 High Efficiency and High Performance core
 HelloWorld_M55_HP        | uVision IDE    | Hello World example running on M55 High Performance core
 
 Layer Type: Board       | Tool           | Description
@@ -59,9 +59,9 @@ The E7 AppKit BSP part provides the following:
 
 Example                 | Tool           | Description
 :-----------------------|:---------------|:--------------------------
-Blinky (M55_HP)         | CMSIS-Toolbox  | Blinky example running on M55 High Performance core
-Blinky (M55_HE)         | CMSIS-Toolbox  | Blinky example running on M55 High Efficiency core
-DualCore (M55_HE/M55_HP)| CMSIS-Toolbox  | Dual Core example running on M55 High Efficiency and High Performance core
+Blinky_HP               | CMSIS-Toolbox  | Blinky example running on M55 High Performance core
+Blinky_HE               | CMSIS-Toolbox  | Blinky example running on M55 High Efficiency core
+DualCore_HE_HP          | CMSIS-Toolbox  | Dual Core example running on M55 High Efficiency and High Performance core
 
 Layer Type: Board       | Tool           | Description
 :-----------------------|:---------------|:--------------------------
