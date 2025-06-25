@@ -113,9 +113,14 @@ set (BOARD_CMAKE_FILE       "${USER_CMAKE_SCRIPT_DIR}/board_cmake/board.cmake")
 string(REGEX REPLACE    "^[^-]*-"   ""      BOARD_ABERRATION    "${BOARD_NAME}")
 string(TOUPPER  "${BOARD_ABERRATION}"   BOARD_ABERRATION_IN_UPPER)
 string(FIND     "${DEVICE}"    "A${BOARD_ABERRATION_IN_UPPER}"      found_subStr)
+string(SUBSTRING ${DEVICE}  0   3   BOARD_ABERRATION_ID)
 
 if(found_subStr EQUAL -1)
     message(STATUS     "${Red} ⚠️ [WARNING] BOARD NAME (${BOARD_NAME}) AND DEVICE (${DEVICE}) IS NOT IN SYNC !!!${ColourReset}")
+endif()
+
+if( ("${BOARD_ABERRATION_ID}" STREQUAL "AE4") OR ("${BOARD_ABERRATION_ID}" STREQUAL "AE8"))
+    add_definitions (-DENSEMBLE_SOC_GEN2)
 endif()
 
 #Include Retarget Include path
