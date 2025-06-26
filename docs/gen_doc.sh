@@ -6,7 +6,7 @@
 set -e
 
 # Path to the Doxygen configuration file
-DOXYFILE="Doxyfile"
+DOXYFILE="docs/Doxyfile"
 
 # Check if Doxyfile exists
 if [ ! -f "$DOXYFILE" ]; then
