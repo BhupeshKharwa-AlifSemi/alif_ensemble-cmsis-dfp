@@ -474,18 +474,25 @@ uint32_t SERVICES_system_write_otp(uint32_t services_handle,
 
 typedef struct
 {
-  uint8_t x_loc  : 7;
-  uint8_t zero_1 : 1;
-  uint8_t y_loc  : 7;
-  uint8_t zero_2 : 1;
-  uint8_t wfr_id : 5;
-  uint8_t zero_3 : 2;
-  uint8_t fab_id : 1;
   uint8_t year   : 6;
-  uint8_t zero_4 : 2;
-  uint8_t week   : 6;
-  uint8_t zero_5 : 2;
+  uint8_t zero_1 : 2;
+
+  uint8_t wfr_id : 5;
+  uint8_t zero_2 : 2;
+  uint8_t fab_id : 1;
+
+  uint8_t y_loc  : 7;
+  uint8_t zero_3 : 1;
+
+  uint8_t x_loc  : 7;
+  uint8_t zero_4 : 1;
+
+  uint8_t zero_5 : 8;
+  uint8_t zero_6 : 8;
   uint8_t lot_no : 8;
+
+  uint8_t week   : 6;
+  uint8_t zero_7 : 2;
 } mfg_data_t;
 
 /**
