@@ -35,6 +35,7 @@
 
 /* Pinmux Driver */
 #include "pinconf.h"
+#include "board_config.h"
 
 /* Touchscreen Driver */
 #include "Driver_Touch_Screen.h"
@@ -54,12 +55,12 @@
 #endif
 
 /* Touch reset pin control GPIO port */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_GT911_TOUCH_RESET_GPIO_PORT);
-static ARM_DRIVER_GPIO *GPIO_Driver_RST = &ARM_Driver_GPIO_(RTE_GT911_TOUCH_RESET_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_TOUCH_RESET_GPIO_PORT);
+static ARM_DRIVER_GPIO *GPIO_Driver_RST = &ARM_Driver_GPIO_(BOARD_TOUCH_RESET_GPIO_PORT);
 
 /* Touch INT pin control GPIO port */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_GT911_TOUCH_INT_GPIO_PORT);
-static ARM_DRIVER_GPIO *GPIO_Driver_INT = &ARM_Driver_GPIO_(RTE_GT911_TOUCH_INT_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_TOUCH_INT_GPIO_PORT);
+static ARM_DRIVER_GPIO *GPIO_Driver_INT = &ARM_Driver_GPIO_(BOARD_TOUCH_INT_GPIO_PORT);
 
 /* I2C Driver instance for Touch screen communication */
 #if(RTE_GT911_TOUCH_I2C_INSTANCE == 4)
@@ -279,11 +280,11 @@ static int32_t TOUCH_IntEnable(bool enable)
 
     if(enable)
     {
-        ret = GPIO_Driver_INT->Control(RTE_GT911_TOUCH_INT_PIN_NO, ARM_GPIO_ENABLE_INTERRUPT, &arg);
+        ret = GPIO_Driver_INT->Control(BOARD_TOUCH_INT_GPIO_PIN, ARM_GPIO_ENABLE_INTERRUPT, &arg);
     }
     else
     {
-        ret = GPIO_Driver_INT->Control(RTE_GT911_TOUCH_INT_PIN_NO, ARM_GPIO_DISABLE_INTERRUPT, NULL);
+        ret = GPIO_Driver_INT->Control(BOARD_TOUCH_INT_GPIO_PIN, ARM_GPIO_DISABLE_INTERRUPT, NULL);
     }
 
     return ret;
@@ -324,38 +325,38 @@ static int32_t TOUCH_Reset(void)
     int32_t ret;
 
     /* TOUCH INT pin */
-    ret = GPIO_Driver_INT->Control(RTE_GT911_TOUCH_INT_PIN_NO, ARM_GPIO_DISABLE_INTERRUPT, NULL);
+    ret = GPIO_Driver_INT->Control(BOARD_TOUCH_INT_GPIO_PIN, ARM_GPIO_DISABLE_INTERRUPT, NULL);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_INT->SetValue(RTE_GT911_TOUCH_INT_PIN_NO, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = GPIO_Driver_INT->SetValue(BOARD_TOUCH_INT_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_INT->SetDirection(RTE_GT911_TOUCH_INT_PIN_NO, GPIO_PIN_DIRECTION_OUTPUT);
+    ret = GPIO_Driver_INT->SetDirection(BOARD_TOUCH_INT_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
     /* TOUCH RST pin */
-    ret = GPIO_Driver_RST->Control(RTE_GT911_TOUCH_RESET_PIN_NO, ARM_GPIO_DISABLE_INTERRUPT, NULL);
+    ret = GPIO_Driver_RST->Control(BOARD_TOUCH_RESET_GPIO_PIN, ARM_GPIO_DISABLE_INTERRUPT, NULL);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_RST->SetValue(RTE_GT911_TOUCH_RESET_PIN_NO, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = GPIO_Driver_RST->SetValue(BOARD_TOUCH_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_RST->SetDirection(RTE_GT911_TOUCH_RESET_PIN_NO, GPIO_PIN_DIRECTION_OUTPUT);
+    ret = GPIO_Driver_RST->SetDirection(BOARD_TOUCH_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
@@ -364,7 +365,7 @@ static int32_t TOUCH_Reset(void)
     sys_busy_loop_us(1000);
 
 #if (GT911_SLAVE_ADDR == 0x14)
-    ret = GPIO_Driver_INT->SetValue(RTE_GT911_TOUCH_INT_PIN_NO, GPIO_PIN_OUTPUT_STATE_HIGH);
+    ret = GPIO_Driver_INT->SetValue(BOARD_TOUCH_INT_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
@@ -373,7 +374,7 @@ static int32_t TOUCH_Reset(void)
     sys_busy_loop_us(100);
 #endif
 
-    ret = GPIO_Driver_RST->SetValue(RTE_GT911_TOUCH_RESET_PIN_NO, GPIO_PIN_OUTPUT_STATE_HIGH);
+    ret = GPIO_Driver_RST->SetValue(BOARD_TOUCH_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
@@ -382,14 +383,14 @@ static int32_t TOUCH_Reset(void)
     sys_busy_loop_us(50000);
 
 #if (GT911_SLAVE_ADDR == 0x14)
-    ret = GPIO_Driver_INT->SetValue(RTE_GT911_TOUCH_INT_PIN_NO, GPIO_PIN_OUTPUT_STATE_LOW);
+    ret = GPIO_Driver_INT->SetValue(BOARD_TOUCH_INT_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 #endif
 
-    ret = GPIO_Driver_INT->SetDirection(RTE_GT911_TOUCH_INT_PIN_NO, GPIO_PIN_DIRECTION_INPUT);
+    ret = GPIO_Driver_INT->SetDirection(BOARD_TOUCH_INT_GPIO_PIN, GPIO_PIN_DIRECTION_INPUT);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
@@ -430,25 +431,25 @@ int32_t TOUCH_Init(void)
         return ret;
     }
 
-    ret = GPIO_Driver_INT->Initialize(RTE_GT911_TOUCH_INT_PIN_NO, &TOUCH_GPIO_CB);
+    ret = GPIO_Driver_INT->Initialize(BOARD_TOUCH_INT_GPIO_PIN, &TOUCH_GPIO_CB);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_INT->PowerControl(RTE_GT911_TOUCH_INT_PIN_NO, ARM_POWER_FULL);
+    ret = GPIO_Driver_INT->PowerControl(BOARD_TOUCH_INT_GPIO_PIN, ARM_POWER_FULL);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_RST->Initialize(RTE_GT911_TOUCH_RESET_PIN_NO, NULL);
+    ret = GPIO_Driver_RST->Initialize(BOARD_TOUCH_RESET_GPIO_PIN, NULL);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
 
-    ret = GPIO_Driver_RST->PowerControl(RTE_GT911_TOUCH_RESET_PIN_NO, ARM_POWER_FULL);
+    ret = GPIO_Driver_RST->PowerControl(BOARD_TOUCH_RESET_GPIO_PIN, ARM_POWER_FULL);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
