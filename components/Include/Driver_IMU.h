@@ -35,7 +35,7 @@ extern "C"
 #define IMU_GET_GYROSCOPE_DATA                  (1UL << 1)  ///< Get Gyroscope data; arg: addr of variable (of type ARM_IMU_COORDINATES)
 #define IMU_GET_MAGNETOMETER_DATA               (1UL << 2)  ///< Get Magnetometer data; arg: addr of variable (of type ARM_IMU_COORDINATES)
 #define IMU_GET_TEMPERATURE_DATA                (1UL << 3)  ///< Get Temperature sensor data; arg: addr of variable (of type float)
-
+#define IMU_SET_INTERRUPT                       (1UL << 4)  ///< Set the IMU interrupts; arg:1-turn on, 0:turn off
 /**
  \ IMU Data ready status
  */
@@ -134,3 +134,4 @@ typedef struct _ARM_DRIVER_IMU{
 #endif
 
 #endif /* DRIVER_IMU_H_ */
+

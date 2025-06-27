@@ -118,12 +118,12 @@ static int32_t hardware_init(void)
 */
 static void imu_icm42670p_demo(void)
 {
-    ARM_DRIVER_VERSION  version;
-    ARM_IMU_COORDINATES data;
-    float               temperature;
-    ARM_IMU_STATUS      status;
-    int32_t             ret;
-    uint8_t             iter;
+    ARM_DRIVER_VERSION         version;
+    ARM_IMU_COORDINATES        data[2];
+    float                      temperature;
+    volatile ARM_IMU_STATUS    status;
+    int32_t                    ret;
+    uint8_t                    iter;
 
     printf("\r\n ICM42670P IMU demo Starting...\r\n");
 
@@ -158,35 +158,43 @@ static void imu_icm42670p_demo(void)
 
     while(1)
     {
+        /* Enable interrupt */
+        ret = Drv_IMU->Control(IMU_SET_INTERRUPT, true);
+        if(ret != ARM_DRIVER_OK)
+        {
+            printf("\r\n Error: Enabling interrupt \r\n");
+            goto error_poweroff;
+        }
         /* Gets IMU status */
         status = Drv_IMU->GetStatus();
 
         if(status.data_rcvd)
         {
-            printf(" IMU Data:\r\n");
+            /* Disable interrupt */
+            ret = Drv_IMU->Control(IMU_SET_INTERRUPT, false);
+            if(ret != ARM_DRIVER_OK)
+            {
+                printf("\r\n Error: Disabling interrupt \r\n");
+                goto error_poweroff;
+            }
             /* Read Accelerometer data */
             ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA,
-                                   (uint32_t)&data);
+                                   (uint32_t)&data[0]);
             if(ret != ARM_DRIVER_OK)
             {
                 printf("\r\n Error: IMU Accelerometer data \r\n");
                 goto error_poweroff;
             }
 
-            printf("\t\tAccel Data--> x:%"PRId16"mg, y:%"PRId16"mg, z:%"PRId16"mg\r\n",
-                    data.x, data.y, data.z);
 
             /* Read Gyroscope data */
             ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA,
-                                   (uint32_t)&data);
+                                   (uint32_t)&data[1]);
             if(ret != ARM_DRIVER_OK)
             {
                 printf("\r\n Error: IMU Gyroscope data \r\n");
                 goto error_poweroff;
             }
-
-            printf("\t\tGyro Data-->  x:%"PRId16"mdps, y:%"PRId16"mdps, z:%"PRId16"mdps\r\n",
-                    data.x, data.y, data.z);
 
             /* Read Temperature data */
             ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA,
@@ -197,7 +205,10 @@ static void imu_icm42670p_demo(void)
                 goto error_poweroff;
             }
 
-            printf("\t\tTemp Data-->  %fC\r\n", temperature);
+            printf("\tAccel Data--> x:%"PRId16"mg, y:%"PRId16"mg, z:%"PRId16"mg"
+                    "\tGyro Data-->  x:%"PRId16"mdps, y:%"PRId16"mdps, z:%"PRId16"mdps"
+                    "\tTemp Data-->  %fC\r\n", data[0].x, data[0].y, data[0].z,
+                    data[1].x, data[1].y, data[1].z, temperature);
             /* wait for 1 sec */
             for(iter = 0; iter < 10; iter++)
             {
@@ -247,3 +258,4 @@ int main()
 
     return 0;
 }
+

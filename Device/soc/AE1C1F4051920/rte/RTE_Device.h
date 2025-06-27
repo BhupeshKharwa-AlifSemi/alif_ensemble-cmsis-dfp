@@ -694,6 +694,36 @@
 
 #if RTE_IMU
 
+// <e> ICM42670 (Initial Measurement Unit) [Driver_ICM42670]
+// <i> Configuration settings for Driver_ICM42670 in component ::Drivers:IMU
+#define RTE_ICM42670                        1
+
+#if RTE_ICM42670
+
+// <o> ICM42670 IMU enable In-band_interrupt
+//    <0=> DISABLE
+//    <1=> ENABLE
+// <i> Defines whether In-band-interrupt to be enabled
+// <i> If disabled, then Normal-GPIO interrupt will be enabled
+// <i> Default: DISABLE
+#define RTE_ICM42670_IBI_ENABLE             0
+
+#if !RTE_ICM42670_IBI_ENABLE
+
+// <o> ICM42670 IMU INT pin GPIO port number range <0-15>
+// <i> Defines ICM42670 IMU INT pin GPIO port number.
+// <i> Default: 5
+#define RTE_ICM42670_INT_IO_PORT            5
+
+// <o> ICM42670 IMU INT pin number range <0-7>
+// <i> Defines ICM42670 IMU INT pin number.
+// <i> Default: 1
+#define RTE_ICM42670_INT_PIN_NO             1
+#endif
+
+#endif
+//</e> ICM42670 (Initial Measurement Unit) [Driver_ICM42670]
+
 // <e> BMI323 (Initial Measurement Unit) [Driver_BMI323]
 // <i> Configuration settings for Driver_BMI323 in component ::Drivers:IMU
 #define RTE_BMI323                          1

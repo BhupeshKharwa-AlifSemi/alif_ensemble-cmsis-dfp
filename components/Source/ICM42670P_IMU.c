@@ -29,7 +29,16 @@
 
 #if defined (RTE_Drivers_ICM42670P)
 
-#define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 2)
+#define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 3)
+
+#if !RTE_ICM42670_IBI_ENABLE
+/* IO Driver */
+#include "Driver_IO.h"
+
+/* ICM42670 Interrupt pin control IO port */
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_ICM42670_INT_IO_PORT);
+static ARM_DRIVER_GPIO *IO_Driver_INT = &ARM_Driver_GPIO_(RTE_ICM42670_INT_IO_PORT);
+#endif
 
 /* Timeout in Microsec */
 #define IMU_I3C_TIMEOUT_US              (100000)
@@ -101,12 +110,17 @@
 #define ICM42670P_MADDR_R_REG           (0x7D)
 #define ICM42670P_M_R_REG               (0x7E)
 
+#if RTE_ICM42670_IBI_ENABLE
 /* Interrupt config and src register*/
 #define ICM42670P_INTF_CONFIG6_REG      (0x23)    /* IBI configuration Register */
 #define ICM42670P_INTF_CONFIG6_VAL      (0x14)
 
 #define ICM42670P_INT_SOURCE8_REG       (0x31)    /* IBI Interrupt source Register  */
 #define ICM42670P_INT_SOURCE8_VAL       (0x8)     /* IBI for data availability */
+#else
+#define ICM42670P_INT_SOURCE0_REG       (0x2B)    /* Interrupt (INT1) source Register  */
+#define ICM42670P_INT_SOURCE0_VAL       (0x8)     /* Interrupt for data availability */
+#endif
 
 #define ICM42670P_ACCEL_CALIB_VAL       (2048U)   /*Calibration for full scale output selection of +-16g */
 #define ICM42670P_GYRO_CALIB_VAL        (16.4)    /*Calibration for full scale output selection of +-2kdps */
@@ -166,6 +180,54 @@ static ARM_IMU_CAPABILITIES ARM_IMU_GetCapabilities(void)
     return DriverCapabilities;
 }
 
+#if !RTE_ICM42670_IBI_ENABLE
+/**
+  \fn           int32_t ARM_IMU_IntEnable(bool enable)
+  \brief        ICM42670 INT line IO control.
+  \param[in]    enable : true or false.
+  \return       \ref execution_status.
+  */
+static int32_t ARM_IMU_IntEnable(bool enable)
+{
+    uint32_t arg = ARM_GPIO_IRQ_POLARITY_LOW | ARM_GPIO_IRQ_SENSITIVE_LEVEL;
+    int32_t ret;
+
+    if (enable)
+    {
+        /* Enable interrupt */
+        ret = IO_Driver_INT->Control(RTE_ICM42670_INT_PIN_NO,
+                                     ARM_GPIO_ENABLE_INTERRUPT,
+                                     &arg);
+    }
+    else
+    {
+        /* Disable interrupt */
+        ret = IO_Driver_INT->Control(RTE_ICM42670_INT_PIN_NO,
+                                     ARM_GPIO_DISABLE_INTERRUPT,
+                                     NULL);
+    }
+
+    return ret;
+}
+
+/**
+  \fn           void ARM_IMU_IO_CB(uint32_t event)
+  \brief        IMU driver I3C callback event.
+  \param[in]    event: I3C Event.
+  \return       None
+*/
+void ARM_IMU_IO_CB(uint32_t event)
+{
+    ARG_UNUSED (event);
+
+    /* Disable IMU interrupt */
+    (void)ARM_IMU_IntEnable(false);
+
+    /* Sets Data Rcvd to true */
+    icm42670p_drv_info.status.data_rcvd = 1U;
+}
+#endif
+
 /**
   \fn          ARM_IMU_STATUS ARM_IMU_GetStatus(void)
   \brief       Gets IMU driver status.
@@ -186,11 +248,13 @@ void IMU_I3CCallBack(uint32_t event)
 {
     icm42670p_drv_info.imu_i3c_event |= event;
 
+#if RTE_ICM42670_IBI_ENABLE
     if(icm42670p_drv_info.imu_i3c_event & ARM_I3C_EVENT_IBI_SLV_INTR_REQ)
     {
         /* Sets Data Rcvd to true */
         icm42670p_drv_info.status.data_rcvd = 1U;
     }
+#endif
 }
 
 /**
@@ -309,6 +373,18 @@ static int32_t IMU_Init(void)
         return ret;
     }
 
+#if !RTE_ICM42670_IBI_ENABLE
+    /* Initialize IO driver */
+    ret = IO_Driver_INT->Initialize(RTE_ICM42670_INT_PIN_NO, &ARM_IMU_IO_CB);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+    /* Power-up IO driver */
+    ret = IO_Driver_INT->PowerControl(RTE_ICM42670_INT_PIN_NO, ARM_POWER_FULL);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
     return ARM_DRIVER_OK;
 }
 
@@ -544,6 +620,7 @@ static int32_t IMU_TempConfig(void)
     return ARM_DRIVER_OK;
 }
 
+#if RTE_ICM42670_IBI_ENABLE
 /**
   \fn          int32_t IMU_IBIConfig(void)
   \brief       Configures In-Band-Interrupt of IMU.
@@ -625,6 +702,32 @@ static int32_t IMU_IBIConfig(void)
 
     return ARM_DRIVER_OK;
 }
+#else
+/**
+  \fn          int32_t IMU_INTConfig(void)
+  \brief       Configures Interrupt of IMU.
+  \return      \ref Execution status.
+*/
+static int32_t IMU_INTConfig(void)
+{
+    uint8_t data[4];
+    /* Below code is for for configuring Interrupt */
+    data[0] = ICM42670P_INT_SOURCE0_VAL;
+    IMU_Write(icm42670p_drv_info.target_addr,
+              ICM42670P_INT_SOURCE0_REG, data,
+              1U);
+    sys_busy_loop_us(10);
+    /* Read back the Interrupt configuration  */
+    data[0] = 0;
+    IMU_Read(icm42670p_drv_info.target_addr,
+            ICM42670P_INT_SOURCE0_REG, data,
+             1U);
+    if (data[0] != ICM42670P_INT_SOURCE0_VAL) {
+        return ARM_DRIVER_ERROR;
+    }
+    return ARM_DRIVER_OK;
+}
+#endif
 /**
   \fn          int32_t IMU_Config(void)
   \brief       Configures IMU driver.
@@ -672,12 +775,20 @@ static int32_t IMU_Config(void)
         return ret;
     }
 
+#if RTE_ICM42670_IBI_ENABLE
     /* Invokes IBI configuration */
     ret = IMU_IBIConfig();
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
+#else
+    /* Invokes INT configuration */
+    ret = IMU_INTConfig();
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
 
     return ARM_DRIVER_OK;
 }
@@ -759,6 +870,23 @@ static int32_t IMU_Setup(void)
         return ret;
     }
 
+#if !RTE_ICM42670_IBI_ENABLE
+    /* Disable interrupt */
+    ret = ARM_IMU_IntEnable(false);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+    ret = IO_Driver_INT->SetDirection(RTE_ICM42670_INT_PIN_NO,
+                                      GPIO_PIN_DIRECTION_INPUT);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+    /* Enable interrupt */
+    ret = ARM_IMU_IntEnable(true);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
     return ARM_DRIVER_OK;
 }
 
@@ -1037,6 +1165,22 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
             IMU_GetTempData(temp_data);
             break;
 
+        case IMU_SET_INTERRUPT:
+            if(arg)
+            {
+#if !RTE_ICM42670_IBI_ENABLE
+                /* Enable GPIO interrupt */
+                (void)ARM_IMU_IntEnable(true);
+#endif
+            }
+            else
+            {
+#if !RTE_ICM42670_IBI_ENABLE
+                /* Disable GPIO interrupt */
+                (void)ARM_IMU_IntEnable(false);
+#endif
+            }
+            break;
         case IMU_GET_MAGNETOMETER_DATA:
         default:
             return ARM_DRIVER_ERROR_UNSUPPORTED;
@@ -1058,3 +1202,4 @@ ARM_DRIVER_IMU ICM42670P =
     ARM_IMU_Control
 };
 #endif /* defined (RTE_Drivers_ICM42670P) */
+
