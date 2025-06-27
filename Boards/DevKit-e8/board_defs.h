@@ -70,6 +70,9 @@
 // </e>
 // </e>
 
+// <o> Select MIPI display by default
+#define BOARD_CONFIGURE_LVDS_MUX             1
+
 // <e> ETH module enabled flag
 #define BOARD_ETH_ENABLED                    1
 // <e> "RTL8201" on ETH presence flag

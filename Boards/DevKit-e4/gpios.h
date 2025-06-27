@@ -42,14 +42,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO3
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_3,
         0,
@@ -64,14 +66,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO4
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_4,
         0,
@@ -86,14 +90,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO6
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_6,
         0,
@@ -108,14 +114,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO7
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_7,
         0,
@@ -130,14 +138,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO8
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_8,
         0,
@@ -152,14 +162,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO9
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_9,
         0,
@@ -174,14 +186,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO12
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_12,
         0,
@@ -196,18 +210,20 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO14
         1 - Reserved for LPGPIO
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_14,
         0,
-        0,
+        (1 << PIN_2),
         (1 << PIN_2) | (1 << PIN_1) | (1 << PIN_0),
         0,
         0,
@@ -218,14 +234,16 @@ const struct gpioconf board_gpioconf[] = {
 
     /* Pin settings (8-bit, 1 bit per pin) for GPIO15
         1 - LPGPIO pins driven by LPTIMER
-        2 - Output pins that will drive logic '1' after startup. Other output pins will drive '0'
+        2 - Output pins that will drive logic '1' after startup. Other output pins
+            will drive '0'
         3 - Output pins. Other pins are inputs
         4 - Pins with debounce function enabled
         5 - Pins that will generate interrupts
         6 - Interrupts that are edge sensitive. Other interrupts are level sensitive
-        7 - Interrupts generated on high level or on rising edge - depending on previous setting.
-       Other pins are low level/falling edge sensitive 8 - Interrupts generated on both edges. Other
-       pins behavior is based on previous 2 settings */
+        7 - Interrupts generated on high level or on rising edge - depending on
+            previous setting. Other pins are low level/falling edge sensitive
+        8 - Interrupts generated on both edges. Other pins behavior is based on
+            previous 2 settings */
     {
         PORT_15,
         0,

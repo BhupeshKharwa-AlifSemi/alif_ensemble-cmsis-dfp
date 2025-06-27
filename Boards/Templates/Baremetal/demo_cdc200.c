@@ -35,6 +35,7 @@
 #include CMSIS_device_header
 
 #include "sys_utils.h"
+#include "board_config.h"
 
 /* include the CDC200 driver */
 #include "Driver_CDC200.h"
@@ -94,6 +95,15 @@ static void CDC_demo()
     run_profile_t      runp = {0};
     ARM_DRIVER_VERSION version;
 
+#if BOARD_CONFIGURE_LVDS_MUX
+    /* MIPI‑LVDS multiplexer pin */
+    ret = board_gpios_config();
+    if (ret != 0) {
+        printf("Error in gpio pin configuration: %"PRId32"\n", ret);
+        return;
+    }
+#endif
+
     printf("\r\n >>> CDC demo starting up!!! <<< \r\n");
 
     /* Initialize the SE services */
@@ -145,7 +155,7 @@ static void CDC_demo()
     }
 
     version = CDCdrv->GetVersion();
-    printf("\r\n CDC version api:%" PRIu16 " driver:%" PRIu16 "...\r\n", version.api, version.drv);
+    printf("\r\n CDC version api:%"PRIu16" driver:%"PRIu16"...\r\n", version.api, version.drv);
 
     /* Initialize CDC driver */
     ret = CDCdrv->Initialize(display_callback);
@@ -168,7 +178,7 @@ static void CDC_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%" PRIu32 " <<<\n", (uint32_t) lcd_image);
+    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n", (uint32_t)lcd_image);
 
     /* Start CDC */
     ret = CDCdrv->Start();
