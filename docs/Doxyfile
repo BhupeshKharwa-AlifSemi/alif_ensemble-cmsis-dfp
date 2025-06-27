@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "Ensemble CMSIS DFP"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           ="images/alif_logo.jpeg"
+PROJECT_LOGO           ="docs/images/alif_logo.jpeg"
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -864,7 +864,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../Alif_CMSIS ../Boards ../components ../Device ../drivers ../ospi_xip ../se_services 
+INPUT                  = Alif_CMSIS Boards components Device drivers ospi_xip se_services 
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1039,7 +1039,7 @@ INPUT_FILTER           =
 # need to set EXTENSION_MAPPING for the extension otherwise the files are not
 # properly processed by doxygen.
 
-FILTER_PATTERNS        = *.c *.cpp *.h *.hpp
+#FILTER_PATTERNS        = *.c *.cpp *.h *.hpp
 
 # If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using
 # INPUT_FILTER) will also be used to filter the input files that are used for
