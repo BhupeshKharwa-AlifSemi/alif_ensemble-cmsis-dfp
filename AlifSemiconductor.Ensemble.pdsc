@@ -30,7 +30,7 @@
       - WM8904 support
       - EMMC mode support in SD Driver
       - BMI323 Driver support
-      - Board Support Library for Devkit E7, E8
+      - Board Support Library for DevKit E7, E8
       - Add E8 Support
       - Add E1C Support
       - Restructured DFP
@@ -2809,7 +2809,7 @@
       </files>
     </component>
 
-    <component Cclass="BSP" Cgroup="Board Config"  Cvariant="Devkit-e7" Cversion="2.0.0" condition="Board Config E7">
+    <component Cclass="BSP" Cgroup="Board Config"  Cvariant="DevKit-e7" Cversion="2.0.0" condition="Board Config E7">
       <description>Conductor Tool based board configuration for DevKit-e7</description>
       <files>
         <file category="header" name="Boards/DevKit-e7/board_defs.h" version="2.0.0" attr="config" condition="SoC AE722F80F55D5"/>
