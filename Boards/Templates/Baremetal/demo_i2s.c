@@ -77,10 +77,6 @@ static uint32_t sample_buf[NUM_SAMPLES];
 #define ERROR  -1
 #define SUCCESS 0
 
-#if !defined(BOARD_MIC_INPUT_I2S_INSTANCE) && !defined (DAC_PREDEFINED_SAMPLES)
-#error Use Predefined Samples as I2S MICS are not available
-#endif
-
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)
 #define ADC_RECEIVE_OVERFLOW_EVENT (1U << 2)

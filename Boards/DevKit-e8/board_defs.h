@@ -98,6 +98,9 @@
 #if defined(RTSS_HE)
 // <o> "MIC Input" I2S instance number <0-3>
 #define BOARD_MIC_INPUT_I2S_INSTANCE             LP
+#else
+// <o> "MIC Input" I2S instance number <0-3>
+#define BOARD_MIC_INPUT_I2S_INSTANCE             3
 #endif
 
 // <o> LPSPI module enabled flag
@@ -1824,7 +1827,6 @@
 // <o> "DAC_OUTPUT_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION            2
 
-#ifdef BOARD_MIC_INPUT_I2S_INSTANCE
 // <o> "MIC_INPUT_SDI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MIC_INPUT_SDI_GPIO_PORT                      13
 // <o> "MIC_INPUT_SDI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
@@ -1845,6 +1847,5 @@
 #define BOARD_MIC_INPUT_SCLK_GPIO_PIN                      6
 // <o> "MIC_INPUT_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION            2
-#endif
 
 // </h>
