@@ -258,7 +258,7 @@ static inline void pdm_clear_modes(PDM_Type *pdm)
 }
 
 /**
- @fn          void pdm_enable_modes(PDM_Type *pdm, uint32_t arg))
+ @fn          void pdm_enable_modes(PDM_Type *pdm, uint32_t arg)
  @brief       Enable the PDM modes
  @param[in]   pdm : Pointer to the PDM register map
  @param[in]   arg : Select the pdm frequency modes
@@ -281,7 +281,7 @@ static inline void pdm_clear_channel(PDM_Type *pdm)
 }
 
 /**
- @fn          void pdm_set_fifo_watermark(PDM_Type *pdm, uint32_t fifo_watermark))
+ @fn          void pdm_set_fifo_watermark(PDM_Type *pdm, uint32_t fifo_watermark)
  @brief       Set the pdm fifo watermark value
  @param[in]   pdm            : Pointer to the PDM register map
  @param[in]   fifo_watermark : Threshold to trigger FIFO almost full warning interrupt
@@ -293,7 +293,7 @@ static inline void pdm_set_fifo_watermark(PDM_Type *pdm, uint32_t fifo_watermark
 }
 
 /**
- @fn          void pdm_enable_multi_ch(PDM_Type *pdm, uint32_t arg))
+ @fn          void pdm_enable_multi_ch(PDM_Type *pdm, uint32_t arg)
  @brief       Enable the PDM multiple channels
  @param[in]   pdm : Pointer to the PDM register map
  @param[in]   arg : Enable the pdm multiple channels

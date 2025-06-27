@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     WDT_Private.h
+ * @file     Driver_WDT_Private.h
  * @author   Tanay Rami
  * @email    tanay@alifsemi.com
  * @version  V1.0.0

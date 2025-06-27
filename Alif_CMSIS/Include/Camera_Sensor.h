@@ -11,7 +11,6 @@
 /**************************************************************************//**
  * @file     Camera_Sensor.h
  * @author   Tanay Rami and Chandra Bhushan Singh
- * @email    tanay@alifsemi.com and chandrabhushan.singh@alifsemi.com
  * @version  V1.1.0
  *             -Removed enums for clock source, interface, polarity, hsync mode,
  *             data mode, and data mask.

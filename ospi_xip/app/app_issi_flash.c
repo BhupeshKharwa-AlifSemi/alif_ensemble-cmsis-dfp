@@ -11,13 +11,12 @@
 /**************************************************************************//**
  * @file     app_issi_flash.c
  * @author   Khushboo Singh
- * @email    khushboo.singh@alifsemi.com
  * @version  V1.0.0
  * @date     05-Dec-2022
  * @brief    Application to set up flash in XIP mode and jump to the flash
  *           image address.
  * @bug      None.
- * @Note     None
+ * \note     None
  ******************************************************************************/
 
 #include "RTE_Components.h"

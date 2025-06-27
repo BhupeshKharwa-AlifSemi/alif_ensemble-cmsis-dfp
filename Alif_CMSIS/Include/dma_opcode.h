@@ -285,7 +285,7 @@ static inline void dma_construct_kill(dma_opcode_buf *op_buf)
 }
 
 /**
-  \fn          bool dma_construct_load(DMA_XFER xfer_type, dma_opcode_buf *op_buf
+  \fn          bool dma_construct_load(DMA_XFER xfer_type, dma_opcode_buf *op_buf)
   \brief       Build the opcode for DMALD
   \param[in]   xfer_type Burst/Single/Force Load operation
   \param[in]   op_buf opcode buf info

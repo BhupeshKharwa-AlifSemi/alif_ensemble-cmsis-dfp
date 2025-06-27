@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     dwc_ospi_private.h
+ * @file     ospi_private.h
  * @version  V1.0.0
  * @brief    Private header file for OSPI driver to set up flash in XIP mode.
  * @bug      None.

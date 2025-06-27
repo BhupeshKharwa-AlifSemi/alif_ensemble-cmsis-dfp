@@ -11,7 +11,6 @@
 /**************************************************************************//**
  * @file     Camera_Sensor_i2c.h
  * @author   Tanay Rami
- * @email    tanay@alifsemi.com
  * @version  V1.0.0
  * @date     11-July-2023
  * @brief    i2c definitions for Camera Sensor Slave Device

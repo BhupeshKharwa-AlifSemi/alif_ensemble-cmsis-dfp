@@ -58,7 +58,7 @@ static void canfd_copy_tx_buf(volatile uint32_t* dest,
 
 /**
   \fn          void canfd_enable_acpt_fltr(CANFD_Type* canfd,
-  \                                        canfd_acpt_fltr_t filter_config
+  \                                        canfd_acpt_fltr_t filter_config)
   \brief       Configures and enables the particular acceptance filter.
   \param[in]   canfd          : Pointer to the CANFD register map
   \param[in]   filter_config  : Filter configuration
@@ -406,7 +406,7 @@ void canfd_send(CANFD_Type* canfd, const canfd_tx_info_t tx_header,
 
 /**
   \fn          void canfd_receive(CANFD_Type* canfd,
-  \                               canfd_data_transfer_t *dest_data))
+  \                               canfd_data_transfer_t *dest_data)
   \brief       Fetches the data from Rx buffer
   \param[in]   canfd      : Pointer to the CANFD register map
   \param[in]   dest_data  : Destination Data pointer
@@ -507,7 +507,7 @@ void canfd_send_blocking(CANFD_Type* canfd, const canfd_tx_info_t tx_header,
 
 /**
   \fn          void canfd_receive_blocking(CANFD_Type* canfd,
-  \                                        canfd_data_transfer_t *dest_data))
+  \                                        canfd_data_transfer_t *dest_data)
   \brief       Fetches the data from Rx buffer in blocking mode
   \param[in]   canfd      : Pointer to the CANFD register map
   \param[in]   dest_data  : Destination Data pointer

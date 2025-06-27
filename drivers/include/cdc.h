@@ -11,7 +11,6 @@
 /**************************************************************************//**
  * @file     cdc.h
  * @author   Prasanna Ravi
- * @email    prasanna.ravi@alifsemi.com
  * @version  V1.0.0
  * @date     10-April-2023
  * @brief    Low level driver Specific Header file.
@@ -104,7 +103,7 @@ typedef enum _CDC_PIXCLK_POLARITY{
 } CDC_PIXCLK_POLARITY;
 
 /**
- * @enum   CDC_PIXEL_FORMAT
+ * @enum   _CDC_PIXEL_FORMAT
  * @brief  CDC Supported Pixel format.
  */
 typedef enum _CDC_PIXEL_FORMAT
@@ -120,7 +119,7 @@ typedef enum _CDC_PIXEL_FORMAT
 } CDC_PIXEL_FORMAT;
 
 /**
- * @enum   CDC_LAYER
+ * @enum   _CDC_LAYER
  * @brief  CDC layers supported.
  */
 typedef enum _CDC_LAYER
@@ -130,7 +129,7 @@ typedef enum _CDC_LAYER
 } CDC_LAYER;
 
 /**
- * @enum   CDC_SHADOW_RELOAD
+ * @enum   _CDC_SHADOW_RELOAD
  * @brief  CDC shadow register immediate or delayed update.
  */
 typedef enum _CDC_SHADOW_RELOAD
@@ -140,7 +139,7 @@ typedef enum _CDC_SHADOW_RELOAD
 } CDC_SHADOW_RELOAD;
 
 /**
- * @enum   CDC_BLEND_FACTOR
+ * @enum   _CDC_BLEND_FACTOR
  * @brief  CDC Selection of layer blending factor.
  */
 typedef enum _CDC_BLEND_FACTOR
@@ -150,7 +149,7 @@ typedef enum _CDC_BLEND_FACTOR
 } CDC_BLEND_FACTOR;
 
 /**
- * @struct  cdc_timing_info_t
+ * @struct  _cdc_timing_info_t
  * @brief   CDC video timing parameters information.
  */
 typedef struct _cdc_timing_info_t
@@ -166,7 +165,7 @@ typedef struct _cdc_timing_info_t
 } cdc_timing_info_t;
 
 /**
- * @struct cdc_backgnd_info_t
+ * @struct _cdc_backgnd_info_t
  * @brief  CDC Background color information
  */
 typedef struct _cdc_backgnd_color_info_t
@@ -177,7 +176,7 @@ typedef struct _cdc_backgnd_color_info_t
 } cdc_backgnd_color_info_t;
 
 /**
- * @struct  cdc_cfg_info_t
+ * @struct  _cdc_cfg_info_t
  * @brief   CDC configuration parameters information.
  */
 typedef struct _cdc_cfg_info_t
@@ -189,7 +188,7 @@ typedef struct _cdc_cfg_info_t
 } cdc_cfg_info_t;
 
 /**
- * @struct  cdc_window_info_t
+ * @struct  _cdc_window_info_t
  * @brief   CDC Layer Window information.
  */
 typedef struct _cdc_window_info_t
@@ -201,7 +200,7 @@ typedef struct _cdc_window_info_t
 } cdc_window_info_t;
 
 /**
- * @struct  cdc_layer_info_t
+ * @struct  _cdc_layer_info_t
  * @brief   CDC layer information.
  */
 typedef struct _cdc_layer_info_t

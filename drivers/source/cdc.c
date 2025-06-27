@@ -11,7 +11,6 @@
 /**************************************************************************//**
  * @file     cdc.c
  * @author   Prasanna Ravi
- * @email    prasanna.ravi@alifsemi.com
  * @version  V1.0.0
  * @date     10-April-2023
  * @brief    Low level driver Specific Source file.

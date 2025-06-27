@@ -22,7 +22,6 @@
 /**************************************************************************//**
  * @file     bayer2rgb.c
  * @author   Tanay Rami
- * @email    tanay@alifsemi.com
  * @version  V1.0.0
  * @date     10-Nov-2021
  * @brief    Original file is modified only in order to port "Open-Source"

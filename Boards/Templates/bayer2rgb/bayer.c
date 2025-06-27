@@ -24,7 +24,6 @@
 /**************************************************************************//**
  * @file     bayer.c
  * @author   Tanay Rami
- * @email    tanay@alifsemi.com
  * @version  V1.0.0
  * @date     18-Nov-2021
  * @brief    Original "Open-Source" Linux Command-line Script code is

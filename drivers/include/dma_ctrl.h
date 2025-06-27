@@ -8,7 +8,7 @@
  *
  */
 /**************************************************************************//**
- * @file     dma_info.h
+ * @file     dma_ctrl.h
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
  * @version  V1.0.0

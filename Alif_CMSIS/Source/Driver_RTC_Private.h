@@ -9,7 +9,7 @@
  */
 
 /**************************************************************************//**
- * @file     Driver_LPRTC_Private.h
+ * @file     Driver_RTC_Private.h
  * @author   Tanay Rami, Manoj A Murudi
  * @email    tanay@alifsemi.com, manoj.murudi@alifsemi.com
  * @version  V1.0.0

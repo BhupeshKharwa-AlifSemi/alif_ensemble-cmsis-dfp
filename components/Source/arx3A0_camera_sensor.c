@@ -10,12 +10,11 @@
 /**************************************************************************//**
  * @file     arx3A0_camera_sensor.c
  * @author   Prasanna Ravi
- * @email    prasanna.ravi@alifsemi.com
  * @version  V1.0.0
  * @date     19-April-2023
  * @brief    ONsemi ARX3A0 Camera Sensor driver.
  * @bug      None.
- * @Note     None.
+ * \note     None.
  ******************************************************************************/
 /* System Includes */
 #include "RTE_Device.h"
