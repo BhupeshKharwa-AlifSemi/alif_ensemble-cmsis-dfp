@@ -367,9 +367,9 @@ void DAC_Init(void)
     }
 
 error_adc_dac:
-error_adc_receive:
-error_adc_control:
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
+error_adc_control:
+error_adc_receive:
     i2s_adc->PowerControl(ARM_POWER_OFF);
     i2s_adc->Uninitialize();
 #endif
