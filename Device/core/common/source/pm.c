@@ -95,9 +95,9 @@ static inline void save_fp_state(fp_state_t *state)
 {
     __asm (
         "VSTM    %0, {D8-D15}\n\t"
-        "VSTR    FPSCR, [%0, #32]\n\t"
+        "VSTR    FPSCR, [%0, #64]\n\t"
 #if defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
-        "VSTR    VPR, [%0, #36]\n\t"
+        "VSTR    VPR, [%0, #68]\n\t"
 #endif
         :: "r"(state) : "memory"
     );
@@ -107,9 +107,9 @@ static inline void restore_fp_state(const fp_state_t *state)
 {
     __asm (
         "VLDM    %0, {D8-D15}\n\t"
-        "VLDR    FPSCR, [%0, #32]\n\t"
+        "VLDR    FPSCR, [%0, #64]\n\t"
 #if defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
-        "VLDR    VPR, [%0, #36]\n\t"
+        "VLDR    VPR, [%0, #68]\n\t"
 #endif
         :: "r"(state) : "memory"
     );
