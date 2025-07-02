@@ -1480,6 +1480,7 @@
       <description>AI/ML Applications Kit E7 Gen 2 (FBGA194)</description>
       <image small="docs/images/AK-E7-AIML_Gen-2_small.jpg" large="docs/images/AK-E7-AIML_Gen-2.jpg"/>
       <book category="overview"  name="https://alifsemi.com/support/kits/ai-ml-appkit/" title="Ensemble AI/ML AppKit Gen 2 Web Page"/>
+      <book category="other"     name="Boards/AppKit-e7-aiml/Doc/README.md"             title="Guide" public="true"/>
       <mountedDevice deviceIndex="0" Dvendor="Alif Semiconductor:165" Dname="AE722F80F55D5LS"/>
       <compatibleDevice deviceIndex="0" Dvendor="Alif Semiconductor:165" Dname="AE512F80F55D5LS"/>
       <compatibleDevice deviceIndex="1" Dvendor="Alif Semiconductor:165" Dname="AE512F80F5582LS"/>
