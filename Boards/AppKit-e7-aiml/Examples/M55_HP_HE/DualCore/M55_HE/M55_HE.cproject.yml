@@ -18,7 +18,6 @@ project:
   # A software component is a re-usable unit that may be configurable.
   components:
     - component: Device:Startup
-    - component: Device:SKU&AE722F80F55D5
     - component: Device:SOC Peripherals:PINCONF
     - component: Device:SOC Peripherals:MHU
 

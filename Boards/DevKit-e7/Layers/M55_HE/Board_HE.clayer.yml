@@ -84,7 +84,7 @@ layer:
     - component: CMSIS-Compiler:STDOUT:Custom
 
     - component: Device:Startup
-    - component: Device:SKU&AE722F80F55D5
+    - component: BSP:Board Config
 
     - component: Device:SOC Peripherals:DMA
     - component: Device:SOC Peripherals:PINCONF
