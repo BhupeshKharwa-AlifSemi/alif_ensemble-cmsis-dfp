@@ -60,39 +60,36 @@ static int32_t hardware_init(void)
      */
 
     /* Configure GPIO flex I/O pins to 1.8-V:
-     *  P7_6 and P7_7 pins are part of GPIO flex I/O pins,
-     *  so we can use any one of the pin to configure flex I/O.
+     *  P7_6 and P7_7 pins are part of GPIO flex I/O pins.
      */
-#define GPIO7_PORT          7
-#define GPIO_PIN            6
-
-    extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7_PORT);
-    ARM_DRIVER_GPIO *gpioDrv = &ARM_Driver_GPIO_(GPIO7_PORT);
-
     int32_t  ret = 0;
-    uint32_t arg = 0;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+    run_profile_t runp;
 
-    ret = gpioDrv->Initialize(GPIO_PIN, NULL);
-    if (ret != ARM_DRIVER_OK)
+    /* config flexio pins to 1.8V */
+    /* Initialize the SE services */
+    se_services_port_init();
+
+    /* Get the current run configuration from SE */
+    error_code = SERVICES_get_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
     {
-        printf("ERROR: Failed to initialize GPIO \n");
-        return ARM_DRIVER_ERROR;
+        printf("Get Current run config failed\n");
+        while(1);
     }
 
-    ret = gpioDrv->PowerControl(GPIO_PIN, ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
+    runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
+    /* Set the new run configuration */
+    error_code = SERVICES_set_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
     {
-        printf("ERROR: Failed to powered full GPIO \n");
-        return ARM_DRIVER_ERROR;
-    }
-
-    /* select control argument as flex 1.8-V */
-    arg = ARM_GPIO_FLEXIO_VOLT_1V8;
-    ret = gpioDrv->Control(GPIO_PIN, ARM_GPIO_CONFIG_FLEXIO, &arg);
-    if (ret != ARM_DRIVER_OK)
-    {
-        printf("ERROR: Failed to control GPIO Flex \n");
-        return ARM_DRIVER_ERROR;
+        printf("Set new run config failed\n");
+        while(1);
     }
 
     /* pin mux and configuration for all device IOs requested from pins.h*/

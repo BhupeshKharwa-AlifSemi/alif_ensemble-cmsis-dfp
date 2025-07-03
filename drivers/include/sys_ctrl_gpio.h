@@ -28,8 +28,6 @@ extern "C"
 #include "soc.h"
 #include "RTE_Device.h"
 
-#define GPIO_CTRL_VOLT_1V8                 (1U << 0U)
-
 /* CLKCTL_PER_SLV GPIO_CTRLn field definitions */
 #define GPIO_CTRL_DB_CKEN                   (1U  << 12U) /* GPIO Debounce clock enable */
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
@@ -165,30 +163,6 @@ static inline void set_gpio_debounce_clkdiv (uint16_t clk_div, GPIO_INSTANCE ins
     {
         CLKCTL_PER_SLV->GPIO_CTRL[instance] |= clk_div;
     }
-}
-
-/**
-  \fn          static void inline set_flexio_gpio_voltage_1v8 (void)
-  \brief       Set GPIO voltage to 1.8V
-  \param       none
-  \return      none
-*/
-static inline void set_flexio_gpio_voltage_1v8 (void)
-{
-    /* config gpio voltage as 1.8V */
-    VBAT->GPIO_CTRL = GPIO_CTRL_VOLT_1V8;
-}
-
-/**
-  \fn          static void inline set_flexio_gpio_voltage_3v3 (void)
-  \brief       Set GPIO voltage to 3.3V
-  \param       none
-  \return      none
-*/
-static inline void set_flexio_gpio_voltage_3v3 (void)
-{
-    /* config gpio voltage as 3.3V */
-    VBAT->GPIO_CTRL = ~GPIO_CTRL_VOLT_1V8;
 }
 
 #ifdef __cplusplus

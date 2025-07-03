@@ -508,27 +508,6 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
             *arg = gpio_read_config2 (GPIO->reg_base);
             break;
         }
-        case ARM_GPIO_CONFIG_FLEXIO :
-        {
-            if (!arg)
-            {
-                return ARM_DRIVER_ERROR_PARAMETER;
-            }
-            if (!(pin_is_flexio(GPIO->gpio_id, pin_no)))
-            {
-                return ARM_DRIVER_ERROR_PARAMETER;
-            }
-
-            if (*arg)
-            {
-                set_flexio_gpio_voltage_1v8();
-            }
-            else
-            {
-                set_flexio_gpio_voltage_3v3();
-            }
-            break;
-        }
         case ARM_GPIO_CONFIG_MODE :
         {
             if (GPIO->gpio_id != LPGPIO_INSTANCE)

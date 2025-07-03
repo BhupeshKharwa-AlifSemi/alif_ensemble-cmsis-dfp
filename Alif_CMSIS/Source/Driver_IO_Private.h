@@ -124,42 +124,6 @@ typedef struct _GPIO_RESOURCES {
     ARM_GPIO_SignalEvent_t cb_event[GPIO_PORT_MAX_PIN_NUMBER];   /**< GPIO Call back function >*/
 } GPIO_RESOURCES;
 
-/**
-  \fn          static inline bool pin_is_flexio (GPIO_INSTANCE port, uint8_t pin)
-  \brief       check whether gpio pin supports voltage flexio feature.
-  \param       port     port number
-  \param       pin      pin number
-  \return      return status
-*/
-static inline bool pin_is_flexio (GPIO_INSTANCE port, uint8_t pin)
-{
-    uint32_t pin_value = (1U << pin);
-
-    switch (port)
-    {
-        case GPIO1_INSTANCE:
-            if (pin_value & SOC_FEAT_GPIO1_FLEXIO_PIN_MASK)
-            {
-                return 1;
-            }
-            return 0;
-        case GPIO7_INSTANCE:
-            if (pin_value & SOC_FEAT_GPIO7_FLEXIO_PIN_MASK)
-            {
-                return 1;
-            }
-            return 0;
-        case LPGPIO_INSTANCE:
-            if (pin_value & SOC_FEAT_LPGPIO_FLEXIO_PIN_MASK)
-            {
-                return 1;
-            }
-            return 0;
-        default:
-            return 0;
-    }
-}
-
 #ifdef  __cplusplus
 }
 #endif

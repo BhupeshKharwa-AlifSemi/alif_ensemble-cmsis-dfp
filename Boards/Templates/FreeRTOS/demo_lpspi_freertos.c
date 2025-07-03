@@ -25,7 +25,6 @@
 /* include for Drivers */
 #include "Driver_SPI.h"
 #include "pinconf.h"
-#include "Driver_IO.h"
 /*RTOS Includes */
 #include "RTE_Components.h"
 #include CMSIS_device_header
@@ -54,16 +53,12 @@
 
 #define  LPSPI          LP   /* LPSPI instance */
 #define  SPI0           0    /* SPI0 instance */
-#define  GPIO7          7    /* GPIO instance to config flexio Port 4 pins */
 
 extern ARM_DRIVER_SPI ARM_Driver_SPI_(LPSPI);
 ARM_DRIVER_SPI *ptrLPSPI = &ARM_Driver_SPI_(LPSPI);
 
 extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI0);
 ARM_DRIVER_SPI *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
-
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7);
-ARM_DRIVER_GPIO *gpioDrv7 = &ARM_Driver_GPIO_(GPIO7);
 
 /*Define for the FreeRTOS objects*/
 #define LPSPI_CALLBACK_EVENT       0x01
@@ -228,7 +223,6 @@ static void lpspi_spi0_transfer(void *pvParameters)
     uint32_t lpspi_tx_buff, spi0_rx_buff = 0;
     int32_t ret = ARM_DRIVER_OK;
     uint32_t lpspi_control, spi0_control;
-    uint32_t arg = ARM_GPIO_FLEXIO_VOLT_1V8;
     BaseType_t xReturned;
 #if DATA_TRANSFER_TYPE
     uint32_t spi0_tx_buff, lpspi_rx_buff = 0;
@@ -266,18 +260,33 @@ static void lpspi_spi0_transfer(void *pvParameters)
     }
 #endif
 
-    /* config any of the LPSPI pins (flexio) to 1.8V */
-    ret = gpioDrv7->Initialize(PIN_4, NULL);
-    if ((ret != ARM_DRIVER_OK)) {
-        printf("ERROR: Failed to power off \n");
+    /* config flexio pins to 1.8V */
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+    run_profile_t runp;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+    /* Get the current run configuration from SE */
+    error_code = SERVICES_get_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
+    {
+        printf("Get Current run config failed\n");
+        while(1);
     }
-    ret = gpioDrv7->PowerControl(PIN_4, ARM_POWER_FULL);
-    if ((ret != ARM_DRIVER_OK)) {
-        printf("ERROR: Failed to power off \n");
-    }
-    ret = gpioDrv7->Control(PIN_4, ARM_GPIO_CONFIG_FLEXIO, &arg);
-    if ((ret != ARM_DRIVER_OK)) {
-        printf("ERROR: Failed to power off \n");
+
+    runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
+    /* Set the new run configuration */
+    error_code = SERVICES_set_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
+    {
+        printf("Set new run config failed\n");
+        while(1);
     }
 
     /* LPSPI Configuration as master */

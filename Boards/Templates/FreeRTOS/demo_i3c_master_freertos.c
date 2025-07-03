@@ -20,11 +20,11 @@
  *              then Master will compare send and received data
  *              (Master will continue sending data in loop,
  *               Master will stop if send and received data does not match).
- *             
+ *
  *             Hardware Setup:
  *              Required two boards one for Master and one for Slave
  *               (as there is only one i3c instance is available on ASIC).
- *             
+ *
  *             For E7: Connect SDA to SDA and SCL to SCL and GND to GND.
  *              - SDA P7_6 -> SDA P7_6
  *              - SCL P7_7 -> SCL P7_7
@@ -46,7 +46,6 @@
 
 /* PINMUX Driver */
 #include "board_config.h"
-#include "Driver_IO.h"
 
 /* Rtos include */
 #include "FreeRTOS.h"
@@ -149,38 +148,35 @@ int32_t hardware_init(void)
      */
 
     /* Configure GPIO flex I/O pins to 1.8-V:
-     *  P7_6 and P7_7 pins are part of GPIO flex I/O pins,
-     *   so we can use any one of the pin to configure flex I/O.
+     *  P7_6 and P7_7 pins are part of GPIO flex I/O pins.
      */
-#define GPIO7_PORT          7
-#define GPIO_PIN            6
+    /* config flexio pins to 1.8V */
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+    run_profile_t runp;
 
-    extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(GPIO7_PORT);
-    ARM_DRIVER_GPIO *gpioDrv = &ARM_Driver_GPIO_(GPIO7_PORT);
+    /* Initialize the SE services */
+    se_services_port_init();
 
-    uint32_t arg = 0;
-
-    ret = gpioDrv->Initialize(GPIO_PIN, NULL);
-    if (ret != 0)
+    /* Get the current run configuration from SE */
+    error_code = SERVICES_get_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
     {
-        printf("ERROR: Failed to initialize GPIO \n");
-        return -1;
+        printf("Get Current run config failed\n");
+        while(1);
     }
 
-    ret = gpioDrv->PowerControl(GPIO_PIN, ARM_POWER_FULL);
-    if (ret != 0)
+    runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
+    /* Set the new run configuration */
+    error_code = SERVICES_set_run_cfg(se_services_s_handle,
+                                      &runp,
+                                      &service_error_code);
+    if(error_code)
     {
-        printf("ERROR: Failed to powered full GPIO \n");
-        return -1;
-    }
-
-    /* select control argument as flex 1.8-V */
-    arg = ARM_GPIO_FLEXIO_VOLT_1V8;
-    ret = gpioDrv->Control(GPIO_PIN, ARM_GPIO_CONFIG_FLEXIO, &arg);
-    if (ret != 0)
-    {
-        printf("ERROR: Failed to control GPIO Flex \n");
-        return -1;
+        printf("Set new run config failed\n");
+        while(1);
     }
 #endif
     /* pin mux and configuration for all device IOs requested from pins.h*/
