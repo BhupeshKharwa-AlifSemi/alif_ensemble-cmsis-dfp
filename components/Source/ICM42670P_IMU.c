@@ -29,7 +29,7 @@
 
 #if defined (RTE_Drivers_ICM42670P)
 
-#define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 3)
+#define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 4)
 
 #if !RTE_ICM42670_IBI_ENABLE
 /* IO Driver */
@@ -42,6 +42,7 @@ static ARM_DRIVER_GPIO *IO_Driver_INT = &ARM_Driver_GPIO_(RTE_ICM42670_INT_IO_PO
 
 /* Timeout in Microsec */
 #define IMU_I3C_TIMEOUT_US              (100000)
+#define ICM42670P_CFG_DELAY_US          (10)
 
 #define ICM42670P_UPPER_DATA_BYTE_Pos   (8)
 
@@ -137,6 +138,8 @@ static struct ICM42670P_DRV_INFO
     uint8_t                    reserved[2];        /* Reserved                       */
     volatile uint32_t          imu_i3c_event;      /* I3C Event status               */
     volatile ARM_IMU_STATUS    status;             /* Driver status                  */
+    ARM_I3C_CMD                ccc;                /* Command control code           */
+
 } icm42670p_drv_info;
 
 /* Driver version*/
@@ -180,7 +183,58 @@ static ARM_IMU_CAPABILITIES ARM_IMU_GetCapabilities(void)
     return DriverCapabilities;
 }
 
-#if !RTE_ICM42670_IBI_ENABLE
+#if RTE_ICM42670_IBI_ENABLE
+/**
+  \fn          IMU_Enable_SIR(bool enable)
+  \brief       Enable/disable Slave interrupt request IBI
+  \return      \ref execution_status.
+*/
+static int32_t IMU_Enable_SIR(bool enable)
+{
+    /* set sir bit */
+    uint8_t ccc_data = 0x1;
+    uint32_t counter = 0U;
+    int32_t ret;
+
+    if (enable)
+    {
+        icm42670p_drv_info.ccc.cmd_id = I3C_CCC_ENEC(false);
+    }
+    else
+    {
+        icm42670p_drv_info.ccc.cmd_id = I3C_CCC_DISEC(false);
+    }
+
+    icm42670p_drv_info.ccc.data       = &ccc_data;
+    icm42670p_drv_info.imu_i3c_event  = 0;
+
+    /* Enable/Disable Slave Interrupt request */
+    ret = I3C_Driver->MasterSendCommand(&icm42670p_drv_info.ccc);
+    if(ret != ARM_DRIVER_OK)
+    {
+        return ret;
+    }
+    /* wait for callback event. */
+    while(!((icm42670p_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_DONE) ||
+            (icm42670p_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)))
+    {
+        if(counter++ < IMU_I3C_TIMEOUT_US)
+        {
+            sys_busy_loop_us(1);
+        }
+        else
+        {
+            return ARM_DRIVER_ERROR;
+        }
+    }
+    if(icm42670p_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)
+    {
+        return ARM_DRIVER_ERROR;
+    }
+    icm42670p_drv_info.imu_i3c_event = 0U;
+    return 0;
+}
+#else
 /**
   \fn           int32_t ARM_IMU_IntEnable(bool enable)
   \brief        ICM42670 INT line IO control.
@@ -520,7 +574,7 @@ static int32_t IMU_AccelConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_ACCEL_CONFIG0_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -535,7 +589,7 @@ static int32_t IMU_AccelConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_ACCEL_CONFIG1_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -563,7 +617,7 @@ static int32_t IMU_GyroConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_GYRO_CONFIG0_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -578,7 +632,7 @@ static int32_t IMU_GyroConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_GYRO_CONFIG1_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -606,7 +660,7 @@ static int32_t IMU_TempConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_TEMP_CONFIG0_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -628,6 +682,7 @@ static int32_t IMU_TempConfig(void)
 */
 static int32_t IMU_IBIConfig(void)
 {
+    int32_t ret;
     uint8_t data[4];
 
     /* Below code is for IBI for data availability */
@@ -643,7 +698,7 @@ static int32_t IMU_IBIConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_M_W_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = ICM42670P_BLK_SEL_R_VAL;
     IMU_Write(icm42670p_drv_info.target_addr,
@@ -653,7 +708,7 @@ static int32_t IMU_IBIConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_MADDR_R_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
              ICM42670P_M_R_REG, data, 1U);
@@ -662,7 +717,7 @@ static int32_t IMU_IBIConfig(void)
     {
         return ARM_DRIVER_ERROR;
     }
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     /* Below code is for for Enabling IBI */
     data[0] = ICM42670P_BLK_SEL_W_VAL;
@@ -677,7 +732,7 @@ static int32_t IMU_IBIConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_M_W_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = ICM42670P_BLK_SEL_R_VAL;
     IMU_Write(icm42670p_drv_info.target_addr,
@@ -687,7 +742,7 @@ static int32_t IMU_IBIConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_MADDR_R_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -698,8 +753,18 @@ static int32_t IMU_IBIConfig(void)
         return ARM_DRIVER_ERROR;
     }
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
+    icm42670p_drv_info.ccc.addr = icm42670p_drv_info.target_addr;
+    icm42670p_drv_info.ccc.data = NULL;
+    icm42670p_drv_info.ccc.len  = 1;
+    icm42670p_drv_info.ccc.rw   = 0;
+    /* Enables Slave interrupt request */
+    ret = IMU_Enable_SIR(true);
+    if (ret != ARM_DRIVER_OK)
+    {
+        return ret;
+    }
     return ARM_DRIVER_OK;
 }
 #else
@@ -716,11 +781,11 @@ static int32_t IMU_INTConfig(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_INT_SOURCE0_REG, data,
               1U);
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
     /* Read back the Interrupt configuration  */
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
-            ICM42670P_INT_SOURCE0_REG, data,
+             ICM42670P_INT_SOURCE0_REG, data,
              1U);
     if (data[0] != ICM42670P_INT_SOURCE0_VAL) {
         return ARM_DRIVER_ERROR;
@@ -743,7 +808,7 @@ static int32_t IMU_Config(void)
     IMU_Write(icm42670p_drv_info.target_addr,
               ICM42670P_PWR_MGMT0_REG, data, 1U);
 
-    sys_busy_loop_us(10);
+    sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -830,12 +895,14 @@ static int32_t IMU_Setup(void)
         return ret;
     }
 
+#if RTE_ICM42670_IBI_ENABLE
     /* Accepts Slave Interrupt request */
     ret = I3C_Driver->Control(I3C_MASTER_SETUP_SIR_ACCEPTANCE, 1);
     if(ret != ARM_DRIVER_OK)
     {
         return ret;
     }
+#endif
 
     /* Resets IMU's address */
     ret = IMU_ResetDynAddr();
@@ -1165,19 +1232,27 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
             IMU_GetTempData(temp_data);
             break;
 
+
         case IMU_SET_INTERRUPT:
             if(arg)
             {
-#if !RTE_ICM42670_IBI_ENABLE
+#if RTE_ICM42670_IBI_ENABLE
+                /* Enable Slave interrupt request */
+                IMU_Enable_SIR(true);
+#else
                 /* Enable GPIO interrupt */
                 (void)ARM_IMU_IntEnable(true);
 #endif
             }
             else
             {
-#if !RTE_ICM42670_IBI_ENABLE
+#if RTE_ICM42670_IBI_ENABLE
+                /* Disable Slave interrupt request */
+                IMU_Enable_SIR(false);
+#else
                 /* Disable GPIO interrupt */
                 (void)ARM_IMU_IntEnable(false);
+
 #endif
             }
             break;
