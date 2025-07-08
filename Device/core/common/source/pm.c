@@ -26,12 +26,16 @@
 #define VERSION(api, driver)        (((api) << 8) | (driver))
 #define PM_DRV_VERSION              VERSION(2, 0) /*!< PM Driver Version */
 
+#if !defined(ICB_CPPWR_SU11_Msk)
 /* Coprocessor Power Control Register Definitions */
 #define ICB_CPPWR_SU11_Pos         22U                             /*!< CPPWR: State Unknown 11 Position */
 #define ICB_CPPWR_SU11_Msk        (0x1UL << ICB_CPPWR_SU11_Pos)    /*!< CPPWR: State Unknown 11 Mask */
+#endif
 
+#if !defined(ICB_CPPWR_SU10_Msk)
 #define ICB_CPPWR_SU10_Pos         20U                             /*!< CPPWR: State Unknown 10 Position */
 #define ICB_CPPWR_SU10_Msk        (0x1UL << ICB_CPPWR_SU10_Pos)    /*!< CPPWR: State Unknown 10 Mask */
+#endif
 
 /* Same address for both RTSS */
 /* Cold_Wakeup bit in external system 0/1 */
