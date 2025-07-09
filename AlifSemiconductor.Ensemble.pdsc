@@ -8,7 +8,10 @@
   <license>License.txt</license>
 
   <releases>
-     <release version="2.0.0-rc2"  tag="v2.0.0-rc2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc2/AlifSemiconductor.Ensemble.2.0.0-rc2.pack" date="2025-06-12">
+     <release version="2.0.0-rc3"  tag="v2.0.0-rc3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc3/AlifSemiconductor.Ensemble.2.0.0-rc3.pack" date="2025-07-09">
+      - Add Example projects for different boards
+      - Fix fix the fpscr and vpr offset for PM
+      - Use SE service call for gpio flexio config
       - Fix pin assignments for E1C and E8 board
       - Fix counter reading for LPTIMER
       - Fix I2C HW connection comments in template
@@ -24,9 +27,9 @@
       - Updates in I2C, SPI, ADC, I3C, USART, DPHY, PDM, CMP, HWSEM, SD Drivers
       - Update MRAM FLM file
       - I2C Restart feature support
-      - LPI3C, LPI2C instance support for E8
+      - LPI3C, LPI2C, LPUTIMER, instance support for E8
       - OSPI HyperRAM XIP demo fixes
-      - SE Services updates to FWv105.
+      - SE Services updates to FWv106.
       - WM8904 support
       - EMMC mode support in SD Driver
       - BMI323 Driver support

@@ -39,7 +39,6 @@ DEFAULT_ARGS=()
   Flash
   libs
   ospi_xip
-  output
   se_services 
  "
 
