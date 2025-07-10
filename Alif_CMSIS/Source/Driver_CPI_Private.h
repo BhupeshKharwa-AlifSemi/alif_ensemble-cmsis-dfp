@@ -45,31 +45,55 @@ typedef enum _CPI_INSTANCE {
     CPI_INSTANCE_LPCPI /**< CPI instance as LPCPI                              */
 } CPI_INSTANCE;
 
+#if SOC_FEAT_CPI_HAS_CROPPING
+/** \brief CPI horizontal Configuration */
+typedef struct _CPI_HORIZONTAL_CONFIG {
+    uint16_t           hbp;    /**< Horizontal Back Porch                      */
+    uint16_t           hfp;    /**< Horizontal front Porch                     */
+    CPI_HORZ_CROP_MODE hfp_en; /**< Enable horizontal cropping                 */
+} CPI_HORIZONTAL_CONFIG;
+
+/** \brief CPI Vertical Configuration */
+typedef struct _CPI_VERTICAL_CONFIG {
+    uint16_t           vbp;    /**< Vertical Back Porch                        */
+    uint16_t           vfp;    /**< Vertical front Porch                       */
+    CPI_VERT_CROP_MODE vfp_en; /**< Enable vertical cropping                   */
+} CPI_VERTICAL_CONFIG;
+#endif
+
 /** \brief CPI Frame Configuration */
 typedef struct _CPI_FRAME_CONFIG {
-    uint16_t width;  /**< Frame Width(Column)                                */
-    uint16_t height; /**< Frame Height(Row)                                  */
+    uint16_t width;  /**< Frame Width(Column)                                  */
+    uint16_t height; /**< Frame Height(Row)                                    */
 } CPI_FRAME_CONFIG;
 
 /** \brief CPI FIFO Configuration */
 typedef struct _CPI_FIFO_CONFIG {
-    uint8_t read_watermark;  /**< FIFO Read  Water mark 0,1: illegal                 */
-    uint8_t write_watermark; /**< FIFO Write Water mark 0,1: illegal                 */
+    uint8_t read_watermark;  /**< FIFO Read  Water mark 0,1: illegal           */
+    uint8_t write_watermark; /**< FIFO Write Water mark 0,1: illegal           */
 } CPI_FIFO_CONFIG;
 
 /** \brief CPI Configurations */
 typedef struct _CPI_CONFIG {
-    CPI_FRAME_CONFIG frame;           /**< Frame Configuration                                */
-    uint32_t         framebuff_saddr; /**< Frame Buffer Start Address Configuration           */
-    CPI_FIFO_CONFIG *fifo;            /**< FIFO Configuration                                 */
+#if SOC_FEAT_HAS_ISP
+    bool                   axi_port_en;    /* CPI AXI port                                      */
+    bool                   isp_port_en;    /* CPI ISP port                                      */
+#endif
+#if SOC_FEAT_CPI_HAS_CROPPING
+    CPI_HORIZONTAL_CONFIG *horizontal_cfg; /**< Horizontal Configuration                        */
+    CPI_VERTICAL_CONFIG   *vertical_cfg;   /**< Vertical Configuration                          */
+#endif
+    CPI_FRAME_CONFIG      frame;           /**< Frame Configuration                             */
+    uint32_t              framebuff_saddr; /**< Frame Buffer Start Address Configuration        */
+    CPI_FIFO_CONFIG       *fifo;           /**< FIFO Configuration                              */
 } CPI_CONFIG;
 
 /** \brief CPI Status */
 typedef struct CPI_DRIVER_STATE {
-    uint32_t initialized      : 1;  /**< Driver Initialized                                 */
-    uint32_t powered          : 1;  /**< Driver powered                                     */
-    uint32_t sensor_configured: 1;  /**< Camera sensor configured                           */
-    uint32_t reserved         : 29; /**< Reserved                                           */
+    uint32_t initialized      : 1;  /**< Driver Initialized                                     */
+    uint32_t powered          : 1;  /**< Driver powered                                         */
+    uint32_t sensor_configured: 1;  /**< Camera sensor configured                               */
+    uint32_t reserved         : 29; /**< Reserved                                               */
 } CPI_DRIVER_STATE;
 
 /** \brief CPI Device Resource Structure */

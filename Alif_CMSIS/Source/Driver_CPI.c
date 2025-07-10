@@ -508,6 +508,10 @@ static int32_t CPIx_Control(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera
                 cpi_info.sensor_info.interface = CPI_INTERFACE_MIPI_CSI;
             }
 
+#if SOC_FEAT_HAS_ISP
+            cpi_info.axi_port_en                 = CPI_RES->cnfg->axi_port_en;
+            cpi_info.isp_port_en                 = CPI_RES->cnfg->isp_port_en;
+#endif
             cpi_info.sensor_info.vsync_wait      = camera_sensor->cpi_info->vsync_wait;
             cpi_info.sensor_info.vsync_mode      = camera_sensor->cpi_info->vsync_mode;
             cpi_info.rw_roundup                  = CPI_RES->row_roundup;
@@ -521,6 +525,16 @@ static int32_t CPIx_Control(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera
 
             cpi_info.fifo_ctrl.wr_wmark          = DEFAULT_WRITE_WMARK;
             cpi_info.fifo_ctrl.rd_wmark          = CPI_RES->cnfg->fifo->read_watermark;
+
+#if SOC_FEAT_CPI_HAS_CROPPING
+            cpi_info.horizontal_cfg.hbp          = CPI_RES->cnfg->horizontal_cfg->hbp;
+            cpi_info.horizontal_cfg.hfp          = CPI_RES->cnfg->horizontal_cfg->hfp;
+            cpi_info.horizontal_cfg.hfp_en       = CPI_RES->cnfg->horizontal_cfg->hfp_en;
+
+            cpi_info.vertical_cfg.vbp            = CPI_RES->cnfg->vertical_cfg->vbp;
+            cpi_info.vertical_cfg.vfp            = CPI_RES->cnfg->vertical_cfg->vfp;
+            cpi_info.vertical_cfg.vfp_en         = CPI_RES->cnfg->vertical_cfg->vfp_en;
+#endif
 
             cpi_info.frame_cfg.data              = CPI_RES->cnfg->frame.width;
             cpi_info.frame_cfg.row               = (CPI_RES->cnfg->frame.height - 1);
@@ -677,9 +691,33 @@ static CPI_FIFO_CONFIG fifo_config = {
     .write_watermark = RTE_CPI_FIFO_WRITE_WATERMARK,
 };
 
-/* CPI color code Configuration. */
+#if SOC_FEAT_CPI_HAS_CROPPING
+/* CPI Horizontal Configuration. */
+static CPI_HORIZONTAL_CONFIG hconfig = {
+    .hbp = RTE_CPI_HBP,
+    .hfp = RTE_CPI_HFP,
+    .hfp_en = RTE_CPI_HFP_EN,
+};
+
+/* CPI Vertical Configuration. */
+static CPI_VERTICAL_CONFIG vconfig = {
+    .vbp = RTE_CPI_VBP,
+    .vfp = RTE_CPI_VFP,
+    .vfp_en = RTE_CPI_VFP_EN,
+};
+#endif
+
+/* CPI Configuration. */
 static CPI_CONFIG config = {
-    .fifo = &fifo_config,
+#if SOC_FEAT_HAS_ISP
+    .axi_port_en    = RTE_CPI_AXI_PORT,
+    .isp_port_en    = RTE_CPI_ISP_PORT,
+#endif
+    .fifo           = &fifo_config,
+#if SOC_FEAT_CPI_HAS_CROPPING
+    .horizontal_cfg = &hconfig,
+    .vertical_cfg   = &vconfig,
+#endif
 };
 
 /* CPI Device Resource */
@@ -775,18 +813,42 @@ static CPI_FIFO_CONFIG fifo_cnfg = {
     .write_watermark = RTE_LPCPI_FIFO_WRITE_WATERMARK,
 };
 
-/* LPCPI color code Configuration. */
-static CPI_CONFIG cnfg = {
-    .fifo = &fifo_cnfg,
+#if SOC_FEAT_CPI_HAS_CROPPING
+/* LPCPI Horizontal Configuration. */
+static CPI_HORIZONTAL_CONFIG hconfig = {
+    .hbp = RTE_LPCPI_HBP,
+    .hfp = RTE_LPCPI_HFP,
+    .hfp_en = RTE_LPCPI_HFP_EN,
 };
 
-/* LPCPI Device Resource */
+/* LPCPI Vertical Configuration. */
+static CPI_VERTICAL_CONFIG vconfig = {
+    .vbp = RTE_LPCPI_VBP,
+    .vfp = RTE_LPCPI_VFP,
+    .vfp_en = RTE_LPCPI_VFP_EN,
+};
+#endif
+
+/* LPCPI Configuration. */
+static CPI_CONFIG cnfg = {
+#if SOC_FEAT_HAS_ISP
+    .axi_port_en    = RTE_LPCPI_AXI_PORT,
+    .isp_port_en    = RTE_LPCPI_ISP_PORT,
+#endif
+    .fifo           = &fifo_cnfg,
+#if SOC_FEAT_CPI_HAS_CROPPING
+    .horizontal_cfg = &hconfig,
+    .vertical_cfg   = &vconfig,
+#endif
+};
+
+    /* LPCPI Device Resource */
 static CPI_RESOURCES LPCPI_CTRL = {
-    .regs         = (CPI_Type *) LPCPI_BASE,
-    .irq_num      = LPCPI_IRQ_IRQn,
-    .irq_priority = RTE_LPCPI_IRQ_PRI,
-    .drv_instance = CPI_INSTANCE_LPCPI,
-    .cnfg         = &cnfg,
+    .regs             = (CPI_Type *) LPCPI_BASE,
+    .irq_num          = LPCAM_IRQ_IRQn,
+    .irq_priority     = RTE_LPCPI_IRQ_PRI,
+    .drv_instance     = CPI_INSTANCE_LPCPI,
+    .cnfg             = &cnfg,
 };
 
 /* wrapper functions for LPCPI */

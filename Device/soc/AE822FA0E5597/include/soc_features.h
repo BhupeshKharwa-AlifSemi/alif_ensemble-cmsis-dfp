@@ -126,6 +126,9 @@
 
 #define SOC_FEAT_I2C_HAS_RESTART_CAP               (1)
 
-#define SOC_FEAT_U55_M1_CAN_ACCESS_HIGHER_ADDRESS  (1)
+#define SOC_FEAT_CPI_HAS_CROPPING       (1)
+#define SOC_FEAT_HAS_ISP                (1)
+
+#define SOC_FEAT_U55_M1_CAN_ACCESS_HIGHER_ADDRESS (1)
 
 #endif /* SOC_FEATURES_H */

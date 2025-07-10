@@ -25,7 +25,9 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <soc.h>
+#include "soc_features.h"
 
 /* Camera Control Register (CAM_CTRL) bit Definition, Macros, Offsets and Masks
  * these include CPI capture mode, capture status, software reset, start/stop capture and FIFO clock
@@ -68,6 +70,12 @@ extern "C" {
 /* Camera Configuration Register (CAM_CFG) bit Definition, Macros, Offsets and Masks
  * these include data mode, data mask etc
  */
+/* CAM_CFG AXI port bit[2] */
+#define CAM_CFG_AXI_PORT_Pos                           2U
+
+/* CAM_CFG ISP port bit[3] */
+#define CAM_CFG_ISP_PORT_Pos                           3U
+
 /* CAM_CFG vsync wait bit[4] */
 #define CAM_CFG_VSYNC_WAIT_Pos      4U
 
@@ -122,8 +130,36 @@ extern "C" {
 #define CAM_AXI_ERR_STAT_CNT_Pos    8U
 #define CAM_AXI_ERR_STAT_CNT_Msk    (0xFF00U << CAM_AXI_ERR_STAT_CNT_Pos)
 
-/* Camera Video Frame Configuration Register (CAM_VIDEO_FCFG) bit Definition, Macros, Offsets and
- * Masks these include CPI frame width and frame height.
+/* Camera Video Horizontal Configuration Register (CAM_VIDEO_HCFG) bit Definition, Macros,
+ * Offsets and Masks. these include CPI HBP, HFP and HFP Enable.
+ */
+/* CAM_VIDEO_HCFG HBP bit[13:0] */
+#define CAM_VIDEO_HCFG_HBP_Pos                         0U
+#define CAM_VIDEO_HCFG_HBP_Msk                         (0x3FFFU << CAM_VIDEO_HCFG_HBP_Pos)
+
+/* CAM_VIDEO_HCFG HFP bit[29:16] */
+#define CAM_VIDEO_HCFG_HFP_Pos                         16U
+#define CAM_VIDEO_HCFG_HFP_Msk                         (0x3FFFU << CAM_VIDEO_HCFG_HFP_Pos)
+
+/* CAM_VIDEO_HCFG HFP_EN bit[31] */
+#define CAM_VIDEO_HCFG_HFP_EN_Pos                      31U
+
+/* Camera Video Vertical Configuration Register (CAM_VIDEO_VCFG) bit Definition, Macros,
+ * Offsets and Masks. these include CPI VBP, VFP and VFP Enable.
+ */
+/* CAM_VIDEO_HCFG VBP bit[13:0] */
+#define CAM_VIDEO_VCFG_VBP_Pos                         0U
+#define CAM_VIDEO_VCFG_VBP_Msk                         (0xFFFU << CAM_VIDEO_VCFG_VBP_Pos)
+
+/* CAM_VIDEO_VCFG VFP bit[29:16] */
+#define CAM_VIDEO_VCFG_VFP_Pos                         16U
+#define CAM_VIDEO_VCFG_VFP_Msk                         (0xFFFU << CAM_VIDEO_VCFG_VFP_Pos)
+
+/* CAM_VIDEO_VCFG VFP_EN bit[31] */
+#define CAM_VIDEO_VCFG_VFP_EN_Pos                      31U
+
+/* Camera Video Frame Configuration Register (CAM_VIDEO_FCFG) bit Definition, Macros,
+ * Offsets and Masks. these include CPI frame width and frame height.
  */
 /* CAM_VIDEO_FCFG frame width bit[13:0] */
 #define CAM_VIDEO_FCFG_DATA_Pos     0U
@@ -133,15 +169,15 @@ extern "C" {
 #define CAM_VIDEO_FCFG_ROW_Pos      16U
 #define CAM_VIDEO_FCFG_ROW_Msk      (0xFFFU << CAM_VIDEO_FCFG_ROW_Pos)
 
-/* Camera MIPI CSI Color Mode Configuration Register (CAM_CSI_CMCFG) bit Definition, Macros, Offsets
- * and Masks these include color encode mode.
+/* Camera MIPI CSI Color Mode Configuration Register (CAM_CSI_CMCFG) bit Definition, Macros,
+ * Offsets and Masks these include color encode mode.
  */
 /* Camera MIPI CSI color mode 16-bit encode bit[3:0] */
 #define CAM_CSI_CMCFG_MODE_Pos      0U
 #define CAM_CSI_CMCFG_MODE_Msk      (0XFU << CAM_CSI_CMCFG_MODE_Pos)
 
-/* Camera Video Frame Start Address Register (CAM_FRAME_ADDR) bit Definition, Macros, Offsets and
- * Masks these include CPI framebuffer start address.
+/* Camera Video Frame Start Address Register (CAM_FRAME_ADDR) bit Definition, Macros,
+ * Offsets and Masks these include CPI framebuffer start address.
  */
 /* CAM_FRAME_ADDR framebuffer start address bit[31:3] */
 #define CAM_FRAME_ADDR_ADDR_Pos     0U
@@ -281,13 +317,53 @@ typedef struct _cpi_fifo_ctrl_cfg_t {
     uint8_t wr_wmark; /**< FIFO write watermark                                           */
 } cpi_fifo_ctrl_cfg_t;
 
+#if SOC_FEAT_CPI_HAS_CROPPING
+/**
+ * enum  CPI_HORZ_CROP_MODE
+ * CPI horizontal cropping.
+ */
+typedef enum _CPI_HORZ_CROP_MODE {
+    CPI_HORZ_CROP_MODE_DISABLE,                     /**< disable horizontal cropping    */
+    CPI_HORZ_CROP_MODE_ENABLE                       /**< enable horizontal cropping     */
+} CPI_HORZ_CROP_MODE;
+
+/**
+ * @struct  _cpi_horizontal_cfg_t
+ * @brief    CPI horizontal configuration.
+ */
+typedef struct _cpi_horizontal_cfg_t {
+    uint16_t hbp;                                   /**< Horizontal Back Porch          */
+    uint16_t hfp;                                   /**< Horizontal Front Porch         */
+    CPI_HORZ_CROP_MODE hfp_en;                      /**< Horizontal cropping            */
+} cpi_horizontal_cfg_t;
+
+/**
+ * enum  CPI_VERT_CROP_MODE
+ * CPI vertical cropping.
+ */
+typedef enum _CPI_VERT_CROP_MODE {
+    CPI_VERT_CROP_MODE_DISABLE,                     /**< disable vertical cropping      */
+    CPI_VERT_CROP_MODE_ENABLE                       /**< enable vertical cropping       */
+} CPI_VERT_CROP_MODE;
+
+/**
+ * @struct  _cpi_vertical_cfg_t
+ * @brief    CPI vertical configuration.
+ */
+typedef struct _cpi_vertical_cfg_t {
+    uint16_t vbp;                                   /**< Vertical Back Porch            */
+    uint16_t vfp;                                   /**< Vertical Front Porch           */
+    CPI_VERT_CROP_MODE vfp_en;                      /**< Vertical cropping              */
+} cpi_vertical_cfg_t;
+#endif
+
 /**
  * @struct  _cpi_frame_cfg_t
  * @brief    CPI frame configuration.
  */
 typedef struct _cpi_frame_cfg_t {
-    uint16_t data; /**< Valid data in a row                                              */
-    uint16_t row;  /**< Valid data rows in a frame                                        */
+    uint16_t data; /**< Valid data in a row                                             */
+    uint16_t row;  /**< Valid data rows in a frame                                      */
 } cpi_frame_cfg_t;
 
 /**
@@ -303,12 +379,12 @@ typedef enum _CPI_COLOR_MODE_CONFIG {
     CPI_COLOR_MODE_CONFIG_IPI16_RAW12,   /**< Select color encode mode  IPI-16 RAW 12   */
     CPI_COLOR_MODE_CONFIG_IPI16_RAW14,   /**< Select color encode mode  IPI-16 RAW 14   */
     CPI_COLOR_MODE_CONFIG_IPI16_RAW16,   /**< Select color encode mode  IPI-16 RAW 16   */
-    CPI_COLOR_MODE_CONFIG_IPI48_RGB444,  /**< Select color encode mode  IPI-48 RGB444  */
-    CPI_COLOR_MODE_CONFIG_IPI48_RGB555,  /**< Select color encode mode  IPI-48 RGB555  */
-    CPI_COLOR_MODE_CONFIG_IPI48_RGB565,  /**< Select color encode mode  IPI-48 RGB565  */
-    CPI_COLOR_MODE_CONFIG_IPI48_RGB666,  /**< Select color encode mode  IPI-48 RGB666  */
-    CPI_COLOR_MODE_CONFIG_IPI48_XRGB888, /**< Select color encode mode  IPI-48 XRGB888 */
-    CPI_COLOR_MODE_CONFIG_IPI48_RGBX888, /**< Select color encode mode  IPI-48 RGBX888 */
+    CPI_COLOR_MODE_CONFIG_IPI48_RGB444,  /**< Select color encode mode  IPI-48 RGB444   */
+    CPI_COLOR_MODE_CONFIG_IPI48_RGB555,  /**< Select color encode mode  IPI-48 RGB555   */
+    CPI_COLOR_MODE_CONFIG_IPI48_RGB565,  /**< Select color encode mode  IPI-48 RGB565   */
+    CPI_COLOR_MODE_CONFIG_IPI48_RGB666,  /**< Select color encode mode  IPI-48 RGB666   */
+    CPI_COLOR_MODE_CONFIG_IPI48_XRGB888, /**< Select color encode mode  IPI-48 XRGB888  */
+    CPI_COLOR_MODE_CONFIG_IPI48_RGBX888, /**< Select color encode mode  IPI-48 RGBX888  */
     CPI_COLOR_MODE_CONFIG_IPI48_RAW32,   /**< Select color encode mode  IPI-48 RAW 32   */
     CPI_COLOR_MODE_CONFIG_IPI48_RAW48,   /**< Select color encode mode  IPI-48 RAW 48   */
 } CPI_COLOR_MODE_CONFIG;
@@ -318,11 +394,19 @@ typedef enum _CPI_COLOR_MODE_CONFIG {
  * @brief    CPI configuration information.
  */
 typedef struct _cpi_cfg_info_t {
-    cpi_sensor_info_t     sensor_info;        /**< CPI sensor configuration        */
-    CPI_ROW_ROUNDUP       rw_roundup;         /**< CPI row roundup         */
-    cpi_fifo_ctrl_cfg_t   fifo_ctrl;          /**< CPI FIFO control          */
-    cpi_frame_cfg_t       frame_cfg;          /**< CPI Frame          */
-    CPI_COLOR_MODE_CONFIG csi_ipi_color_mode; /**< CPI CSI IPI color mode */
+    cpi_sensor_info_t      sensor_info;             /**< CPI sensor configuration       */
+#if SOC_FEAT_HAS_ISP
+    bool                   axi_port_en;             /**< CPI AXI Port                   */
+    bool                   isp_port_en;             /**< CPI ISP Port                   */
+#endif
+    CPI_ROW_ROUNDUP        rw_roundup;              /**< CPI row roundup                */
+    cpi_fifo_ctrl_cfg_t    fifo_ctrl;               /**< CPI FIFO control               */
+#if SOC_FEAT_CPI_HAS_CROPPING
+    cpi_horizontal_cfg_t   horizontal_cfg;          /**< CPI horizontal configuration   */
+    cpi_vertical_cfg_t     vertical_cfg;            /**< CPI vertical configuration     */
+#endif
+    cpi_frame_cfg_t        frame_cfg;               /**< CPI Frame                      */
+    CPI_COLOR_MODE_CONFIG  csi_ipi_color_mode;      /**< CPI CSI IPI color mode         */
 } cpi_cfg_info_t;
 
 /**

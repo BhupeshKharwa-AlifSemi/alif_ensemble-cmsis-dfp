@@ -70,14 +70,19 @@ void cpi_start_capture(CPI_Type *cpi, CPI_MODE_SELECT mode)
 */
 void cpi_set_config(CPI_Type *cpi, cpi_cfg_info_t *info)
 {
-    cpi->CAM_CFG =
-        (info->sensor_info.interface | (info->sensor_info.vsync_wait << CAM_CFG_VSYNC_WAIT_Pos) |
-         (info->sensor_info.vsync_mode << CAM_CFG_VSYNC_MODE_Pos) |
-         (info->rw_roundup << CAM_CFG_ROW_ROUNDUP_Pos) |
-         (info->sensor_info.pixelclk_pol << CAM_CFG_PIXELCLK_POL_Pos) |
-         (info->sensor_info.hsync_pol << CAM_CFG_HSYNC_POL_Pos) |
-         (info->sensor_info.vsync_pol << CAM_CFG_VSYNC_POL_Pos) |
-         (info->sensor_info.data_mode << CAM_CFG_DATA_MODE_Pos));
+    cpi->CAM_CFG = (info->sensor_info.interface |
+                    (info->sensor_info.vsync_wait << CAM_CFG_VSYNC_WAIT_Pos) |
+                    (info->sensor_info.vsync_mode << CAM_CFG_VSYNC_MODE_Pos) |
+                    (info->rw_roundup << CAM_CFG_ROW_ROUNDUP_Pos) |
+                    (info->sensor_info.pixelclk_pol << CAM_CFG_PIXELCLK_POL_Pos) |
+                    (info->sensor_info.hsync_pol << CAM_CFG_HSYNC_POL_Pos) |
+                    (info->sensor_info.vsync_pol << CAM_CFG_VSYNC_POL_Pos) |
+                    (info->sensor_info.data_mode << CAM_CFG_DATA_MODE_Pos));
+
+#if SOC_FEAT_HAS_ISP
+    cpi->CAM_CFG |= (info->axi_port_en << CAM_CFG_AXI_PORT_Pos) |
+                    (info->isp_port_en << CAM_CFG_ISP_PORT_Pos);
+#endif
 
     if (info->sensor_info.data_mode <= CPI_DATA_MODE_BIT_8) {
         cpi->CAM_CFG |= (info->sensor_info.data_endianness << CAM_CFG_DATA_ENDIANNESS_Pos);
@@ -96,6 +101,20 @@ void cpi_set_config(CPI_Type *cpi, cpi_cfg_info_t *info)
     cpi->CAM_FIFO_CTRL   = info->fifo_ctrl.rd_wmark;
     cpi->CAM_FIFO_CTRL  &= ~CAM_FIFO_CTRL_WR_WMARK_Msk;
     cpi->CAM_FIFO_CTRL  |= (info->fifo_ctrl.wr_wmark << CAM_FIFO_CTRL_WR_WMARK_Pos);
+
+#if SOC_FEAT_CPI_HAS_CROPPING
+    cpi->CAM_VIDEO_HCFG &= ~CAM_VIDEO_HCFG_HBP_Msk;
+    cpi->CAM_VIDEO_HCFG = info->horizontal_cfg.hbp;
+    cpi->CAM_VIDEO_HCFG &= ~CAM_VIDEO_HCFG_HFP_Msk;
+    cpi->CAM_VIDEO_HCFG |= info->horizontal_cfg.hfp;
+    cpi->CAM_VIDEO_HCFG |= (info->horizontal_cfg.hfp_en << CAM_VIDEO_HCFG_HFP_EN_Pos);
+
+    cpi->CAM_VIDEO_VCFG &= ~CAM_VIDEO_VCFG_VBP_Msk;
+    cpi->CAM_VIDEO_VCFG = info->vertical_cfg.vbp;
+    cpi->CAM_VIDEO_VCFG &= ~CAM_VIDEO_VCFG_VFP_Msk;
+    cpi->CAM_VIDEO_VCFG |= info->vertical_cfg.vfp;
+    cpi->CAM_VIDEO_VCFG |= (info->vertical_cfg.vfp_en << CAM_VIDEO_VCFG_VFP_EN_Pos);
+#endif
 
     cpi->CAM_VIDEO_FCFG &= ~CAM_VIDEO_FCFG_DATA_Msk;
     cpi->CAM_VIDEO_FCFG  = info->frame_cfg.data;

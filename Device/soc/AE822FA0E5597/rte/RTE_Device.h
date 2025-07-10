@@ -38,6 +38,20 @@
 // <i> Default: 0
 #define RTE_CPI_CSI_HALT                     0
 
+// <o> Select CPI AXI port
+//     <0=> disable
+//     <1=> enable
+// <i> Defines CPI AXI port
+// <i> Default: AXI port enable
+#define RTE_CPI_AXI_PORT                                      1
+
+// <o> Select CPI ISP port
+//     <0=> disable
+//     <1=> enable
+// <i> Defines CPI ISP port
+// <i> Default: ISP port disable
+#define RTE_CPI_ISP_PORT                                      0
+
 // <o> CPI Row roundup
 //     <0=> disable
 //     <1=> enable
@@ -54,6 +68,40 @@
 // <i> Defines CPI FIFO write watermark.
 // <i> Default: 0x18
 #define RTE_CPI_FIFO_WRITE_WATERMARK         0x18
+
+// <o> CPI horizontal back porch
+// <i> Defines CPI horizontal back porch.
+// <i> Default: 0x0
+#define RTE_CPI_HBP                                           0
+
+// <o> CPI horizontal front porch
+// <i> Defines CPI horizontal front porch.
+// <i> Default: 0x0
+#define RTE_CPI_HFP                                           0
+
+// <o> CPI horizontal cropping
+//     <0=> disable
+//     <1=> enable
+// <i> Defines CPI horizontal cropping
+// <i> Default: 0x1
+#define RTE_CPI_HFP_EN                                        1
+
+// <o> CPI vertical back porch
+// <i> Defines CPI vertical back porch.
+// <i> Default: 0x0
+#define RTE_CPI_VBP                                           0
+
+// <o> CPI vertical front porch
+// <i> Defines CPI vertical front porch.
+// <i> Default: 0x0
+#define RTE_CPI_VFP                                           0
+
+// <o> CPI vertical cropping
+//     <0=> disable
+//     <1=> enable
+// <i> Defines CPI vertical cropping
+// <i> Default: 0x1
+#define RTE_CPI_VFP_EN                                        1
 
 // <e> MT9M114 [Driver_MT9M114]
 // <o> Enable/Disable MT9M114 camera sensor
@@ -169,6 +217,20 @@
 // <i> Default: 0
 #define RTE_LPCPI_IRQ_PRI                      0
 
+// <o> Select LPCPI AXI port
+//     <0=> disable
+//     <1=> enable
+// <i> Defines LPCPI AXI port
+// <i> Default: AXI port enable
+#define RTE_LPCPI_AXI_PORT                                      1
+
+// <o> Select LPCPI ISP port
+//     <0=> disable
+//     <1=> enable
+// <i> Defines LPCPI ISP port
+// <i> Default: ISP port disable
+#define RTE_LPCPI_ISP_PORT                                      0
+
 // <o> LPCPI Row roundup
 //     <0=> disable
 //     <1=> enable
@@ -185,6 +247,40 @@
 // <i> Defines LPCPI FIFO write watermark.
 // <i> Default: 0x18
 #define RTE_LPCPI_FIFO_WRITE_WATERMARK         0x18
+
+// <o> LPCPI horizontal back porch
+// <i> Defines LPCPI horizontal back porch.
+// <i> Default: 0x0
+#define RTE_LPCPI_HBP                                           0
+
+// <o> LPCPI horizontal front porch
+// <i> Defines LPCPI horizontal front porch.
+// <i> Default: 0x0
+#define RTE_LPCPI_HFP                                           0
+
+// <o> LPCPI horizontal cropping
+//     <0=> disable
+//     <1=> enable
+// <i> Defines LPCPI horizontal cropping
+// <i> Default: 0x1
+#define RTE_LPCPI_HFP_EN                                        1
+
+// <o> LPCPI vertical back porch
+// <i> Defines LPCPI vertical back porch.
+// <i> Default: 0x0
+#define RTE_LPCPI_VBP                                           0
+
+// <o> LPCPI vertical front porch
+// <i> Defines LPCPI vertical front porch.
+// <i> Default: 0x0
+#define RTE_LPCPI_VFP                                           0
+
+// <o> LPCPI vertical cropping
+//     <0=> disable
+//     <1=> enable
+// <i> Defines LPCPI vertical cropping
+// <i> Default: 0x1
+#define RTE_LPCPI_VFP_EN                                        1
 
 // <e> MT9M114 [Driver_MT9M114]
 // <o> Enable/Disable MT9M114 camera sensor
