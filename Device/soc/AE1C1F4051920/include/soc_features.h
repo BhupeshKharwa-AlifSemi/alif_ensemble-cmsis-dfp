@@ -99,6 +99,8 @@
 
 #define SOC_FEAT_I3C_CORE_CLK_AXI                  (1)
 
+#define SOC_FEAT_DAC_REG_ALIASING                  (0)
+
 #define SOC_FEAT_I2C_HAS_RESTART_CAP               (0)
 
 #define SOC_FEAT_U55_M1_CAN_ACCESS_HIGHER_ADDRESS  (1)

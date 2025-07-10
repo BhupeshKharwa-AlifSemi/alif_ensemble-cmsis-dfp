@@ -47,6 +47,40 @@ extern "C" {
 #define LPCMP_CTRL_CLKEN    (1 << 14) /* Enable 32-kHz clock to LPCMP comparator */
 #endif
 
+#if SOC_FEAT_HSCMP_REG_ALIASING
+#define COMP0_HS_IN_P_SEL_Pos          (0U)
+#define COMP0_HS_IN_M_SEL_Pos          (2U)
+#define COMP0_HS_HYST_Pos              (4U)
+
+#define COMP1_HS_IN_P_SEL_Pos          (0U)
+#define COMP1_HS_IN_M_SEL_Pos          (2U)
+#define COMP1_HS_HYST_Pos              (4U)
+
+#define COMP2_HS_IN_P_SEL_Pos          (0U)
+#define COMP2_HS_IN_M_SEL_Pos          (2U)
+#define COMP2_HS_HYST_Pos              (4U)
+
+#define COMP3_HS_IN_P_SEL_Pos          (0U)
+#define COMP3_HS_IN_M_SEL_Pos          (2U)
+#define COMP4_HS_HYST_Pos              (4U)
+#else
+#define COMP0_HS_IN_P_SEL_Pos          (0U)
+#define COMP0_HS_IN_M_SEL_Pos          (2U)
+#define COMP0_HS_HYST_Pos              (4U)
+
+#define COMP1_HS_IN_P_SEL_Pos          (7U)
+#define COMP1_HS_IN_M_SEL_Pos          (9U)
+#define COMP1_HS_HYST_Pos              (11U)
+
+#define COMP2_HS_IN_P_SEL_Pos          (14U)
+#define COMP2_HS_IN_M_SEL_Pos          (16U)
+#define COMP2_HS_HYST_Pos              (18U)
+
+#define COMP3_HS_IN_P_SEL_Pos          (21U)
+#define COMP3_HS_IN_M_SEL_Pos          (23U)
+#define COMP4_HS_HYST_Pos              (25U)
+#endif
+
 /**
  * enum CMP_INSTANCE.
  * CMP instances.

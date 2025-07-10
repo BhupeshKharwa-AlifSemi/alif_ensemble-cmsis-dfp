@@ -104,8 +104,9 @@
 
 #define SOC_FEAT_HSCMP_REG_ALIASING                (1)
 
-#define SOC_FEAT_HSCMP_INT_STATUS_MASK             (1U)
+#define SOC_FEAT_HSCMP_INT_STATUS_MASK             (3U)
 #define SOC_FEAT_HSCMP_WINDOW_ENABLE_VAL           (3)
+#define SOC_FEAT_DAC_REG_ALIASING                  (1)
 
 #define SOC_FEAT_CANFD0_CANFD1_CTRL                (0)
 

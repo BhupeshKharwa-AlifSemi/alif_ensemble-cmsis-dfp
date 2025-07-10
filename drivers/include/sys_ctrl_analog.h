@@ -54,9 +54,11 @@ static inline void enable_analog_peripherals(void)
 static inline void enable_dac6_ref_voltage(void)
 {
 #if SOC_FEAT_HSCMP_REG_ALIASING
+    ADC_VREF->ADC_VREF_REG |= ADC_VREF_BUF_EN;
+
     DAC6->DAC6_REG |= DAC6_REF_VAL;
 #else
-    *((volatile uint32_t *) CMP_REG2_BASE) |= DAC6_REF_VAL;
+    *((volatile uint32_t *) CMP_REG2_BASE) |= (DAC6_REF_VAL | ADC_VREF_BUF_EN);
 #endif
 }
 
@@ -69,7 +71,13 @@ static inline void enable_dac6_ref_voltage(void)
  */
 static inline void enable_dac12_ref_voltage(void)
 {
+#if SOC_FEAT_DAC_REG_ALIASING
+    ADC_VREF->ADC_VREF_REG |= (ADC_VREF_BUF_EN | ADC_VREF_BUF_RDIV_EN);
+
+    *((volatile uint32_t *) CMP_REG2_BASE) |= DAC12_VREF_CONT;
+#else
     *((volatile uint32_t *) CMP_REG2_BASE) |= DAC12_REF_VAL;
+#endif
 }
 
 /**
@@ -82,7 +90,11 @@ static inline void enable_dac12_ref_voltage(void)
  */
 static inline void enable_adc_ref_voltage(void)
 {
+#if SOC_FEAT_ADC_REG_ALIASING
+    ADC_VREF->ADC_VREF_REG |= ADC_REF_VAL;
+#else
     *((volatile uint32_t *) CMP_REG2_BASE) |= ADC_REF_VAL;
+#endif
 }
 
 /**

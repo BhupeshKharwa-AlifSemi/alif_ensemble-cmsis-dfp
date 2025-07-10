@@ -28,4 +28,8 @@ void cmp_irq_handler(CMP_Type *cmp, const uint8_t int_mask)
     if (int_status == CMP_FILTER_EVENT1_CLEAR) {
         cmp->CMP_INTERRUPT_STATUS = CMP_FILTER_EVENT1_CLEAR;
     }
+
+    if (int_status == CMP_FILTER_EVENTS_CLEAR_ALL) {
+        cmp->CMP_INTERRUPT_STATUS = CMP_FILTER_EVENTS_CLEAR_ALL;
+    }
 }

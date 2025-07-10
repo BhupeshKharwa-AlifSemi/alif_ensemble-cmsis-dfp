@@ -31,8 +31,9 @@ extern "C" {
 
 #define LPCMP_MSK_CTRL_VAL        (0xFEU << 24) /* Mask all LPCMP configuration value           */
 
-#define CMP_FILTER_EVENT0_CLEAR   (1U << 0) /* Clear FILTER_EVENT0 interrupt                */
-#define CMP_FILTER_EVENT1_CLEAR   (1U << 1) /* Clear FILTER_EVENT1 interrupt                */
+#define CMP_FILTER_EVENT0_CLEAR     (1U << 0) /* Clear FILTER_EVENT0 interrupt                */
+#define CMP_FILTER_EVENT1_CLEAR     (1U << 1) /* Clear FILTER_EVENT1 interrupt                */
+#define CMP_FILTER_EVENTS_CLEAR_ALL (0x3U)    /* Clear all filter event interrupts            */
 
 /**
   @fn          void cmp_enable_interrupt(CMP_Type *cmp)

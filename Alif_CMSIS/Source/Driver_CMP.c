@@ -398,8 +398,9 @@ static CMP_RESOURCES HSCMP0 = {
     .drv_instance = CMP_INSTANCE_0,
     .state        = {0},
     .irq_num      = (IRQn_Type) CMP0_IRQ_IRQn,
-    .config       = (RTE_CMP0_SEL_POSITIVE << 0) | (RTE_CMP0_SEL_NEGATIVE << 2) |
-                    (RTE_CMP0_SEL_HYSTERISIS << 4),
+    .config       = (RTE_CMP0_SEL_POSITIVE << COMP0_HS_IN_P_SEL_Pos)  |
+                    (RTE_CMP0_SEL_NEGATIVE << COMP0_HS_IN_M_SEL_Pos)  |
+                    (RTE_CMP0_SEL_HYSTERISIS << COMP0_HS_HYST_Pos),
     .irq_priority = RTE_CMP0_IRQ_PRIORITY
 };
 
@@ -500,8 +501,9 @@ static CMP_RESOURCES HSCMP1 = {
     .drv_instance = CMP_INSTANCE_1,
     .state        = {0},
     .irq_num      = (IRQn_Type) CMP1_IRQ_IRQn,
-    .config       = (RTE_CMP1_SEL_POSITIVE << 7) | (RTE_CMP1_SEL_NEGATIVE << 9) |
-                    (RTE_CMP1_SEL_HYSTERISIS << 11),
+    .config       = (RTE_CMP1_SEL_POSITIVE << COMP1_HS_IN_P_SEL_Pos)  |
+                    (RTE_CMP1_SEL_NEGATIVE << COMP1_HS_IN_M_SEL_Pos)  |
+                    (RTE_CMP1_SEL_HYSTERISIS << COMP1_HS_HYST_Pos),
     .irq_priority = RTE_CMP1_IRQ_PRIORITY
 };
 
@@ -601,9 +603,9 @@ static CMP_RESOURCES HSCMP2 = {.cb_event     = NULL,
                                .drv_instance = CMP_INSTANCE_2,
                                .state        = {0},
                                .irq_num      = (IRQn_Type) CMP2_IRQ_IRQn,
-                               .config       = (RTE_CMP2_SEL_POSITIVE << 14) |
-                                         (RTE_CMP2_SEL_NEGATIVE << 16) |
-                                         (RTE_CMP2_SEL_HYSTERISIS << 18),
+                               .config       = (RTE_CMP2_SEL_POSITIVE << COMP2_HS_IN_P_SEL_Pos) |
+                                               (RTE_CMP2_SEL_NEGATIVE << COMP2_HS_IN_M_SEL_Pos) |
+                                               (RTE_CMP2_SEL_HYSTERISIS << COMP2_HS_HYST_Pos),
                                .irq_priority = RTE_CMP2_IRQ_PRIORITY};
 
 /**
@@ -702,9 +704,9 @@ static CMP_RESOURCES HSCMP3 = {.cb_event     = NULL,
                                .drv_instance = CMP_INSTANCE_3,
                                .state        = {0},
                                .irq_num      = (IRQn_Type) CMP3_IRQ_IRQn,
-                               .config       = (RTE_CMP3_SEL_POSITIVE << 21) |
-                                         (RTE_CMP3_SEL_NEGATIVE << 23) |
-                                         (RTE_CMP3_SEL_HYSTERISIS << 25),
+                               .config       = (RTE_CMP3_SEL_POSITIVE << COMP3_HS_IN_P_SEL_Pos) |
+                                               (RTE_CMP3_SEL_NEGATIVE << COMP3_HS_IN_M_SEL_Pos) |
+                                               (RTE_CMP3_SEL_HYSTERISIS << COMP4_HS_HYST_Pos),
                                .irq_priority = RTE_CMP3_IRQ_PRIORITY};
 
 /**
