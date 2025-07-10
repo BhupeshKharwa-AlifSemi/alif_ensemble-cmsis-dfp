@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     Driver_IO.h
  * @author   Girish BN
  * @email    girish.bn@alifsemi.com
@@ -23,56 +23,56 @@
 
 #include "Driver_Common.h"
 
-#define _ARM_Driver_GPIO_(n)      Driver_GPIO##n
-#define  ARM_Driver_GPIO_(n) _ARM_Driver_GPIO_(n)
+#define _ARM_Driver_GPIO_(n)               Driver_GPIO##n
+#define ARM_Driver_GPIO_(n)                _ARM_Driver_GPIO_(n)
 
-#define GPIO_PIN_SOFTWARE_MODE              (1)
-#define GPIO_PIN_HARDWARE_MODE              (2)
+#define GPIO_PIN_SOFTWARE_MODE             (1)
+#define GPIO_PIN_HARDWARE_MODE             (2)
 
 /****** GPIO Control code : ARM_GPIO_ENABLE_INTERRUPT arg definition *****/
-#define ARM_GPIO_IRQ_POLARITY_LOW           0x00000000
-#define ARM_GPIO_IRQ_POLARITY_HIGH          0x00000001
+#define ARM_GPIO_IRQ_POLARITY_LOW          0x00000000
+#define ARM_GPIO_IRQ_POLARITY_HIGH         0x00000001
 
-#define ARM_GPIO_IRQ_EDGE_SENSITIVE_SINGLE  0x00000000
-#define ARM_GPIO_IRQ_EDGE_SENSITIVE_BOTH    0x00000002
+#define ARM_GPIO_IRQ_EDGE_SENSITIVE_SINGLE 0x00000000
+#define ARM_GPIO_IRQ_EDGE_SENSITIVE_BOTH   0x00000002
 
-#define ARM_GPIO_IRQ_SENSITIVE_LEVEL        0x00000000
-#define ARM_GPIO_IRQ_SENSITIVE_EDGE         0x00000004
+#define ARM_GPIO_IRQ_SENSITIVE_LEVEL       0x00000000
+#define ARM_GPIO_IRQ_SENSITIVE_EDGE        0x00000004
 
 /****** GPIO Control code : ARM_GPIO_CONFIG_MODE arg definition *****/
-#define ARM_GPIO_MODE_SOFTWARE              0x0
-#define ARM_GPIO_MODE_HARDWARE              0x1
+#define ARM_GPIO_MODE_SOFTWARE             0x0
+#define ARM_GPIO_MODE_HARDWARE             0x1
 
 /****** GPIO Interrupt events *****/
-#define ARM_GPIO_IRQ_EVENT_EXTERNAL         (1)
+#define ARM_GPIO_IRQ_EVENT_EXTERNAL        (1)
 
 /**< Initialization GPIO call back function declaration >*/
-typedef void (*ARM_GPIO_SignalEvent_t) (uint32_t event);
+typedef void (*ARM_GPIO_SignalEvent_t)(uint32_t event);
 
 /**< GPIO Control codes >*/
 typedef enum _GPIO_OPERATION {
-    ARM_GPIO_CONFIG_DEBOUNCE,               /**<GPIO DEBOUNCE configuration operation>*/
-    ARM_GPIO_ENABLE_INTERRUPT,              /**<GPIO ENABLE interrupt configuration>*/
-    ARM_GPIO_DISABLE_INTERRUPT,             /**<GPIO DISABLE interrupt configuration>*/
-    ARM_GPIO_GET_CONFIG_VALUE1,             /**<GPIO GET Config reg-1 value operation>*/
-    ARM_GPIO_GET_CONFIG_VALUE2,             /**<GPIO GET Config reg-2 value operation>*/
-    ARM_GPIO_CONFIG_MODE                    /**<GPIO Config data source mode>*/
+    ARM_GPIO_CONFIG_DEBOUNCE,   /**<GPIO DEBOUNCE configuration operation>*/
+    ARM_GPIO_ENABLE_INTERRUPT,  /**<GPIO ENABLE interrupt configuration>*/
+    ARM_GPIO_DISABLE_INTERRUPT, /**<GPIO DISABLE interrupt configuration>*/
+    ARM_GPIO_GET_CONFIG_VALUE1, /**<GPIO GET Config reg-1 value operation>*/
+    ARM_GPIO_GET_CONFIG_VALUE2, /**<GPIO GET Config reg-2 value operation>*/
+    ARM_GPIO_CONFIG_MODE        /**<GPIO Config data source mode>*/
 } GPIO_OPERATION;
 
 typedef enum _GPIO_PIN_DIRECTION {
-    GPIO_PIN_DIRECTION_INPUT,               /**<GPIO PIN direction to input>*/
-    GPIO_PIN_DIRECTION_OUTPUT,              /**<GPIO PIN direction to output>*/
+    GPIO_PIN_DIRECTION_INPUT,  /**<GPIO PIN direction to input>*/
+    GPIO_PIN_DIRECTION_OUTPUT, /**<GPIO PIN direction to output>*/
 } GPIO_PIN_DIRECTION;
 
 typedef enum _GPIO_PIN_OUTPUT_STATE {
-    GPIO_PIN_OUTPUT_STATE_LOW,              /**<GPIO PIN state to LOW>*/
-    GPIO_PIN_OUTPUT_STATE_HIGH,             /**<GPIO PIN state to HIGH>*/
-    GPIO_PIN_OUTPUT_STATE_TOGGLE,           /**<GPIO PIN state Toggle>*/
+    GPIO_PIN_OUTPUT_STATE_LOW,    /**<GPIO PIN state to LOW>*/
+    GPIO_PIN_OUTPUT_STATE_HIGH,   /**<GPIO PIN state to HIGH>*/
+    GPIO_PIN_OUTPUT_STATE_TOGGLE, /**<GPIO PIN state Toggle>*/
 } GPIO_PIN_OUTPUT_STATE;
 
 typedef enum _GPIO_PIN_STATE {
-    GPIO_PIN_STATE_LOW,                     /**<GPIO PIN state to LOW>*/
-    GPIO_PIN_STATE_HIGH,                    /**<GPIO PIN state to HIGH>*/
+    GPIO_PIN_STATE_LOW,  /**<GPIO PIN state to LOW>*/
+    GPIO_PIN_STATE_HIGH, /**<GPIO PIN state to HIGH>*/
 } GPIO_PIN_STATE;
 
 /**
@@ -136,16 +136,30 @@ typedef enum _GPIO_PIN_STATE {
 
 /**
  * \brief   Access structure of Gpio module.
-*/
+ */
 typedef struct _ARM_DRIVER_GPIO {
-    int32_t (*Initialize)   (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event);              /**< Pointer to \ref ARM_GPIO_Initialize    : Initialize GPIO interface >*/
-    int32_t (*PowerControl) (uint8_t pin_no, ARM_POWER_STATE state);                        /**< Pointer to \ref ARM_GPIO_PowerControl  : Control GPIO interface power. >*/
-    int32_t (*SetDirection) (uint8_t pin_no, GPIO_PIN_DIRECTION dir);                       /**< Pointer to \ref ARM_GPIO_SetDirection  : Set GPIO direction. >*/
-    int32_t (*GetDirection) (uint8_t pin_no, uint32_t *dir);                                /**< Pointer to \ref ARM_GPIO_GetDirection  : Get GPIO direction. >*/
-    int32_t (*SetValue)     (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value);                  /**< Pointer to \ref ARM_GPIO_SetValue      : Set GPIO Output pin status>*/
-    int32_t (*GetValue)     (uint8_t pin_no, uint32_t *value);                              /**< Pointer to \ref ARM_GPIO_GetValue      : Get GPIO input pin status>*/
-    int32_t (*Control)      (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg);   /**< Pointer to \ref ARM_GPIO_Control       : Control GPIO interface.>*/
-    int32_t (*Uninitialize) (uint8_t pin_no);                                               /**< Pointer to \ref ARM_GPIO_Uninitialize  : Un-initialize the GPIO Pin configuration >*/
+    int32_t (*Initialize)(uint8_t                pin_no,
+                          ARM_GPIO_SignalEvent_t cb_event); /**< Pointer to \ref ARM_GPIO_Initialize
+                                                               : Initialize GPIO interface >*/
+    int32_t (*PowerControl)(uint8_t         pin_no,
+                            ARM_POWER_STATE state); /**< Pointer to \ref ARM_GPIO_PowerControl  :
+                                                       Control GPIO interface power. >*/
+    int32_t (*SetDirection)(uint8_t            pin_no,
+                            GPIO_PIN_DIRECTION dir); /**< Pointer to \ref ARM_GPIO_SetDirection  :
+                                                        Set GPIO direction. >*/
+    int32_t (*GetDirection)(uint8_t   pin_no,
+                            uint32_t *dir); /**< Pointer to \ref ARM_GPIO_GetDirection  : Get GPIO
+                                               direction. >*/
+    int32_t (*SetValue)(uint8_t               pin_no,
+                        GPIO_PIN_OUTPUT_STATE value); /**< Pointer to \ref ARM_GPIO_SetValue      :
+                                                         Set GPIO Output pin status>*/
+    int32_t (*GetValue)(uint8_t pin_no, uint32_t *value); /**< Pointer to \ref ARM_GPIO_GetValue :
+                                                             Get GPIO input pin status>*/
+    int32_t (*Control)(uint8_t pin_no, GPIO_OPERATION control_code,
+                       uint32_t *arg); /**< Pointer to \ref ARM_GPIO_Control       : Control GPIO
+                                          interface.>*/
+    int32_t (*Uninitialize)(uint8_t pin_no); /**< Pointer to \ref ARM_GPIO_Uninitialize  :
+                                                Un-initialize the GPIO Pin configuration >*/
 } ARM_DRIVER_GPIO;
 
 #endif /* __DRIVER_IO_H__ */

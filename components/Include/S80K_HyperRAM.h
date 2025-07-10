@@ -22,9 +22,8 @@
 
 #include "ospi.h"
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define S80K_RAM_BURST_LEN_POS         0
@@ -43,7 +42,7 @@ extern "C"
  */
 void s80k_hyperram_init(OSPI_Type *ospi, uint8_t wait_cycles);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

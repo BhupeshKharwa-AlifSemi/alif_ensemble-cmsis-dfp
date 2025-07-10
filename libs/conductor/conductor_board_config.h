@@ -20,9 +20,8 @@
 #ifndef CONDUCTOR_BOARD_CONFIG_H_
 #define CONDUCTOR_BOARD_CONFIG_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -33,7 +32,7 @@ extern "C"
 */
 int32_t conductor_pins_config(void);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* CONDUCTOR_BOARD_CONFIG_H_*/

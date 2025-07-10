@@ -57,86 +57,89 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined PDM pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* PDM driver instance */
-extern ARM_DRIVER_PDM Driver_PDM;
+extern ARM_DRIVER_PDM  Driver_PDM;
 static ARM_DRIVER_PDM *PDMdrv = &Driver_PDM;
 
 /*Define for FreeRTOS*/
-#define STACK_SIZE       1024
-#define TIMER_SERVICE_TASK_STACK_SIZE   configTIMER_TASK_STACK_DEPTH
-#define IDLE_TASK_STACK_SIZE            configMINIMAL_STACK_SIZE
+#define STACK_SIZE                    1024
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 /* Store the number of samples */
 /* For 30000 samples user can hear maximum up to 4 sec of audio
  * to store maximum samples then change the scatter file and increase the memory */
-#define NUM_SAMPLE  30000
+#define NUM_SAMPLE          30000
 
 /* channel number used for channel configuration and status register */
-#define CHANNEL_4  4
-#define CHANNEL_5  5
+#define CHANNEL_4           4
+#define CHANNEL_5           5
 
-#define ERROR    -1
-#define SUCCESS   0
+#define ERROR               -1
+#define SUCCESS             0
 
 /* PDM Channel 4 configurations */
-#define CH4_PHASE             0x0000001F
-#define CH4_GAIN              0x0000000D
-#define CH4_PEAK_DETECT_TH    0x00060002
-#define CH4_PEAK_DETECT_ITV   0x0004002D
+#define CH4_PHASE           0x0000001F
+#define CH4_GAIN            0x0000000D
+#define CH4_PEAK_DETECT_TH  0x00060002
+#define CH4_PEAK_DETECT_ITV 0x0004002D
 
 /* PDM Channel 5 configurations */
-#define CH5_PHASE             0x00000003
-#define CH5_GAIN              0x00000013
-#define CH5_PEAK_DETECT_TH    0x00060002
-#define CH5_PEAK_DETECT_ITV   0x00020027
+#define CH5_PHASE           0x00000003
+#define CH5_GAIN            0x00000013
+#define CH5_PEAK_DETECT_TH  0x00060002
+#define CH5_PEAK_DETECT_ITV 0x00020027
 
 TaskHandle_t pdm_xHandle;
 
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
-   *ppxIdleTaskTCBBuffer = &IdleTcb;
-   *ppxIdleTaskStackBuffer = IdleStack;
-   *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
+    *ppxIdleTaskStackBuffer = IdleStack;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-   (void) pxTask;
+    (void) pxTask;
 
-   for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-   *ppxTimerTaskTCBBuffer = &TimerTcb;
-   *ppxTimerTaskStackBuffer = TimerStack;
-   *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
+    *ppxTimerTaskStackBuffer = TimerStack;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-   for (;;);
+    ASSERT_HANG
 }
 
-typedef enum{
+typedef enum {
     PDM_CALLBACK_ERROR_EVENT           = (1 << 0),
     PDM_CALLBACK_WARNING_EVENT         = (1 << 1),
     PDM_CALLBACK_AUDIO_DETECTION_EVENT = (1 << 2)
-}PDM_CB_EVENTS;
+} PDM_CB_EVENTS;
 
 PDM_CH_CONFIG pdm_coef_reg;
 
@@ -145,12 +148,44 @@ PDM_CH_CONFIG pdm_coef_reg;
 uint16_t sample_buf[NUM_SAMPLE];
 
 /* Channel 4 FIR coefficient */
-uint32_t ch4_fir[18] = { 0x00000001,0x00000003,0x00000003,0x000007F4,0x00000004,0x000007ED,0x000007F5,0x000007F4,0x000007D3,
-                        0x000007FE,0x000007BC,0x000007E5,0x000007D9,0x00000793,0x00000029,0x0000072C,0x00000072,0x000002FD};
+uint32_t ch4_fir[18] = {0x00000001,
+                        0x00000003,
+                        0x00000003,
+                        0x000007F4,
+                        0x00000004,
+                        0x000007ED,
+                        0x000007F5,
+                        0x000007F4,
+                        0x000007D3,
+                        0x000007FE,
+                        0x000007BC,
+                        0x000007E5,
+                        0x000007D9,
+                        0x00000793,
+                        0x00000029,
+                        0x0000072C,
+                        0x00000072,
+                        0x000002FD};
 
 /* Channel 5 FIR coefficient */
-uint32_t ch5_fir[18] = {0x00000000, 0x000007FF,0x00000000,0x00000004,0x00000004,0x000007FC,0x00000000,0x000007FB,0x000007E4,
-                       0x00000000,0x0000002B,0x00000009,0x00000016,0x00000049,0x00000793,0x000006F8,0x00000045,0x00000178};
+uint32_t ch5_fir[18] = {0x00000000,
+                        0x000007FF,
+                        0x00000000,
+                        0x00000004,
+                        0x00000004,
+                        0x000007FC,
+                        0x00000000,
+                        0x000007FB,
+                        0x000007E4,
+                        0x00000000,
+                        0x0000002B,
+                        0x00000009,
+                        0x00000016,
+                        0x00000049,
+                        0x00000793,
+                        0x000006F8,
+                        0x00000045,
+                        0x00000178};
 
 static void PDM_fifo_callback(uint32_t event)
 {
@@ -158,25 +193,37 @@ static void PDM_fifo_callback(uint32_t event)
     /* Save received events */
     /* Optionally, user can define specific actions for an event */
 
-    if(event & ARM_PDM_EVENT_ERROR )
-    {
-        xTaskNotifyFromISR(pdm_xHandle, PDM_CALLBACK_ERROR_EVENT, eSetBits, &xHigherPriorityTaskWoken);
+    if (event & ARM_PDM_EVENT_ERROR) {
+        xTaskNotifyFromISR(pdm_xHandle,
+                           PDM_CALLBACK_ERROR_EVENT,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 
-    if(event & ARM_PDM_EVENT_CAPTURE_COMPLETE)
-    {
-        xTaskNotifyFromISR(pdm_xHandle, PDM_CALLBACK_WARNING_EVENT, eSetBits, &xHigherPriorityTaskWoken);
+    if (event & ARM_PDM_EVENT_CAPTURE_COMPLETE) {
+        xTaskNotifyFromISR(pdm_xHandle,
+                           PDM_CALLBACK_WARNING_EVENT,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 
-    if(event & ARM_PDM_EVENT_AUDIO_DETECTION)
-    {
-        xTaskNotifyFromISR(pdm_xHandle, PDM_CALLBACK_AUDIO_DETECTION_EVENT, eSetBits, &xHigherPriorityTaskWoken);
+    if (event & ARM_PDM_EVENT_AUDIO_DETECTION) {
+        xTaskNotifyFromISR(pdm_xHandle,
+                           PDM_CALLBACK_AUDIO_DETECTION_EVENT,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 }
 
@@ -192,44 +239,76 @@ static int32_t board_pdm_pins_config(void)
     int32_t status;
 
     /* channel 0_1 data line */
-    status = pinconf_set(PORT_(BOARD_PDM_D0_A_GPIO_PORT), BOARD_PDM_D0_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_D0_A_GPIO_PORT),
+                         BOARD_PDM_D0_A_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* channel 2_3 data line */
-    status = pinconf_set(PORT_(BOARD_PDM_D1_C_GPIO_PORT), BOARD_PDM_D1_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_D1_C_GPIO_PORT),
+                         BOARD_PDM_D1_C_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_4,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* channel 4_5 data line */
-    status = pinconf_set(PORT_(BOARD_PDM_D2_B_GPIO_PORT), BOARD_PDM_D2_B_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_D2_B_GPIO_PORT),
+                         BOARD_PDM_D2_B_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* channel 6_7 data line */
-    status = pinconf_set(PORT_(BOARD_PDM_D3_A_GPIO_PORT), BOARD_PDM_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_D3_A_GPIO_PORT),
+                         BOARD_PDM_D3_A_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* Channel 0_1 clock line */
-    status = pinconf_set(PORT_(BOARD_PDM_C0_A_GPIO_PORT), BOARD_PDM_C0_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_C0_A_GPIO_PORT),
+                         BOARD_PDM_C0_A_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status) {
         return ERROR;
+    }
 
     /* Channel 2_3 clock line */
-    status = pinconf_set(PORT_(BOARD_PDM_C1_C_GPIO_PORT), BOARD_PDM_C1_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_DRIVER_DISABLED_HIGH_Z);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_C1_C_GPIO_PORT),
+                         BOARD_PDM_C1_C_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_4,
+                         PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status) {
         return ERROR;
+    }
 
     /* Channel 4_5 clock line */
-    status = pinconf_set(PORT_(BOARD_PDM_C2_A_GPIO_PORT), BOARD_PDM_C2_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_C2_A_GPIO_PORT),
+                         BOARD_PDM_C2_A_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status) {
         return ERROR;
+    }
 
     /* Channel 6_7 clock line */
-    status = pinconf_set(PORT_(BOARD_PDM_C3_A_GPIO_PORT), BOARD_PDM_C3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_DRIVER_DISABLED_HIGH_Z);
-    if (status)
+    status = pinconf_set(PORT_(BOARD_PDM_C3_A_GPIO_PORT),
+                         BOARD_PDM_C3_A_GPIO_PIN,
+                         PINMUX_ALTERNATE_FUNCTION_3,
+                         PADCTRL_DRIVER_DISABLED_HIGH_Z);
+    if (status) {
         return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -261,9 +340,9 @@ static int32_t board_pdm_pins_config(void)
  */
 void pdm_demo_thread_entry(void *pvParameters)
 {
-    int32_t ret = 0;
+    int32_t            ret = 0;
     ARM_DRIVER_VERSION version;
-    uint32_t ulNotificationValue;
+    uint32_t           ulNotificationValue;
 
     printf("\r\n >>> PDM demo starting up!!! <<< \r\n");
 
@@ -273,8 +352,7 @@ void pdm_demo_thread_entry(void *pvParameters)
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
@@ -285,136 +363,142 @@ void pdm_demo_thread_entry(void *pvParameters)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_pdm_pins_config();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
 #endif
 
 #if SOC_FEAT_CLK76P8M_CLK_ENABLE
-    uint32_t error_code        = SERVICES_REQ_SUCCESS;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
     uint32_t service_error_code;
 
     /* Initialize the SE services */
     se_services_port_init();
 
-/* enable the HFOSCx2 clock */
+    /* enable the HFOSCx2 clock */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_HFOSCx2,
-                           /*bool enable   */ true,
+                                              /*clock_enable_t*/ CLKEN_HFOSCx2,
+                                              /*bool enable   */ true,
                                               &service_error_code);
-    if (error_code)
-        printf("SE: clk enable = %"PRId32"\n", error_code);
+    if (error_code) {
+        printf("SE: clk enable = %" PRId32 "\n", error_code);
+    }
 #endif
 
     /* Initialize PDM driver */
     ret = PDMdrv->Initialize(PDM_fifo_callback);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM init failed\n");
         return;
     }
 
     /* Enable the power for PDM */
     ret = PDMdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Power up failed\n");
         goto error_uninitialize;
     }
 
     /* To select the PDM channel 4 and channel 5 */
-    ret = PDMdrv->Control(ARM_PDM_SELECT_CHANNEL, ARM_PDM_MASK_CHANNEL_4 |ARM_PDM_MASK_CHANNEL_5, NULL);
-    if(ret != ARM_DRIVER_OK){
+    ret = PDMdrv->Control(ARM_PDM_SELECT_CHANNEL,
+                          ARM_PDM_MASK_CHANNEL_4 | ARM_PDM_MASK_CHANNEL_5,
+                          NULL);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM channel select control failed\n");
         goto error_poweroff;
     }
 
     /* Select Standard voice PDM mode */
     ret = PDMdrv->Control(ARM_PDM_MODE, ARM_PDM_MODE_AUDIOFREQ_8K_DECM_64, NULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Standard voice control mode failed\n");
         goto error_poweroff;
     }
 
     /* Select the DC blocking IIR filter */
     ret = PDMdrv->Control(ARM_PDM_BYPASS_IIR_FILTER, ENABLE, NULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM DC blocking IIR control failed\n");
         goto error_poweroff;
     }
 
     /* Set Channel 4 Phase value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PHASE, CHANNEL_4, CH4_PHASE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 4 Gain value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_GAIN, CHANNEL_4, CH4_GAIN);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 4 Peak detect threshold value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PEAK_DETECT_TH, CHANNEL_4, CH4_PEAK_DETECT_TH);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 4 Peak detect ITV value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PEAK_DETECT_ITV, CHANNEL_4, CH4_PEAK_DETECT_ITV);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
-    pdm_coef_reg.ch_num  = 4;
-    memcpy(pdm_coef_reg.ch_fir_coef, ch4_fir, sizeof(pdm_coef_reg.ch_fir_coef)); /* Channel 4 fir coefficient */
-    pdm_coef_reg.ch_iir_coef         = 0x00000004;   /* Channel IIR Filter Coefficient */
+    pdm_coef_reg.ch_num = 4;
+    memcpy(pdm_coef_reg.ch_fir_coef,
+           ch4_fir,
+           sizeof(pdm_coef_reg.ch_fir_coef)); /* Channel 4 fir coefficient */
+    pdm_coef_reg.ch_iir_coef = 0x00000004;    /* Channel IIR Filter Coefficient */
 
-    ret = PDMdrv->Config(&pdm_coef_reg);
-    if(ret != ARM_DRIVER_OK){
+    ret                      = PDMdrv->Config(&pdm_coef_reg);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 5 Phase value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PHASE, CHANNEL_5, CH5_PHASE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 5 Gain value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_GAIN, CHANNEL_5, CH5_GAIN);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 5 Peak detect threshold value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PEAK_DETECT_TH, CHANNEL_5, CH5_PEAK_DETECT_TH);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
     /* Set Channel 5 Peak detect ITV value */
     ret = PDMdrv->Control(ARM_PDM_CHANNEL_PEAK_DETECT_ITV, CHANNEL_5, CH5_PEAK_DETECT_ITV);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
 
-    pdm_coef_reg.ch_num  = 5;
-    memcpy(pdm_coef_reg.ch_fir_coef, ch5_fir, sizeof(pdm_coef_reg.ch_fir_coef)); /* Channel 5 fir coefficient */
-    pdm_coef_reg.ch_iir_coef         = 0x00000004;   /* Channel IIR Filter Coefficient */
+    pdm_coef_reg.ch_num = 5;
+    memcpy(pdm_coef_reg.ch_fir_coef,
+           ch5_fir,
+           sizeof(pdm_coef_reg.ch_fir_coef)); /* Channel 5 fir coefficient */
+    pdm_coef_reg.ch_iir_coef = 0x00000004;    /* Channel IIR Filter Coefficient */
 
-    ret = PDMdrv->Config(&pdm_coef_reg);
-    if(ret != ARM_DRIVER_OK){
+    ret                      = PDMdrv->Config(&pdm_coef_reg);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Channel_Config failed\n");
         goto error_uninitialize;
     }
@@ -422,53 +506,51 @@ void pdm_demo_thread_entry(void *pvParameters)
     printf("\n------> Start Speaking or Play some Audio!------> \n");
 
     /* Receive the audio samples */
-    ret = PDMdrv->Receive((uint16_t*)sample_buf, NUM_SAMPLE);
-    if(ret != ARM_DRIVER_OK){
+    ret = PDMdrv->Receive((uint16_t *) sample_buf, NUM_SAMPLE);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: PDM Receive failed\n");
-       goto error_capture;
+        goto error_capture;
     }
 
     /* wait for the call back event */
-    xTaskNotifyWait(NULL, PDM_CALLBACK_ERROR_EVENT | PDM_CALLBACK_WARNING_EVENT | \
-                    PDM_CALLBACK_AUDIO_DETECTION_EVENT, \
-                    &ulNotificationValue, \
+    xTaskNotifyWait(NULL,
+                    PDM_CALLBACK_ERROR_EVENT | PDM_CALLBACK_WARNING_EVENT |
+                        PDM_CALLBACK_AUDIO_DETECTION_EVENT,
+                    &ulNotificationValue,
                     portMAX_DELAY);
 
     /* PDM channel audio detection event */
-    if(ulNotificationValue & PDM_CALLBACK_AUDIO_DETECTION_EVENT)
-    {
+    if (ulNotificationValue & PDM_CALLBACK_AUDIO_DETECTION_EVENT) {
         printf("\n PDM audio detect event: data in the audio channel");
     }
 
     /* PDM fifo alomost full warning event */
-    if(ulNotificationValue & PDM_CALLBACK_WARNING_EVENT)
-    {
+    if (ulNotificationValue & PDM_CALLBACK_WARNING_EVENT) {
         printf("\n PDM warning event : Fifo almost full\n");
     }
 
     /* PDM fifo overflow error event */
-    if(ulNotificationValue & PDM_CALLBACK_ERROR_EVENT)
-    {
+    if (ulNotificationValue & PDM_CALLBACK_ERROR_EVENT) {
         printf("\n PDM error event: Fifo overflow \n");
     }
 
     printf("\n------> Stop recording ------> \n");
-    printf("\n--> PCM samples will be stored in 0x%p address and size of buffer is %d\n", sample_buf, sizeof(sample_buf));
+    printf("\n--> PCM samples will be stored in 0x%p address and size of buffer is %d\n",
+           sample_buf,
+           sizeof(sample_buf));
     printf("\n ---END--- \r\n <<< wait forever >>> \n");
-    while(1);
+    WAIT_FOREVER
 
 error_capture:
 error_poweroff:
     ret = PDMdrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\n Error: PDM power off failed\n");
     }
 
 error_uninitialize:
     ret = PDMdrv->Uninitialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\n Error: PDM Uninitialize failed\n");
     }
 
@@ -478,8 +560,9 @@ error_uninitialize:
                                               CLKEN_HFOSCx2,
                                               false,
                                               &service_error_code);
-    if (error_code)
-        printf("SE Error: HFOSCx2 clk disable = %"PRIu32"\n", error_code);
+    if (error_code) {
+        printf("SE Error: HFOSCx2 clk disable = %" PRIu32 "\n", error_code);
+    }
 #endif
 
     printf("\r\n XXX PDM demo exiting XXX...\r\n");
@@ -490,28 +573,29 @@ error_uninitialize:
  *---------------------------------------------------------------------------*/
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(pdm_demo_thread_entry, "PDMFreertos", 256, NULL,configMAX_PRIORITIES-1, &pdm_xHandle);
-   if (xReturned != pdPASS)
-   {
-      vTaskDelete(pdm_xHandle);
-      return -1;
-   }
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(pdm_demo_thread_entry,
+                                       "PDMFreertos",
+                                       256,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &pdm_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(pdm_xHandle);
+        return -1;
+    }
 
-   /* Start thread execution */
-   vTaskStartScheduler();
+    /* Start thread execution */
+    vTaskStartScheduler();
 }

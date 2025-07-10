@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     sys_ctrl_sd.h
  * @author   Deepak Kumar
  * @email    deepak@alifsemi.com
@@ -27,7 +27,7 @@ extern "C" {
 
 #include "soc.h"
 
-#define PERIPH_CLK_ENA_SDC_CKEN                (1U << 16) /* Enable clock supply for SDMMC */
+#define PERIPH_CLK_ENA_SDC_CKEN (1U << 16) /* Enable clock supply for SDMMC */
 
 /**
   \fn     static inline void enable_sd_periph_clk(void)

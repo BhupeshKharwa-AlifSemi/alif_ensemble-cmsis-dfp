@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     Driver_USART_EX.h
  * @author   Nisarga A M
  * @email    nisarga.am@alifsemi.com
@@ -22,18 +22,19 @@
 #ifndef DRIVER_USART_EX_H_
 #define DRIVER_USART_EX_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include "Driver_USART.h"
 
 /****** USART Extended Control Codes *****/
-#define ARM_USART_USE_CUSTOM_DMA_MCODE_TX      (0x1BUL << ARM_USART_CONTROL_Pos)  ///< Use User defined DMA microcode arg provides address
-#define ARM_USART_USE_CUSTOM_DMA_MCODE_RX      (0x1CUL << ARM_USART_CONTROL_Pos)  ///< Use User defined DMA microcode arg provides address
+#define ARM_USART_USE_CUSTOM_DMA_MCODE_TX                                                          \
+    (0x1BUL << ARM_USART_CONTROL_Pos)  ///< Use User defined DMA microcode arg provides address
+#define ARM_USART_USE_CUSTOM_DMA_MCODE_RX                                                          \
+    (0x1CUL << ARM_USART_CONTROL_Pos)  ///< Use User defined DMA microcode arg provides address
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

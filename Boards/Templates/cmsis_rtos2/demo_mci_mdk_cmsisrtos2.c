@@ -4,8 +4,8 @@
  *------------------------------------------------------------------------------
  * Name:    mci-mdk-testApp.c
  * Purpose: File manipulation example program
-*----------------------------------------------------------------------------*/
- /**************************************************************************//**
+ *----------------------------------------------------------------------------*/
+/*******************************************************************************
  * @file     demo_mci_mdk_cmsisrtos2.c
  * @author   Deepak Kumar
  * @email    deepak@alifsemi.com
@@ -19,7 +19,7 @@
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_stdout.h"
-#endif  /* RTE_Compiler_IO_STDOUT */
+#endif /* RTE_Compiler_IO_STDOUT */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -45,10 +45,7 @@
 
 // Main stack size must be multiple of 8 Bytes
 #define APP_MAIN_STK_SZ (2048U)
-const osThreadAttr_t app_main_attr = {
-    .name = "SD App Thread",
-    .stack_size = APP_MAIN_STK_SZ
-};
+const osThreadAttr_t app_main_attr = {.name = "SD App Thread", .stack_size = APP_MAIN_STK_SZ};
 
 /* Command definitions structure. */
 typedef struct {
@@ -59,60 +56,57 @@ typedef struct {
 } CMD_t;
 
 /* Command function prototypes */
-static void cmd_mount   (void);
-static void cmd_unmount (void);
-static void cmd_format  (void);
-static void cmd_write   (void);
-static void cmd_read    (void);
-static void cmd_delete  (void);
-static void cmd_rename  (void);
-static void cmd_mkdir   (void);
-static void cmd_rmdir   (void);
-static void cmd_find    (void);
-static void cmd_pwd     (void);
-static void cmd_chdir   (void);
-static void cmd_chdrive (void);
-static void cmd_help    (void);
+static void cmd_mount(void);
+static void cmd_unmount(void);
+static void cmd_format(void);
+static void cmd_write(void);
+static void cmd_read(void);
+static void cmd_delete(void);
+static void cmd_rename(void);
+static void cmd_mkdir(void);
+static void cmd_rmdir(void);
+static void cmd_find(void);
+static void cmd_pwd(void);
+static void cmd_chdir(void);
+static void cmd_chdrive(void);
+static void cmd_help(void);
 
 static const CMD_t cmd_list[] = {
-    { cmd_mount,   "MOUNT",   "drive",          "Mount the drive."},
-    { cmd_unmount, "UNMOUNT", "drive",          "Unmount the drive."},
-    { cmd_format,  "FORMAT",  "drive [options]","Format the drive."},
-    { cmd_write,   "WRITE",   "file [n]",       "Write n lines to a file."},
-    { cmd_read,    "READ",    "file [n]",       "Read n lines from a file."},
-    { cmd_delete,  "DELETE",  "file [options]", "Delete a file."},
-    { cmd_rename,  "RENAME",  "file",           "Rename a file."},
-    { cmd_mkdir,   "MKDIR",   "path",           "Create a directory."},
-    { cmd_rmdir,   "RMDIR",   "path [options]", "Remove a directory."},
-    { cmd_find,    "FIND",    "pattern",        "Find a file or directory matching search pattern."},
-    { cmd_pwd,     "PWD",     "drive",          "Print working directory."},
-    { cmd_chdir,   "CHDIR",   "path",           "Change working directory."},
-    { cmd_chdrive, "CHDRIVE", "drive",          "Change current drive."},
-    { cmd_help,    "HELP",    "",               "Display help." }
-};
+    {cmd_mount, "MOUNT", "drive", "Mount the drive."},
+    {cmd_unmount, "UNMOUNT", "drive", "Unmount the drive."},
+    {cmd_format, "FORMAT", "drive [options]", "Format the drive."},
+    {cmd_write, "WRITE", "file [n]", "Write n lines to a file."},
+    {cmd_read, "READ", "file [n]", "Read n lines from a file."},
+    {cmd_delete, "DELETE", "file [options]", "Delete a file."},
+    {cmd_rename, "RENAME", "file", "Rename a file."},
+    {cmd_mkdir, "MKDIR", "path", "Create a directory."},
+    {cmd_rmdir, "RMDIR", "path [options]", "Remove a directory."},
+    {cmd_find, "FIND", "pattern", "Find a file or directory matching search pattern."},
+    {cmd_pwd, "PWD", "drive", "Print working directory."},
+    {cmd_chdir, "CHDIR", "path", "Change working directory."},
+    {cmd_chdrive, "CHDRIVE", "drive", "Change current drive."},
+    {cmd_help, "HELP", "", "Display help."}};
 
-#define CMD_LIST_SIZE   (sizeof(cmd_list) / sizeof(cmd_list[0]))
+#define CMD_LIST_SIZE (sizeof(cmd_list) / sizeof(cmd_list[0]))
 
-const char *fs_status[] = {
-    "fsOK",
-    "fsError",
-    "fsUnsupported",
-    "fsAccessDenied",
-    "fsInvalidParameter",
-    "fsInvalidDrive",
-    "fsInvalidPath",
-    "fsUninitializedDrive",
-    "fsDriverError",
-    "fsMediaError",
-    "fsNoMedia",
-    "fsNoFileSystem",
-    "fsNoFreeSpace",
-    "fsFileNotFound",
-    "fsDirNotEmpty",
-    "fsTooManyOpenFiles",
-    "fsAlreadyExists",
-    "fsNotDirectory"
-};
+const char *fs_status[] = {"fsOK",
+                           "fsError",
+                           "fsUnsupported",
+                           "fsAccessDenied",
+                           "fsInvalidParameter",
+                           "fsInvalidDrive",
+                           "fsInvalidPath",
+                           "fsUninitializedDrive",
+                           "fsDriverError",
+                           "fsMediaError",
+                           "fsNoMedia",
+                           "fsNoFileSystem",
+                           "fsNoFreeSpace",
+                           "fsFileNotFound",
+                           "fsDirNotEmpty",
+                           "fsTooManyOpenFiles",
+                           "fsAlreadyExists",
+                           "fsNotDirectory"};
 
 /* Line and path buffers */
 static char cmd_line[300];
@@ -124,13 +118,14 @@ static char pwd_path[260];
   \param[in]  buf_size  The size of buffer
   \return     number of characters read
   */
-static uint32_t fs_terminal (char *buf, int32_t buf_size)  {
+static uint32_t fs_terminal(char *buf, int32_t buf_size)
+{
     int32_t cnt = 0;
-    char ch;
+    char    ch;
 
     while (cnt < (buf_size - 2)) {
         /* Read character from stdin (blocking) */
-        ch = (char)getchar();
+        ch = (char) getchar();
 
         if (ch == ASCII_BS) {
             /* Backspace: remove previous character from the line buffer */
@@ -144,20 +139,17 @@ static uint32_t fs_terminal (char *buf, int32_t buf_size)  {
                 putchar(ASCII_BS);
                 fflush(stdout);
             }
-        }
-        else if ((ch == ASCII_CR) || (ch == ASCII_LF)) {
+        } else if ((ch == ASCII_CR) || (ch == ASCII_LF)) {
             /* Carriage return or new line: End of line */
             break;
-        }
-        else if ((ch >= ' ') && (ch <= '~')) {
+        } else if ((ch >= ' ') && (ch <= '~')) {
             /* Allowed characters: echo and store character */
             putchar(buf[cnt] = ch);
             fflush(stdout);
 
             /* Increment number of characters */
             cnt++;
-        }
-        else {
+        } else {
             /* Ignored characters */
         }
     }
@@ -169,7 +161,7 @@ static uint32_t fs_terminal (char *buf, int32_t buf_size)  {
     putchar('\n');
     fflush(stdout);
 
-    return (cnt);
+    return cnt;
 }
 
 /**
@@ -180,26 +172,26 @@ static uint32_t fs_terminal (char *buf, int32_t buf_size)  {
   The specified drive is first initialized and after successful initialization
   also mounted.
   */
-static void cmd_mount (void) {
+static void cmd_mount(void)
+{
     fsStatus status;
-    char *drive;
+    char    *drive;
 
     /* Extract function argument */
-    drive = strtok(NULL, " ");
+    drive  = strtok(NULL, " ");
 
     status = finit(drive);
 
     if (status != fsOK) {
         printf("Drive initialization failed!\n");
-    }
-    else {
-        status = fmount (drive);
+    } else {
+        status = fmount(drive);
     }
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     } else {
-        printf ("Drive mounted.\n");
+        printf("Drive mounted.\n");
     }
 }
 
@@ -211,26 +203,26 @@ static void cmd_mount (void) {
   The specified drive is first unmounted and after successful unmount
   also uninitialized.
   */
-static void cmd_unmount (void) {
+static void cmd_unmount(void)
+{
     fsStatus status;
-    char *drive;
+    char    *drive;
 
     /* Extract function argument */
-    drive = strtok(NULL, " ");
+    drive  = strtok(NULL, " ");
 
-    status = funmount (drive);
+    status = funmount(drive);
 
     if (status != fsOK) {
         printf("Drive unmount failed!\n");
-    }
-    else {
+    } else {
         status = funinit(drive);
     }
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     } else {
-        printf ("Drive unmounted.\n");
+        printf("Drive unmounted.\n");
     }
 }
 
@@ -242,21 +234,22 @@ static void cmd_unmount (void) {
   Argument 'options' is optional and specifies format options such as
   FAT drive label.
   */
-static void cmd_format (void) {
+static void cmd_format(void)
+{
     fsStatus status;
-    char *drive;
-    char *options;
+    char    *drive;
+    char    *options;
 
     /* Extract function arguments */
     drive   = strtok(NULL, " ");
     options = strtok(NULL, " ");
 
-    status = fformat (drive, options);
+    status  = fformat(drive, options);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     } else {
-        printf ("Drive formatted.\n");
+        printf("Drive formatted.\n");
     }
 }
 
@@ -270,10 +263,11 @@ static void cmd_format (void) {
   The file specified with 'path' is opened in write mode and written line by line
   until 'n' lines are written.
   */
-static void cmd_write (void) {
-    FILE *f;
-    char *file;
-    char *n;
+static void cmd_write(void)
+{
+    FILE    *f;
+    char    *file;
+    char    *n;
     uint32_t i, cnt;
 
     /* Extract function arguments */
@@ -282,7 +276,7 @@ static void cmd_write (void) {
 
     if (n != NULL) {
         /* Convert number of lines from string to integer */
-        cnt = (uint32_t)atoi(n);
+        cnt = (uint32_t) atoi(n);
     } else {
         /* Default: write 1000 lines */
         cnt = 1000U;
@@ -292,9 +286,8 @@ static void cmd_write (void) {
 
     if (f == NULL) {
         printf("Can not open file!\n");
-    }
-    else {
-        for (i = 0; i < cnt; i++)  {
+    } else {
+        for (i = 0; i < cnt; i++) {
             fprintf(f, "This is line # %d in file %s\n", i, file);
 
             /* Display dot after every 1000th line during the write progress */
@@ -320,12 +313,13 @@ static void cmd_write (void) {
   character by character and output to the console. The file is closed after 'n'
   lines has been read or if end of file is reached.
   */
-static void cmd_read (void) {
-    FILE *f;
-    char *path;
-    char *n;
+static void cmd_read(void)
+{
+    FILE    *f;
+    char    *path;
+    char    *n;
     uint32_t n_cnt, n_lim;
-    int ch;
+    int      ch;
 
     /* Extract function arguments */
     path = strtok(NULL, " ");
@@ -333,7 +327,7 @@ static void cmd_read (void) {
 
     if (n != NULL) {
         /* Convert number of lines from string to integer */
-        n_lim = (uint32_t)atoi(n);
+        n_lim = (uint32_t) atoi(n);
     } else {
         /* Default: read until EOF */
         n_lim = 0U;
@@ -343,8 +337,7 @@ static void cmd_read (void) {
 
     if (f == NULL) {
         printf("Can not open file!\n");
-    }
-    else {
+    } else {
         n_cnt = 0U;
 
         while ((ch = fgetc(f)) != EOF) {
@@ -375,19 +368,20 @@ static void cmd_read (void) {
   Argument 'options' is optional and may specify option '/S' to remove all
   files within the specified directory including the subdirectories.
   */
-static void cmd_delete (void) {
+static void cmd_delete(void)
+{
     fsStatus status;
-    char *path;
-    char *options;
+    char    *path;
+    char    *options;
 
     /* Extract function arguments */
     path    = strtok(NULL, " ");
     options = strtok(NULL, " ");
 
-    status = fdelete (path, options);
+    status  = fdelete(path, options);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -399,19 +393,20 @@ static void cmd_delete (void) {
   Argument 'path' specifies file or directory to be renamed.
   Argument 'newname' specifies the new name of the file or directory specified with 'path'.
   */
-static void cmd_rename (void) {
+static void cmd_rename(void)
+{
     fsStatus status;
-    char *path;
-    char *newname;
+    char    *path;
+    char    *newname;
 
     /* Extract function arguments */
     path    = strtok(NULL, " ");
     newname = strtok(NULL, " ");
 
-    status = frename (path, newname);
+    status  = frename(path, newname);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -422,17 +417,18 @@ static void cmd_rename (void) {
   be specified.
   Argument 'path' may specify directory and its subdirectories.
   */
-static void cmd_mkdir (void) {
+static void cmd_mkdir(void)
+{
     fsStatus status;
-    char *path;
+    char    *path;
 
     /* Extract function arguments */
-    path = strtok(NULL, " ");
+    path   = strtok(NULL, " ");
 
-    status = fmkdir (path);
+    status = fmkdir(path);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -446,19 +442,20 @@ static void cmd_mkdir (void) {
   directories and files within the specified directory including the directory
   itself.
   */
-static void cmd_rmdir (void) {
+static void cmd_rmdir(void)
+{
     fsStatus status;
-    char *path;
-    char *options;
+    char    *path;
+    char    *options;
 
     /* Extract function arguments */
     path    = strtok(NULL, " ");
     options = strtok(NULL, " ");
 
-    status = frmdir (path, options);
+    status  = frmdir(path, options);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -473,17 +470,18 @@ static void cmd_rmdir (void) {
   matches the pattern is returned into the 'info' structure and partially
   printed to the console.
   */
-static void cmd_find (void) {
-    fsStatus status;
-    char *pattern;
+static void cmd_find(void)
+{
+    fsStatus   status;
+    char      *pattern;
     fsFileInfo info;
-    uint32_t cnt = 0U;
+    uint32_t   cnt = 0U;
 
     /* Extract function argument */
-    pattern = strtok(NULL, " ");
+    pattern        = strtok(NULL, " ");
 
     /* Member fileID must be set to 0 */
-    info.fileID = 0;
+    info.fileID    = 0;
 
     do {
         status = ffind(pattern, &info);
@@ -498,16 +496,16 @@ static void cmd_find (void) {
             /* Print type of entry and its size */
             if (info.attrib & FS_FAT_ATTR_DIRECTORY) {
                 printf("%-5s %-12s ", "DIR", " ");
-            }
-            else {
+            } else {
                 printf("%-5s %-12u ", "FILE", info.size);
             }
             /* Print date and time */
-            printf("%02d.%02d.%04d  %02d:%02d ", info.time.day,
-                    info.time.mon,
-                    info.time.year,
-                    info.time.hr,
-                    info.time.min);
+            printf("%02d.%02d.%04d  %02d:%02d ",
+                   info.time.day,
+                   info.time.mon,
+                   info.time.year,
+                   info.time.hr,
+                   info.time.min);
             /* Print file or directory name */
             printf("%s\n", info.name);
 
@@ -520,9 +518,8 @@ static void cmd_find (void) {
         if (info.fileID == 0) {
             printf("No files...\n");
         }
-    }
-    else {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+    } else {
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -536,19 +533,20 @@ static void cmd_find (void) {
   After successful execution the current working directory path is written
   into variable 'pwd_path' and printed to the console.
   */
-static void cmd_pwd (void) {
+static void cmd_pwd(void)
+{
     fsStatus status;
-    char *drive;
+    char    *drive;
 
     /* Extract function argument */
-    drive = strtok(NULL, " ");
+    drive  = strtok(NULL, " ");
 
-    status = fpwd (drive, pwd_path, sizeof(pwd_path));
+    status = fpwd(drive, pwd_path, sizeof(pwd_path));
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     } else {
-        printf ("%s\n", pwd_path);
+        printf("%s\n", pwd_path);
     }
 }
 
@@ -561,17 +559,18 @@ static void cmd_pwd (void) {
   After successful execution the directory specified by 'path' becomes the
   current working directory.
   */
-static void cmd_chdir (void) {
+static void cmd_chdir(void)
+{
     fsStatus status;
-    char *path;
+    char    *path;
 
     /* Extract function argument */
-    path = strtok(NULL, " ");
+    path   = strtok(NULL, " ");
 
-    status = fchdir (path);
+    status = fchdir(path);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
@@ -584,24 +583,26 @@ static void cmd_chdir (void) {
   specify the current drive.
   After successful execution the drive specified by 'drive' becomes the current drive.
   */
-static void cmd_chdrive (void) {
+static void cmd_chdrive(void)
+{
     fsStatus status;
-    char *drive;
+    char    *drive;
 
     /* Extract function argument */
-    drive = strtok(NULL, " ");
+    drive  = strtok(NULL, " ");
 
-    status = fchdrive (drive);
+    status = fchdrive(drive);
 
     if (status != fsOK) {
-        printf ("Command failed (fsStatus = %s).\n", fs_status[status]);
+        printf("Command failed (fsStatus = %s).\n", fs_status[status]);
     }
 }
 
 /**
   \brief Display the list of available commands.
   */
-static void cmd_help (void) {
+static void cmd_help(void)
+{
     uint32_t i;
 
     printf("The following commands are defined:\n");
@@ -617,16 +618,16 @@ static void cmd_help (void) {
 /**
   \brief Print out the command prompt.
   */
-static void print_prompt (void) {
+static void print_prompt(void)
+{
     fsStatus status;
 
-    status = fpwd ("", pwd_path, sizeof(pwd_path));
+    status = fpwd("", pwd_path, sizeof(pwd_path));
 
     if (status == fsOK) {
         printf("\n%s $ ", pwd_path);
-    }
-    else {
-        printf ("\n$ ");
+    } else {
+        printf("\n$ ");
     }
     fflush(stdout);
 }
@@ -634,17 +635,17 @@ static void print_prompt (void) {
 /**
   \brief Print out the FileSystem component version.
   */
-static void print_version (void) {
+static void print_version(void)
+{
     uint32_t fs_ver;
 
     fs_ver = fversion();
 
-    printf ("\nMDK-Middleware FileSystem V%d.%d.%d\n", \
-            ((fs_ver >> 28) & 0xF)*  10U + ((fs_ver >> 24) & 0xF), \
-            ((fs_ver >> 20) & 0xF)*  10U + ((fs_ver >> 16) & 0xF), \
-            ((fs_ver >> 12) & 0xF)*1000U +                         \
-            ((fs_ver >>  8) & 0xF)* 100U +                         \
-            ((fs_ver >>  4) & 0xF)*  10U + (fs_ver & 0xF));
+    printf("\nMDK-Middleware FileSystem V%d.%d.%d\n",
+           ((fs_ver >> 28) & 0xF) * 10U + ((fs_ver >> 24) & 0xF),
+           ((fs_ver >> 20) & 0xF) * 10U + ((fs_ver >> 16) & 0xF),
+           ((fs_ver >> 12) & 0xF) * 1000U + ((fs_ver >> 8) & 0xF) * 100U +
+               ((fs_ver >> 4) & 0xF) * 10U + (fs_ver & 0xF));
 }
 
 /**
@@ -654,10 +655,11 @@ static void print_version (void) {
   specified by the FILE_DEMO_DRIVE define. By default, this is the current
   drive.
   */
-static void init_filesystem (void) {
+static void init_filesystem(void)
+{
     fsStatus stat;
-    char *drive;
-    char ch;
+    char    *drive;
+    char     ch;
 
     print_version();
 
@@ -666,35 +668,32 @@ static void init_filesystem (void) {
     /* Set the drive to initialize and mount */
     drive = FILE_DEMO_DRIVE;
 
-    stat = finit(drive);
+    stat  = finit(drive);
 
     if (stat != fsOK) {
         printf("Error: initialization failed (fsStatus = %s).\n", fs_status[stat]);
-    }
-    else {
+    } else {
         stat = fmount(drive);
 
         if (stat == fsNoFileSystem) {
             /* Format the drive */
-            printf ("Drive not formatted! Proceed with Format [Y/N]\n");
+            printf("Drive not formatted! Proceed with Format [Y/N]\n");
 
             ch = (char) getchar();
 
             if (ch == 'y' || ch == 'Y') {
                 /* Format the drive */
-                stat = fformat (drive, NULL);
+                stat = fformat(drive, NULL);
 
                 if (stat == fsOK) {
-                    printf ("Drive formatted!\n");
-                }
-                else {
-                    printf ("Error: format failed (fsStatus = %s).\n", fs_status[stat]);
+                    printf("Drive formatted!\n");
+                } else {
+                    printf("Error: format failed (fsStatus = %s).\n", fs_status[stat]);
                 }
             }
-        }
-        else {
+        } else {
             if (stat != fsOK) {
-                printf ("Error: mount failed (fsStatus = %s).\n", fs_status[stat]);
+                printf("Error: mount failed (fsStatus = %s).\n", fs_status[stat]);
             }
         }
 
@@ -711,18 +710,19 @@ static void init_filesystem (void) {
 }
 
 #ifdef BOARD_SD_RESET_GPIO_PORT
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
 /**
   \fn           sd_reset(void)
   \brief        Perform SD reset sequence
   \return       none
   */
-int sd_reset(void) {
-    int status;
+int sd_reset(void)
+{
+    int              status;
     ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
-    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0); //SD reset
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0);  // SD reset
 
     status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
     if (status != ARM_DRIVER_OK) {
@@ -772,22 +772,22 @@ int sd_reset(void) {
 
   \param[in]  arg      thread argument (unused)
   */
-__NO_RETURN void app_main_thread (void *argument) {
-    char *cmd;
-    uint32_t i,j;
+__NO_RETURN void app_main_thread(void *argument)
+{
+    char    *cmd;
+    uint32_t i, j;
     uint32_t error_code = SERVICES_REQ_SUCCESS;
     uint32_t service_error_code;
-    int32_t ret = 0;
+    int32_t  ret = 0;
 
-    (void)argument;
+    (void) argument;
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     int32_t ret;
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -800,40 +800,66 @@ __NO_RETURN void app_main_thread (void *argument) {
 #ifdef BOARD_SD_RESET_GPIO_PORT
     if (sd_reset()) {
         printf("Error reseting SD interface..\n");
-        while(1);
+        WAIT_FOREVER
     }
 #endif
 
-    pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT), BOARD_SD_CMD_A_GPIO_PIN, BOARD_SD_CMD_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //cmd
-    pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT), BOARD_SD_CLK_A_GPIO_PIN, BOARD_SD_CLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //clk
-    pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT), BOARD_SD_D0_A_GPIO_PIN, BOARD_SD_D0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d0
+    pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT),
+                BOARD_SD_CMD_A_GPIO_PIN,
+                BOARD_SD_CMD_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // cmd
+    pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT),
+                BOARD_SD_CLK_A_GPIO_PIN,
+                BOARD_SD_CLK_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // clk
+    pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT),
+                BOARD_SD_D0_A_GPIO_PIN,
+                BOARD_SD_D0_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d0
 
-    #if (RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE) || (RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE)
-    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT), BOARD_SD_D1_A_GPIO_PIN, BOARD_SD_D1_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d1
-    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT), BOARD_SD_D2_A_GPIO_PIN, BOARD_SD_D2_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d2
-    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT), BOARD_SD_D3_A_GPIO_PIN, BOARD_SD_D3_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d3
+#if (RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE) || (RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE)
+    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT),
+                BOARD_SD_D1_A_GPIO_PIN,
+                BOARD_SD_D1_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d1
+    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT),
+                BOARD_SD_D2_A_GPIO_PIN,
+                BOARD_SD_D2_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d2
+    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT),
+                BOARD_SD_D3_A_GPIO_PIN,
+                BOARD_SD_D3_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d3
 #endif
 
 #if RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE
-    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT), BOARD_SD_D1_A_GPIO_PIN, BOARD_SD_D1_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d1
-    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT), BOARD_SD_D2_A_GPIO_PIN, BOARD_SD_D2_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d2
-    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT), BOARD_SD_D3_A_GPIO_PIN, BOARD_SD_D3_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA); //d3
+    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT),
+                BOARD_SD_D1_A_GPIO_PIN,
+                BOARD_SD_D1_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d1
+    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT),
+                BOARD_SD_D2_A_GPIO_PIN,
+                BOARD_SD_D2_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d2
+    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT),
+                BOARD_SD_D3_A_GPIO_PIN,
+                BOARD_SD_D3_ALTERNATE_FUNCTION,
+                PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_8MA);  // d3
 #endif
 #endif
 
-
-  init_filesystem();
+    init_filesystem();
 
     while (1) {
-    /* Display command prompt */
-    print_prompt();
+        /* Display command prompt */
+        print_prompt();
 
-    /* Get command line input from the stdin */
-    if (fs_terminal(cmd_line, sizeof (cmd_line)) > 0U) {
-      /* Extract command name from the input */
-      cmd = strtok(cmd_line, " ");
+        /* Get command line input from the stdin */
+        if (fs_terminal(cmd_line, sizeof(cmd_line)) > 0U) {
+            /* Extract command name from the input */
+            cmd = strtok(cmd_line, " ");
 
-      /* Check the list if command exists */
+            /* Check the list if command exists */
             for (i = 0; i < CMD_LIST_SIZE; i++) {
                 /* Compare command strings case-insensitively */
                 if (strncasecmp(cmd, cmd_list[i].cmd, strlen(cmd)) == 0) {
@@ -856,7 +882,8 @@ __NO_RETURN void app_main_thread (void *argument) {
   This function initializes CMSIS-RTOS2 kernel, creates application main thread
   and starts the kernel.
   */
-int app_main (void) {
+int app_main(void)
+{
     osKernelInitialize();
     osThreadNew(app_main_thread, NULL, &app_main_attr);
     osKernelStart();
@@ -867,37 +894,38 @@ int main()
 {
     uint32_t service_error_code;
     uint32_t error_code = SERVICES_REQ_SUCCESS;
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     printf("CMSIS MCI Test app Started...");
 
-	/* Initialize the SE services */
-	se_services_port_init();
+    /* Initialize the SE services */
+    se_services_port_init();
 
-	/* Enable SDMMC Clocks */
-	error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
-	if(error_code)
-	{
-	  printf("SE: SDMMC 100MHz clock enable = %u\n", error_code);
-	  return 0;
-	}
+    /* Enable SDMMC Clocks */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_100M,
+                                              true,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 100MHz clock enable = %u\n", error_code);
+        return 0;
+    }
 
-	error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_20M, true, &service_error_code);
-	if(error_code)
-	{
-	  printf("SE: SDMMC 20MHz clock enable = %u\n", error_code);
-	  return 0;
-	}
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_20M,
+                                              true,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 20MHz clock enable = %u\n", error_code);
+        return 0;
+    }
 
-	app_main();
+    app_main();
 }

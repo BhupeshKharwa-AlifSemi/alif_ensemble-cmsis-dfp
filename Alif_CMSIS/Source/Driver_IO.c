@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     Driver_IO.c
  * @author   Girish BN, Manoj A Murudi
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
@@ -27,21 +27,19 @@
 #if defined(RTE_Drivers_IO)
 
 /**
-  \fn      int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t pin_no)
-  \brief   Initialize the gpio pin
-  \param   cb_event : Pointer to gpio Event \ref GPIO_SignalEvent
-  \param   GPIO     : Pointer to gpio device resources
-  \param   pin_no   : pin to be configured.
-  \return  execution_status
+  \fn      int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t
+  pin_no) \brief   Initialize the gpio pin \param   cb_event : Pointer to gpio Event \ref
+  GPIO_SignalEvent \param   GPIO     : Pointer to gpio device resources \param   pin_no   : pin to
+  be configured. \return  execution_status
 */
-static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event, uint8_t pin_no)
+static int32_t GPIO_Initialize(GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_event,
+                               uint8_t pin_no)
 {
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    GPIO->cb_event[pin_no] = cb_event;
+    GPIO->cb_event[pin_no]          = cb_event;
 
     GPIO->state[pin_no].initialized = 1;
 
@@ -57,44 +55,36 @@ static int32_t GPIO_Initialize (GPIO_RESOURCES *GPIO, ARM_GPIO_SignalEvent_t cb_
  * @param   state  : power state.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWER_STATE state)
+static int32_t GPIO_PowerControl(GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWER_STATE state)
 {
     uint8_t irq_enabled;
 
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    switch (state)
-    {
-        case ARM_POWER_OFF:
+    switch (state) {
+    case ARM_POWER_OFF:
         {
-            if (GPIO->state[pin_no].powered == 0)
-            {
+            if (GPIO->state[pin_no].powered == 0) {
                 return ARM_DRIVER_OK;
             }
 
             irq_enabled = gpio_get_enabled_interrupt(GPIO->reg_base);
-            if (irq_enabled & (1U << pin_no))
-            {
+            if (irq_enabled & (1U << pin_no)) {
                 gpio_disable_interrupt(GPIO->reg_base, pin_no);
                 gpio_mask_interrupt(GPIO->reg_base, pin_no);
 
-                if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
-                {
+                if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL) {
                     NVIC_DisableIRQ(GPIO->IRQ_base_num + pin_no);
                     NVIC_ClearPendingIRQ(GPIO->IRQ_base_num + pin_no);
-                }
-                else
-                {
+                } else {
                     /* For combined interrupts, disable the IRQ signal in the NVIC domain only if
                      * no other pins are configured to use the interrupt
                      * */
                     irq_enabled &= ~(1U << pin_no);
 
-                    if (irq_enabled == 0)
-                    {
+                    if (irq_enabled == 0) {
                         NVIC_DisableIRQ(GPIO->IRQ_base_num);
                         NVIC_ClearPendingIRQ(GPIO->IRQ_base_num);
                     }
@@ -105,8 +95,7 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             (GPIO->ref_count)--;
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0))
-            {
+            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0)) {
                 disable_gpio_clk(GPIO->gpio_id);
             }
 #endif
@@ -114,16 +103,14 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             GPIO->state[pin_no].powered = 0;
             break;
         }
-        case ARM_POWER_FULL:
+    case ARM_POWER_FULL:
         {
-            if (GPIO->state[pin_no].initialized == 0)
-            {
+            if (GPIO->state[pin_no].initialized == 0) {
                 return ARM_DRIVER_ERROR;
             }
 
 #if SOC_FEAT_GPIO_HAS_CLOCK_ENABLE
-            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0))
-            {
+            if ((GPIO->gpio_id != LPGPIO_INSTANCE) && (GPIO->ref_count == 0)) {
                 enable_gpio_clk(GPIO->gpio_id);
             }
 #endif
@@ -137,8 +124,8 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
             GPIO->state[pin_no].powered = 1;
             break;
         }
-        case ARM_POWER_LOW:
-        default:
+    case ARM_POWER_LOW:
+    default:
         {
             return ARM_DRIVER_ERROR_UNSUPPORTED;
         }
@@ -155,36 +142,32 @@ static int32_t GPIO_PowerControl (GPIO_RESOURCES *GPIO, uint8_t pin_no, ARM_POWE
  * @param   dir    : direction to be set.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+static int32_t GPIO_SetDirection(GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_DIRECTION dir)
 {
-    if (GPIO->state[pin_no].powered == 0)
-    {
+    if (GPIO->state[pin_no].powered == 0) {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
-    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE)
-    {
+    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE) {
         return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
 
-    switch (dir)
-    {
-        case GPIO_PIN_DIRECTION_INPUT:
+    switch (dir) {
+    case GPIO_PIN_DIRECTION_INPUT:
         {
             /**< Configuring Pin's to Input Direction >*/
             gpio_set_direction_input(GPIO->reg_base, pin_no);
             break;
         }
-        case GPIO_PIN_DIRECTION_OUTPUT:
+    case GPIO_PIN_DIRECTION_OUTPUT:
         {
             /**< Configuring Pin's to Output Direction >*/
             gpio_set_direction_output(GPIO->reg_base, pin_no);
             break;
         }
-        default:
+    default:
         {
             return ARM_DRIVER_ERROR_PARAMETER;
         }
@@ -201,31 +184,24 @@ static int32_t GPIO_SetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN
  * @param   dir    : Pointer to the variable where direction should be stored.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *dir)
+static int32_t GPIO_GetDirection(GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *dir)
 {
-    if (GPIO->state[pin_no].powered == 0)
-    {
+    if (GPIO->state[pin_no].powered == 0) {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
-    if (dir == NULL)
-    {
+    if (dir == NULL) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
-    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE)
-    {
+    if (GPIO->control_mode == GPIO_HARDWARE_CONTROL_MODE) {
         return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
 
-    if (gpio_get_direction (GPIO->reg_base, pin_no))
-    {
+    if (gpio_get_direction(GPIO->reg_base, pin_no)) {
         *dir = GPIO_PIN_DIRECTION_OUTPUT;
-    }
-    else
-    {
+    } else {
         *dir = GPIO_PIN_DIRECTION_INPUT;
     }
 
@@ -233,7 +209,8 @@ static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t
 }
 
 /**
- * @fn      int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+ * @fn      int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUTPUT_STATE
+ * value)
  * @brief   Set value for gpio pin.
  * @note    none.
  * @param   GPIO   : Pointer to gpio resources structure.
@@ -241,83 +218,72 @@ static int32_t GPIO_GetDirection (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t
  * @param   value  : value to be set.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t GPIO_SetValue(GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    if (GPIO->state[pin_no].powered == 0)
-    {
+    if (GPIO->state[pin_no].powered == 0) {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    if (GPIO->gpio_bit_man_en)
-    {
-        if (GPIO->control_mode == GPIO_SOFTWARE_CONTROL_MODE)
-        {
+    if (GPIO->gpio_bit_man_en) {
+        if (GPIO->control_mode == GPIO_SOFTWARE_CONTROL_MODE) {
             return ARM_DRIVER_ERROR;
         }
     }
 #endif
 
-    switch (value)
-    {
-        case GPIO_PIN_OUTPUT_STATE_LOW:
+    switch (value) {
+    case GPIO_PIN_OUTPUT_STATE_LOW:
         {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-            if (GPIO->gpio_bit_man_en)
-            {
+            if (GPIO->gpio_bit_man_en) {
                 /**< Set LOW(0) to the pin >*/
-                gpio_bit_man_set_value_low (GPIO->reg_base, pin_no);
-            }
-            else
+                gpio_bit_man_set_value_low(GPIO->reg_base, pin_no);
+            } else
 #endif
             {
                 /**< Set LOW(0) to the pin >*/
-                gpio_set_value_low (GPIO->reg_base, pin_no);
+                gpio_set_value_low(GPIO->reg_base, pin_no);
             }
             break;
         }
-        case GPIO_PIN_OUTPUT_STATE_HIGH:
+    case GPIO_PIN_OUTPUT_STATE_HIGH:
         {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-            if (GPIO->gpio_bit_man_en)
-            {
+            if (GPIO->gpio_bit_man_en) {
                 /**< Set HIGH(1) to the pin >*/
-                gpio_bit_man_set_value_high (GPIO->reg_base, pin_no);
-            }
-            else
+                gpio_bit_man_set_value_high(GPIO->reg_base, pin_no);
+            } else
 #endif
             {
                 /**< Set HIGH(1) to the pin >*/
-                gpio_set_value_high (GPIO->reg_base, pin_no);
+                gpio_set_value_high(GPIO->reg_base, pin_no);
             }
             break;
         }
-        case GPIO_PIN_OUTPUT_STATE_TOGGLE:
+    case GPIO_PIN_OUTPUT_STATE_TOGGLE:
         {
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-            if (GPIO->gpio_bit_man_en)
-            {
+            if (GPIO->gpio_bit_man_en) {
                 /**< Toggle pin value >*/
-                gpio_bit_man_toggle_value (GPIO->reg_base, pin_no);
-            }
-            else
+                gpio_bit_man_toggle_value(GPIO->reg_base, pin_no);
+            } else
 #endif
             {
                 /**< Toggle pin value >*/
-                gpio_toggle_value (GPIO->reg_base, pin_no);
+                gpio_toggle_value(GPIO->reg_base, pin_no);
             }
             break;
         }
-        default:
+    default:
         {
             return ARM_DRIVER_ERROR_PARAMETER;
         }
-     }
-     return ARM_DRIVER_OK;
+    }
+    return ARM_DRIVER_OK;
 }
 
 /**
@@ -329,23 +295,18 @@ static int32_t GPIO_SetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_PIN_OUT
  * @param   value : Pointer to the variable in which gpio data should be stored.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *value)
+static int32_t GPIO_GetValue(GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *value)
 {
-    if (GPIO->state[pin_no].powered == 0)
-    {
+    if (GPIO->state[pin_no].powered == 0) {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    if (gpio_get_value (GPIO->reg_base, pin_no))
-    {
+    if (gpio_get_value(GPIO->reg_base, pin_no)) {
         *value = GPIO_PIN_STATE_HIGH;
-    }
-    else
-    {
+    } else {
         *value = GPIO_PIN_STATE_LOW;
     }
 
@@ -353,7 +314,8 @@ static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *va
 }
 
 /**
- * @fn      int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+ * @fn      int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATION control_code,
+ * uint32_t *arg)
  * @brief   Used to configure gpio.
  * @note    none.
  * @param   GPIO         : Pointer to gpio resources structure.
@@ -362,181 +324,149 @@ static int32_t GPIO_GetValue (GPIO_RESOURCES *GPIO, uint8_t pin_no, uint32_t *va
  * @param   arg          : Pointer to an argument.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t GPIO_Control(GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATION control_code,
+                            uint32_t *arg)
 {
-    if (GPIO->state[pin_no].powered == 0)
-    {
+    if (GPIO->state[pin_no].powered == 0) {
         return ARM_DRIVER_ERROR;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    switch (control_code)
-    {
-        case ARM_GPIO_CONFIG_DEBOUNCE :
+    switch (control_code) {
+    case ARM_GPIO_CONFIG_DEBOUNCE:
         {
-            if (!arg)
-            {
+            if (!arg) {
                 return ARM_DRIVER_ERROR_PARAMETER;
             }
-            if (GPIO->gpio_id == LPGPIO_INSTANCE)
-            {
+            if (GPIO->gpio_id == LPGPIO_INSTANCE) {
                 return ARM_DRIVER_ERROR_UNSUPPORTED;
             }
 
-            if(*arg)
-            {
+            if (*arg) {
                 /* Enable Debounce clock from EXPMST0 */
-                enable_gpio_debounce_clk (GPIO->gpio_id);
+                enable_gpio_debounce_clk(GPIO->gpio_id);
 
                 /* Set Debounce clock divider from EXPMST0 */
-                set_gpio_debounce_clkdiv (GPIO->db_clkdiv, GPIO->gpio_id);
+                set_gpio_debounce_clkdiv(GPIO->db_clkdiv, GPIO->gpio_id);
 
                 /* Enable De-bounce operation */
-                gpio_enable_debounce (GPIO->reg_base, pin_no);
-            }
-            else
-            {
+                gpio_enable_debounce(GPIO->reg_base, pin_no);
+            } else {
                 /* Disable Debounce clock from EXPMST0 */
-                disable_gpio_debounce_clk (GPIO->gpio_id);
+                disable_gpio_debounce_clk(GPIO->gpio_id);
 
                 /* Disable De-bounce operation */
-                gpio_disable_debounce (GPIO->reg_base, pin_no);
+                gpio_disable_debounce(GPIO->reg_base, pin_no);
             }
 
             break;
         }
-        case ARM_GPIO_ENABLE_INTERRUPT :
+    case ARM_GPIO_ENABLE_INTERRUPT:
         {
-            if (!arg)
-            {
+            if (!arg) {
                 return ARM_DRIVER_ERROR_PARAMETER;
             }
 
             /**< Enable interrupt >*/
-            gpio_enable_interrupt (GPIO->reg_base, pin_no);
+            gpio_enable_interrupt(GPIO->reg_base, pin_no);
 
             /**< Unmask interrupt >*/
-            gpio_unmask_interrupt (GPIO->reg_base, pin_no);
+            gpio_unmask_interrupt(GPIO->reg_base, pin_no);
 
-            if (ARM_GPIO_BIT_IRQ_BOTH_EDGE(*arg))
-            {
+            if (ARM_GPIO_BIT_IRQ_BOTH_EDGE(*arg)) {
                 /**< Configure interrupt for both edge >*/
-                gpio_interrupt_set_both_edge_trigger (GPIO->reg_base, pin_no);
-            }
-            else
-            {
-                if (ARM_GPIO_BIT_IRQ_SENSITIVE(*arg))
-                {
+                gpio_interrupt_set_both_edge_trigger(GPIO->reg_base, pin_no);
+            } else {
+                if (ARM_GPIO_BIT_IRQ_SENSITIVE(*arg)) {
                     /**< Configure interrupt as edge sensitive >*/
-                    gpio_interrupt_set_edge_trigger (GPIO->reg_base, pin_no);
-                }
-                else
-                {
+                    gpio_interrupt_set_edge_trigger(GPIO->reg_base, pin_no);
+                } else {
                     /**< Configure interrupt as level sensitive >*/
-                    gpio_interrupt_set_level_trigger (GPIO->reg_base, pin_no);
+                    gpio_interrupt_set_level_trigger(GPIO->reg_base, pin_no);
                 }
 
-                if (ARM_GPIO_BIT_IRQ_POLARITY(*arg))
-                {
+                if (ARM_GPIO_BIT_IRQ_POLARITY(*arg)) {
                     /**< Configure interrupt for high edge >*/
-                    gpio_interrupt_set_polarity_high (GPIO->reg_base, pin_no);
-                }
-                else
-                {
+                    gpio_interrupt_set_polarity_high(GPIO->reg_base, pin_no);
+                } else {
                     /**< Configure interrupt for low edge >*/
-                    gpio_interrupt_set_polarity_low (GPIO->reg_base, pin_no);
+                    gpio_interrupt_set_polarity_low(GPIO->reg_base, pin_no);
                 }
             }
 
             gpio_interrupt_eoi(GPIO->reg_base, pin_no);
 
-            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
-            {
-                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
-                NVIC_SetPriority ((GPIO->IRQ_base_num + pin_no), GPIO->IRQ_priority[pin_no]);
-                NVIC_EnableIRQ (GPIO->IRQ_base_num + pin_no);
-            }
-            else
-            {
-                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num);
-                NVIC_SetPriority ((GPIO->IRQ_base_num), GPIO->IRQ_priority[pin_no]);
-                NVIC_EnableIRQ (GPIO->IRQ_base_num);
+            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL) {
+                NVIC_ClearPendingIRQ(GPIO->IRQ_base_num + pin_no);
+                NVIC_SetPriority((GPIO->IRQ_base_num + pin_no), GPIO->IRQ_priority[pin_no]);
+                NVIC_EnableIRQ(GPIO->IRQ_base_num + pin_no);
+            } else {
+                NVIC_ClearPendingIRQ(GPIO->IRQ_base_num);
+                NVIC_SetPriority((GPIO->IRQ_base_num), GPIO->IRQ_priority[pin_no]);
+                NVIC_EnableIRQ(GPIO->IRQ_base_num);
             }
             break;
         }
-        case ARM_GPIO_DISABLE_INTERRUPT :
+    case ARM_GPIO_DISABLE_INTERRUPT:
         {
             /* setting to default values */
-            gpio_disable_interrupt (GPIO->reg_base, pin_no);
-            gpio_mask_interrupt (GPIO->reg_base, pin_no);
-            gpio_interrupt_set_polarity_low (GPIO->reg_base, pin_no);
-            gpio_interrupt_set_level_trigger (GPIO->reg_base, pin_no);
+            gpio_disable_interrupt(GPIO->reg_base, pin_no);
+            gpio_mask_interrupt(GPIO->reg_base, pin_no);
+            gpio_interrupt_set_polarity_low(GPIO->reg_base, pin_no);
+            gpio_interrupt_set_level_trigger(GPIO->reg_base, pin_no);
 
-            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
-            {
-                NVIC_DisableIRQ (GPIO->IRQ_base_num + pin_no);
-                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num + pin_no);
-            }
-            else
-            {
-                NVIC_DisableIRQ (GPIO->IRQ_base_num);
-                NVIC_ClearPendingIRQ (GPIO->IRQ_base_num);
+            if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL) {
+                NVIC_DisableIRQ(GPIO->IRQ_base_num + pin_no);
+                NVIC_ClearPendingIRQ(GPIO->IRQ_base_num + pin_no);
+            } else {
+                NVIC_DisableIRQ(GPIO->IRQ_base_num);
+                NVIC_ClearPendingIRQ(GPIO->IRQ_base_num);
             }
 
             break;
         }
-        case ARM_GPIO_GET_CONFIG_VALUE1 :
+    case ARM_GPIO_GET_CONFIG_VALUE1:
         {
-            if (!arg)
-            {
+            if (!arg) {
                 return ARM_DRIVER_ERROR_PARAMETER;
             }
 
-            *arg = gpio_read_config1 (GPIO->reg_base);
+            *arg = gpio_read_config1(GPIO->reg_base);
             break;
         }
-        case ARM_GPIO_GET_CONFIG_VALUE2 :
+    case ARM_GPIO_GET_CONFIG_VALUE2:
         {
-            if (!arg)
-            {
+            if (!arg) {
                 return ARM_DRIVER_ERROR_PARAMETER;
             }
 
-            *arg = gpio_read_config2 (GPIO->reg_base);
+            *arg = gpio_read_config2(GPIO->reg_base);
             break;
         }
-        case ARM_GPIO_CONFIG_MODE :
+    case ARM_GPIO_CONFIG_MODE:
         {
-            if (GPIO->gpio_id != LPGPIO_INSTANCE)
-            {
-                if (SOC_FEAT_GPIO_HAS_HARDWARE_CTRL_MODE)
-                {
+            if (GPIO->gpio_id != LPGPIO_INSTANCE) {
+                if (SOC_FEAT_GPIO_HAS_HARDWARE_CTRL_MODE) {
                     /* Only bit 0 is accessable for normal GPIOs which
                      * configures whole port as S/W or H/W Data mode */
                     pin_no = 0;
-                }
-                else
-                {
+                } else {
                     return ARM_DRIVER_ERROR_UNSUPPORTED;
                 }
             }
 
-            if (*arg)
-            {
+            if (*arg) {
                 gpio_set_hardware_mode(GPIO->reg_base, pin_no);
                 GPIO->control_mode = GPIO_HARDWARE_CONTROL_MODE;
-            }
-            else
-            {
+            } else {
                 gpio_set_software_mode(GPIO->reg_base, pin_no);
                 GPIO->control_mode = GPIO_SOFTWARE_CONTROL_MODE;
             }
             break;
         }
-        default:
+    default:
         {
             return ARM_DRIVER_ERROR;
         }
@@ -553,18 +483,16 @@ static int32_t GPIO_Control (GPIO_RESOURCES *GPIO, uint8_t pin_no, GPIO_OPERATIO
  * @param   pin_no : pin to be configured.
  * @retval  \ref execution_status
  */
-static int32_t GPIO_Uninitialize (GPIO_RESOURCES *GPIO, uint8_t pin_no)
+static int32_t GPIO_Uninitialize(GPIO_RESOURCES *GPIO, uint8_t pin_no)
 {
-    if (GPIO->state[pin_no].initialized == 0)
-    {
+    if (GPIO->state[pin_no].initialized == 0) {
         return ARM_DRIVER_OK;
     }
-    if (pin_no >= GPIO->max_pin)
-    {
+    if (pin_no >= GPIO->max_pin) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    GPIO->cb_event[pin_no] = NULL;
+    GPIO->cb_event[pin_no]          = NULL;
 
     GPIO->state[pin_no].initialized = 0;
 
@@ -585,10 +513,8 @@ static void GPIO_Combined_IRQ_Handler(GPIO_RESOURCES *GPIO)
     /* Get the interrupted pin numbers */
     pin_no = gpio_interrupt_status(GPIO->reg_base);
 
-    for(iter = 0; iter < GPIO_PORT_MAX_PIN_NUMBER; iter++)
-    {
-        if (pin_no & (1 << iter))
-        {
+    for (iter = 0; iter < GPIO_PORT_MAX_PIN_NUMBER; iter++) {
+        if (pin_no & (1 << iter)) {
             /* clear pin interrupt */
             gpio_interrupt_eoi(GPIO->reg_base, iter);
             GPIO->cb_event[iter](ARM_GPIO_IRQ_EVENT_EXTERNAL);
@@ -603,109 +529,124 @@ static void GPIO_Combined_IRQ_Handler(GPIO_RESOURCES *GPIO)
   @param   pin_no   : pin to be configured.
   \return  None
 */
-static void GPIO_IRQ_Handler (GPIO_RESOURCES *GPIO, uint8_t pin_no)
+static void GPIO_IRQ_Handler(GPIO_RESOURCES *GPIO, uint8_t pin_no)
 {
-    if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL)
-    {
+    if (GPIO->IRQ_type == GPIO_INTERRUPT_TYPE_INDIVIDUAL) {
         /* clear pin interrupt */
         gpio_interrupt_eoi(GPIO->reg_base, pin_no);
 
-        if (GPIO->cb_event[pin_no] != NULL)
-        {
+        if (GPIO->cb_event[pin_no] != NULL) {
             GPIO->cb_event[pin_no](ARM_GPIO_IRQ_EVENT_EXTERNAL);
         }
-    }
-    else
-    {
+    } else {
         /* Invoke combbined irq handler */
         GPIO_Combined_IRQ_Handler(GPIO);
     }
-
 }
 
 /**<GPIO Instance 0>*/
 #if RTE_GPIO0
-static GPIO_RESOURCES GPIO0_RES = {
-    .reg_base = (GPIO_Type*) GPIO0_BASE,
-    .IRQ_base_num = GPIO0_IRQ0_IRQn,
-    .gpio_id = GPIO0_INSTANCE,
-    .db_clkdiv = RTE_GPIO0_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO0_RES = {.reg_base     = (GPIO_Type *) GPIO0_BASE,
+                                   .IRQ_base_num = GPIO0_IRQ0_IRQn,
+                                   .gpio_id      = GPIO0_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO0_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO0_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO0_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-        RTE_GPIO0_PIN0_IRQ_PRIORITY,
-        RTE_GPIO0_PIN1_IRQ_PRIORITY,
-        RTE_GPIO0_PIN2_IRQ_PRIORITY,
-        RTE_GPIO0_PIN3_IRQ_PRIORITY,
-        RTE_GPIO0_PIN4_IRQ_PRIORITY,
-        RTE_GPIO0_PIN5_IRQ_PRIORITY,
-        RTE_GPIO0_PIN6_IRQ_PRIORITY,
-        RTE_GPIO0_PIN7_IRQ_PRIORITY
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {RTE_GPIO0_PIN0_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN1_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN2_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN3_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN4_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN5_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN6_IRQ_PRIORITY,
+                                                    RTE_GPIO0_PIN7_IRQ_PRIORITY}};
 
-void GPIO0_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 0);    }
-
-void GPIO0_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 1);    }
-
-void GPIO0_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 2);    }
-
-void GPIO0_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 3);    }
-
-void GPIO0_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 4);    }
-
-void GPIO0_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 5);    }
-
-void GPIO0_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 6);    }
-
-void GPIO0_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO0_RES, 7);    }
-
-
-static int32_t ARM_GPIO0_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO0_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO0_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO0_RES, 0);
 }
 
-static int32_t ARM_GPIO0_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO0_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO0_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO0_RES, 1);
 }
 
-static int32_t ARM_GPIO0_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO0_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO0_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO0_RES, 2);
 }
 
-static int32_t ARM_GPIO0_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO0_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO0_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO0_RES, 3);
 }
 
-static int32_t ARM_GPIO0_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO0_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO0_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO0_RES, 4);
 }
 
-static int32_t ARM_GPIO0_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO0_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO0_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO0_RES, 5);
 }
 
-static int32_t ARM_GPIO0_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO0_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO0_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO0_RES, 6);
 }
 
-static int32_t ARM_GPIO0_Uninitialize (uint8_t pin_no) {
+void GPIO0_IRQ7Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO0_RES, 7);
+}
 
-    return GPIO_Uninitialize (&GPIO0_RES, pin_no);
+static int32_t ARM_GPIO0_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO0_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO0_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO0_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO0_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO0_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO0_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO0_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO0_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO0_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO0_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO0_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO0_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO0_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO0_Uninitialize(uint8_t pin_no)
+{
+
+    return GPIO_Uninitialize(&GPIO0_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO0;
-ARM_DRIVER_GPIO Driver_GPIO0 = {
+ARM_DRIVER_GPIO        Driver_GPIO0 = {
     ARM_GPIO0_Initialize,
     ARM_GPIO0_PowerControl,
     ARM_GPIO0_SetDirection,
@@ -715,91 +656,111 @@ ARM_DRIVER_GPIO Driver_GPIO0 = {
     ARM_GPIO0_Control,
     ARM_GPIO0_Uninitialize
 };
-#endif   /* RTE_GPIO0 */
-
+#endif /* RTE_GPIO0 */
 
 /**<GPIO Instance 1>*/
 #if RTE_GPIO1
-static GPIO_RESOURCES GPIO1_RES = {
-    .reg_base = (GPIO_Type*) GPIO1_BASE,
-    .IRQ_base_num = GPIO1_IRQ0_IRQn,
-    .gpio_id = GPIO1_INSTANCE,
-    .db_clkdiv = RTE_GPIO1_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO1_RES = {.reg_base     = (GPIO_Type *) GPIO1_BASE,
+                                   .IRQ_base_num = GPIO1_IRQ0_IRQn,
+                                   .gpio_id      = GPIO1_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO1_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO1_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO1_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-        RTE_GPIO1_PIN0_IRQ_PRIORITY,
-        RTE_GPIO1_PIN1_IRQ_PRIORITY,
-        RTE_GPIO1_PIN2_IRQ_PRIORITY,
-        RTE_GPIO1_PIN3_IRQ_PRIORITY,
-        RTE_GPIO1_PIN4_IRQ_PRIORITY,
-        RTE_GPIO1_PIN5_IRQ_PRIORITY,
-        RTE_GPIO1_PIN6_IRQ_PRIORITY,
-        RTE_GPIO1_PIN7_IRQ_PRIORITY
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {RTE_GPIO1_PIN0_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN1_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN2_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN3_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN4_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN5_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN6_IRQ_PRIORITY,
+                                                    RTE_GPIO1_PIN7_IRQ_PRIORITY}};
 
-void GPIO1_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 0);    }
-
-void GPIO1_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 1);    }
-
-void GPIO1_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 2);    }
-
-void GPIO1_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 3);    }
-
-void GPIO1_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 4);    }
-
-void GPIO1_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 5);    }
-
-void GPIO1_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 6);    }
-
-void GPIO1_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO1_RES, 7);    }
-
-static int32_t ARM_GPIO1_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO1_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO1_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO1_RES, 0);
 }
 
-static int32_t ARM_GPIO1_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO1_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO1_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO1_RES, 1);
 }
 
-static int32_t ARM_GPIO1_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO1_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO1_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO1_RES, 2);
 }
 
-static int32_t ARM_GPIO1_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO1_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO1_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO1_RES, 3);
 }
 
-static int32_t ARM_GPIO1_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO1_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO1_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO1_RES, 4);
 }
 
-static int32_t ARM_GPIO1_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO1_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO1_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO1_RES, 5);
 }
 
-static int32_t ARM_GPIO1_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO1_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO1_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO1_RES, 6);
 }
 
-static int32_t ARM_GPIO1_Uninitialize (uint8_t pin_no) {
+void GPIO1_IRQ7Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO1_RES, 7);
+}
 
-    return GPIO_Uninitialize (&GPIO1_RES, pin_no);
+static int32_t ARM_GPIO1_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO1_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO1_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO1_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO1_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO1_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO1_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO1_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO1_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO1_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO1_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO1_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO1_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO1_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO1_Uninitialize(uint8_t pin_no)
+{
+
+    return GPIO_Uninitialize(&GPIO1_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO1;
-ARM_DRIVER_GPIO Driver_GPIO1 = {
+ARM_DRIVER_GPIO        Driver_GPIO1 = {
     ARM_GPIO1_Initialize,
     ARM_GPIO1_PowerControl,
     ARM_GPIO1_SetDirection,
@@ -809,91 +770,110 @@ ARM_DRIVER_GPIO Driver_GPIO1 = {
     ARM_GPIO1_Control,
     ARM_GPIO1_Uninitialize
 };
-#endif   /* RTE_GPIO1 */
-
+#endif /* RTE_GPIO1 */
 
 /**<GPIO Instance 2>*/
 #if RTE_GPIO2
-static GPIO_RESOURCES GPIO2_RES = {
-    .reg_base = (GPIO_Type*) GPIO2_BASE,
-    .IRQ_base_num = GPIO2_IRQ0_IRQn,
-    .gpio_id = GPIO2_INSTANCE,
-    .db_clkdiv = RTE_GPIO2_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO2_RES = {.reg_base     = (GPIO_Type *) GPIO2_BASE,
+                                   .IRQ_base_num = GPIO2_IRQ0_IRQn,
+                                   .gpio_id      = GPIO2_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO2_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO2_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO2_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-        RTE_GPIO2_PIN0_IRQ_PRIORITY,
-        RTE_GPIO2_PIN1_IRQ_PRIORITY,
-        RTE_GPIO2_PIN2_IRQ_PRIORITY,
-        RTE_GPIO2_PIN3_IRQ_PRIORITY,
-        RTE_GPIO2_PIN4_IRQ_PRIORITY,
-        RTE_GPIO2_PIN5_IRQ_PRIORITY,
-        RTE_GPIO2_PIN6_IRQ_PRIORITY,
-        RTE_GPIO2_PIN7_IRQ_PRIORITY
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {RTE_GPIO2_PIN0_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN1_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN2_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN3_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN4_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN5_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN6_IRQ_PRIORITY,
+                                                    RTE_GPIO2_PIN7_IRQ_PRIORITY}};
 
-void GPIO2_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 0);    }
-
-void GPIO2_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 1);    }
-
-void GPIO2_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 2);    }
-
-void GPIO2_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 3);    }
-
-void GPIO2_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 4);    }
-
-void GPIO2_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 5);    }
-
-void GPIO2_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 6);    }
-
-void GPIO2_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO2_RES, 7);    }
-
-static int32_t ARM_GPIO2_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO2_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO2_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO2_RES, 0);
 }
 
-static int32_t ARM_GPIO2_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO2_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO2_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO2_RES, 1);
 }
 
-static int32_t ARM_GPIO2_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO2_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO2_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO2_RES, 2);
 }
 
-static int32_t ARM_GPIO2_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO2_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO2_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO2_RES, 3);
 }
 
-static int32_t ARM_GPIO2_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO2_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO2_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO2_RES, 4);
 }
 
-static int32_t ARM_GPIO2_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO2_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO2_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO2_RES, 5);
 }
 
-static int32_t ARM_GPIO2_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO2_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO2_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO2_RES, 6);
 }
 
-static int32_t ARM_GPIO2_Uninitialize (uint8_t pin_no)
+void GPIO2_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO2_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO2_RES, 7);
+}
+
+static int32_t ARM_GPIO2_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO2_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO2_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO2_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO2_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO2_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO2_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO2_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO2_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO2_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO2_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO2_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO2_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO2_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO2_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO2_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO2;
-ARM_DRIVER_GPIO Driver_GPIO2 = {
+ARM_DRIVER_GPIO        Driver_GPIO2 = {
     ARM_GPIO2_Initialize,
     ARM_GPIO2_PowerControl,
     ARM_GPIO2_SetDirection,
@@ -903,91 +883,110 @@ ARM_DRIVER_GPIO Driver_GPIO2 = {
     ARM_GPIO2_Control,
     ARM_GPIO2_Uninitialize
 };
-#endif   /* RTE_GPIO2 */
-
+#endif /* RTE_GPIO2 */
 
 /**<GPIO Instance 3>*/
 #if RTE_GPIO3
-static GPIO_RESOURCES GPIO3_RES = {
-    .reg_base = (GPIO_Type*) GPIO3_BASE,
-    .IRQ_base_num = GPIO3_IRQ0_IRQn,
-    .gpio_id = GPIO3_INSTANCE,
-    .db_clkdiv = RTE_GPIO3_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO3_RES = {.reg_base     = (GPIO_Type *) GPIO3_BASE,
+                                   .IRQ_base_num = GPIO3_IRQ0_IRQn,
+                                   .gpio_id      = GPIO3_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO3_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO3_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO3_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-        RTE_GPIO3_PIN0_IRQ_PRIORITY,
-        RTE_GPIO3_PIN1_IRQ_PRIORITY,
-        RTE_GPIO3_PIN2_IRQ_PRIORITY,
-        RTE_GPIO3_PIN3_IRQ_PRIORITY,
-        RTE_GPIO3_PIN4_IRQ_PRIORITY,
-        RTE_GPIO3_PIN5_IRQ_PRIORITY,
-        RTE_GPIO3_PIN6_IRQ_PRIORITY,
-        RTE_GPIO3_PIN7_IRQ_PRIORITY
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {RTE_GPIO3_PIN0_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN1_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN2_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN3_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN4_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN5_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN6_IRQ_PRIORITY,
+                                                    RTE_GPIO3_PIN7_IRQ_PRIORITY}};
 
-void GPIO3_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 0);    }
-
-void GPIO3_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 1);    }
-
-void GPIO3_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 2);    }
-
-void GPIO3_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 3);    }
-
-void GPIO3_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 4);    }
-
-void GPIO3_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 5);    }
-
-void GPIO3_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 6);    }
-
-void GPIO3_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO3_RES, 7);    }
-
-static int32_t ARM_GPIO3_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO3_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO3_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO3_RES, 0);
 }
 
-static int32_t ARM_GPIO3_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO3_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO3_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO3_RES, 1);
 }
 
-static int32_t ARM_GPIO3_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO3_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO3_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO3_RES, 2);
 }
 
-static int32_t ARM_GPIO3_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO3_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO3_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO3_RES, 3);
 }
 
-static int32_t ARM_GPIO3_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO3_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO3_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO3_RES, 4);
 }
 
-static int32_t ARM_GPIO3_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO3_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO3_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO3_RES, 5);
 }
 
-static int32_t ARM_GPIO3_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO3_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO3_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO3_RES, 6);
 }
 
-static int32_t ARM_GPIO3_Uninitialize (uint8_t pin_no)
+void GPIO3_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO3_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO3_RES, 7);
+}
+
+static int32_t ARM_GPIO3_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO3_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO3_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO3_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO3_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO3_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO3_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO3_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO3_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO3_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO3_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO3_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO3_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO3_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO3_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO3_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO3;
-ARM_DRIVER_GPIO Driver_GPIO3 = {
+ARM_DRIVER_GPIO        Driver_GPIO3 = {
     ARM_GPIO3_Initialize,
     ARM_GPIO3_PowerControl,
     ARM_GPIO3_SetDirection,
@@ -997,92 +996,113 @@ ARM_DRIVER_GPIO Driver_GPIO3 = {
     ARM_GPIO3_Control,
     ARM_GPIO3_Uninitialize
 };
-#endif   /* RTE_GPIO3 */
-
+#endif /* RTE_GPIO3 */
 
 /**<GPIO Instance 4>*/
 #if RTE_GPIO4
-static GPIO_RESOURCES GPIO4_RES = {
-    .reg_base = (GPIO_Type*) GPIO4_BASE,
-    .IRQ_base_num = GPIO4_IRQ0_IRQn,
-    .gpio_id = GPIO4_INSTANCE,
-    .db_clkdiv = RTE_GPIO4_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO4_RES = {.reg_base     = (GPIO_Type *) GPIO4_BASE,
+                                   .IRQ_base_num = GPIO4_IRQ0_IRQn,
+                                   .gpio_id      = GPIO4_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO4_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO4_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO4_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO4_PIN0_IRQ_PRIORITY,
-            RTE_GPIO4_PIN1_IRQ_PRIORITY,
-            RTE_GPIO4_PIN2_IRQ_PRIORITY,
-            RTE_GPIO4_PIN3_IRQ_PRIORITY,
-            RTE_GPIO4_PIN4_IRQ_PRIORITY,
-            RTE_GPIO4_PIN5_IRQ_PRIORITY,
-            RTE_GPIO4_PIN6_IRQ_PRIORITY,
-            RTE_GPIO4_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO4_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO4_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO4_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 0);    }
-
-void GPIO4_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 1);    }
-
-void GPIO4_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 2);    }
-
-void GPIO4_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 3);    }
-
-void GPIO4_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 4);    }
-
-void GPIO4_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 5);    }
-
-void GPIO4_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 6);    }
-
-void GPIO4_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO4_RES, 7);    }
-
-static int32_t ARM_GPIO4_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO4_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO4_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO4_RES, 0);
 }
 
-static int32_t ARM_GPIO4_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO4_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO4_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO4_RES, 1);
 }
 
-static int32_t ARM_GPIO4_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO4_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO4_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO4_RES, 2);
 }
 
-static int32_t ARM_GPIO4_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO4_IRQ3Handler(void)
 {
-    int32_t ret =  GPIO_GetDirection (&GPIO4_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO4_RES, 3);
+}
+
+void GPIO4_IRQ4Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO4_RES, 4);
+}
+
+void GPIO4_IRQ5Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO4_RES, 5);
+}
+
+void GPIO4_IRQ6Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO4_RES, 6);
+}
+
+void GPIO4_IRQ7Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO4_RES, 7);
+}
+
+static int32_t ARM_GPIO4_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO4_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO4_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO4_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO4_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO4_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO4_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    int32_t ret = GPIO_GetDirection(&GPIO4_RES, pin_no, dir);
     return ret;
 }
 
-static int32_t ARM_GPIO4_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t ARM_GPIO4_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    return GPIO_SetValue (&GPIO4_RES, pin_no, value);
+    return GPIO_SetValue(&GPIO4_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO4_GetValue (uint8_t pin_no, uint32_t *value)
+static int32_t ARM_GPIO4_GetValue(uint8_t pin_no, uint32_t *value)
 {
-    return GPIO_GetValue (&GPIO4_RES, pin_no, value);
+    return GPIO_GetValue(&GPIO4_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO4_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t ARM_GPIO4_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    return GPIO_Control (&GPIO4_RES, pin_no, control_code, arg);
+    return GPIO_Control(&GPIO4_RES, pin_no, control_code, arg);
 }
 
-static int32_t ARM_GPIO4_Uninitialize (uint8_t pin_no)
+static int32_t ARM_GPIO4_Uninitialize(uint8_t pin_no)
 {
-    return GPIO_Uninitialize (&GPIO4_RES, pin_no);
+    return GPIO_Uninitialize(&GPIO4_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO4;
-ARM_DRIVER_GPIO Driver_GPIO4 = {
+ARM_DRIVER_GPIO        Driver_GPIO4 = {
     ARM_GPIO4_Initialize,
     ARM_GPIO4_PowerControl,
     ARM_GPIO4_SetDirection,
@@ -1092,92 +1112,113 @@ ARM_DRIVER_GPIO Driver_GPIO4 = {
     ARM_GPIO4_Control,
     ARM_GPIO4_Uninitialize
 };
-#endif   /* RTE_GPIO4 */
-
+#endif /* RTE_GPIO4 */
 
 /**<GPIO Instance 5>*/
 #if RTE_GPIO5
-static GPIO_RESOURCES GPIO5_RES = {
-    .reg_base = (GPIO_Type*) GPIO5_BASE,
-    .IRQ_base_num = GPIO5_IRQ0_IRQn,
-    .gpio_id = GPIO5_INSTANCE,
-    .db_clkdiv = RTE_GPIO5_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO5_RES = {.reg_base     = (GPIO_Type *) GPIO5_BASE,
+                                   .IRQ_base_num = GPIO5_IRQ0_IRQn,
+                                   .gpio_id      = GPIO5_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO5_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO5_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO5_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO5_PIN0_IRQ_PRIORITY,
-            RTE_GPIO5_PIN1_IRQ_PRIORITY,
-            RTE_GPIO5_PIN2_IRQ_PRIORITY,
-            RTE_GPIO5_PIN3_IRQ_PRIORITY,
-            RTE_GPIO5_PIN4_IRQ_PRIORITY,
-            RTE_GPIO5_PIN5_IRQ_PRIORITY,
-            RTE_GPIO5_PIN6_IRQ_PRIORITY,
-            RTE_GPIO5_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO5_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO5_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO5_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 0);    }
-
-void GPIO5_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 1);    }
-
-void GPIO5_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 2);    }
-
-void GPIO5_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 3);    }
-
-void GPIO5_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 4);    }
-
-void GPIO5_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 5);    }
-
-void GPIO5_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 6);    }
-
-void GPIO5_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO5_RES, 7);    }
-
-static int32_t ARM_GPIO5_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO5_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO5_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO5_RES, 0);
 }
 
-static int32_t ARM_GPIO5_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO5_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO5_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO5_RES, 1);
 }
 
-static int32_t ARM_GPIO5_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO5_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO5_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO5_RES, 2);
 }
 
-static int32_t ARM_GPIO5_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO5_IRQ3Handler(void)
 {
-    int32_t ret =  GPIO_GetDirection (&GPIO5_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO5_RES, 3);
+}
+
+void GPIO5_IRQ4Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO5_RES, 4);
+}
+
+void GPIO5_IRQ5Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO5_RES, 5);
+}
+
+void GPIO5_IRQ6Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO5_RES, 6);
+}
+
+void GPIO5_IRQ7Handler(void)
+{
+    GPIO_IRQ_Handler(&GPIO5_RES, 7);
+}
+
+static int32_t ARM_GPIO5_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO5_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO5_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO5_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO5_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO5_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO5_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    int32_t ret = GPIO_GetDirection(&GPIO5_RES, pin_no, dir);
     return ret;
 }
 
-static int32_t ARM_GPIO5_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t ARM_GPIO5_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    return GPIO_SetValue (&GPIO5_RES, pin_no, value);
+    return GPIO_SetValue(&GPIO5_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO5_GetValue (uint8_t pin_no, uint32_t *value)
+static int32_t ARM_GPIO5_GetValue(uint8_t pin_no, uint32_t *value)
 {
-    return GPIO_GetValue (&GPIO5_RES, pin_no, value);
+    return GPIO_GetValue(&GPIO5_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO5_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t ARM_GPIO5_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    return GPIO_Control (&GPIO5_RES, pin_no, control_code, arg);
+    return GPIO_Control(&GPIO5_RES, pin_no, control_code, arg);
 }
 
-static int32_t ARM_GPIO5_Uninitialize (uint8_t pin_no)
+static int32_t ARM_GPIO5_Uninitialize(uint8_t pin_no)
 {
-    return GPIO_Uninitialize (&GPIO5_RES, pin_no);
+    return GPIO_Uninitialize(&GPIO5_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO5;
-ARM_DRIVER_GPIO Driver_GPIO5 = {
+ARM_DRIVER_GPIO        Driver_GPIO5 = {
     ARM_GPIO5_Initialize,
     ARM_GPIO5_PowerControl,
     ARM_GPIO5_SetDirection,
@@ -1187,92 +1228,112 @@ ARM_DRIVER_GPIO Driver_GPIO5 = {
     ARM_GPIO5_Control,
     ARM_GPIO5_Uninitialize
 };
-#endif   /* RTE_GPIO5 */
-
+#endif /* RTE_GPIO5 */
 
 /**<GPIO Instance 6>*/
 #if RTE_GPIO6
-static GPIO_RESOURCES GPIO6_RES = {
-    .reg_base = (GPIO_Type*) GPIO6_BASE,
-    .IRQ_base_num = GPIO6_IRQ0_IRQn,
-    .gpio_id = GPIO6_INSTANCE,
-    .db_clkdiv = RTE_GPIO6_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO6_RES = {.reg_base     = (GPIO_Type *) GPIO6_BASE,
+                                   .IRQ_base_num = GPIO6_IRQ0_IRQn,
+                                   .gpio_id      = GPIO6_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO6_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO6_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO6_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO6_PIN0_IRQ_PRIORITY,
-            RTE_GPIO6_PIN1_IRQ_PRIORITY,
-            RTE_GPIO6_PIN2_IRQ_PRIORITY,
-            RTE_GPIO6_PIN3_IRQ_PRIORITY,
-            RTE_GPIO6_PIN4_IRQ_PRIORITY,
-            RTE_GPIO6_PIN5_IRQ_PRIORITY,
-            RTE_GPIO6_PIN6_IRQ_PRIORITY,
-            RTE_GPIO6_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO6_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO6_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO6_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 0);    }
-
-void GPIO6_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 1);    }
-
-void GPIO6_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 2);    }
-
-void GPIO6_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 3);    }
-
-void GPIO6_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 4);    }
-
-void GPIO6_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 5);    }
-
-void GPIO6_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 6);    }
-
-void GPIO6_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO6_RES, 7);    }
-
-static int32_t ARM_GPIO6_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO6_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO6_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO6_RES, 0);
 }
 
-static int32_t ARM_GPIO6_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO6_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO6_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO6_RES, 1);
 }
 
-static int32_t ARM_GPIO6_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO6_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO6_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO6_RES, 2);
 }
 
-static int32_t ARM_GPIO6_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO6_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO6_RES, pin_no, dir);
-
+    GPIO_IRQ_Handler(&GPIO6_RES, 3);
 }
 
-static int32_t ARM_GPIO6_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO6_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO6_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO6_RES, 4);
 }
 
-static int32_t ARM_GPIO6_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO6_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO6_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO6_RES, 5);
 }
 
-static int32_t ARM_GPIO6_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO6_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO6_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO6_RES, 6);
 }
 
-static int32_t ARM_GPIO6_Uninitialize (uint8_t pin_no)
+void GPIO6_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO6_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO6_RES, 7);
+}
+
+static int32_t ARM_GPIO6_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO6_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO6_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO6_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO6_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO6_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO6_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO6_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO6_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO6_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO6_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO6_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO6_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO6_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO6_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO6_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO6;
-ARM_DRIVER_GPIO Driver_GPIO6 = {
+ARM_DRIVER_GPIO        Driver_GPIO6 = {
     ARM_GPIO6_Initialize,
     ARM_GPIO6_PowerControl,
     ARM_GPIO6_SetDirection,
@@ -1282,91 +1343,112 @@ ARM_DRIVER_GPIO Driver_GPIO6 = {
     ARM_GPIO6_Control,
     ARM_GPIO6_Uninitialize
 };
-#endif   /* RTE_GPIO6 */
-
+#endif /* RTE_GPIO6 */
 
 /**<GPIO Instance 7>*/
 #if RTE_GPIO7
-static GPIO_RESOURCES GPIO7_RES = {
-    .reg_base = (GPIO_Type*) GPIO7_BASE,
-    .IRQ_base_num = GPIO7_IRQ0_IRQn,
-    .gpio_id = GPIO7_INSTANCE,
-    .db_clkdiv = RTE_GPIO7_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO7_RES = {.reg_base     = (GPIO_Type *) GPIO7_BASE,
+                                   .IRQ_base_num = GPIO7_IRQ0_IRQn,
+                                   .gpio_id      = GPIO7_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO7_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO7_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO7_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO7_PIN0_IRQ_PRIORITY,
-            RTE_GPIO7_PIN1_IRQ_PRIORITY,
-            RTE_GPIO7_PIN2_IRQ_PRIORITY,
-            RTE_GPIO7_PIN3_IRQ_PRIORITY,
-            RTE_GPIO7_PIN4_IRQ_PRIORITY,
-            RTE_GPIO7_PIN5_IRQ_PRIORITY,
-            RTE_GPIO7_PIN6_IRQ_PRIORITY,
-            RTE_GPIO7_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO7_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO7_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO7_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 0);    }
-
-void GPIO7_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 1);    }
-
-void GPIO7_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 2);    }
-
-void GPIO7_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 3);    }
-
-void GPIO7_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 4);    }
-
-void GPIO7_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 5);    }
-
-void GPIO7_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 6);    }
-
-void GPIO7_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO7_RES, 7);    }
-
-static int32_t ARM_GPIO7_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO7_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO7_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO7_RES, 0);
 }
 
-static int32_t ARM_GPIO7_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO7_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO7_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO7_RES, 1);
 }
 
-static int32_t ARM_GPIO7_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO7_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO7_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO7_RES, 2);
 }
 
-static int32_t ARM_GPIO7_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO7_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO7_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO7_RES, 3);
 }
 
-static int32_t ARM_GPIO7_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO7_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO7_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO7_RES, 4);
 }
 
-static int32_t ARM_GPIO7_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO7_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO7_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO7_RES, 5);
 }
 
-static int32_t ARM_GPIO7_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO7_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO7_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO7_RES, 6);
 }
 
-static int32_t ARM_GPIO7_Uninitialize (uint8_t pin_no)
+void GPIO7_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO7_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO7_RES, 7);
+}
+
+static int32_t ARM_GPIO7_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO7_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO7_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO7_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO7_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO7_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO7_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO7_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO7_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO7_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO7_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO7_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO7_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO7_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO7_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO7_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO7;
-ARM_DRIVER_GPIO Driver_GPIO7 = {
+ARM_DRIVER_GPIO        Driver_GPIO7 = {
     ARM_GPIO7_Initialize,
     ARM_GPIO7_PowerControl,
     ARM_GPIO7_SetDirection,
@@ -1376,91 +1458,112 @@ ARM_DRIVER_GPIO Driver_GPIO7 = {
     ARM_GPIO7_Control,
     ARM_GPIO7_Uninitialize
 };
-#endif   /* RTE_GPIO7 */
-
+#endif /* RTE_GPIO7 */
 
 /**<GPIO Instance 8>*/
 #if RTE_GPIO8
-static GPIO_RESOURCES GPIO8_RES = {
-    .reg_base = (GPIO_Type*) GPIO8_BASE,
-    .IRQ_base_num = GPIO8_IRQ0_IRQn,
-    .gpio_id = GPIO8_INSTANCE,
-    .db_clkdiv = RTE_GPIO8_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO8_RES = {.reg_base     = (GPIO_Type *) GPIO8_BASE,
+                                   .IRQ_base_num = GPIO8_IRQ0_IRQn,
+                                   .gpio_id      = GPIO8_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO8_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO8_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO8_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO8_PIN0_IRQ_PRIORITY,
-            RTE_GPIO8_PIN1_IRQ_PRIORITY,
-            RTE_GPIO8_PIN2_IRQ_PRIORITY,
-            RTE_GPIO8_PIN3_IRQ_PRIORITY,
-            RTE_GPIO8_PIN4_IRQ_PRIORITY,
-            RTE_GPIO8_PIN5_IRQ_PRIORITY,
-            RTE_GPIO8_PIN6_IRQ_PRIORITY,
-            RTE_GPIO8_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO8_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO8_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO8_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 0);    }
-
-void GPIO8_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 1);    }
-
-void GPIO8_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 2);    }
-
-void GPIO8_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 3);    }
-
-void GPIO8_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 4);    }
-
-void GPIO8_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 5);    }
-
-void GPIO8_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 6);    }
-
-void GPIO8_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO8_RES, 7);    }
-
-static int32_t ARM_GPIO8_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO8_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO8_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO8_RES, 0);
 }
 
-static int32_t ARM_GPIO8_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO8_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO8_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO8_RES, 1);
 }
 
-static int32_t ARM_GPIO8_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO8_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO8_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO8_RES, 2);
 }
 
-static int32_t ARM_GPIO8_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO8_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO8_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO8_RES, 3);
 }
 
-static int32_t ARM_GPIO8_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO8_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO8_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO8_RES, 4);
 }
 
-static int32_t ARM_GPIO8_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO8_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO8_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO8_RES, 5);
 }
 
-static int32_t ARM_GPIO8_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO8_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO8_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO8_RES, 6);
 }
 
-static int32_t ARM_GPIO8_Uninitialize (uint8_t pin_no)
+void GPIO8_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO8_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO8_RES, 7);
+}
+
+static int32_t ARM_GPIO8_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO8_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO8_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO8_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO8_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO8_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO8_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO8_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO8_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO8_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO8_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO8_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO8_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO8_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO8_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO8_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO8;
-ARM_DRIVER_GPIO Driver_GPIO8 = {
+ARM_DRIVER_GPIO        Driver_GPIO8 = {
     ARM_GPIO8_Initialize,
     ARM_GPIO8_PowerControl,
     ARM_GPIO8_SetDirection,
@@ -1470,91 +1573,112 @@ ARM_DRIVER_GPIO Driver_GPIO8 = {
     ARM_GPIO8_Control,
     ARM_GPIO8_Uninitialize
 };
-#endif   /* RTE_GPIO8 */
-
+#endif /* RTE_GPIO8 */
 
 /**<GPIO Instance 9>*/
 #if RTE_GPIO9
-static GPIO_RESOURCES GPIO9_RES = {
-    .reg_base = (GPIO_Type*) GPIO9_BASE,
-    .IRQ_base_num = GPIO9_IRQ0_IRQn,
-    .gpio_id = GPIO9_INSTANCE,
-    .db_clkdiv = RTE_GPIO9_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO9_RES = {.reg_base     = (GPIO_Type *) GPIO9_BASE,
+                                   .IRQ_base_num = GPIO9_IRQ0_IRQn,
+                                   .gpio_id      = GPIO9_INSTANCE,
+                                   .db_clkdiv    = RTE_GPIO9_DB_CLK_DIV,
+                                   .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO9_BIT_MANIPULATION,
+                                   .gpio_bit_man_en = RTE_GPIO9_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO9_PIN0_IRQ_PRIORITY,
-            RTE_GPIO9_PIN1_IRQ_PRIORITY,
-            RTE_GPIO9_PIN2_IRQ_PRIORITY,
-            RTE_GPIO9_PIN3_IRQ_PRIORITY,
-            RTE_GPIO9_PIN4_IRQ_PRIORITY,
-            RTE_GPIO9_PIN5_IRQ_PRIORITY,
-            RTE_GPIO9_PIN6_IRQ_PRIORITY,
-            RTE_GPIO9_PIN7_IRQ_PRIORITY,
-    }
-};
+                                   .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                   .IRQ_priority = {
+                                       RTE_GPIO9_PIN0_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN1_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN2_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN3_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN4_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN5_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN6_IRQ_PRIORITY,
+                                       RTE_GPIO9_PIN7_IRQ_PRIORITY,
+                                   }};
 
-void GPIO9_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 0);    }
-
-void GPIO9_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 1);    }
-
-void GPIO9_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 2);    }
-
-void GPIO9_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 3);    }
-
-void GPIO9_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 4);    }
-
-void GPIO9_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 5);    }
-
-void GPIO9_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 6);    }
-
-void GPIO9_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO9_RES, 7);    }
-
-static int32_t ARM_GPIO9_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO9_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO9_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO9_RES, 0);
 }
 
-static int32_t ARM_GPIO9_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO9_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO9_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO9_RES, 1);
 }
 
-static int32_t ARM_GPIO9_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO9_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO9_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO9_RES, 2);
 }
 
-static int32_t ARM_GPIO9_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO9_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO9_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO9_RES, 3);
 }
 
-static int32_t ARM_GPIO9_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO9_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO9_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO9_RES, 4);
 }
 
-static int32_t ARM_GPIO9_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO9_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO9_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO9_RES, 5);
 }
 
-static int32_t ARM_GPIO9_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO9_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO9_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO9_RES, 6);
 }
 
-static int32_t ARM_GPIO9_Uninitialize (uint8_t pin_no)
+void GPIO9_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO9_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO9_RES, 7);
+}
+
+static int32_t ARM_GPIO9_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO9_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO9_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO9_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO9_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO9_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO9_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO9_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO9_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO9_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO9_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO9_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO9_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO9_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO9_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO9_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO9;
-ARM_DRIVER_GPIO Driver_GPIO9 = {
+ARM_DRIVER_GPIO        Driver_GPIO9 = {
     ARM_GPIO9_Initialize,
     ARM_GPIO9_PowerControl,
     ARM_GPIO9_SetDirection,
@@ -1564,91 +1688,112 @@ ARM_DRIVER_GPIO Driver_GPIO9 = {
     ARM_GPIO9_Control,
     ARM_GPIO9_Uninitialize
 };
-#endif   /* RTE_GPIO9 */
-
+#endif /* RTE_GPIO9 */
 
 /**<GPIO Instance 10>*/
 #if RTE_GPIO10
-static GPIO_RESOURCES GPIO10_RES = {
-    .reg_base = (GPIO_Type*) GPIO10_BASE,
-    .IRQ_base_num = GPIO10_IRQ0_IRQn,
-    .gpio_id = GPIO10_INSTANCE,
-    .db_clkdiv = RTE_GPIO10_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO10_RES = {.reg_base     = (GPIO_Type *) GPIO10_BASE,
+                                    .IRQ_base_num = GPIO10_IRQ0_IRQn,
+                                    .gpio_id      = GPIO10_INSTANCE,
+                                    .db_clkdiv    = RTE_GPIO10_DB_CLK_DIV,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO10_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO10_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO10_PIN0_IRQ_PRIORITY,
-            RTE_GPIO10_PIN1_IRQ_PRIORITY,
-            RTE_GPIO10_PIN2_IRQ_PRIORITY,
-            RTE_GPIO10_PIN3_IRQ_PRIORITY,
-            RTE_GPIO10_PIN4_IRQ_PRIORITY,
-            RTE_GPIO10_PIN5_IRQ_PRIORITY,
-            RTE_GPIO10_PIN6_IRQ_PRIORITY,
-            RTE_GPIO10_PIN7_IRQ_PRIORITY,
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                    .IRQ_priority = {
+                                        RTE_GPIO10_PIN0_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN1_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN2_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN3_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN4_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN5_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN6_IRQ_PRIORITY,
+                                        RTE_GPIO10_PIN7_IRQ_PRIORITY,
+                                    }};
 
-void GPIO10_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 0);    }
-
-void GPIO10_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 1);    }
-
-void GPIO10_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 2);    }
-
-void GPIO10_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 3);    }
-
-void GPIO10_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 4);    }
-
-void GPIO10_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 5);    }
-
-void GPIO10_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 6);    }
-
-void GPIO10_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO10_RES, 7);    }
-
-static int32_t ARM_GPIO10_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO10_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO10_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO10_RES, 0);
 }
 
-static int32_t ARM_GPIO10_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO10_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO10_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO10_RES, 1);
 }
 
-static int32_t ARM_GPIO10_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO10_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO10_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO10_RES, 2);
 }
 
-static int32_t ARM_GPIO10_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO10_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO10_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO10_RES, 3);
 }
 
-static int32_t ARM_GPIO10_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO10_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO10_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO10_RES, 4);
 }
 
-static int32_t ARM_GPIO10_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO10_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO10_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO10_RES, 5);
 }
 
-static int32_t ARM_GPIO10_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO10_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO10_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO10_RES, 6);
 }
 
-static int32_t ARM_GPIO10_Uninitialize (uint8_t pin_no)
+void GPIO10_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO10_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO10_RES, 7);
+}
+
+static int32_t ARM_GPIO10_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO10_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO10_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO10_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO10_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO10_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO10_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO10_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO10_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO10_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO10_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO10_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO10_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO10_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO10_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO10_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO10;
-ARM_DRIVER_GPIO Driver_GPIO10 = {
+ARM_DRIVER_GPIO        Driver_GPIO10 = {
     ARM_GPIO10_Initialize,
     ARM_GPIO10_PowerControl,
     ARM_GPIO10_SetDirection,
@@ -1658,91 +1803,112 @@ ARM_DRIVER_GPIO Driver_GPIO10 = {
     ARM_GPIO10_Control,
     ARM_GPIO10_Uninitialize
 };
-#endif   /* RTE_GPIO10 */
-
+#endif /* RTE_GPIO10 */
 
 /**<GPIO Instance 11>*/
 #if RTE_GPIO11
-static GPIO_RESOURCES GPIO11_RES = {
-    .reg_base = (GPIO_Type*) GPIO11_BASE,
-    .IRQ_base_num = GPIO11_IRQ0_IRQn,
-    .gpio_id = GPIO11_INSTANCE,
-    .db_clkdiv = RTE_GPIO11_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO11_RES = {.reg_base     = (GPIO_Type *) GPIO11_BASE,
+                                    .IRQ_base_num = GPIO11_IRQ0_IRQn,
+                                    .gpio_id      = GPIO11_INSTANCE,
+                                    .db_clkdiv    = RTE_GPIO11_DB_CLK_DIV,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO11_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO11_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO11_PIN0_IRQ_PRIORITY,
-            RTE_GPIO11_PIN1_IRQ_PRIORITY,
-            RTE_GPIO11_PIN2_IRQ_PRIORITY,
-            RTE_GPIO11_PIN3_IRQ_PRIORITY,
-            RTE_GPIO11_PIN4_IRQ_PRIORITY,
-            RTE_GPIO11_PIN5_IRQ_PRIORITY,
-            RTE_GPIO11_PIN6_IRQ_PRIORITY,
-            RTE_GPIO11_PIN7_IRQ_PRIORITY,
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                    .IRQ_priority = {
+                                        RTE_GPIO11_PIN0_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN1_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN2_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN3_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN4_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN5_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN6_IRQ_PRIORITY,
+                                        RTE_GPIO11_PIN7_IRQ_PRIORITY,
+                                    }};
 
-void GPIO11_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 0);    }
-
-void GPIO11_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 1);    }
-
-void GPIO11_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 2);    }
-
-void GPIO11_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 3);    }
-
-void GPIO11_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 4);    }
-
-void GPIO11_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 5);    }
-
-void GPIO11_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 6);    }
-
-void GPIO11_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO11_RES, 7);    }
-
-static int32_t ARM_GPIO11_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO11_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO11_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO11_RES, 0);
 }
 
-static int32_t ARM_GPIO11_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO11_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO11_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO11_RES, 1);
 }
 
-static int32_t ARM_GPIO11_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO11_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO11_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO11_RES, 2);
 }
 
-static int32_t ARM_GPIO11_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO11_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO11_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO11_RES, 3);
 }
 
-static int32_t ARM_GPIO11_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO11_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO11_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO11_RES, 4);
 }
 
-static int32_t ARM_GPIO11_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO11_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO11_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO11_RES, 5);
 }
 
-static int32_t ARM_GPIO11_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO11_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO11_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO11_RES, 6);
 }
 
-static int32_t ARM_GPIO11_Uninitialize (uint8_t pin_no)
+void GPIO11_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO11_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO11_RES, 7);
+}
+
+static int32_t ARM_GPIO11_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO11_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO11_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO11_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO11_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO11_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO11_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO11_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO11_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO11_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO11_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO11_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO11_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO11_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO11_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO11_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO11;
-ARM_DRIVER_GPIO Driver_GPIO11 = {
+ARM_DRIVER_GPIO        Driver_GPIO11 = {
     ARM_GPIO11_Initialize,
     ARM_GPIO11_PowerControl,
     ARM_GPIO11_SetDirection,
@@ -1752,91 +1918,112 @@ ARM_DRIVER_GPIO Driver_GPIO11 = {
     ARM_GPIO11_Control,
     ARM_GPIO11_Uninitialize
 };
-#endif   /* RTE_GPIO11 */
-
+#endif /* RTE_GPIO11 */
 
 /**<GPIO Instance 12>*/
 #if RTE_GPIO12
-static GPIO_RESOURCES GPIO12_RES = {
-    .reg_base = (GPIO_Type*) GPIO12_BASE,
-    .IRQ_base_num = GPIO12_IRQ0_IRQn,
-    .gpio_id = GPIO12_INSTANCE,
-    .db_clkdiv = RTE_GPIO12_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO12_RES = {.reg_base     = (GPIO_Type *) GPIO12_BASE,
+                                    .IRQ_base_num = GPIO12_IRQ0_IRQn,
+                                    .gpio_id      = GPIO12_INSTANCE,
+                                    .db_clkdiv    = RTE_GPIO12_DB_CLK_DIV,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO12_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO12_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO12_PIN0_IRQ_PRIORITY,
-            RTE_GPIO12_PIN1_IRQ_PRIORITY,
-            RTE_GPIO12_PIN2_IRQ_PRIORITY,
-            RTE_GPIO12_PIN3_IRQ_PRIORITY,
-            RTE_GPIO12_PIN4_IRQ_PRIORITY,
-            RTE_GPIO12_PIN5_IRQ_PRIORITY,
-            RTE_GPIO12_PIN6_IRQ_PRIORITY,
-            RTE_GPIO12_PIN7_IRQ_PRIORITY,
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                    .IRQ_priority = {
+                                        RTE_GPIO12_PIN0_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN1_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN2_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN3_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN4_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN5_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN6_IRQ_PRIORITY,
+                                        RTE_GPIO12_PIN7_IRQ_PRIORITY,
+                                    }};
 
-void GPIO12_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 0);    }
-
-void GPIO12_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 1);    }
-
-void GPIO12_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 2);    }
-
-void GPIO12_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 3);    }
-
-void GPIO12_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 4);    }
-
-void GPIO12_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 5);    }
-
-void GPIO12_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 6);    }
-
-void GPIO12_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO12_RES, 7);    }
-
-static int32_t ARM_GPIO12_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO12_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO12_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO12_RES, 0);
 }
 
-static int32_t ARM_GPIO12_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO12_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO12_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO12_RES, 1);
 }
 
-static int32_t ARM_GPIO12_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO12_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO12_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO12_RES, 2);
 }
 
-static int32_t ARM_GPIO12_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO12_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO12_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO12_RES, 3);
 }
 
-static int32_t ARM_GPIO12_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO12_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO12_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO12_RES, 4);
 }
 
-static int32_t ARM_GPIO12_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO12_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO12_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO12_RES, 5);
 }
 
-static int32_t ARM_GPIO12_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO12_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO12_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO12_RES, 6);
 }
 
-static int32_t ARM_GPIO12_Uninitialize (uint8_t pin_no)
+void GPIO12_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO12_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO12_RES, 7);
+}
+
+static int32_t ARM_GPIO12_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO12_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO12_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO12_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO12_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO12_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO12_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO12_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO12_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO12_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO12_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO12_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO12_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO12_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO12_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO12_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO12;
-ARM_DRIVER_GPIO Driver_GPIO12 = {
+ARM_DRIVER_GPIO        Driver_GPIO12 = {
     ARM_GPIO12_Initialize,
     ARM_GPIO12_PowerControl,
     ARM_GPIO12_SetDirection,
@@ -1846,91 +2033,112 @@ ARM_DRIVER_GPIO Driver_GPIO12 = {
     ARM_GPIO12_Control,
     ARM_GPIO12_Uninitialize
 };
-#endif   /* RTE_GPIO12 */
-
+#endif /* RTE_GPIO12 */
 
 /**<GPIO Instance 13>*/
 #if RTE_GPIO13
-static GPIO_RESOURCES GPIO13_RES = {
-    .reg_base = (GPIO_Type*) GPIO13_BASE,
-    .IRQ_base_num = GPIO13_IRQ0_IRQn,
-    .gpio_id = GPIO13_INSTANCE,
-    .db_clkdiv = RTE_GPIO13_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO13_RES = {.reg_base     = (GPIO_Type *) GPIO13_BASE,
+                                    .IRQ_base_num = GPIO13_IRQ0_IRQn,
+                                    .gpio_id      = GPIO13_INSTANCE,
+                                    .db_clkdiv    = RTE_GPIO13_DB_CLK_DIV,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO13_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO13_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO13_PIN0_IRQ_PRIORITY,
-            RTE_GPIO13_PIN1_IRQ_PRIORITY,
-            RTE_GPIO13_PIN2_IRQ_PRIORITY,
-            RTE_GPIO13_PIN3_IRQ_PRIORITY,
-            RTE_GPIO13_PIN4_IRQ_PRIORITY,
-            RTE_GPIO13_PIN5_IRQ_PRIORITY,
-            RTE_GPIO13_PIN6_IRQ_PRIORITY,
-            RTE_GPIO13_PIN7_IRQ_PRIORITY,
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                    .IRQ_priority = {
+                                        RTE_GPIO13_PIN0_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN1_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN2_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN3_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN4_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN5_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN6_IRQ_PRIORITY,
+                                        RTE_GPIO13_PIN7_IRQ_PRIORITY,
+                                    }};
 
-void GPIO13_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 0);    }
-
-void GPIO13_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 1);    }
-
-void GPIO13_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 2);    }
-
-void GPIO13_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 3);    }
-
-void GPIO13_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 4);    }
-
-void GPIO13_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 5);    }
-
-void GPIO13_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 6);    }
-
-void GPIO13_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO13_RES, 7);    }
-
-static int32_t ARM_GPIO13_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO13_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO13_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO13_RES, 0);
 }
 
-static int32_t ARM_GPIO13_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO13_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO13_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO13_RES, 1);
 }
 
-static int32_t ARM_GPIO13_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO13_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO13_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO13_RES, 2);
 }
 
-static int32_t ARM_GPIO13_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO13_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO13_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO13_RES, 3);
 }
 
-static int32_t ARM_GPIO13_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO13_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO13_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO13_RES, 4);
 }
 
-static int32_t ARM_GPIO13_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO13_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO13_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO13_RES, 5);
 }
 
-static int32_t ARM_GPIO13_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO13_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO13_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO13_RES, 6);
 }
 
-static int32_t ARM_GPIO13_Uninitialize (uint8_t pin_no)
+void GPIO13_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO13_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO13_RES, 7);
+}
+
+static int32_t ARM_GPIO13_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO13_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO13_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO13_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO13_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO13_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO13_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO13_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO13_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO13_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO13_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO13_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO13_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO13_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO13_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO13_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO13;
-ARM_DRIVER_GPIO Driver_GPIO13 = {
+ARM_DRIVER_GPIO        Driver_GPIO13 = {
     ARM_GPIO13_Initialize,
     ARM_GPIO13_PowerControl,
     ARM_GPIO13_SetDirection,
@@ -1940,91 +2148,112 @@ ARM_DRIVER_GPIO Driver_GPIO13 = {
     ARM_GPIO13_Control,
     ARM_GPIO13_Uninitialize
 };
-#endif   /* RTE_GPIO13 */
-
+#endif /* RTE_GPIO13 */
 
 /**<GPIO Instance 14>*/
 #if RTE_GPIO14
-static GPIO_RESOURCES GPIO14_RES = {
-    .reg_base = (GPIO_Type*) GPIO14_BASE,
-    .IRQ_base_num = GPIO14_IRQ0_IRQn,
-    .gpio_id = GPIO14_INSTANCE,
-    .db_clkdiv = RTE_GPIO14_DB_CLK_DIV,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO14_RES = {.reg_base     = (GPIO_Type *) GPIO14_BASE,
+                                    .IRQ_base_num = GPIO14_IRQ0_IRQn,
+                                    .gpio_id      = GPIO14_INSTANCE,
+                                    .db_clkdiv    = RTE_GPIO14_DB_CLK_DIV,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO14_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO14_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
-    .IRQ_priority = {
-            RTE_GPIO14_PIN0_IRQ_PRIORITY,
-            RTE_GPIO14_PIN1_IRQ_PRIORITY,
-            RTE_GPIO14_PIN2_IRQ_PRIORITY,
-            RTE_GPIO14_PIN3_IRQ_PRIORITY,
-            RTE_GPIO14_PIN4_IRQ_PRIORITY,
-            RTE_GPIO14_PIN5_IRQ_PRIORITY,
-            RTE_GPIO14_PIN6_IRQ_PRIORITY,
-            RTE_GPIO14_PIN7_IRQ_PRIORITY,
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_INDIVIDUAL,
+                                    .IRQ_priority = {
+                                        RTE_GPIO14_PIN0_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN1_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN2_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN3_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN4_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN5_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN6_IRQ_PRIORITY,
+                                        RTE_GPIO14_PIN7_IRQ_PRIORITY,
+                                    }};
 
-void GPIO14_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 0);    }
-
-void GPIO14_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 1);    }
-
-void GPIO14_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 2);    }
-
-void GPIO14_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 3);    }
-
-void GPIO14_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 4);    }
-
-void GPIO14_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 5);    }
-
-void GPIO14_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 6);    }
-
-void GPIO14_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&GPIO14_RES, 7);    }
-
-static int32_t ARM_GPIO14_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO14_IRQ0Handler(void)
 {
-    return GPIO_Initialize (&GPIO14_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO14_RES, 0);
 }
 
-static int32_t ARM_GPIO14_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+void GPIO14_IRQ1Handler(void)
 {
-    return GPIO_PowerControl (&GPIO14_RES, pin_no, state);
+    GPIO_IRQ_Handler(&GPIO14_RES, 1);
 }
 
-static int32_t ARM_GPIO14_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+void GPIO14_IRQ2Handler(void)
 {
-    return GPIO_SetDirection (&GPIO14_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO14_RES, 2);
 }
 
-static int32_t ARM_GPIO14_GetDirection (uint8_t pin_no, uint32_t *dir)
+void GPIO14_IRQ3Handler(void)
 {
-    return GPIO_GetDirection (&GPIO14_RES, pin_no, dir);
+    GPIO_IRQ_Handler(&GPIO14_RES, 3);
 }
 
-static int32_t ARM_GPIO14_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+void GPIO14_IRQ4Handler(void)
 {
-    return GPIO_SetValue (&GPIO14_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO14_RES, 4);
 }
 
-static int32_t ARM_GPIO14_GetValue (uint8_t pin_no, uint32_t *value)
+void GPIO14_IRQ5Handler(void)
 {
-    return GPIO_GetValue (&GPIO14_RES, pin_no, value);
+    GPIO_IRQ_Handler(&GPIO14_RES, 5);
 }
 
-static int32_t ARM_GPIO14_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+void GPIO14_IRQ6Handler(void)
 {
-    return GPIO_Control (&GPIO14_RES, pin_no, control_code, arg);
+    GPIO_IRQ_Handler(&GPIO14_RES, 6);
 }
 
-static int32_t ARM_GPIO14_Uninitialize (uint8_t pin_no)
+void GPIO14_IRQ7Handler(void)
 {
-    return GPIO_Uninitialize (&GPIO14_RES, pin_no);
+    GPIO_IRQ_Handler(&GPIO14_RES, 7);
+}
+
+static int32_t ARM_GPIO14_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+{
+    return GPIO_Initialize(&GPIO14_RES, cb_event, pin_no);
+}
+
+static int32_t ARM_GPIO14_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
+{
+    return GPIO_PowerControl(&GPIO14_RES, pin_no, state);
+}
+
+static int32_t ARM_GPIO14_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+{
+    return GPIO_SetDirection(&GPIO14_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO14_GetDirection(uint8_t pin_no, uint32_t *dir)
+{
+    return GPIO_GetDirection(&GPIO14_RES, pin_no, dir);
+}
+
+static int32_t ARM_GPIO14_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+{
+    return GPIO_SetValue(&GPIO14_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO14_GetValue(uint8_t pin_no, uint32_t *value)
+{
+    return GPIO_GetValue(&GPIO14_RES, pin_no, value);
+}
+
+static int32_t ARM_GPIO14_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+{
+    return GPIO_Control(&GPIO14_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO14_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO14_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO14;
-ARM_DRIVER_GPIO Driver_GPIO14 = {
+ARM_DRIVER_GPIO        Driver_GPIO14 = {
     ARM_GPIO14_Initialize,
     ARM_GPIO14_PowerControl,
     ARM_GPIO14_SetDirection,
@@ -2034,76 +2263,75 @@ ARM_DRIVER_GPIO Driver_GPIO14 = {
     ARM_GPIO14_Control,
     ARM_GPIO14_Uninitialize
 };
-#endif   /* RTE_GPIO14 */
+#endif /* RTE_GPIO14 */
 
 /**<GPIO Instance 16>*/
 #if RTE_GPIO16
-static GPIO_RESOURCES GPIO16_RES = {
-    .reg_base = (GPIO_Type*) GPIO16_BASE,
-    .IRQ_base_num = GPIO16_IRQ0_IRQn,
-    .gpio_id = GPIO16_INSTANCE,
-    .db_clkdiv = 0,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO16_RES = {.reg_base     = (GPIO_Type *) GPIO16_BASE,
+                                    .IRQ_base_num = GPIO16_IRQ0_IRQn,
+                                    .gpio_id      = GPIO16_INSTANCE,
+                                    .db_clkdiv    = 0,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO16_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO16_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_COMBINED,
-    .IRQ_priority = {
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY,
-            RTE_GPIO16_IRQ_PRIORITY
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_COMBINED,
+                                    .IRQ_priority = {RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY,
+                                                     RTE_GPIO16_IRQ_PRIORITY}};
 
-void GPIO16_IRQHandler  (void) {   GPIO_IRQ_Handler (&GPIO16_RES, 0);    }
-
-static int32_t ARM_GPIO16_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO16_IRQHandler(void)
 {
-    return GPIO_Initialize (&GPIO16_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO16_RES, 0);
 }
 
-static int32_t ARM_GPIO16_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+static int32_t ARM_GPIO16_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
 {
-    return GPIO_PowerControl (&GPIO16_RES, pin_no, state);
+    return GPIO_Initialize(&GPIO16_RES, cb_event, pin_no);
 }
 
-static int32_t ARM_GPIO16_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+static int32_t ARM_GPIO16_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
 {
-    return GPIO_SetDirection (&GPIO16_RES, pin_no, dir);
+    return GPIO_PowerControl(&GPIO16_RES, pin_no, state);
 }
 
-static int32_t ARM_GPIO16_GetDirection (uint8_t pin_no, uint32_t *dir)
+static int32_t ARM_GPIO16_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
 {
-    return GPIO_GetDirection (&GPIO16_RES, pin_no, dir);
+    return GPIO_SetDirection(&GPIO16_RES, pin_no, dir);
 }
 
-static int32_t ARM_GPIO16_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t ARM_GPIO16_GetDirection(uint8_t pin_no, uint32_t *dir)
 {
-    return GPIO_SetValue (&GPIO16_RES, pin_no, value);
+    return GPIO_GetDirection(&GPIO16_RES, pin_no, dir);
 }
 
-static int32_t ARM_GPIO16_GetValue (uint8_t pin_no, uint32_t *value)
+static int32_t ARM_GPIO16_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    return GPIO_GetValue (&GPIO16_RES, pin_no, value);
+    return GPIO_SetValue(&GPIO16_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO16_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t ARM_GPIO16_GetValue(uint8_t pin_no, uint32_t *value)
 {
-    return GPIO_Control (&GPIO16_RES, pin_no, control_code, arg);
+    return GPIO_GetValue(&GPIO16_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO16_Uninitialize (uint8_t pin_no)
+static int32_t ARM_GPIO16_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    return GPIO_Uninitialize (&GPIO16_RES, pin_no);
+    return GPIO_Control(&GPIO16_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO16_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO16_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO16;
-ARM_DRIVER_GPIO Driver_GPIO16 = {
+ARM_DRIVER_GPIO        Driver_GPIO16 = {
     ARM_GPIO16_Initialize,
     ARM_GPIO16_PowerControl,
     ARM_GPIO16_SetDirection,
@@ -2113,76 +2341,75 @@ ARM_DRIVER_GPIO Driver_GPIO16 = {
     ARM_GPIO16_Control,
     ARM_GPIO16_Uninitialize
 };
-#endif   /* RTE_GPIO16 */
+#endif /* RTE_GPIO16 */
 
 /**<GPIO Instance 17>*/
 #if RTE_GPIO17
-static GPIO_RESOURCES GPIO17_RES = {
-    .reg_base = (GPIO_Type*) GPIO17_BASE,
-    .IRQ_base_num = GPIO17_IRQ0_IRQn,
-    .gpio_id = GPIO17_INSTANCE,
-    .db_clkdiv = 0,
-    .max_pin = GPIO_PORT_MAX_PIN_NUMBER,
+static GPIO_RESOURCES GPIO17_RES = {.reg_base     = (GPIO_Type *) GPIO17_BASE,
+                                    .IRQ_base_num = GPIO17_IRQ0_IRQn,
+                                    .gpio_id      = GPIO17_INSTANCE,
+                                    .db_clkdiv    = 0,
+                                    .max_pin      = GPIO_PORT_MAX_PIN_NUMBER,
 #if SOC_FEAT_GPIO_HAS_HW_BIT_MANIPULATION
-    .gpio_bit_man_en = RTE_GPIO17_BIT_MANIPULATION,
+                                    .gpio_bit_man_en = RTE_GPIO17_BIT_MANIPULATION,
 #endif
-    .IRQ_type = GPIO_INTERRUPT_TYPE_COMBINED,
-    .IRQ_priority = {
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY,
-            RTE_GPIO17_IRQ_PRIORITY
-    }
-};
+                                    .IRQ_type     = GPIO_INTERRUPT_TYPE_COMBINED,
+                                    .IRQ_priority = {RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY,
+                                                     RTE_GPIO17_IRQ_PRIORITY}};
 
-void GPIO17_IRQHandler  (void) {   GPIO_IRQ_Handler (&GPIO17_RES, 0);    }
-
-static int32_t ARM_GPIO17_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+void GPIO17_IRQHandler(void)
 {
-    return GPIO_Initialize (&GPIO17_RES, cb_event, pin_no);
+    GPIO_IRQ_Handler(&GPIO17_RES, 0);
 }
 
-static int32_t ARM_GPIO17_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+static int32_t ARM_GPIO17_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
 {
-    return GPIO_PowerControl (&GPIO17_RES, pin_no, state);
+    return GPIO_Initialize(&GPIO17_RES, cb_event, pin_no);
 }
 
-static int32_t ARM_GPIO17_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+static int32_t ARM_GPIO17_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
 {
-    return GPIO_SetDirection (&GPIO17_RES, pin_no, dir);
+    return GPIO_PowerControl(&GPIO17_RES, pin_no, state);
 }
 
-static int32_t ARM_GPIO17_GetDirection (uint8_t pin_no, uint32_t *dir)
+static int32_t ARM_GPIO17_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
 {
-    return GPIO_GetDirection (&GPIO17_RES, pin_no, dir);
+    return GPIO_SetDirection(&GPIO17_RES, pin_no, dir);
 }
 
-static int32_t ARM_GPIO17_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t ARM_GPIO17_GetDirection(uint8_t pin_no, uint32_t *dir)
 {
-    return GPIO_SetValue (&GPIO17_RES, pin_no, value);
+    return GPIO_GetDirection(&GPIO17_RES, pin_no, dir);
 }
 
-static int32_t ARM_GPIO17_GetValue (uint8_t pin_no, uint32_t *value)
+static int32_t ARM_GPIO17_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    return GPIO_GetValue (&GPIO17_RES, pin_no, value);
+    return GPIO_SetValue(&GPIO17_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO17_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t ARM_GPIO17_GetValue(uint8_t pin_no, uint32_t *value)
 {
-    return GPIO_Control (&GPIO17_RES, pin_no, control_code, arg);
+    return GPIO_GetValue(&GPIO17_RES, pin_no, value);
 }
 
-static int32_t ARM_GPIO17_Uninitialize (uint8_t pin_no)
+static int32_t ARM_GPIO17_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    return GPIO_Uninitialize (&GPIO17_RES, pin_no);
+    return GPIO_Control(&GPIO17_RES, pin_no, control_code, arg);
+}
+
+static int32_t ARM_GPIO17_Uninitialize(uint8_t pin_no)
+{
+    return GPIO_Uninitialize(&GPIO17_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIO17;
-ARM_DRIVER_GPIO Driver_GPIO17 = {
+ARM_DRIVER_GPIO        Driver_GPIO17 = {
     ARM_GPIO17_Initialize,
     ARM_GPIO17_PowerControl,
     ARM_GPIO17_SetDirection,
@@ -2192,94 +2419,117 @@ ARM_DRIVER_GPIO Driver_GPIO17 = {
     ARM_GPIO17_Control,
     ARM_GPIO17_Uninitialize
 };
-#endif   /* RTE_GPIO17 */
+#endif /* RTE_GPIO17 */
 
 /**< Low Power GPIO >*/
 #if RTE_LPGPIO
 static GPIO_RESOURCES LPGPIO_RES = {
 #if RTE_LPGPIO_FAST_MODE_ENABLE
-    .reg_base = (GPIO_Type*) LPGPIO_FAST_BASE,
+    .reg_base = (GPIO_Type *) LPGPIO_FAST_BASE,
 #else
-    .reg_base = (GPIO_Type*) LPGPIO_BASE,
+    .reg_base = (GPIO_Type *) LPGPIO_BASE,
 #endif
-    .gpio_id = LPGPIO_INSTANCE,
-    .IRQ_base_num = LPGPIO_IRQ0_IRQn,
-    .max_pin = LPGPIO_MAX_PINS,
+    .gpio_id         = LPGPIO_INSTANCE,
+    .IRQ_base_num    = LPGPIO_IRQ0_IRQn,
+    .max_pin         = LPGPIO_MAX_PINS,
     .gpio_bit_man_en = 0,
-    .db_clkdiv = 0,
-    .IRQ_priority = {
-            RTE_LPGPIO_PIN0_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN1_IRQ_PRIORITY,
+    .db_clkdiv       = 0,
+    .IRQ_priority    = {
+        RTE_LPGPIO_PIN0_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN1_IRQ_PRIORITY,
 #if (SOC_FEAT_LPGPIO_HAS_PIN2_7)
-            RTE_LPGPIO_PIN2_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN3_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN4_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN5_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN6_IRQ_PRIORITY,
-            RTE_LPGPIO_PIN7_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN2_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN3_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN4_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN5_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN6_IRQ_PRIORITY,
+        RTE_LPGPIO_PIN7_IRQ_PRIORITY,
 #endif
-    }
-};
-void LPGPIO_IRQ0Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 0);    }
+    }};
+void LPGPIO_IRQ0Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 0);
+}
 
-void LPGPIO_IRQ1Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 1);    }
+void LPGPIO_IRQ1Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 1);
+}
 
 #if (SOC_FEAT_LPGPIO_HAS_PIN2_7)
-void LPGPIO_IRQ2Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 2);    }
+void LPGPIO_IRQ2Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 2);
+}
 
-void LPGPIO_IRQ3Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 3);    }
+void LPGPIO_IRQ3Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 3);
+}
 
-void LPGPIO_IRQ4Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 4);    }
+void LPGPIO_IRQ4Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 4);
+}
 
-void LPGPIO_IRQ5Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 5);    }
+void LPGPIO_IRQ5Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 5);
+}
 
-void LPGPIO_IRQ6Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 6);    }
+void LPGPIO_IRQ6Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 6);
+}
 
-void LPGPIO_IRQ7Handler  (void) {   GPIO_IRQ_Handler (&LPGPIO_RES, 7);    }
+void LPGPIO_IRQ7Handler(void)
+{
+    GPIO_IRQ_Handler(&LPGPIO_RES, 7);
+}
 #endif
 
-static int32_t ARM_LPGPIO_Initialize (uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
+static int32_t ARM_LPGPIO_Initialize(uint8_t pin_no, ARM_GPIO_SignalEvent_t cb_event)
 {
-    return GPIO_Initialize (&LPGPIO_RES, cb_event, pin_no);
+    return GPIO_Initialize(&LPGPIO_RES, cb_event, pin_no);
 }
 
-static int32_t ARM_LPGPIO_PowerControl (uint8_t pin_no, ARM_POWER_STATE state)
+static int32_t ARM_LPGPIO_PowerControl(uint8_t pin_no, ARM_POWER_STATE state)
 {
-    return GPIO_PowerControl (&LPGPIO_RES, pin_no, state);
+    return GPIO_PowerControl(&LPGPIO_RES, pin_no, state);
 }
 
-static int32_t ARM_LPGPIO_SetDirection (uint8_t pin_no, GPIO_PIN_DIRECTION dir)
+static int32_t ARM_LPGPIO_SetDirection(uint8_t pin_no, GPIO_PIN_DIRECTION dir)
 {
-    return GPIO_SetDirection (&LPGPIO_RES, pin_no, dir);
+    return GPIO_SetDirection(&LPGPIO_RES, pin_no, dir);
 }
 
-static int32_t ARM_LPGPIO_GetDirection (uint8_t pin_no, uint32_t *dir)
+static int32_t ARM_LPGPIO_GetDirection(uint8_t pin_no, uint32_t *dir)
 {
-    return GPIO_GetDirection (&LPGPIO_RES, pin_no, dir);
+    return GPIO_GetDirection(&LPGPIO_RES, pin_no, dir);
 }
 
-static int32_t ARM_LPGPIO_SetValue (uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
+static int32_t ARM_LPGPIO_SetValue(uint8_t pin_no, GPIO_PIN_OUTPUT_STATE value)
 {
-    return GPIO_SetValue (&LPGPIO_RES, pin_no, value);
+    return GPIO_SetValue(&LPGPIO_RES, pin_no, value);
 }
 
-static int32_t ARM_LPGPIO_GetValue (uint8_t pin_no, uint32_t *value)
+static int32_t ARM_LPGPIO_GetValue(uint8_t pin_no, uint32_t *value)
 {
-    return GPIO_GetValue (&LPGPIO_RES, pin_no, value);
+    return GPIO_GetValue(&LPGPIO_RES, pin_no, value);
 }
 
-static int32_t ARM_LPGPIO_Control (uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
+static int32_t ARM_LPGPIO_Control(uint8_t pin_no, GPIO_OPERATION control_code, uint32_t *arg)
 {
-    return GPIO_Control (&LPGPIO_RES, pin_no, control_code, arg);
+    return GPIO_Control(&LPGPIO_RES, pin_no, control_code, arg);
 }
 
-static int32_t ARM_LPGPIO_Uninitialize (uint8_t pin_no)
+static int32_t ARM_LPGPIO_Uninitialize(uint8_t pin_no)
 {
-    return GPIO_Uninitialize (&LPGPIO_RES, pin_no);
+    return GPIO_Uninitialize(&LPGPIO_RES, pin_no);
 }
 
 extern ARM_DRIVER_GPIO Driver_GPIOLP;
-ARM_DRIVER_GPIO Driver_GPIOLP = {
+ARM_DRIVER_GPIO        Driver_GPIOLP = {
     ARM_LPGPIO_Initialize,
     ARM_LPGPIO_PowerControl,
     ARM_LPGPIO_SetDirection,
@@ -2292,7 +2542,7 @@ ARM_DRIVER_GPIO Driver_GPIOLP = {
 
 /* ---------- LPGPIO instance name Aliases ---------- */
 extern ARM_DRIVER_GPIO __attribute__((alias("Driver_GPIOLP"))) Driver_GPIO15;
-#endif   /* RTE_LPGPIO */
+#endif /* RTE_LPGPIO */
 
 #endif /* defined(RTE_Drivers_IO) */
 

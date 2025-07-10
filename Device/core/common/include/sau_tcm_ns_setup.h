@@ -28,25 +28,25 @@
 extern "C" {
 #endif
 
-#if defined ( __ARMCC_VERSION )
+#if defined(__ARMCC_VERSION)
 extern const uint32_t Image$$NS_REGION_0$$Base;
 extern const uint32_t Image$$NS_REGION_0_PAD$$Base;
 static const uint32_t ns_region_0_start __attribute__((weakref("Image$$NS_REGION_0$$Base")));
 static const uint32_t ns_region_0_end __attribute__((weakref("Image$$NS_REGION_0_PAD$$Base")));
-#elif defined ( __GNUC__ )
+#elif defined(__GNUC__)
 extern const uint32_t __ns_region_0_start;
 extern const uint32_t __ns_region_0_end;
 static const uint32_t ns_region_0_start __attribute__((weakref("__ns_region_0_start")));
 static const uint32_t ns_region_0_end __attribute__((weakref("__ns_region_0_end")));
 #else
-  #error Unknown compiler.
+#error Unknown compiler.
 #endif
 
 /*
  * sau_tcm_ns_setup ()
  * Set up the TCM Nonsecure partitioning in SAU and TGU
  */
-void sau_tcm_ns_setup (void);
+void sau_tcm_ns_setup(void);
 
 #ifdef __cplusplus
 }

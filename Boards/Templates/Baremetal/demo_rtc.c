@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_rtc.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -27,18 +27,18 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
 
 /* RTC Driver instance 0 */
-extern ARM_DRIVER_RTC Driver_RTC0;
+extern ARM_DRIVER_RTC  Driver_RTC0;
 static ARM_DRIVER_RTC *RTCdrv = &Driver_RTC0;
-
 
 void rtc_demo_Thread_entry();
 
-#define CB_EVENT_SET     1
-#define CB_EVENT_CLEAR   0
+#define CB_EVENT_SET   1
+#define CB_EVENT_CLEAR 0
 
 volatile uint32_t cb_status = 0;
 
@@ -49,8 +49,7 @@ volatile uint32_t cb_status = 0;
 */
 static void rtc_callback(uint32_t event)
 {
-    if (event & ARM_RTC_EVENT_ALARM_TRIGGER)
-    {
+    if (event & ARM_RTC_EVENT_ALARM_TRIGGER) {
         /* Received RTC Alarm. */
         cb_status = CB_EVENT_SET;
     }
@@ -68,102 +67,95 @@ static void rtc_callback(uint32_t event)
 */
 void rtc_demo_Thread_entry()
 {
-    uint32_t  val      = 0;
-    uint32_t  iter     = 1;
-    uint32_t  timeout  = 5;
-    int32_t   ret      = 0;
-    ARM_DRIVER_VERSION version;
+    uint32_t             val     = 0;
+    uint32_t             iter    = 1;
+    uint32_t             timeout = 5;
+    int32_t              ret     = 0;
+    ARM_DRIVER_VERSION   version;
     ARM_RTC_CAPABILITIES capabilities;
 
     printf("\r\n >>> RTC demo thread is starting up!!! <<< \r\n");
 
     version = RTCdrv->GetVersion();
-    printf("\r\n RTC version api:%"PRIx16" driver:%"PRIx16"...\r\n",
-            version.api, version.drv);
+    printf("\r\n RTC version api:%" PRIx16 " driver:%" PRIx16 "...\r\n", version.api, version.drv);
 
     capabilities = RTCdrv->GetCapabilities();
-    if(!capabilities.alarm){
+    if (!capabilities.alarm) {
         printf("\r\n Error: RTC alarm capability is not available.\n");
         return;
     }
 
     /* Initialize RTC driver */
     ret = RTCdrv->Initialize(rtc_callback);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: RTC init failed\n");
         return;
     }
 
     /* Enable the power for RTC */
     ret = RTCdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: RTC Power up failed\n");
         goto error_uninitialize;
     }
 
-    while (iter <= 5)
-    {
+    while (iter <= 5) {
         ret = RTCdrv->ReadCounter(&val);
-        if(ret != ARM_DRIVER_OK){
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error: RTC read failed\n");
             goto error_poweroff;
         }
 
-        printf("\r\n Setting alarm after %"PRIu32" counts \r\n", timeout);
+        printf("\r\n Setting alarm after %" PRIu32 " counts \r\n", timeout);
         ret = RTCdrv->Control(ARM_RTC_SET_ALARM, val + timeout);
-        if(ret != ARM_DRIVER_OK){
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error: RTC Could not set alarm\n");
             goto error_poweroff;
         }
 
         /* wait till alarm event comes in isr callback */
-        while (1)
-        {
-            if (cb_status)
-            {
+        while (1) {
+            if (cb_status) {
                 printf("\r\n Received alarm \r\n");
                 cb_status = CB_EVENT_CLEAR;
                 break;
             }
         }
         timeout += 5;
-        iter ++;
+        iter++;
     }
 
 error_poweroff:
 
-        /* Power off RTC peripheral */
-        ret = RTCdrv->PowerControl(ARM_POWER_OFF);
-        if(ret != ARM_DRIVER_OK){
-            printf("\r\n Error: RTC Power OFF failed.\r\n");
-        }
+    /* Power off RTC peripheral */
+    ret = RTCdrv->PowerControl(ARM_POWER_OFF);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: RTC Power OFF failed.\r\n");
+    }
 
 error_uninitialize:
 
-        /* Un-initialize RTC driver */
-        ret = RTCdrv->Uninitialize();
-        if(ret != ARM_DRIVER_OK){
-            printf("\r\n Error: RTC Uninitialize failed.\r\n");
-        }
+    /* Un-initialize RTC driver */
+    ret = RTCdrv->Uninitialize();
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: RTC Uninitialize failed.\r\n");
+    }
 
     printf("\r\n XXX RTC demo thread is exiting XXX...\r\n");
 }
 
-
 /* Define main entry point.  */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
     rtc_demo_Thread_entry();
     return 0;
 }

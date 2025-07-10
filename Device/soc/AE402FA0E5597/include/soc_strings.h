@@ -11,16 +11,16 @@
 #ifndef SOC_STRINGS_H
 #define SOC_STRINGS_H
 
-#define SOC_STR_MFG_NAME            "Alif Semiconductor"
+#define SOC_STR_MFG_NAME "Alif Semiconductor"
 #define SOC_ALIF
 
-#define SOC_STR_FAMILY              "Ensemble"
+#define SOC_STR_FAMILY "Ensemble"
 #define SOC_ALIF_ENSEMBLE
 
-#define SOC_STR_SUBFAMILY           "E4"
+#define SOC_STR_SUBFAMILY "E4"
 #define SOC_ALIF_E4
 
-#define SOC_STR_DEVICE              "AE402FA0E5597"
+#define SOC_STR_DEVICE "AE402FA0E5597"
 #define SOC_ALIF_AE402FA0E5597
 
 #endif /* SOC_STRINGS_H */

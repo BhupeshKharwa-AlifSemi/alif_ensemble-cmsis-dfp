@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     retarget_init.h
  * @author   Raj Ranjan
  * @email    raj.ranjan@alifsemi.com
@@ -22,9 +22,8 @@
 #ifndef RETARGET_STD_IN_OUT_INIT_H__
 #define RETARGET_STD_IN_OUT_INIT_H__
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #if defined(RTE_CMSIS_Compiler_STDIN)
@@ -33,9 +32,9 @@ extern "C"
 
   \return          0 on success, or -1 on error.
 */
-int stdin_init (void);
+int stdin_init(void);
 
-#endif  /* RTE_CMSIS_Compiler_STDIN */
+#endif /* RTE_CMSIS_Compiler_STDIN */
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 /**
@@ -43,9 +42,9 @@ int stdin_init (void);
 
   \return          0 on success, or -1 on error.
 */
-int stdout_init (void);
+int stdout_init(void);
 
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 #if defined(RTE_CMSIS_Compiler_STDERR)
 /**
@@ -53,11 +52,11 @@ int stdout_init (void);
 
   \return          0 on success, or -1 on error.
 */
-int stderr_init (void);
+int stderr_init(void);
 
-#endif  /* RTE_CMSIS_Compiler_STDERR */
+#endif /* RTE_CMSIS_Compiler_STDERR */
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

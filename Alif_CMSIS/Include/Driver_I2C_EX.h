@@ -22,26 +22,27 @@
 #ifndef DRIVER_I2C_EX_H_
 #define DRIVER_I2C_EX_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include "Driver_I2C.h"
 
 /****** I2C Extended Control Codes *****/
 
-#define ARM_I2C_MODE_WRITE_READ             (0x05UL)    ///< Set Write-Read Combined mode; arg:(enable | target reg addr size in bytes)
+#define ARM_I2C_MODE_WRITE_READ                                                                    \
+    (0x05UL)  ///< Set Write-Read Combined mode; arg:(enable | target reg addr size in bytes)
 
 /****** I2C Write-Read - Target register address size in bytes *****/
-#define ARM_I2C_TAR_REG_ADDR_SIZE_Pos       0x0U
-#define ARM_I2C_TAR_REG_ADDR_SIZE_Msk       0x0FU
-#define ARM_I2C_TAR_REG_ADDR_SIZE(x)        (((x) & ARM_I2C_TAR_REG_ADDR_SIZE_Msk) >> ARM_I2C_TAR_REG_ADDR_SIZE_Pos)
-#define ARM_I2C_WRITE_READ_MODE_Pos         0x7U
-#define ARM_I2C_WRITE_READ_MODE_EN          (1U << ARM_I2C_WRITE_READ_MODE_Pos)
-#define ARM_I2C_WRITE_READ_MODE_DIS         (0U << ARM_I2C_WRITE_READ_MODE_Pos)
+#define ARM_I2C_TAR_REG_ADDR_SIZE_Pos 0x0U
+#define ARM_I2C_TAR_REG_ADDR_SIZE_Msk 0x0FU
+#define ARM_I2C_TAR_REG_ADDR_SIZE(x)                                                               \
+    (((x) & ARM_I2C_TAR_REG_ADDR_SIZE_Msk) >> ARM_I2C_TAR_REG_ADDR_SIZE_Pos)
+#define ARM_I2C_WRITE_READ_MODE_Pos 0x7U
+#define ARM_I2C_WRITE_READ_MODE_EN  (1U << ARM_I2C_WRITE_READ_MODE_Pos)
+#define ARM_I2C_WRITE_READ_MODE_DIS (0U << ARM_I2C_WRITE_READ_MODE_Pos)
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

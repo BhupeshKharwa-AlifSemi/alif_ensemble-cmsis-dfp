@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_led_breathe.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -34,11 +34,11 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined UTIMER pin configuration (from board_utimer_pins_config).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* For E7:
  * UTIMER Counter value calculation:
@@ -69,25 +69,25 @@
  * DEC = 32000
  */
 
-#define UT_INIT_COUNTER_VALUE         0U
-#define UT_MAX_COUNTER_VALUE          BOARD_LED_PWM_UT_MAX_COUNTER_VALUE
-#define UT_33_PERC_DT_COUNTER_VALUE   (UT_MAX_COUNTER_VALUE / 3)
-#define UT_66_PERC_DT_COUNTER_VALUE   (UT_33_PERC_DT_COUNTER_VALUE * 2)
-#define UT_100_PERC_DT_COUNTER_VALUE  UT_MAX_COUNTER_VALUE
-#define UT_CHANNEL_RED_LED            BOARD_RED_LED_UTIMER_INSTANCE
-#define UT_CHANNEL_GREEN_LED          BOARD_GREEN_LED_UTIMER_INSTANCE
-#define UT_CHANNEL_BLUE_LED           BOARD_BLUE_LED_UTIMER_INSTANCE
+#define UT_INIT_COUNTER_VALUE          0U
+#define UT_MAX_COUNTER_VALUE           BOARD_LED_PWM_UT_MAX_COUNTER_VALUE
+#define UT_33_PERC_DT_COUNTER_VALUE    (UT_MAX_COUNTER_VALUE / 3)
+#define UT_66_PERC_DT_COUNTER_VALUE    (UT_33_PERC_DT_COUNTER_VALUE * 2)
+#define UT_100_PERC_DT_COUNTER_VALUE   UT_MAX_COUNTER_VALUE
+#define UT_CHANNEL_RED_LED             BOARD_RED_LED_UTIMER_INSTANCE
+#define UT_CHANNEL_GREEN_LED           BOARD_GREEN_LED_UTIMER_INSTANCE
+#define UT_CHANNEL_BLUE_LED            BOARD_BLUE_LED_UTIMER_INSTANCE
 
-#define RED_LED    1U
-#define GREEN_LED  2U
-#define BLUE_LED   3U
+#define RED_LED                        1U
+#define GREEN_LED                      2U
+#define BLUE_LED                       3U
 
 /* Enable any one LED */
-#define LED_USED   GREEN_LED
+#define LED_USED                       GREEN_LED
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
-ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
+ARM_DRIVER_UTIMER       *ptrUTIMER = &Driver_UTIMER0;
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
@@ -100,19 +100,28 @@ static int32_t board_utimer_pins_config(void)
 {
     int32_t ret;
 #if (LED_USED == RED_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN, BOARD_LEDRGB0_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set(PORT_(BOARD_LEDRGB0_R_GPIO_PORT),
+                      BOARD_LEDRGB0_R_GPIO_PIN,
+                      BOARD_LEDRGB0_R_ALTERNATE_FUNCTION,
+                      PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Red LED PINMUX.\r\n");
         return ret;
     }
 #elif (LED_USED == GREEN_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN, BOARD_LEDRGB0_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set(PORT_(BOARD_LEDRGB0_G_GPIO_PORT),
+                      BOARD_LEDRGB0_G_GPIO_PIN,
+                      BOARD_LEDRGB0_G_ALTERNATE_FUNCTION,
+                      PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Green LED PINMUX.\r\n");
         return ret;
     }
 #elif (LED_USED == BLUE_LED)
-    ret = pinconf_set (PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN, BOARD_LEDRGB0_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
+    ret = pinconf_set(PORT_(BOARD_LEDRGB0_B_GPIO_PORT),
+                      BOARD_LEDRGB0_B_GPIO_PIN,
+                      BOARD_LEDRGB0_B_ALTERNATE_FUNCTION,
+                      PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Blue LED PINMUX.\r\n");
         return ret;
@@ -121,7 +130,8 @@ static int32_t board_utimer_pins_config(void)
 #error "ERROR: Selected LED is not correct"
 #endif
 
-    return 0;;
+    return 0;
+    ;
 }
 #endif
 
@@ -132,16 +142,16 @@ static int32_t board_utimer_pins_config(void)
  * @param       event
  * @retval      none
  */
-static void utimer_led_cb_func (uint8_t event)
+static void utimer_led_cb_func(uint8_t event)
 {
     if (event == ARM_UTIMER_EVENT_COMPARE_A) {
-        //empty
+        // empty
     }
     if (event == ARM_UTIMER_EVENT_COMPARE_B) {
-        //empty
+        // empty
     }
     if (event == ARM_UTIMER_EVENT_OVER_FLOW) {
-        //empty
+        // empty
     }
 }
 
@@ -152,37 +162,37 @@ static void utimer_led_cb_func (uint8_t event)
  * @param       channel
  * @retval      execution status
  */
-static int32_t led_init (uint8_t channel)
+static int32_t led_init(uint8_t channel)
 {
     int32_t ret = 0;
 
-    ret = ptrUTIMER->Initialize (channel, utimer_led_cb_func);
+    ret         = ptrUTIMER->Initialize(channel, utimer_led_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed initialize \n", channel);
+        printf("utimer channel %" PRId8 " failed initialize \n", channel);
         return -1;
     }
 
-    ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
+    ret = ptrUTIMER->PowerControl(channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed power up \n", channel);
+        printf("utimer channel %" PRId8 " failed power up \n", channel);
         return -1;
     }
 
-    ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
+    ret = ptrUTIMER->ConfigCounter(channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" mode configuration failed \n", channel);
+        printf("utimer channel %" PRId8 " mode configuration failed \n", channel);
         return -1;
     }
 
-    ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, UT_INIT_COUNTER_VALUE);
+    ret = ptrUTIMER->SetCount(channel, ARM_UTIMER_CNTR, UT_INIT_COUNTER_VALUE);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         return -1;
     }
 
-    ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, UT_MAX_COUNTER_VALUE);
+    ret = ptrUTIMER->SetCount(channel, ARM_UTIMER_CNTR_PTR, UT_MAX_COUNTER_VALUE);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         return -1;
     }
 
@@ -196,20 +206,21 @@ static int32_t led_init (uint8_t channel)
  * @param       channel
  * @retval      execution status
  */
-static int32_t led_start (uint8_t channel)
+static int32_t led_start(uint8_t channel)
 {
     int32_t ret = 0;
 
-    ret = ptrUTIMER->Start (channel);
+    ret         = ptrUTIMER->Start(channel);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed to start \n", channel);
+        printf("utimer channel %" PRId8 " failed to start \n", channel);
         return -1;
     }
     return 0;
 }
 
 /**
- * @function    int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t duty_cycle)
+ * @function    int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t
+ * duty_cycle)
  * @brief       UTIMER channel set Compare value for mentioned LED
  * @note        none
  * @param       channel
@@ -217,13 +228,13 @@ static int32_t led_start (uint8_t channel)
  * @param       duty_cycle
  * @retval      execution status
  */
-static int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t duty_cycle)
+static int32_t led_set_brightness(uint8_t channel, ARM_UTIMER_COUNTER counter, uint32_t duty_cycle)
 {
     int32_t ret = 0;
 
-    ret = ptrUTIMER->SetCount (channel, counter, duty_cycle);
+    ret         = ptrUTIMER->SetCount(channel, counter, duty_cycle);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         return -1;
     }
 
@@ -237,13 +248,13 @@ static int32_t led_set_brightness (uint8_t channel, ARM_UTIMER_COUNTER counter, 
  * @param       channel
  * @retval      execution status
  */
-static int32_t led_stop (uint8_t channel)
+static int32_t led_stop(uint8_t channel)
 {
     int32_t ret = 0;
 
-    ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
+    ret         = ptrUTIMER->Stop(channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed to stop \n", channel);
+        printf("utimer channel %" PRId8 " failed to stop \n", channel);
         return -1;
     }
 
@@ -257,10 +268,10 @@ static int32_t led_stop (uint8_t channel)
  * @param       none
  * @retval      none
  */
-static void led_breathe_app (void)
+static void led_breathe_app(void)
 {
-    int32_t ret;
-    uint8_t channel;
+    int32_t            ret;
+    uint8_t            channel;
     ARM_UTIMER_COUNTER counter_type;
 
     printf("*** utimer demo application for LED brightness control ***\n");
@@ -275,9 +286,8 @@ static void led_breathe_app (void)
      */
     ret = board_utimer_pins_config();
 #endif
-    if(ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -309,55 +319,57 @@ static void led_breathe_app (void)
 #error "ERROR: Selected LED is not correct"
 #endif
 
-    ret = led_init (channel);
+    ret = led_init(channel);
     if (ret) {
         printf("\r\n Error in UT init.\r\n");
-        while(1);
+        WAIT_FOREVER
     }
 
-    ret = led_start (channel);
+    ret = led_start(channel);
     if (ret) {
         printf("\r\n Error in UT LED start.\r\n");
-        while(1);
+        WAIT_FOREVER
     }
 
-    while (1)
-    {
-        ret = led_set_brightness (channel, counter_type, UT_33_PERC_DT_COUNTER_VALUE);
+    while (1) {
+        ret = led_set_brightness(channel, counter_type, UT_33_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            while(1);
+            WAIT_FOREVER
         }
 
         /* delay for 1s */
-        for (int i=0; i<10; i++)
-            sys_busy_loop_us (100000);
+        for (int i = 0; i < 10; i++) {
+            sys_busy_loop_us(100000);
+        }
 
-        ret = led_set_brightness (channel, counter_type, UT_66_PERC_DT_COUNTER_VALUE);
+        ret = led_set_brightness(channel, counter_type, UT_66_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            while(1);
+            WAIT_FOREVER
         }
 
         /* delay for 1s */
-        for (int i=0; i<10; i++)
-            sys_busy_loop_us (100000);
+        for (int i = 0; i < 10; i++) {
+            sys_busy_loop_us(100000);
+        }
 
-        ret = led_set_brightness (channel, counter_type, UT_100_PERC_DT_COUNTER_VALUE);
+        ret = led_set_brightness(channel, counter_type, UT_100_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            while(1);
+            WAIT_FOREVER
         }
 
         /* delay for 1s */
-        for (int i=0; i<10; i++)
-            sys_busy_loop_us (100000);
+        for (int i = 0; i < 10; i++) {
+            sys_busy_loop_us(100000);
+        }
     }
 
-    ret = led_stop (channel);
+    ret = led_stop(channel);
     if (ret) {
         printf("\r\n Error in UT LED stop.\r\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     printf("*** LED brightness control demo application completed *** \r\n\n");
@@ -365,18 +377,15 @@ static void led_breathe_app (void)
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
-    led_breathe_app ();
+    led_breathe_app();
 }
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

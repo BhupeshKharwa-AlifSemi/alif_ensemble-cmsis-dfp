@@ -19,16 +19,14 @@
  * enum I3C_INSTANCE
  * I3C instances
  */
-typedef enum _I3C_INSTANCE
-{
-    I3C_INSTANCE_0,                       /**< I3C instance - 0       */
-    I3C_INSTANCE_LP_0                     /**< I3C instance - LP - 0  */
+typedef enum _I3C_INSTANCE {
+    I3C_INSTANCE_0,   /**< I3C instance - 0       */
+    I3C_INSTANCE_LP_0 /**< I3C instance - LP - 0  */
 } I3C_INSTANCE;
 
-
-#define HE_CLK_ENA_I3C_CKEN     (1 << 14)
-#define I3C_CTRL_DMA_SEL_DMA2   (1 << 24)
-#define I3C_CTRL_CKEN           (1 << 0)
+#define HE_CLK_ENA_I3C_CKEN   (1 << 14)
+#define I3C_CTRL_DMA_SEL_DMA2 (1 << 24)
+#define I3C_CTRL_CKEN         (1 << 0)
 /**
   \fn          static inline void enable_i3c_clock(const I3C_INSTANCE inst)
   \brief       Enables I3C clock
@@ -37,18 +35,17 @@ typedef enum _I3C_INSTANCE
 */
 static inline void enable_i3c_clock(const I3C_INSTANCE inst)
 {
-    switch(inst)
-    {
-        case I3C_INSTANCE_0:
-            CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_CKEN;
-            break;
+    switch (inst) {
+    case I3C_INSTANCE_0:
+        CLKCTL_PER_SLV->I3C_CTRL |= I3C_CTRL_CKEN;
+        break;
 
-        case I3C_INSTANCE_LP_0:
-            M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_I3C_CKEN;
-            break;
+    case I3C_INSTANCE_LP_0:
+        M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_I3C_CKEN;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -60,18 +57,17 @@ static inline void enable_i3c_clock(const I3C_INSTANCE inst)
 */
 static inline void disable_i3c_clock(const I3C_INSTANCE inst)
 {
-    switch(inst)
-    {
-        case I3C_INSTANCE_0:
-            CLKCTL_PER_SLV->I3C_CTRL &= ~I3C_CTRL_CKEN;
-            break;
+    switch (inst) {
+    case I3C_INSTANCE_0:
+        CLKCTL_PER_SLV->I3C_CTRL &= ~I3C_CTRL_CKEN;
+        break;
 
-        case I3C_INSTANCE_LP_0:
-            M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_I3C_CKEN;
-            break;
+    case I3C_INSTANCE_LP_0:
+        M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_I3C_CKEN;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 

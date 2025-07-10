@@ -38,67 +38,70 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
 
 /* Define for FreeRTOS */
 #define STACK_SIZE                    1024
 #define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
 #define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize)
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
 {
-    *ppxIdleTaskTCBBuffer = &IdleTcb;
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
     *ppxIdleTaskStackBuffer = IdleStack;
-    *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
-    for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-    *ppxTimerTaskTCBBuffer = &TimerTcb;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
     *ppxTimerTaskStackBuffer = TimerStack;
-    *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-   for (;;);
+    ASSERT_HANG
 }
 
 TaskHandle_t MRAM_xHandle;
 
 /* for Unused Arguments. */
 #ifndef ARG_UNUSED
-#define ARG_UNUSED(arg)     ((void)arg)
+#define ARG_UNUSED(arg) ((void) arg)
 #endif
 
 /* MRAM Driver */
-extern ARM_DRIVER_MRAM Driver_MRAM;
+extern ARM_DRIVER_MRAM  Driver_MRAM;
 static ARM_DRIVER_MRAM *MRAM_drv = &Driver_MRAM;
 
 void MRAM_Thread_entry(void *pvParameters);
 
 /* Valid MRAM address-offset. */
-#define MRAM_ADDR_OFFSET           (0x100000)
+#define MRAM_ADDR_OFFSET (0x100000)
 
 /* Buffer size and value which needs to write to MRAM. */
-#define BUFFER_SIZE   0x1000    /* any random size.(for demo purpose size taken as 4KB) */
-#define BUFFER_VALUE  0xA4      /* any random value. */
+#define BUFFER_SIZE      0x1000 /* any random size.(for demo purpose size taken as 4KB) */
+#define BUFFER_VALUE     0xA4   /* any random value. */
 
 uint8_t buff_TX[BUFFER_SIZE] = {0x00};
 uint8_t buff_RX[BUFFER_SIZE] = {0x00};
@@ -116,12 +119,12 @@ uint8_t buff_RX[BUFFER_SIZE] = {0x00};
  */
 void MRAM_Thread_entry(void *pvParameters)
 {
-    int32_t ret;
+    int32_t            ret;
     ARM_DRIVER_VERSION version;
 
     uint32_t addr    = MRAM_ADDR_OFFSET;
-    int cmp          = 0;
-    int err_cnt      = 0;
+    int      cmp     = 0;
+    int      err_cnt = 0;
 
     /* Fill buffer data which needs to write to MRAM. */
     memset(buff_TX, BUFFER_VALUE, sizeof(buff_TX));
@@ -130,33 +133,30 @@ void MRAM_Thread_entry(void *pvParameters)
 
     /* MRAM driver version. */
     version = MRAM_drv->GetVersion();
-    printf("\r\n MRAM version: api:0x%X driver:0x%X...\r\n",version.api, version.drv);
+    printf("\r\n MRAM version: api:0x%X driver:0x%X...\r\n", version.api, version.drv);
     ARG_UNUSED(version);
 
     /* Initialize MRAM driver */
     ret = MRAM_drv->Initialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in MRAM Initialize.\r\n");
         return;
     }
 
     /* Power up peripheral */
     ret = MRAM_drv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in MRAM Power Up.\r\n");
         goto error_uninitialize;
     }
 
     /* write data to MRAM (for demo purpose write 64KB data (4KB x 16) ) */
-    for(int i = 0; i < 16; i++)
-    {
+    for (int i = 0; i < 16; i++) {
         ret = MRAM_drv->ProgramData(addr, buff_TX, BUFFER_SIZE);
-        if(ret != BUFFER_SIZE)
-        {
-            printf("\r\n Error: MRAM ProgramData failed: addr:0x%X data:%0x.\r\n", \
-                                    addr, (uint32_t)buff_TX);
+        if (ret != BUFFER_SIZE) {
+            printf("\r\n Error: MRAM ProgramData failed: addr:0x%X data:%0x.\r\n",
+                   addr,
+                   (uint32_t) buff_TX);
             goto error_poweroff;
         }
         addr += BUFFER_SIZE;
@@ -165,56 +165,52 @@ void MRAM_Thread_entry(void *pvParameters)
     /* read back and compare wrote data from MRAM. */
     addr = MRAM_ADDR_OFFSET;
 
-    for(int i = 0; i < 16; i++)
-    {
+    for (int i = 0; i < 16; i++) {
         ret = MRAM_drv->ReadData(addr, buff_RX, BUFFER_SIZE);
-        if(ret != BUFFER_SIZE)
-        {
-            printf("\r\n Error: MRAM ReadData failed: addr:0x%X data:%0x.\r\n", \
-                                    addr, (uint32_t)buff_RX);
+        if (ret != BUFFER_SIZE) {
+            printf("\r\n Error: MRAM ReadData failed: addr:0x%X data:%0x.\r\n",
+                   addr,
+                   (uint32_t) buff_RX);
             goto error_poweroff;
         }
 
         /* compare write and read. */
         cmp = memcmp(buff_TX, buff_RX, BUFFER_SIZE);
-        if(cmp != 0)
-        {
-            printf("\r\n Error: MRAM write-read failed: addr:0x%X data:%0x.\r\n", \
-                                    addr, (uint32_t)buff_RX);
+        if (cmp != 0) {
+            printf("\r\n Error: MRAM write-read failed: addr:0x%X data:%0x.\r\n",
+                   addr,
+                   (uint32_t) buff_RX);
             err_cnt++;
         }
         addr += BUFFER_SIZE;
     }
 
     /* check for error. */
-    if(err_cnt)
-    {
+    if (err_cnt) {
         printf("\r\n waiting in Error. \r\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     printf("\r\n MRAM Write-Read test completed!!! \r\n");
     printf("\r\n waiting here forever...\r\n");
-    while(1);
+    WAIT_FOREVER
 
 error_poweroff:
     /* Received error, Power off MRAM peripheral */
     ret = MRAM_drv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in MRAM Power OFF.\r\n");
     }
 
 error_uninitialize:
     /* Received error, Un-initialize MRAM driver */
     ret = MRAM_drv->Uninitialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in MRAM Uninitialize.\r\n");
     }
 
     /* thread delete */
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 
     printf("\r\n XXX MRAM demo thread exiting XXX...\r\n");
 }
@@ -224,24 +220,25 @@ error_uninitialize:
  *---------------------------------------------------------------------------*/
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
     /* System Initialization */
     SystemCoreClockUpdate();
 
     /* Create application main thread */
-    BaseType_t xReturned = xTaskCreate(MRAM_Thread_entry, "MRAM_Thread_entry", 256, NULL,configMAX_PRIORITIES-1, &MRAM_xHandle);
-    if (xReturned != pdPASS)
-    {
+    BaseType_t xReturned = xTaskCreate(MRAM_Thread_entry,
+                                       "MRAM_Thread_entry",
+                                       256,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &MRAM_xHandle);
+    if (xReturned != pdPASS) {
         vTaskDelete(MRAM_xHandle);
         return -1;
     }

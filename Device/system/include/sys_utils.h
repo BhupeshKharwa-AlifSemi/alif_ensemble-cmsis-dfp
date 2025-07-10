@@ -31,56 +31,62 @@ extern "C" {
 
 /* for Unused Arguments. */
 #ifndef ARG_UNUSED
-#define ARG_UNUSED(arg)                     ((void)arg)
+#define ARG_UNUSED(arg) ((void) arg)
 #endif
 
 #ifndef ENABLE
-#define ENABLE                              (0x1)
+#define ENABLE (0x1)
 #endif
 
 #ifndef DISABLE
-#define DISABLE                             (0x0)
+#define DISABLE (0x0)
 #endif
 
 #ifndef MASK
 /**
  * @Note : 1st arg should be higher bit & 2nd arg should be lower i.e. (h > l)
  */
-#define MASK(h,l)           (((~(0U)) << (l)) &  (~(0U) >> (32 - 1 - (h))))
-#define MASK64(h,l)         (((~(0UL)) << (l)) &  (~(0UL) >> (32 - 1 - (h))))
+#define MASK(h, l)   (((~(0U)) << (l)) & (~(0U) >> (32 - 1 - (h))))
+#define MASK64(h, l) (((~(0UL)) << (l)) & (~(0UL) >> (32 - 1 - (h))))
 #endif
 
-#define DIV_ROUND_UP(n, d)                  (((n) + (d) - 1) / (d))
+#define DIV_ROUND_UP(n, d)               (((n) + (d) - 1) / (d))
 
-#define BIT(nr)                             (1UL << (nr))
-#define SET_BIT(REG, BIT_Msk)               ((REG) |= (BIT_Msk))
-#define CLEAR_BIT(REG, BIT_Msk)             ((REG) &= ~(BIT_Msk))
-#define READ_BIT(REG, BIT_Msk)              ((REG) & (BIT_Msk))
-#define CLEAR_REG(REG)                      ((REG) = (0x0))
-#define WRITE_REG(REG, VAL)                 ((REG) = (VAL))
-#define READ_REG(REG)                       ((REG))
+#define BIT(nr)                          (1UL << (nr))
+#define SET_BIT(REG, BIT_Msk)            ((REG) |= (BIT_Msk))
+#define CLEAR_BIT(REG, BIT_Msk)          ((REG) &= ~(BIT_Msk))
+#define READ_BIT(REG, BIT_Msk)           ((REG) & (BIT_Msk))
+#define CLEAR_REG(REG)                   ((REG) = (0x0))
+#define WRITE_REG(REG, VAL)              ((REG) = (VAL))
+#define READ_REG(REG)                    ((REG))
 
 /*Below Macros are helpful for bitwise operator (input argument 1 means bit 0)*/
-#define BIT64(n)                            ((1ULL) << n)
-#define REG64_SET_ONE_BIT(src, n)           (src |=  (BIT64(n)))
-#define REG64_CLR_ONE_BIT(src, n)           (src &= ~(BIT64(n)))
-#define REG32_SET_ONE_BIT(src, n)           (src |=  (  BIT(n)))
-#define REG32_CLR_ONE_BIT(src, n)           (src &= ~(  BIT(n)))
+#define BIT64(n)                         ((1ULL) << n)
+#define REG64_SET_ONE_BIT(src, n)        (src |= (BIT64(n)))
+#define REG64_CLR_ONE_BIT(src, n)        (src &= ~(BIT64(n)))
+#define REG32_SET_ONE_BIT(src, n)        (src |= (BIT(n)))
+#define REG32_CLR_ONE_BIT(src, n)        (src &= ~(BIT(n)))
 
-#define REG64_SET_M_AND_N_BIT(src, m, n)    (src |=  ( (BIT64(m) |  BIT64(n)) ))
-#define REG64_CLR_M_AND_N_BIT(src, m, n)    (src &=  (~(BIT64(m) |  BIT64(n)) ))
-#define REG32_SET_M_AND_N_BIT(src, m, n)    (src |=  ( (  BIT(m) |    BIT(n)) ))
-#define REG32_CLR_M_AND_N_BIT(src, m, n)    (src &=  (~(  BIT(m) |    BIT(n)) ))
+#define REG64_SET_M_AND_N_BIT(src, m, n) (src |= ((BIT64(m) | BIT64(n))))
+#define REG64_CLR_M_AND_N_BIT(src, m, n) (src &= (~(BIT64(m) | BIT64(n))))
+#define REG32_SET_M_AND_N_BIT(src, m, n) (src |= ((BIT(m) | BIT(n))))
+#define REG32_CLR_M_AND_N_BIT(src, m, n) (src &= (~(BIT(m) | BIT(n))))
 
-#define REG64_SET_M_TO_N_BIT(src, h, l)     (src |=  MASK64(h, l))
-#define REG64_CLR_M_TO_N_BIT(src, h, l)     (src &= ~MASK64(h, l))
-#define REG32_SET_M_TO_N_BIT(src, h, l)     (src |=    MASK(h, l))
-#define REG32_CLR_M_TO_N_BIT(src, h, l)     (src &=   ~MASK(h, l))
+#define REG64_SET_M_TO_N_BIT(src, h, l)  (src |= MASK64(h, l))
+#define REG64_CLR_M_TO_N_BIT(src, h, l)  (src &= ~MASK64(h, l))
+#define REG32_SET_M_TO_N_BIT(src, h, l)  (src |= MASK(h, l))
+#define REG32_CLR_M_TO_N_BIT(src, h, l)  (src &= ~MASK(h, l))
 
-#define REG32_TOGGLE_BIT(src, m)            (src ^=   BIT(m))
-#define REG64_TOGGLE_BIT(src, m)            (src ^= BIT64(m))
+#define REG32_TOGGLE_BIT(src, m)         (src ^= BIT(m))
+#define REG64_TOGGLE_BIT(src, m)         (src ^= BIT64(m))
 
-#define CONVERT_US_TO_NS(n)                 (n * 1000U)
+#define CONVERT_US_TO_NS(n)              (n * 1000U)
+
+#define WAIT_FOREVER                     while (1) {\
+                                         }
+
+#define ASSERT_HANG                      for (;;) {\
+                                         }
 
 // Function documentation
 
@@ -132,9 +138,9 @@ int32_t sys_busy_loop_us(uint32_t delay_us);
 __STATIC_FORCEINLINE
 bool RTSS_Is_TCM_Addr(const volatile void *local_addr)
 {
-    uint32_t addr = (uint32_t)local_addr;
+    uint32_t addr = (uint32_t) local_addr;
 
-    return ((addr < (ITCM_BASE + ITCM_REGION_SIZE)) || \
+    return ((addr < (ITCM_BASE + ITCM_REGION_SIZE)) ||
             ((addr > DTCM_BASE) && (addr < (DTCM_BASE + DTCM_REGION_SIZE))));
 }
 
@@ -151,14 +157,15 @@ uint32_t LocalToGlobal(const volatile void *local_addr)
      * for all other memories like SRAM0/1, MRAM, OctalSPI etc we can pass the address
      * as-is as those are accessed using global address
      */
-    uint32_t addr = (uint32_t)local_addr;
+    uint32_t addr = (uint32_t) local_addr;
 
-    if((addr >= DTCM_BASE) && (addr < (DTCM_BASE + DTCM_REGION_SIZE)))
+    if ((addr >= DTCM_BASE) && (addr < (DTCM_BASE + DTCM_REGION_SIZE))) {
         return (addr & (DTCM_ALIAS_BIT - 1)) + DTCM_GLOBAL_BASE;
-    else if((addr < (ITCM_BASE + ITCM_REGION_SIZE)))
+    } else if ((addr < (ITCM_BASE + ITCM_REGION_SIZE))) {
         return (addr & (ITCM_ALIAS_BIT - 1)) + ITCM_GLOBAL_BASE;
-    else
-        return (addr);
+    } else {
+        return addr;
+    }
 }
 
 /**
@@ -168,7 +175,7 @@ uint32_t LocalToGlobal(const volatile void *local_addr)
   \return      void* local memory alias address
 */
 __STATIC_INLINE
-void* GlobalToLocal(uint32_t global_addr)
+void *GlobalToLocal(uint32_t global_addr)
 {
     /* Only for local TCM address, we need to map it to local address space, rest
      * for all other memories like SRAM0/1, MRAM, OctalSPI etc we can pass the address
@@ -177,19 +184,21 @@ void* GlobalToLocal(uint32_t global_addr)
     uint32_t addr = global_addr;
 
 #if CONFIG_MAP_GLOBAL_TO_LOCAL_TCM_ALIAS
-    if((addr >= DTCM_GLOBAL_BASE) && (addr < (DTCM_GLOBAL_BASE + DTCM_REGION_SIZE)))
-        return (void*)(addr - DTCM_GLOBAL_BASE + (DTCM_BASE | DTCM_ALIAS_BIT));
-    else if((addr >= ITCM_GLOBAL_BASE) && (addr < (ITCM_GLOBAL_BASE + ITCM_REGION_SIZE)))
-        return (void*)(addr - ITCM_GLOBAL_BASE + (ITCM_BASE | ITCM_ALIAS_BIT));
-    else
-        return ((void*)addr);
+    if ((addr >= DTCM_GLOBAL_BASE) && (addr < (DTCM_GLOBAL_BASE + DTCM_REGION_SIZE))) {
+        return (void *) (addr - DTCM_GLOBAL_BASE + (DTCM_BASE | DTCM_ALIAS_BIT));
+    } else if ((addr >= ITCM_GLOBAL_BASE) && (addr < (ITCM_GLOBAL_BASE + ITCM_REGION_SIZE))) {
+        return (void *) (addr - ITCM_GLOBAL_BASE + (ITCM_BASE | ITCM_ALIAS_BIT));
+    } else {
+        return ((void *) addr);
+    }
 #else
-    if((addr >= DTCM_GLOBAL_BASE) && (addr < (DTCM_GLOBAL_BASE + DTCM_SIZE)))
-        return (void*)(addr - DTCM_GLOBAL_BASE + DTCM_BASE);
-    else if((addr >= ITCM_GLOBAL_BASE) && (addr < (ITCM_GLOBAL_BASE + ITCM_SIZE)))
-        return (void*)(addr - ITCM_GLOBAL_BASE + ITCM_BASE);
-    else
-        return ((void*)addr);
+    if ((addr >= DTCM_GLOBAL_BASE) && (addr < (DTCM_GLOBAL_BASE + DTCM_SIZE))) {
+        return (void *) (addr - DTCM_GLOBAL_BASE + DTCM_BASE);
+    } else if ((addr >= ITCM_GLOBAL_BASE) && (addr < (ITCM_GLOBAL_BASE + ITCM_SIZE))) {
+        return (void *) (addr - ITCM_GLOBAL_BASE + ITCM_BASE);
+    } else {
+        return ((void *) addr);
+    }
 #endif /* CONFIG_MAP_GLOBAL_TO_LOCAL_TCM_ALIAS */
 }
 

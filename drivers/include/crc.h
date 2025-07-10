@@ -11,9 +11,8 @@
 #ifndef CRC_H_
 #define CRC_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -22,35 +21,35 @@ extern "C"
 #include "soc.h"
 
 /* 8bit and 32bit Data input Reg offset */
-#define CRC_DATA_IN_8BIT_REG_OFFSET   0x20
-#define CRC_DATA_IN_32BIT_REG_OFFSET  0x60
+#define CRC_DATA_IN_8BIT_REG_OFFSET  0x20
+#define CRC_DATA_IN_32BIT_REG_OFFSET 0x60
 
-#define CRC_REFLECT             (1 << 11)            /* To Reflect the CRC value            */
-#define CRC_INVERT              (1 << 10)            /* To Invert the CRC value             */
-#define CRC_CUSTOM_POLY         (1 << 9)             /* To enable the poly custom           */
-#define CRC_BIT_SWAP            (1 << 8)             /* To enable the Bit swap              */
-#define CRC_BYTE_SWAP           (1 << 7)             /* To enable the Byte swap             */
-#define CRC_8_CCITT             (0 << 3)             /* To select the CRC_8_CCITT           */
-#define CRC_16                  (2 << 3)             /* To select the CRC_16                */
-#define CRC_16_CCITT            (3 << 3)             /* To select the CRC_16_CCITT          */
-#define CRC_32                  (4 << 3)             /* To select the CRC_32                */
-#define CRC_32C                 (5 << 3)             /* To select the CRC_32C               */
-#define CRC_ALGO_8_BIT_SIZE     (0 << 1)             /* To select the 8 bit algorithm size  */
-#define CRC_ALGO_16_BIT_SIZE    (1 << 1)             /* To select the 16 bit algorithm size */
-#define CRC_ALGO_32_BIT_SIZE    (2 << 1)             /* To select the 32 bit algorithm size */
-#define CRC_INIT_BIT            (1 << 0)             /* To select the init value            */
-#define CRC_ALGORITHM_CHECK     (3 << 1)             /* To check for the CRC algorithm      */
-#define CRC_STANDARD_POLY       0x04C11DB7           /* Standard polynomial for 32 bit CRC  */
+#define CRC_REFLECT                  (1 << 11)  /* To Reflect the CRC value            */
+#define CRC_INVERT                   (1 << 10)  /* To Invert the CRC value             */
+#define CRC_CUSTOM_POLY              (1 << 9)   /* To enable the poly custom           */
+#define CRC_BIT_SWAP                 (1 << 8)   /* To enable the Bit swap              */
+#define CRC_BYTE_SWAP                (1 << 7)   /* To enable the Byte swap             */
+#define CRC_8_CCITT                  (0 << 3)   /* To select the CRC_8_CCITT           */
+#define CRC_16                       (2 << 3)   /* To select the CRC_16                */
+#define CRC_16_CCITT                 (3 << 3)   /* To select the CRC_16_CCITT          */
+#define CRC_32                       (4 << 3)   /* To select the CRC_32                */
+#define CRC_32C                      (5 << 3)   /* To select the CRC_32C               */
+#define CRC_ALGO_8_BIT_SIZE          (0 << 1)   /* To select the 8 bit algorithm size  */
+#define CRC_ALGO_16_BIT_SIZE         (1 << 1)   /* To select the 16 bit algorithm size */
+#define CRC_ALGO_32_BIT_SIZE         (2 << 1)   /* To select the 32 bit algorithm size */
+#define CRC_INIT_BIT                 (1 << 0)   /* To select the init value            */
+#define CRC_ALGORITHM_CHECK          (3 << 1)   /* To check for the CRC algorithm      */
+#define CRC_STANDARD_POLY            0x04C11DB7 /* Standard polynomial for 32 bit CRC  */
 
-#define CRC_ALGO_SEL            (0xF << 3)           /* To clear algorithm select   */
-#define CRC_ALGO_SIZE           (0X3 << 1)           /* To clear the algorithm size */
+#define CRC_ALGO_SEL                 (0xF << 3) /* To clear algorithm select   */
+#define CRC_ALGO_SIZE                (0X3 << 1) /* To clear the algorithm size */
 
 typedef struct _crc_transfer_t {
-    const void *data_in;     /**< Pointer to Input buffer                    */
-    uint32_t   len;          /**< Total length of Input buffer               */
-    uint32_t   *data_out;    /**< Pointer to Output buffer                   */
-    uint32_t   aligned_len;   /**< Aligned length                            */
-    uint32_t   unaligned_len; /**< Unaligned length                          */
+    const void *data_in;       /**< Pointer to Input buffer                    */
+    uint32_t    len;           /**< Total length of Input buffer               */
+    uint32_t   *data_out;      /**< Pointer to Output buffer                   */
+    uint32_t    aligned_len;   /**< Aligned length                            */
+    uint32_t    unaligned_len; /**< Unaligned length                          */
 } crc_transfer_t;
 
 /**
@@ -191,7 +190,7 @@ static inline uint32_t crc_get_algorithm_size(CRC_Type *crc)
  */
 static inline uint32_t crc_get_custom_poly(CRC_Type *crc)
 {
-   return crc->CRC_POLY_CUSTOM;
+    return crc->CRC_POLY_CUSTOM;
 }
 
 /**
@@ -202,7 +201,7 @@ static inline uint32_t crc_get_custom_poly(CRC_Type *crc)
  */
 static inline uint32_t crc_get_control_val(CRC_Type *crc)
 {
-   return crc->CRC_CONTROL;
+    return crc->CRC_CONTROL;
 }
 
 /**
@@ -354,9 +353,9 @@ static inline void crc_disable_reflect(CRC_Type *crc)
   \param[in]   crc   Pointer to CRC register map
   \return      \ref  Return the address
 */
-static inline void* crc_get_8bit_datain_addr(CRC_Type *crc)
+static inline void *crc_get_8bit_datain_addr(CRC_Type *crc)
 {
-    return ((uint8_t *)crc + CRC_DATA_IN_8BIT_REG_OFFSET);
+    return ((uint8_t *) crc + CRC_DATA_IN_8BIT_REG_OFFSET);
 }
 
 /**
@@ -365,9 +364,9 @@ static inline void* crc_get_8bit_datain_addr(CRC_Type *crc)
   \param[in]   crc   Pointer to CRC register map
   \return      \ref  Return the address
 */
-static inline void* crc_get_32bit_datain_addr(CRC_Type *crc)
+static inline void *crc_get_32bit_datain_addr(CRC_Type *crc)
 {
-    return ((uint8_t *)crc + CRC_DATA_IN_32BIT_REG_OFFSET);
+    return ((uint8_t *) crc + CRC_DATA_IN_32BIT_REG_OFFSET);
 }
 
 /**
@@ -400,8 +399,8 @@ uint32_t crc_bit_reflect(uint32_t input);
                     depending upon the CRC algorithm
 @return     Calculated CRC output for unaligned data
 */
-uint32_t crc_calculate_unaligned(uint32_t key, const uint8_t *input,
-                                 uint32_t length, uint32_t poly);
+uint32_t crc_calculate_unaligned(uint32_t key, const uint8_t *input, uint32_t length,
+                                 uint32_t poly);
 
 /**
  @fn           crc_calculate_8bit(CRC_Type *crc, const void *data_in,
@@ -413,8 +412,7 @@ uint32_t crc_calculate_unaligned(uint32_t key, const uint8_t *input,
  @param[in]    data_out : 8 bit CRC output
  @return       None
  */
-void crc_calculate_8bit(CRC_Type *crc, const void *data_in,
-                        uint32_t len, uint32_t *data_out);
+void crc_calculate_8bit(CRC_Type *crc, const void *data_in, uint32_t len, uint32_t *data_out);
 
 /**
  @fn           crc_calculate_16bit(CRC_Type *crc, const void *data_in,
@@ -426,8 +424,7 @@ void crc_calculate_8bit(CRC_Type *crc, const void *data_in,
  @param[in]    data_out : 16 bit CRC output
  @return       None
  */
-void crc_calculate_16bit(CRC_Type *crc, const void *data_in,
-                         uint32_t len, uint32_t *data_out);
+void crc_calculate_16bit(CRC_Type *crc, const void *data_in, uint32_t len, uint32_t *data_out);
 
 /**
  @fn           crc_calculate_32bit(CRC_Type *crc, const void *data_in,
@@ -439,8 +436,7 @@ void crc_calculate_16bit(CRC_Type *crc, const void *data_in,
  @param[in]    data_out : 32 bit CRC output
  @return       None
  */
-void crc_calculate_32bit(CRC_Type *crc, const void *data_in,
-                         uint32_t len, uint32_t *data_out);
+void crc_calculate_32bit(CRC_Type *crc, const void *data_in, uint32_t len, uint32_t *data_out);
 
 /**
  @fn           crc_calculate_32bit_unaligned_sw(CRC_Type *crc,

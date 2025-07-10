@@ -25,8 +25,7 @@
   \brief       Return True if Global Cache Clean operation is required
   return       True : If CacheOperation Required, else False
 */
-__attribute__ ((weak))
-bool RTSS_IsGlobalCacheClean_Required (void)
+__attribute__((weak)) bool RTSS_IsGlobalCacheClean_Required(void)
 {
     /*
      * This is a hook, where user can decide on Global Cache clean operation.
@@ -48,10 +47,9 @@ bool RTSS_IsGlobalCacheClean_Required (void)
   \param[in]   size   size of memory block (in number of bytes)
   return       True : If CacheOperation Required, else False
 */
-__attribute__ ((weak))
-bool RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size)
+__attribute__((weak)) bool RTSS_IsCacheClean_Required_by_Addr(volatile void *addr, int32_t size)
 {
-    (void)size;
+    (void) size;
     /*
      * This is a hook, where user can redefine its implementation in application.
      *
@@ -68,8 +66,7 @@ bool RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size)
     /*
      * If the provided address is in TCM, then no cache operation is required
      */
-    if(RTSS_Is_TCM_Addr(addr))
-    {
+    if (RTSS_Is_TCM_Addr(addr)) {
         return false;
     }
 
@@ -84,10 +81,10 @@ bool RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size)
   \param[in]   size   size of memory block (in number of bytes)
   return       True : If CacheOperation Required, else False
 */
-__attribute__ ((weak))
-bool RTSS_IsCacheInvalidate_Required_by_Addr (volatile void *addr, int32_t size)
+__attribute__((weak)) bool RTSS_IsCacheInvalidate_Required_by_Addr(volatile void *addr,
+                                                                   int32_t        size)
 {
-    (void)size;
+    (void) size;
     /*
      * This is a hook, where user can redefine its implementation in application.
      *
@@ -101,11 +98,10 @@ bool RTSS_IsCacheInvalidate_Required_by_Addr (volatile void *addr, int32_t size)
      *
      */
 
-     /*
+    /*
      * If the provided address is in TCM, then no cache operation is required
      */
-    if(RTSS_Is_TCM_Addr(addr))
-    {
+    if (RTSS_Is_TCM_Addr(addr)) {
         return false;
     }
 

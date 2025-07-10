@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     ILI6122_LCD_panel.c
  * @author   Chandra Bhushan Singh
  * @email    chandrabhushan.singh@alifsemi.com
@@ -29,8 +29,7 @@
 #if defined(RTE_Drivers_CDC_ILI6122_PANEL)
 
 /* CDC polarities information assignment */
-static CDC_INFO ili6122_cdc_info =
-{
+static CDC_INFO ili6122_cdc_info = {
     .hsync_polarity = RTE_ILI6122_PANEL_CDC_HSYNC_ACTIVE_LOW,
     .vsync_polarity = RTE_ILI6122_PANEL_CDC_VSYNC_ACTIVE_LOW,
     .pclk_polarity  = RTE_ILI6122_PANEL_CDC_PIXCLK_FEED_THROUGH,
@@ -38,8 +37,7 @@ static CDC_INFO ili6122_cdc_info =
 };
 
 /* Parallel display panel device informations assignment */
-static DISPLAY_PANEL_DEVICE ILI6122_display_panel =
-{
+static DISPLAY_PANEL_DEVICE ILI6122_display_panel = {
     .hsync_time   = RTE_PANEL_HSYNC_TIME,
     .hbp_time     = RTE_PANEL_HBP_TIME,
     .hfp_time     = RTE_PANEL_HFP_TIME,

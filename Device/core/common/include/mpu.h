@@ -20,7 +20,7 @@
 #define MPU_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif /* __cplusplus */
 
 /* Public function prototypes ------------------------------------------------*/
@@ -31,7 +31,7 @@
  *         all the existing regions.
  * @param  None
  * @retval None
-*/
+ */
 void MPU_Clear_All_Regions(void);
 
 /**
@@ -60,9 +60,8 @@ void MPU_Load_Regions(void);
  */
 void MPU_Setup(void);
 
-
 #ifdef __cplusplus
- }
+}
 #endif /* __cplusplus */
 
 #endif

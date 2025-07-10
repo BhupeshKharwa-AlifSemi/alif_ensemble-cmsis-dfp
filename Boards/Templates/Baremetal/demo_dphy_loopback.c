@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_dphy_loopback.c
  * @author   : Chandra Bhushan Singh
  * @email    : chandrabhushan.singh@alifsemi.com
@@ -31,45 +31,37 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 #include "Driver_Common.h"
 
-
 /* PLL Frequency */
-#define DPHY_PLL_Frequency                  80000000
+#define DPHY_PLL_Frequency         80000000
 
 /* Time in microseconds for which loopback test continue running */
-#define DPHY_Loopback_Test_Runtime          9000000
-
+#define DPHY_Loopback_Test_Runtime 9000000
 
 /* Main entry point */
 int main()
 {
     int ret = 0;
 
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
 
     ret = DPHY_External_Loopback_Test(DPHY_PLL_Frequency, DPHY_Loopback_Test_Runtime);
-    if(ret == TPASS)
-    {
+    if (ret == TPASS) {
         printf("loopback test passed.\r\n");
-    }
-    else
-    {
+    } else {
         printf("loopback test failed.\r\n");
     }
 
     return 0;
-
 
     return 0;
 }

@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_i2s.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -38,18 +38,18 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 #if BOARD_WM8904_CODEC_PRESENT
 #include "WM8904_driver.h"
 #endif
 
 /* Enable this macro to play the predefined sample */
-//#define DAC_PREDEFINED_SAMPLES
+// #define DAC_PREDEFINED_SAMPLES
 
 // Set to 0: Use application-defined I2S pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 #ifdef DAC_PREDEFINED_SAMPLES
 /*Audio samples */
@@ -60,42 +60,42 @@
 #error "WM8904 codec driver not configured in RTE_Components.h"
 #endif
 
-#define NUM_SAMPLES                 40000
+#define NUM_SAMPLES 40000
 
-void DAC_Init (void);
+void DAC_Init(void);
 #if !defined(DAC_PREDEFINED_SAMPLES)
-int32_t ADC_Init (void);
-int32_t Receiver (void);
+int32_t ADC_Init(void);
+int32_t Receiver(void);
 
 /* Buffer for ADC samples */
 static uint32_t sample_buf[NUM_SAMPLES];
 #endif
 
 /* 1 to send the data stream continuously , 0 to send data only once */
-#define REPEAT_TX 1
+#define REPEAT_TX                  1
 
-#define ERROR  -1
-#define SUCCESS 0
+#define ERROR                      -1
+#define SUCCESS                    0
 
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)
 #define ADC_RECEIVE_OVERFLOW_EVENT (1U << 2)
 
-static volatile  uint32_t event_flag = 0;
+static volatile uint32_t event_flag;
 
-static uint32_t wlen = 24;
-static uint32_t sampling_rate = 48000;        /* 48Khz audio sampling rate */
+static uint32_t wlen                = 24;
+static uint32_t sampling_rate       = 48000; /* 48Khz audio sampling rate */
 
-extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
+extern ARM_DRIVER_SAI  ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 static ARM_DRIVER_SAI *i2s_dac = &ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
-extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
+extern ARM_DRIVER_SAI  ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
 static ARM_DRIVER_SAI *i2s_adc = &ARM_Driver_SAI_(BOARD_MIC_INPUT_I2S_INSTANCE);
 #endif
 
 #if BOARD_WM8904_CODEC_PRESENT
-extern ARM_DRIVER_WM8904 WM8904;
+extern ARM_DRIVER_WM8904  WM8904;
 static ARM_DRIVER_WM8904 *wm8904 = &WM8904;
 #endif
 
@@ -106,8 +106,7 @@ static ARM_DRIVER_WM8904 *wm8904 = &WM8904;
 */
 static void dac_callback(uint32_t event)
 {
-    if(event & ARM_SAI_EVENT_SEND_COMPLETE)
-    {
+    if (event & ARM_SAI_EVENT_SEND_COMPLETE) {
         /* Send Success: Wake-up routine. */
         event_flag |= DAC_SEND_COMPLETE_EVENT;
     }
@@ -125,19 +124,31 @@ static int32_t board_i2s_dac_pins_config(void)
     int32_t status;
 
     /* Configure DAC I2S SDO */
-    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SDO_GPIO_PORT), BOARD_DAC_OUTPUT_SDO_GPIO_PIN, BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION, 0);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SDO_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_SDO_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION,
+                         0);
+    if (status) {
         return ERROR;
+    }
 
     /* Configure DAC I2S WS */
-    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_WS_GPIO_PORT), BOARD_DAC_OUTPUT_WS_GPIO_PIN, BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION, 0);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_WS_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_WS_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION,
+                         0);
+    if (status) {
         return ERROR;
+    }
 
     /* Configure DAC I2S SCLK */
-    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SCLK_GPIO_PORT), BOARD_DAC_OUTPUT_SCLK_GPIO_PIN, BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION, 0);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SCLK_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_SCLK_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION,
+                         0);
+    if (status) {
         return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -154,14 +165,22 @@ static int32_t board_wm8904_i2c_pins_config(void)
     int32_t status;
 
     /* I2C_SDA */
-    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SDA_GPIO_PORT), BOARD_WM8904_CODEC_I2C_SDA_GPIO_PIN, BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION, (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if(status)
+    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SDA_GPIO_PORT),
+                         BOARD_WM8904_CODEC_I2C_SDA_GPIO_PIN,
+                         BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION,
+                         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (status) {
         return ERROR;
+    }
 
     /* I2C_SCL */
-    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SCL_GPIO_PORT), BOARD_WM8904_CODEC_I2C_SCL_GPIO_PIN, BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION, (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
-    if(status)
+    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SCL_GPIO_PORT),
+                         BOARD_WM8904_CODEC_I2C_SCL_GPIO_PIN,
+                         BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION,
+                         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (status) {
         return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -178,30 +197,30 @@ void DAC_Init(void)
     ARM_SAI_CAPABILITIES cap;
     int32_t              status;
     uint32_t             buf_len = 0;
-    uint32_t *buf;
+    uint32_t            *buf;
 
 #if SOC_FEAT_CLK76P8M_CLK_ENABLE
-    uint32_t error_code        = SERVICES_REQ_SUCCESS;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
     uint32_t service_error_code;
 
     /* Initialize the SE services */
     se_services_port_init();
 
-/* enable the HFOSCx2 clock */
+    /* enable the HFOSCx2 clock */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_HFOSCx2,
-                           /*bool enable   */ true,
+                                              /*clock_enable_t*/ CLKEN_HFOSCx2,
+                                              /*bool enable   */ true,
                                               &service_error_code);
-    if (error_code)
-        printf("SE: clk enable = %"PRId32"\n", error_code);
+    if (error_code) {
+        printf("SE: clk enable = %" PRId32 "\n", error_code);
+    }
 #endif
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     status = board_pins_config();
-    if (status != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", status);
+    if (status != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", status);
         return;
     }
 
@@ -211,17 +230,15 @@ void DAC_Init(void)
      * in the board support library.Therefore, it is being configured manually here.
      */
     status = board_i2s_dac_pins_config();
-    if(status != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", status);
+    if (status != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", status);
         return;
     }
 
 #if BOARD_WM8904_CODEC_PRESENT
     /* Configure the i2c pins to program WM8904 codec */
     status = board_wm8904_i2c_pins_config();
-    if(status != 0)
-    {
+    if (status != 0) {
         printf("I2C pinmux failed\n");
         return;
     }
@@ -231,138 +248,121 @@ void DAC_Init(void)
 #if BOARD_WM8904_CODEC_PRESENT
     /* WM8904 codec init */
     status = wm8904->Initialize();
-    if(status)
-    {
-        printf("WM8904 codec Init failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("WM8904 codec Init failed status = %" PRId32 "\n", status);
         goto error_codec_initialize;
     }
 
     status = wm8904->PowerControl(ARM_POWER_FULL);
-    if(status)
-    {
-        printf("WM8904 codec Power up failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("WM8904 codec Power up failed status = %" PRId32 "\n", status);
         goto error_codec_power;
     }
 #endif
 
     /* Verify the I2S API version for compatibility */
     version = i2s_dac->GetVersion();
-    printf("I2S API version = %"PRIu16"\n", version.api);
+    printf("I2S API version = %" PRIu16 "\n", version.api);
 
     /* Verify if I2S protocol is supported */
     cap = i2s_dac->GetCapabilities();
-    if(!cap.protocol_i2s)
-    {
+    if (!cap.protocol_i2s) {
         printf("I2S is not supported\n");
         return;
     }
 
     /* Initializes I2S interface */
     status = i2s_dac->Initialize(dac_callback);
-    if(status)
-    {
-        printf("DAC Init failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("DAC Init failed status = %" PRId32 "\n", status);
         goto error_dac_initialize;
     }
 
     /* Enable the power for I2S */
     status = i2s_dac->PowerControl(ARM_POWER_FULL);
-    if(status)
-    {
-        printf("DAC Power Failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("DAC Power Failed status = %" PRId32 "\n", status);
         goto error_dac_power;
     }
 
     /* configure I2S Transmitter to Asynchronous Master */
-    status = i2s_dac->Control(ARM_SAI_CONFIGURE_TX |
-                              ARM_SAI_MODE_MASTER  |
-                              ARM_SAI_ASYNCHRONOUS |
-                              ARM_SAI_PROTOCOL_I2S |
-                              ARM_SAI_DATA_SIZE(wlen), wlen*2, sampling_rate);
-    if(status)
-    {
-        printf("DAC Control status = %"PRId32"\n", status);
+    status = i2s_dac->Control(ARM_SAI_CONFIGURE_TX | ARM_SAI_MODE_MASTER | ARM_SAI_ASYNCHRONOUS |
+                                  ARM_SAI_PROTOCOL_I2S | ARM_SAI_DATA_SIZE(wlen),
+                              wlen * 2,
+                              sampling_rate);
+    if (status) {
+        printf("DAC Control status = %" PRId32 "\n", status);
         goto error_dac_control;
     }
 
     /* enable Transmitter */
     status = i2s_dac->Control(ARM_SAI_CONTROL_TX, 1, 0);
-    if(status)
-    {
-        printf("DAC TX status = %"PRId32"\n", status);
+    if (status) {
+        printf("DAC TX status = %" PRId32 "\n", status);
         goto error_dac_control;
     }
 
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     status = ADC_Init();
-    if(status)
-    {
-        printf("ADC Init failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("ADC Init failed status = %" PRId32 "\n", status);
         goto error_adc_control;
     }
 
     /* enable Receiver */
     status = i2s_adc->Control(ARM_SAI_CONTROL_RX, 1, 0);
-    if(status)
-    {
-        printf("ADC RX status = %"PRId32"\n", status);
+    if (status) {
+        printf("ADC RX status = %" PRId32 "\n", status);
         goto error_adc_control;
     }
 #endif
 
-    do
-    {
+    do {
 #ifdef DAC_PREDEFINED_SAMPLES
         /* Using predefined samples */
-        buf_len = sizeof(hello_samples_24bit_48khz)/sizeof(hello_samples_24bit_48khz[0]);
-        buf = (uint32_t *) hello_samples_24bit_48khz;
+        buf_len = sizeof(hello_samples_24bit_48khz) / sizeof(hello_samples_24bit_48khz[0]);
+        buf     = (uint32_t *) hello_samples_24bit_48khz;
 #else
         buf_len = NUM_SAMPLES;
-        buf = (uint32_t *)sample_buf;
+        buf     = (uint32_t *) sample_buf;
 
         /* Function to receive digital signal from mic */
-        status = Receiver();
-        if(status)
-        {
-            printf("ADC Receive failed status = %"PRId32"\n", status);
+        status  = Receiver();
+        if (status) {
+            printf("ADC Receive failed status = %" PRId32 "\n", status);
             goto error_adc_receive;
         }
 #endif
 
         /* Transmit the samples */
         status = i2s_dac->Send(buf, buf_len);
-        if(status)
-        {
-            printf("DAC Send status = %"PRId32"\n", status);
+        if (status) {
+            printf("DAC Send status = %" PRId32 "\n", status);
             goto error_adc_dac;
         }
 
         /* Wait for the completion event */
-        while (1)
-        {
-            if (event_flag & DAC_SEND_COMPLETE_EVENT)
-            {
+        while (1) {
+            if (event_flag & DAC_SEND_COMPLETE_EVENT) {
                 event_flag &= ~DAC_SEND_COMPLETE_EVENT;
                 break;
             }
         }
-    }while(REPEAT_TX);
+    } while (REPEAT_TX);
 
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     /* Stop the RX */
     status = i2s_adc->Control(ARM_SAI_CONTROL_RX, 0, 0);
-    if(status)
-    {
-      printf("ADC RX status = %"PRId32"\n", status);
-      goto error_adc_control;
+    if (status) {
+        printf("ADC RX status = %" PRId32 "\n", status);
+        goto error_adc_control;
     }
 #endif
 
     /* Stop the TX */
     status = i2s_dac->Control(ARM_SAI_CONTROL_TX, 0, 0);
-    if(status)
-    {
-        printf("DAC TX status = %"PRId32"\n", status);
+    if (status) {
+        printf("DAC TX status = %" PRId32 "\n", status);
         goto error_adc_dac;
     }
 
@@ -390,12 +390,12 @@ error_codec_initialize:
                                               CLKEN_HFOSCx2,
                                               false,
                                               &service_error_code);
-    if (error_code)
-        printf("SE Error: HFOSCx2 clk disable = %"PRIu32"\n", error_code);
-#endif
-    while(1) {
+    if (error_code) {
+        printf("SE Error: HFOSCx2 clk disable = %" PRIu32 "\n", error_code);
     }
-
+#endif
+    while (1) {
+    }
 }
 
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
@@ -406,14 +406,12 @@ error_codec_initialize:
 */
 static void adc_callback(uint32_t event)
 {
-    if(event & ARM_SAI_EVENT_RECEIVE_COMPLETE)
-    {
+    if (event & ARM_SAI_EVENT_RECEIVE_COMPLETE) {
         /* Receive Success: Wake-up routine. */
         event_flag |= ADC_RECEIVE_COMPLETE_EVENT;
     }
 
-    if(event & ARM_SAI_EVENT_RX_OVERFLOW)
-    {
+    if (event & ARM_SAI_EVENT_RX_OVERFLOW) {
         /* Receive Error: fifo overflow occurred. */
         event_flag |= ADC_RECEIVE_OVERFLOW_EVENT;
     }
@@ -428,22 +426,34 @@ static void adc_callback(uint32_t event)
  */
 static int32_t board_i2s_adc_pins_config(void)
 {
-    int32_t  status;
+    int32_t status;
 
     /* Configure ADC I2S WS */
-    status = pinconf_set(PORT_(BOARD_MIC_INPUT_WS_GPIO_PORT), BOARD_MIC_INPUT_WS_GPIO_PIN, BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION, 0);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_WS_GPIO_PORT),
+                         BOARD_MIC_INPUT_WS_GPIO_PIN,
+                         BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION,
+                         0);
+    if (status) {
         return ERROR;
+    }
 
     /* Configure ADC I2S SCLK */
-    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SCLK_GPIO_PORT), BOARD_MIC_INPUT_SCLK_GPIO_PIN, BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION, 0);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SCLK_GPIO_PORT),
+                         BOARD_MIC_INPUT_SCLK_GPIO_PIN,
+                         BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION,
+                         0);
+    if (status) {
         return ERROR;
+    }
 
     /* Configure ADC I2S SDI */
-    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SDI_GPIO_PORT), BOARD_MIC_INPUT_SDI_GPIO_PIN, BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SDI_GPIO_PORT),
+                         BOARD_MIC_INPUT_SDI_GPIO_PIN,
+                         BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -467,51 +477,45 @@ int32_t ADC_Init(void)
      * in the board support library.Therefore, it is being configured manually here.
      */
     status = board_i2s_adc_pins_config();
-    if(status != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", status);
+    if (status != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", status);
         return -1;
     }
 #endif
 
     /* Verify the I2S API version for compatibility*/
     version = i2s_adc->GetVersion();
-    printf("I2S API version = %"PRIu16"\n", version.api);
+    printf("I2S API version = %" PRIu16 "\n", version.api);
 
     /* Verify if I2S protocol is supported */
     cap = i2s_adc->GetCapabilities();
-    if(!cap.protocol_i2s)
-    {
+    if (!cap.protocol_i2s) {
         printf("I2S is not supported\n");
         return -1;
     }
 
     /* Initializes I2S interface */
     status = i2s_adc->Initialize(adc_callback);
-    if(status)
-    {
-        printf("ADC Init failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("ADC Init failed status = %" PRId32 "\n", status);
         return -1;
     }
 
     /* Enable the power for I2S */
     status = i2s_adc->PowerControl(ARM_POWER_FULL);
-    if(status)
-    {
-        printf("ADC Power failed status = %"PRId32"\n", status);
+    if (status) {
+        printf("ADC Power failed status = %" PRId32 "\n", status);
         return -1;
     }
 
     /* configure I2S Receiver to Asynchronous Master */
-    status = i2s_adc->Control(ARM_SAI_CONFIGURE_RX |
-                              ARM_SAI_MODE_MASTER  |
-                              ARM_SAI_ASYNCHRONOUS |
-                              ARM_SAI_PROTOCOL_I2S |
-                              ARM_SAI_DATA_SIZE(wlen), wlen*2, sampling_rate);
-    if(status)
-    {
-      printf("ADC Control status = %"PRId32"\n", status);
-      return -1;
+    status = i2s_adc->Control(ARM_SAI_CONFIGURE_RX | ARM_SAI_MODE_MASTER | ARM_SAI_ASYNCHRONOUS |
+                                  ARM_SAI_PROTOCOL_I2S | ARM_SAI_DATA_SIZE(wlen),
+                              wlen * 2,
+                              sampling_rate);
+    if (status) {
+        printf("ADC Control status = %" PRId32 "\n", status);
+        return -1;
     }
 
     return 0;
@@ -525,28 +529,24 @@ int32_t ADC_Init(void)
 */
 int32_t Receiver(void)
 {
-    int32_t  status;
+    int32_t status;
 
     /* Receive data */
-    status = i2s_adc->Receive((uint32_t *)sample_buf, NUM_SAMPLES);
-    if(status)
-    {
-        printf("ADC Receive status = %"PRId32"\n", status);
+    status = i2s_adc->Receive((uint32_t *) sample_buf, NUM_SAMPLES);
+    if (status) {
+        printf("ADC Receive status = %" PRId32 "\n", status);
         return -1;
     }
 
     /* Wait for the completion event */
-    while (1)
-    {
-        if (event_flag & ADC_RECEIVE_COMPLETE_EVENT)
-        {
-               event_flag &= ~ADC_RECEIVE_COMPLETE_EVENT;
-               break;
+    while (1) {
+        if (event_flag & ADC_RECEIVE_COMPLETE_EVENT) {
+            event_flag &= ~ADC_RECEIVE_COMPLETE_EVENT;
+            break;
         }
 
-        if (event_flag & ADC_RECEIVE_OVERFLOW_EVENT)
-        {
-               event_flag &= ~ADC_RECEIVE_OVERFLOW_EVENT;
+        if (event_flag & ADC_RECEIVE_OVERFLOW_EVENT) {
+            event_flag &= ~ADC_RECEIVE_OVERFLOW_EVENT;
         }
     }
 
@@ -561,17 +561,15 @@ int32_t Receiver(void)
 */
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
 
     DAC_Init();
     return 0;

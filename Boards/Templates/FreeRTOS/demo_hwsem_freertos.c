@@ -40,81 +40,86 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "sys_utils.h"
 
 #if defined(RTSS_HP)
-const char * msg = "\nPrinting from RTSS_HP";
-const char * acq_msg = "\nRTSS_HP acquiring the semaphore, printing 10 messages\r\n";
-const char * rel_msg = "\nRTSS_HP releasing the semaphore\r\n\n";
+const char *msg     = "\nPrinting from RTSS_HP";
+const char *acq_msg = "\nRTSS_HP acquiring the semaphore, printing 10 messages\r\n";
+const char *rel_msg = "\nRTSS_HP releasing the semaphore\r\n\n";
 #else
-const char * msg = "\nPrinting from RTSS_HE";
-const char * acq_msg = "\nRTSS_HE acquiring the semaphore, printing 10 messages\r\n";
-const char * rel_msg = "\nRTSS_HE releasing the semaphore\r\n\n";
+const char *msg     = "\nPrinting from RTSS_HE";
+const char *acq_msg = "\nRTSS_HE acquiring the semaphore, printing 10 messages\r\n";
+const char *rel_msg = "\nRTSS_HE releasing the semaphore\r\n\n";
 #endif
 
 /*Define for FreeRTOS*/
-#define STACK_SIZE     1024
-#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH // 512
-#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE // 1024
+#define STACK_SIZE                    1024
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH  // 512
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE      // 1024
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
-#define HWSEM_CB_EVENT            1U << 3
+#define HWSEM_CB_EVENT 1U << 3
 
-#define SEMID                     0
+#define SEMID          0
 
 /* HWSEM Driver instance */
-#define HWSEM                     0
+#define HWSEM          0
 /* Uart Driver instance */
-#define UART                      4
+#define UART           4
 
 /* UART Driver */
-extern ARM_DRIVER_USART ARM_Driver_USART_(UART);
+extern ARM_DRIVER_USART  ARM_Driver_USART_(UART);
 static ARM_DRIVER_USART *USARTdrv = &ARM_Driver_USART_(UART);
 
 /* HWSEM Driver */
-extern ARM_DRIVER_HWSEM ARM_Driver_HWSEM_(HWSEM);
+extern ARM_DRIVER_HWSEM  ARM_Driver_HWSEM_(HWSEM);
 static ARM_DRIVER_HWSEM *HWSEMdrv = &ARM_Driver_HWSEM_(HWSEM);
 
 static TaskHandle_t Hwsem_xHandle;
 
 /* ****************************** FreeRTOS functions **********************/
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
-    *ppxIdleTaskTCBBuffer = &IdleTcb;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
     *ppxIdleTaskStackBuffer = IdleStack;
-    *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-    *ppxTimerTaskTCBBuffer = &TimerTcb;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
     *ppxTimerTaskStackBuffer = TimerStack;
-    *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-    for (;;);
+    ASSERT_HANG
 }
 /*****************Only for FreeRTOS use *************************/
 
 #if !RTE_UART4_BLOCKING_MODE_ENABLE
 
-#define UART_CB_TX_EVENT          1U << 0
-#define UART_CB_RX_EVENT          1U << 1
-#define UART_CB_RX_TIMEOUT        1U << 2
+#define UART_CB_TX_EVENT   1U << 0
+#define UART_CB_RX_EVENT   1U << 1
+#define UART_CB_RX_TIMEOUT 1U << 2
 
 /**
  * @function    void myUART_callback(uint32_t event)
@@ -125,8 +130,7 @@ void vApplicationIdleHook(void)
  */
 static void myUART_callback(uint32_t event)
 {
-    if (event & ARM_USART_EVENT_SEND_COMPLETE)
-    {
+    if (event & ARM_USART_EVENT_SEND_COMPLETE) {
         xTaskNotifyFromISR(Hwsem_xHandle, UART_CB_TX_EVENT, eSetBits, NULL);
     }
 }
@@ -143,9 +147,8 @@ static void myHWSEM_callback(int32_t event, uint8_t sem_id)
 {
     (void) sem_id;
 
-    if (event & HWSEM_AVAILABLE_CB_EVENT)
-    {
-        xTaskNotifyFromISR(Hwsem_xHandle,HWSEM_CB_EVENT, eSetBits, NULL);
+    if (event & HWSEM_AVAILABLE_CB_EVENT) {
+        xTaskNotifyFromISR(Hwsem_xHandle, HWSEM_CB_EVENT, eSetBits, NULL);
     }
 }
 
@@ -160,63 +163,53 @@ static void myHWSEM_callback(int32_t event, uint8_t sem_id)
  */
 static void Hwsem_Thread(void *pvParameters)
 {
-    int32_t ret, len, init = 1;
-    char uart_msg[30];
+    int32_t            ret, len, init = 1;
+    char               uart_msg[30];
     ARM_DRIVER_VERSION version;
 
     (void) pvParameters;
 
     version = HWSEMdrv->GetVersion();
 
-    printf("\r\n HWSEM version api:%X driver:%X...\r\n",version.api, version.drv);
+    printf("\r\n HWSEM version api:%X driver:%X...\r\n", version.api, version.drv);
 
     /* Initialize HWSEM driver */
     ret = HWSEMdrv->Initialize(myHWSEM_callback);
 
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n HWSEM initialization failed\r\n");
         goto error_exit;
     }
 
-    while (1)
-    {
+    while (1) {
         /* Acquire the lock */
         ret = HWSEMdrv->TryLock();
 
-        if (ret == ARM_DRIVER_ERROR)
-        {
+        if (ret == ARM_DRIVER_ERROR) {
             printf("\r\n HWSEM lock failed\r\n");
             goto error_uninitialize;
         }
 
-        while (ret == ARM_DRIVER_ERROR_BUSY)
-        {
+        while (ret == ARM_DRIVER_ERROR_BUSY) {
             ret = xTaskNotifyWait(NULL, HWSEM_CB_EVENT, NULL, portMAX_DELAY);
 
-            if (ret == pdTRUE)
-            {
+            if (ret == pdTRUE) {
                 ret = HWSEMdrv->TryLock();
-            }
-            else
-            {
+            } else {
                 goto error_uninitialize;
             }
         }
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n HWSEM lock failed\n");
             goto error_uninitialize;
         }
 
         /* Initialize the pinmux in the first iteration */
-        if (init)
-        {
+        if (init) {
             /* pin mux and configuration for all device IOs requested from pins.h*/
             ret = board_pins_config();
-            if (ret != 0)
-            {
+            if (ret != 0) {
                 printf("Error in pin-mux configuration: %d\n", ret);
                 goto error_unlock;
             }
@@ -231,8 +224,7 @@ static void Hwsem_Thread(void *pvParameters)
         ret = USARTdrv->Initialize(NULL);
 #endif
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Initialize.\r\n");
             goto error_unlock;
         }
@@ -240,40 +232,33 @@ static void Hwsem_Thread(void *pvParameters)
         /* Power up UART peripheral */
         ret = USARTdrv->PowerControl(ARM_POWER_FULL);
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Power Up.\r\n");
             goto error_unlock;
         }
 
         /* Configure UART */
-        ret =  USARTdrv->Control(ARM_USART_MODE_ASYNCHRONOUS |
-                                      ARM_USART_DATA_BITS_8 |
-                                      ARM_USART_PARITY_NONE |
-                                      ARM_USART_STOP_BITS_1 |
-                                      ARM_USART_FLOW_CONTROL_NONE,
-                                      115200);
+        ret = USARTdrv->Control(ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 |
+                                    ARM_USART_PARITY_NONE | ARM_USART_STOP_BITS_1 |
+                                    ARM_USART_FLOW_CONTROL_NONE,
+                                115200);
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Control.\r\n");
             goto error_unlock;
         }
 
         /* Enable UART tx */
-        ret =  USARTdrv->Control(ARM_USART_CONTROL_TX, 1);
+        ret = USARTdrv->Control(ARM_USART_CONTROL_TX, 1);
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Control.\r\n");
             goto error_unlock;
         }
 
-
         ret = USARTdrv->Send(acq_msg, strlen(acq_msg));
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\nError in UART Send.\r\n");
             goto error_unlock;
         }
@@ -283,14 +268,12 @@ static void Hwsem_Thread(void *pvParameters)
         xTaskNotifyWait(NULL, UART_CB_TX_EVENT, NULL, portMAX_DELAY);
 #endif
         /* Print 10 messages */
-        for (int iter = 1; iter <= 10; iter++)
-        {
+        for (int iter = 1; iter <= 10; iter++) {
             len = sprintf(uart_msg, "%s %d\r\n", msg, iter);
 
             ret = USARTdrv->Send(uart_msg, len);
 
-            if (ret != ARM_DRIVER_OK)
-            {
+            if (ret != ARM_DRIVER_OK) {
                 printf("\r\nError in UART Send.\r\n");
                 goto error_unlock;
             }
@@ -304,8 +287,7 @@ static void Hwsem_Thread(void *pvParameters)
 
         ret = USARTdrv->Send(rel_msg, strlen(rel_msg));
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\nError in UART Send.\r\n");
             goto error_unlock;
         }
@@ -316,16 +298,14 @@ static void Hwsem_Thread(void *pvParameters)
 #endif
         ret = USARTdrv->PowerControl(ARM_POWER_OFF);
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Power OFF.\r\n");
             goto error_unlock;
         }
 
         ret = USARTdrv->Uninitialize();
 
-        if (ret != ARM_DRIVER_OK)
-        {
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error in UART Uninitialize.\r\n");
             goto error_unlock;
         }
@@ -333,8 +313,7 @@ static void Hwsem_Thread(void *pvParameters)
         /* Unlock the HW Semaphore */
         ret = HWSEMdrv->Unlock();
 
-        if(ret == ARM_DRIVER_ERROR)
-        {
+        if (ret == ARM_DRIVER_ERROR) {
             printf("\r\n HWSEM unlock failed\r\n");
             goto error_uninitialize;
         }
@@ -363,28 +342,27 @@ error_exit:
  *---------------------------------------------------------------------------*/
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if (ret != ARM_DRIVER_OK)
-    {
-        while (1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     /* System Initialization */
     SystemCoreClockUpdate();
 
     /* Create application main thread */
-    BaseType_t xReturned = xTaskCreate(Hwsem_Thread, "HwsemThread",
-                                       STACK_SIZE, NULL,
-                                       configMAX_PRIORITIES-1, &Hwsem_xHandle);
+    BaseType_t xReturned = xTaskCreate(Hwsem_Thread,
+                                       "HwsemThread",
+                                       STACK_SIZE,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &Hwsem_xHandle);
 
-    if (xReturned != pdPASS)
-    {
+    if (xReturned != pdPASS) {
         vTaskDelete(Hwsem_xHandle);
         return -1;
     }

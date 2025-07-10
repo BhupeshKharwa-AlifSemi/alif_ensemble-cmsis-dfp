@@ -13,12 +13,12 @@
 
 #include "soc.h"
 
-#define PERIPH_CLK_ENA_USB_CKEN                (1U << 20) /* Enable clock supply for USB */
+#define PERIPH_CLK_ENA_USB_CKEN (1U << 20) /* Enable clock supply for USB */
 
 #if SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS
 
-#define EXPMST0_CTRL_IPCLK_FORCE            (1U << 31)    /* Force peripherals functional clocks ON  */
-#define EXPMST0_CTRL_PCLK_FORCE             (1U << 30)    /* Force APB interface (PCLK) clocks ON    */
+#define EXPMST0_CTRL_IPCLK_FORCE (1U << 31) /* Force peripherals functional clocks ON  */
+#define EXPMST0_CTRL_PCLK_FORCE  (1U << 30) /* Force APB interface (PCLK) clocks ON    */
 
 static inline void enable_force_peripheral_functional_clk(void)
 {

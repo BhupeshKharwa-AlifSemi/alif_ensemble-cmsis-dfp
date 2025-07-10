@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_lvgl.c
  * @author   : Ahmad Rashed
  * @email    : ahmad.rashed@alifsemi.com
@@ -29,31 +29,38 @@
 #include "Driver_Common.h"
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
 
 extern void lv_port_disp_init(void);
 
 volatile uint32_t ms_ticks = 0;
-void SysTick_Handler (void) { ms_ticks++; lv_tick_inc(1); }
-void delay(uint32_t nticks) { nticks += ms_ticks; while(ms_ticks < nticks); }
-#define TICKS_PER_SECOND    1000
+void              SysTick_Handler(void)
+{
+    ms_ticks++;
+    lv_tick_inc(1);
+}
+void delay(uint32_t nticks)
+{
+    nticks += ms_ticks;
+    while (ms_ticks < nticks) {
+    }
+}
+#define TICKS_PER_SECOND 1000
 
 /* Define main entry point.  */
-int main (void)
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
-    SysTick_Config(SystemCoreClock/TICKS_PER_SECOND);
+#endif
+    SysTick_Config(SystemCoreClock / TICKS_PER_SECOND);
 
     lv_port_disp_init();
 
@@ -65,8 +72,7 @@ int main (void)
     lv_demo_benchmark();
 #endif
 
-    while (1)
-    {
+    while (1) {
         lv_task_handler();
     }
 

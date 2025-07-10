@@ -30,22 +30,19 @@
 int32_t conductor_pins_config(void)
 {
     int32_t ret;
-    size_t i;
-    size_t num_pins = sizeof(board_pinconf) / sizeof(board_pinconf[0]);
+    size_t  i;
+    size_t  num_pins = sizeof(board_pinconf) / sizeof(board_pinconf[0]);
 
-    for (i = 0; i < num_pins; i++)
-    {
+    for (i = 0; i < num_pins; i++) {
         ret = pinconf_set(board_pinconf[i].port,
                           board_pinconf[i].pin,
                           board_pinconf[i].alternate_function,
                           board_pinconf[i].pad_control);
 
-        if (ret != 0)
-        {
+        if (ret != 0) {
             return -1;
         }
     }
 
     return 0;
 }
-

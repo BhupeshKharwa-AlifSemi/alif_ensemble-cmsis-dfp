@@ -15,13 +15,13 @@
  * Ex: DAC6_VREF_SCALE has a value of 0x5, then
  * Scaling factor = Register value/16 => 0x5/16 => 0.3125
  * which means input reference to the DAC6 is scaled by a factor of 5/16 */
-#define DAC6_VREF_SCALE         (0x1U << 27)
+#define DAC6_VREF_SCALE      (0x1U << 27)
 
 /* Output of DAC6 programmable reference voltage.
  * DAC6 Output = (DAC6_VREF_SCALE × DAC6_CONT) / 64 */
-#define DAC6_CONT               (0x20U << 21)
+#define DAC6_CONT            (0x20U << 21)
 
-#define DAC6_EN                 (0x1U << 20) /* Enable the DAC6 */
+#define DAC6_EN              (0x1U << 20) /* Enable the DAC6 */
 
 /* Used select different voltage reference values for a DAC12
  * 000: 0.500 (or 500 mv)
@@ -33,17 +33,17 @@
    110: 0.800 (or 800 mV)
    111: 0.833 (or 833 mV)
  */
-#define DAC12_VREF_CONT         (0x4U << 17)
+#define DAC12_VREF_CONT      (0x4U << 17)
 
 /* 0x0: Vref = 1.8 V
    0x1: Vref = 1.5 V
 */
-#define ADC_VREF_BUF_RDIV_EN    (0x0U << 16)
+#define ADC_VREF_BUF_RDIV_EN (0x0U << 16)
 
 /* 0x0: ADC Vref is off
    0x1: ADC Vref is on
 */
-#define ADC_VREF_BUF_EN         (0x1U << 15)
+#define ADC_VREF_BUF_EN      (0x1U << 15)
 
 /* Control the ADC Vref: 1.8 V ± 100 mV, where:
    00000: -100 mV
@@ -55,7 +55,7 @@
    10000: 1.8 V = Default (0x10)
    Step size = 7 mV
 */
-#define ADC_VREF_CONT           (0x10U << 10)
+#define ADC_VREF_CONT        (0x10U << 10)
 
 /* Analog peripheral LDO (LDO-5) output voltage (VDD_ANA):
    0000: 1.6 V
@@ -65,7 +65,7 @@
    1111: 1.9 V
    Step: 20 mV Default (0xA)
 */
-#define ANA_PERIPH_LDO_CONT     (0xAU << 6)
+#define ANA_PERIPH_LDO_CONT  (0xAU << 6)
 
 /* Calibration for analog peripherals precision bandgap:
    0000: 1.140 V
@@ -74,7 +74,6 @@
    1111: 1.233 V
    Step: 6 mV Default (0xA)
 */
-#define ANA_PERIPH_BG_CONT      (0xAU << 1)
+#define ANA_PERIPH_BG_CONT   (0xAU << 1)
 
 #endif /* ANALOG_CONFIG_H_ */
-

@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_lptimer_freertos.c
  * @author   : Sudarshan Iyengar
  * @email    : sudarshan.iyengar@alifsemi.com
@@ -34,76 +34,82 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
 
 /*Define for the FreeRTOS objects*/
-#define LPTIMER_CALLBACK_EVENT     0x01
-#define LPTIMER_CHANNEL_0          0    /* lptimer have 0-3 channels, using channel zero for demo app */
-#define LPTIMER_EVENT_WAIT_TIME    pdMS_TO_TICKS(6000) /* interrupt wait time:6 seconds */
-
+#define LPTIMER_CALLBACK_EVENT        0x01
+#define LPTIMER_CHANNEL_0             0 /* lptimer have 0-3 channels, using channel zero for demo app */
+#define LPTIMER_EVENT_WAIT_TIME       pdMS_TO_TICKS(6000) /* interrupt wait time:6 seconds */
 
 /*Define for FreeRTOS*/
-#define STACK_SIZE     1024
-#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH // 512
-#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE // 1024
+#define STACK_SIZE                    1024
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH  // 512
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE      // 1024
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 /* Thread id of thread */
 TaskHandle_t lptimer_xHandle;
 
-
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
-   *ppxIdleTaskTCBBuffer = &IdleTcb;
-   *ppxIdleTaskStackBuffer = IdleStack;
-   *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
+    *ppxIdleTaskStackBuffer = IdleStack;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-   (void) pxTask;
+    (void) pxTask;
 
-   for (;;);
+   ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-   *ppxTimerTaskTCBBuffer = &TimerTcb;
-   *ppxTimerTaskStackBuffer = TimerStack;
-   *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
+    *ppxTimerTaskStackBuffer = TimerStack;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-   for (;;);
+    ASSERT_HANG
 }
 
 /*****************Only for FreeRTOS use *************************/
 
-
-void lptimer_cb_fun (uint8_t event)
+void lptimer_cb_fun(uint8_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
     if (event & ARM_LPTIMER_EVENT_UNDERFLOW) {
-        xTaskNotifyFromISR(lptimer_xHandle,LPTIMER_CALLBACK_EVENT,eSetBits, &xHigherPriorityTaskWoken);
+        xTaskNotifyFromISR(lptimer_xHandle,
+                           LPTIMER_CALLBACK_EVENT,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 }
 
-void lptimer_Thread (void *pvParameters)
+void lptimer_Thread(void *pvParameters)
 {
     extern ARM_DRIVER_LPTIMER Driver_LPTIMER0;
-    ARM_DRIVER_LPTIMER *ptrDrv = &Driver_LPTIMER0;
+    ARM_DRIVER_LPTIMER       *ptrDrv = &Driver_LPTIMER0;
 
     /* Configuring the lptimer channel 0 for 5 seconds
      *Clock Source is depends on RTE_LPTIMER_CHANNEL_CLK_SRC in RTE_Device.h
@@ -120,28 +126,28 @@ void lptimer_Thread (void *pvParameters)
      *
      * DEC = 163880
      * HEX = 0x28028
-    */
+     */
 
     /* Timer channel configured 5 sec */
-    uint32_t count = 0x28028;
-    uint8_t channel = LPTIMER_CHANNEL_0;
+    uint32_t   count                 = 0x28028;
+    uint8_t    channel               = LPTIMER_CHANNEL_0;
     BaseType_t xReturned;
-    uint32_t ret;
+    uint32_t   ret;
 
-    ret = ptrDrv->Initialize (channel, lptimer_cb_fun);
+    ret = ptrDrv->Initialize(channel, lptimer_cb_fun);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: channel '%d'failed to initialize\r\n", channel);
         return;
     }
 
-    ret = ptrDrv->PowerControl (channel, ARM_POWER_FULL);
+    ret = ptrDrv->PowerControl(channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: channel '%d'failed to power up\r\n", channel);
         goto error_uninstall;
     }
 
     /**< Loading the counter value >*/
-    ret = ptrDrv->Control (channel, ARM_LPTIMER_SET_COUNT1, &count);
+    ret = ptrDrv->Control(channel, ARM_LPTIMER_SET_COUNT1, &count);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: channel '%d'failed to load count\r\n", channel);
         goto error_poweroff;
@@ -149,7 +155,7 @@ void lptimer_Thread (void *pvParameters)
 
     printf("demo application: lptimer channel '%d'configured for 5 sec \r\n\n", channel);
 
-    ret = ptrDrv->Start (channel);
+    ret = ptrDrv->Start(channel);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: failed to start channel '%d' timer\n", channel);
         goto error_poweroff;
@@ -157,9 +163,8 @@ void lptimer_Thread (void *pvParameters)
         printf("timer started\r\n");
     }
 
-    xReturned = xTaskNotifyWait(NULL,LPTIMER_CALLBACK_EVENT,NULL, LPTIMER_EVENT_WAIT_TIME);
-    if (xReturned != pdTRUE )
-    {
+    xReturned = xTaskNotifyWait(NULL, LPTIMER_CALLBACK_EVENT, NULL, LPTIMER_EVENT_WAIT_TIME);
+    if (xReturned != pdTRUE) {
         printf("\n\r Task Wait Time out expired \n\r");
         goto error_poweroff;
     }
@@ -167,7 +172,7 @@ void lptimer_Thread (void *pvParameters)
     printf("5 sec timer expired \r\n");
 
     ret = ptrDrv->Stop(channel);
-    if(ret != ARM_DRIVER_OK) {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: failed to stop channel %d\n", channel);
     } else {
         printf("timer stopped\r\n\n");
@@ -182,47 +187,46 @@ error_poweroff:
 
 error_uninstall:
 
-	ret = ptrDrv->Uninitialize(channel);
-	if (ret != ARM_DRIVER_OK) {
+    ret = ptrDrv->Uninitialize(channel);
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: failed to un-initialize channel %d\n", channel);
     }
 
     printf("demo application: completed \r\n");
 
     /* thread delete  */
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 }
-
 
 /*----------------------------------------------------------------------------
  *      Main: Initialize and start the FreeRTOS Kernel
  *---------------------------------------------------------------------------*/
-int main( void )
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(lptimer_Thread, "lpTimer_Thread", 512, NULL,configMAX_PRIORITIES-1, &lptimer_xHandle);
-   if (xReturned != pdPASS)
-   {
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(lptimer_Thread,
+                                       "lpTimer_Thread",
+                                       512,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &lptimer_xHandle);
+    if (xReturned != pdPASS) {
 
-       vTaskDelete(lptimer_xHandle);
-       return -1;
+        vTaskDelete(lptimer_xHandle);
+        return -1;
     }
 
     /* Start thread execution */
     vTaskStartScheduler();
-
 }

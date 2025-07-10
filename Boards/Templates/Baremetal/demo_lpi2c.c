@@ -43,49 +43,49 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined LPI2C pin configuration (via board_lpi2c_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* I2C Driver instance */
-extern ARM_DRIVER_I2C Driver_I2C0;
+extern ARM_DRIVER_I2C  Driver_I2C0;
 static ARM_DRIVER_I2C *I2C_mstdrv = &Driver_I2C0;
 
-extern ARM_DRIVER_I2C Driver_LPI2C0;
+extern ARM_DRIVER_I2C  Driver_LPI2C0;
 static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C0;
 
-volatile uint32_t mst_cb_status = 0;
-volatile uint32_t slv_cb_status = 0;
+volatile uint32_t mst_cb_status;
+volatile uint32_t slv_cb_status;
 
-#define TAR_ADDRS         (0X40)   /* Target(Slave) Address, use by Master */
-#define RESTART           (0X01)
-#define STOP              (0X00)
+#define TAR_ADDRS            (0X40) /* Target(Slave) Address, use by Master */
+#define RESTART              (0X01)
+#define STOP                 (0X00)
 
 /* master transmit and slave receive */
-#define MST_BYTE_TO_TRANSMIT            21
+#define MST_BYTE_TO_TRANSMIT 21
 
 /* slave transmit and master receive */
-#define SLV_BYTE_TO_TRANSMIT            22
+#define SLV_BYTE_TO_TRANSMIT 22
 
 /* Master parameter set */
 
 /* Master TX Data (Any random value). */
-static uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT+1] ={"Test_Message_to_Slave"};
+static uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT + 1] = {"Test_Message_to_Slave"};
 
 /* master receive buffer */
-static uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT+1];
+static uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT + 1];
 
 /* Master parameter set END  */
 
 /* Slave parameter set */
 
 /* slave receive buffer */
-static uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT+1];
+static uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT + 1];
 
 /* Slave TX Data (Any random value). */
-static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT+1]={"Test_Message_to_Master"};
+static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT + 1] = {"Test_Message_to_Master"};
 
 /* Slave parameter set END */
 
@@ -99,8 +99,8 @@ static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT+1]={"Test_Message_to_Master"};
 static void i2c_mst_tranfer_callback(uint32_t event)
 {
     if (event & ARM_I2C_EVENT_TRANSFER_DONE) {
-    /* Transfer or receive is finished */
-    mst_cb_status = 1;
+        /* Transfer or receive is finished */
+        mst_cb_status = 1;
     }
 }
 
@@ -114,55 +114,61 @@ static void i2c_mst_tranfer_callback(uint32_t event)
 static void i2c_slv_transfer_callback(uint32_t event)
 {
     if (event & ARM_I2C_EVENT_TRANSFER_DONE) {
-    /* Transfer or receive is finished */
-    slv_cb_status = 1;
+        /* Transfer or receive is finished */
+        slv_cb_status = 1;
     }
 }
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-* @fn      static int32_t board_lpi2c_pins_config(void)
-* @brief   Configure additional lpi2c pinmux settings not handled
-*          by the board support library.
-* @retval  execution status.
-*/
+ * @fn      static int32_t board_lpi2c_pins_config(void)
+ * @brief   Configure additional lpi2c pinmux settings not handled
+ *          by the board support library.
+ * @retval  execution status.
+ */
 static int32_t board_lpi2c_pins_config(void)
 {
     int32_t ret;
     /* LPI2C_SDA */
-    ret= pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT), BOARD_LPI2C_SDA_GPIO_PIN, BOARD_LPI2C_SDA_ALTERNATE_FUNCTION,
-             (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT),
+                      BOARD_LPI2C_SDA_GPIO_PIN,
+                      BOARD_LPI2C_SDA_ALTERNATE_FUNCTION,
+                      (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
+                       PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for LPI2C_SDA_PIN\n");
         return ret;
     }
 
     /* LPI2C_SCL */
-    ret= pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT), BOARD_LPI2C_SCL_GPIO_PIN, BOARD_LPI2C_SCL_ALTERNATE_FUNCTION,
-             (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT),
+                      BOARD_LPI2C_SCL_GPIO_PIN,
+                      BOARD_LPI2C_SCL_ALTERNATE_FUNCTION,
+                      (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
+                       PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for LPI2C_SCL_PIN\n");
         return ret;
     }
 
     /* I2C0_SDA */
-    ret= pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT), BOARD_I2C0_SDA_GPIO_PIN, BOARD_I2C0_SDA_ALTERNATE_FUNCTION,
-                (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                 PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_I2C0_SDA_GPIO_PORT),
+                      BOARD_I2C0_SDA_GPIO_PIN,
+                      BOARD_I2C0_SDA_ALTERNATE_FUNCTION,
+                      (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
+                       PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for I2C0_SDA_PIN\n");
         return ret;
     }
 
     /* I2C0_SCL */
-    ret= pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT), BOARD_I2C0_SCL_GPIO_PIN, BOARD_I2C0_SCL_ALTERNATE_FUNCTION,
-                (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
-                 PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_I2C0_SCL_GPIO_PORT),
+                      BOARD_I2C0_SCL_GPIO_PIN,
+                      BOARD_I2C0_SCL_ALTERNATE_FUNCTION,
+                      (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
+                       PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for I2C0_SCL_PIN\n");
         return ret;
     }
@@ -180,8 +186,8 @@ static int32_t board_lpi2c_pins_config(void)
  */
 static void LPI2C_demo(void)
 {
-    int32_t   ret      = 0;
-    uint8_t   iter     = 0;
+    int32_t            ret  = 0;
+    uint8_t            iter = 0;
     ARM_DRIVER_VERSION version;
 
     printf("\r\n >>> LPI2C demo starting up !!! <<< \r\n");
@@ -189,9 +195,8 @@ static void LPI2C_demo(void)
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -201,142 +206,137 @@ static void LPI2C_demo(void)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_lpi2c_pins_config();
-    if(ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
 
     version = I2C_mstdrv->GetVersion();
-    printf("\r\n I2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
-            version.api, version.drv);
+    printf("\r\n I2C version api:0x%" PRIx16 " driver:0x%" PRIx16 "...\r\n",
+           version.api,
+           version.drv);
 
     version = LPI2C_slvdrv->GetVersion();
-    printf("\r\n LPI2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
-            version.api, version.drv);
-
+    printf("\r\n LPI2C version api:0x%" PRIx16 " driver:0x%" PRIx16 "...\r\n",
+           version.api,
+           version.drv);
 
     /* Initialize I2C driver */
     ret = I2C_mstdrv->Initialize(i2c_mst_tranfer_callback);
-    if (ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C master init failed\n");
         return;
     }
 
     /* Initialize I2C driver */
     ret = LPI2C_slvdrv->Initialize(i2c_slv_transfer_callback);
-    if (ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C slave init failed\n");
         return;
     }
 
     /* Power control I2C */
     ret = I2C_mstdrv->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Power up failed\n");
         goto error_uninitialize;
     }
 
     /* Power control I2C */
     ret = LPI2C_slvdrv->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Power up failed\n");
         goto error_uninitialize;
     }
 
     ret = I2C_mstdrv->Control(ARM_I2C_BUS_SPEED, ARM_I2C_BUS_SPEED_FAST);
-    if (ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C master init failed\n");
         goto error_poweroff;
     }
 
-     printf("\n----------------Master transmit/slave receive--------------\n");
+    printf("\n----------------Master transmit/slave receive--------------\n");
 
-     LPI2C_slvdrv->SlaveReceive(SLV_RX_BUF, MST_BYTE_TO_TRANSMIT);
+    LPI2C_slvdrv->SlaveReceive(SLV_RX_BUF, MST_BYTE_TO_TRANSMIT);
 
-     /* delay */
-     sys_busy_loop_us(1000);
+    /* delay */
+    sys_busy_loop_us(1000);
 
-     I2C_mstdrv->MasterTransmit(TAR_ADDRS, MST_TX_BUF,
-                                MST_BYTE_TO_TRANSMIT, STOP);
+    I2C_mstdrv->MasterTransmit(TAR_ADDRS, MST_TX_BUF, MST_BYTE_TO_TRANSMIT, STOP);
 
-     /* wait for master/slave callback. */
-     while (mst_cb_status == 0);
-     mst_cb_status = 0;
+    /* wait for master/slave callback. */
+    while (mst_cb_status == 0) {
+    }
+    mst_cb_status = 0;
 
-     while (slv_cb_status == 0);
-     slv_cb_status = 0;
+    while (slv_cb_status == 0) {
+    }
+    slv_cb_status = 0;
 
-     /* Compare received data. */
-     if (memcmp(&SLV_RX_BUF, &MST_TX_BUF, MST_BYTE_TO_TRANSMIT))
-     {
-         printf("\n Error: Master transmit/slave receive failed \n");
-         printf("\n ---Stop--- \r\n wait forever >>> \n");
-         while(1);
-     }
+    /* Compare received data. */
+    if (memcmp(&SLV_RX_BUF, &MST_TX_BUF, MST_BYTE_TO_TRANSMIT)) {
+        printf("\n Error: Master transmit/slave receive failed \n");
+        printf("\n ---Stop--- \r\n wait forever >>> \n");
+        WAIT_FOREVER
+    }
 
-     printf("\n----------------Master receive/slave transmit--------------\n");
+    printf("\n----------------Master receive/slave transmit--------------\n");
 
-     for(iter = 0; iter < SLV_BYTE_TO_TRANSMIT; iter++)
-     {
-         I2C_mstdrv->MasterReceive(TAR_ADDRS, &MST_RX_BUF[iter], 1, STOP);
+    for (iter = 0; iter < SLV_BYTE_TO_TRANSMIT; iter++) {
+        I2C_mstdrv->MasterReceive(TAR_ADDRS, &MST_RX_BUF[iter], 1, STOP);
 
-         LPI2C_slvdrv->SlaveTransmit(&SLV_TX_BUF[iter], 1);
+        LPI2C_slvdrv->SlaveTransmit(&SLV_TX_BUF[iter], 1);
 
-         /* wait for master callback. */
-         while (mst_cb_status == 0);
-         mst_cb_status = 0;
+        /* wait for master callback. */
+        while (mst_cb_status == 0) {
+        }
+        mst_cb_status = 0;
 
-         while (slv_cb_status == 0);
-         slv_cb_status = 0;
-     }
+        while (slv_cb_status == 0) {
+        }
+        slv_cb_status = 0;
+    }
 
-     /* Compare received data. */
-     if (memcmp(&SLV_TX_BUF, &MST_RX_BUF, SLV_BYTE_TO_TRANSMIT))
-     {
-         printf("\n Error: Master receive/slave transmit failed\n");
-         printf("\n ---Stop--- \r\n wait forever >>> \n");
-         while(1);
-     }
+    /* Compare received data. */
+    if (memcmp(&SLV_TX_BUF, &MST_RX_BUF, SLV_BYTE_TO_TRANSMIT)) {
+        printf("\n Error: Master receive/slave transmit failed\n");
+        printf("\n ---Stop--- \r\n wait forever >>> \n");
+        WAIT_FOREVER
+    }
 
-     ret = I2C_mstdrv->Uninitialize();
-     if (ret == ARM_DRIVER_OK)
-     {
-         printf("\r\n I2C Master Uninitialized\n");
-         goto error_uninitialize;
-     }
-     ret = LPI2C_slvdrv->Uninitialize();
-     if (ret == ARM_DRIVER_OK)
-     {
-         printf("\r\n I2C Slave Uninitialized\n");
-         goto error_uninitialize;
-     }
+    ret = I2C_mstdrv->Uninitialize();
+    if (ret == ARM_DRIVER_OK) {
+        printf("\r\n I2C Master Uninitialized\n");
+        goto error_uninitialize;
+    }
+    ret = LPI2C_slvdrv->Uninitialize();
+    if (ret == ARM_DRIVER_OK) {
+        printf("\r\n I2C Slave Uninitialized\n");
+        goto error_uninitialize;
+    }
 
-     printf("\n >>> LPI2C transfer completed without any error\n");
-     printf("\n ---END--- \r\n wait forever >>> \n");
-     while(1);
+    printf("\n >>> LPI2C transfer completed without any error\n");
+    printf("\n ---END--- \r\n wait forever >>> \n");
+    WAIT_FOREVER
 
 error_poweroff:
     /* Power off peripheral */
     ret = I2C_mstdrv->PowerControl(ARM_POWER_OFF);
-    if (ret != ARM_DRIVER_OK)
-    {
-       printf("\r\n Error: I2C Power OFF failed.\r\n");
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: I2C Power OFF failed.\r\n");
     }
     ret = LPI2C_slvdrv->PowerControl(ARM_POWER_OFF);
-    if (ret != ARM_DRIVER_OK)
-    {
-       printf("\r\n Error: LPI2C Power OFF failed.\r\n");
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: LPI2C Power OFF failed.\r\n");
     }
 
 error_uninitialize:
     /* Un-initialize I2C driver */
     ret = I2C_mstdrv->Uninitialize();
     ret = LPI2C_slvdrv->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
-      printf("\r\n Error: I2C Uninitialize failed.\r\n");
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: I2C Uninitialize failed.\r\n");
     }
     printf("\r\n  LPI2C demo exiting...\r\n");
 }
@@ -348,19 +348,17 @@ error_uninitialize:
  * @param   none
  * @retval  none
  */
-int main (void)
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER {
         }
     }
-    #endif
+#endif
     /* Enter the demo Application.  */
     LPI2C_demo();
 

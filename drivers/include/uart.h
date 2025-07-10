@@ -22,212 +22,209 @@ extern "C" {
 /* UART register bit definitions --------------------------- */
 
 /* IER: interrupt enable register */
-#define UART_IER_ENABLE_RECEIVED_DATA_AVAILABLE         (0x01)
-#define UART_IER_ENABLE_TRANSMIT_HOLD_REG_EMPTY         (0x02)
-#define UART_IER_ENABLE_RECEIVER_LINE_STATUS            (0x04)
-#define UART_IER_ENABLE_MODEM_STATUS                    (0x08)
-#define UART_IER_PTIME                                  (0x80)
+#define UART_IER_ENABLE_RECEIVED_DATA_AVAILABLE   (0x01)
+#define UART_IER_ENABLE_TRANSMIT_HOLD_REG_EMPTY   (0x02)
+#define UART_IER_ENABLE_RECEIVER_LINE_STATUS      (0x04)
+#define UART_IER_ENABLE_MODEM_STATUS              (0x08)
+#define UART_IER_PTIME                            (0x80)
 
 /* IIR: interrupt identity register */
-#define UART_IIR_INTERRUPT_PENDING                      (0x01)
-#define UART_IIR_MASK                                   (0x0E)
-#define UART_IIR_FIFO_ENABLE_STATUS                     (0xC0)
+#define UART_IIR_INTERRUPT_PENDING                (0x01)
+#define UART_IIR_MASK                             (0x0E)
+#define UART_IIR_FIFO_ENABLE_STATUS               (0xC0)
 
 /* interrupt IIR_MASK values */
-#define UART_IIR_MODEM_STATUS                           (0x00)
-#define UART_IIR_TRANSMIT_HOLDING_REG_EMPTY             (0x02)
-#define UART_IIR_RECEIVED_DATA_AVAILABLE                (0x04)
-#define UART_IIR_RECEIVER_LINE_STATUS                   (0x06)
-#define UART_IIR_CHARACTER_TIMEOUT                      (0x0C)
-#define UART_IIR_INTERRUPT_ID_MASK                      (0x0f)
+#define UART_IIR_MODEM_STATUS                     (0x00)
+#define UART_IIR_TRANSMIT_HOLDING_REG_EMPTY       (0x02)
+#define UART_IIR_RECEIVED_DATA_AVAILABLE          (0x04)
+#define UART_IIR_RECEIVER_LINE_STATUS             (0x06)
+#define UART_IIR_CHARACTER_TIMEOUT                (0x0C)
+#define UART_IIR_INTERRUPT_ID_MASK                (0x0f)
 
 /* FCR: FIFO control register */
-#define UART_FCR_FIFO_ENABLE                            (0x01)
-#define UART_FCR_RCVR_FIFO_RESET                        (0x02)
-#define UART_FCR_TRANSMIT_FIFO_RESET                    (0x04)
-#define UART_FCR_DMAM_MODE1                             (0x08)
-#define UART_FCR_RCVR_TRIGGER                           (0xC0)
+#define UART_FCR_FIFO_ENABLE                      (0x01)
+#define UART_FCR_RCVR_FIFO_RESET                  (0x02)
+#define UART_FCR_TRANSMIT_FIFO_RESET              (0x04)
+#define UART_FCR_DMAM_MODE1                       (0x08)
+#define UART_FCR_RCVR_TRIGGER                     (0xC0)
 
 /* LCR: line control register */
-#define UART_LCR_DATA_LENGTH_MASK                       (0x03)
-#define UART_LCR_STOP_BIT_MASK                          (0x04)
-#define UART_LCR_PARITY_MASK                            (0x38)
-#define UART_LCR_DATA_PARITY_STOP_MASK                  (0x3F)
-#define UART_LCR_STICK_PARITY                           (0x20)
-#define UART_LCR_BREAK                                  (0x40)
-#define UART_LCR_DLAB                                   (0x80)
+#define UART_LCR_DATA_LENGTH_MASK                 (0x03)
+#define UART_LCR_STOP_BIT_MASK                    (0x04)
+#define UART_LCR_PARITY_MASK                      (0x38)
+#define UART_LCR_DATA_PARITY_STOP_MASK            (0x3F)
+#define UART_LCR_STICK_PARITY                     (0x20)
+#define UART_LCR_BREAK                            (0x40)
+#define UART_LCR_DLAB                             (0x80)
 
 /* data length values */
-#define UART_LCR_DATA_LENGTH_5                          (0x00)
-#define UART_LCR_DATA_LENGTH_6                          (0x01)
-#define UART_LCR_DATA_LENGTH_7                          (0x02)
-#define UART_LCR_DATA_LENGTH_8                          (0x03)
+#define UART_LCR_DATA_LENGTH_5                    (0x00)
+#define UART_LCR_DATA_LENGTH_6                    (0x01)
+#define UART_LCR_DATA_LENGTH_7                    (0x02)
+#define UART_LCR_DATA_LENGTH_8                    (0x03)
 
 /* stop bit values */
-#define UART_LCR_STOP_1BIT                              (0x00)
-#define UART_LCR_STOP_1_5BIT                            (0x04)
-#define UART_LCR_STOP_2BIT                              (0x04)
+#define UART_LCR_STOP_1BIT                        (0x00)
+#define UART_LCR_STOP_1_5BIT                      (0x04)
+#define UART_LCR_STOP_2BIT                        (0x04)
 
 /* Parity bit values */
-#define UART_LCR_PARITY_NONE                            (0x00)
-#define UART_LCR_PARITY_ODD                             (0x08)
-#define UART_LCR_PARITY_EVEN                            (0x18)
-#define UART_LCR_PARITY_STICK_LOGIC1                    (0x28)
-#define UART_LCR_PARITY_STICK_LOGIC0                    (0x38)
+#define UART_LCR_PARITY_NONE                      (0x00)
+#define UART_LCR_PARITY_ODD                       (0x08)
+#define UART_LCR_PARITY_EVEN                      (0x18)
+#define UART_LCR_PARITY_STICK_LOGIC1              (0x28)
+#define UART_LCR_PARITY_STICK_LOGIC0              (0x38)
 
 /* MCR: modem control register */
-#define UART_MCR_DTR                                    (0x01)
-#define UART_MCR_RTS                                    (0x02)
-#define UART_MCR_LOOPBACK                               (0x10)
-#define UART_MCR_AFCE                                   (0x20)
-#define UART_MCR_SIRE                                   (0x40)
+#define UART_MCR_DTR                              (0x01)
+#define UART_MCR_RTS                              (0x02)
+#define UART_MCR_LOOPBACK                         (0x10)
+#define UART_MCR_AFCE                             (0x20)
+#define UART_MCR_SIRE                             (0x40)
 
 /* LSR: line status register */
-#define UART_LSR_RCVR_DATA_READY                        (0x01)
-#define UART_LSR_OVERRUN_ERR                            (0x02)
-#define UART_LSR_PARITY_ERR                             (0x04)
-#define UART_LSR_FRAME_ERR                              (0x08)
-#define UART_LSR_BREAK_INTERRUPT                        (0x10)
-#define UART_LSR_TRANSMIT_HOLDING_REG_EMPTY             (0x20)
-#define UART_LSR_TRANSMITTER_EMPTY                      (0x40)
-#define UART_LSR_RECEIVER_FIFO_ERR                      (0x80)
+#define UART_LSR_RCVR_DATA_READY                  (0x01)
+#define UART_LSR_OVERRUN_ERR                      (0x02)
+#define UART_LSR_PARITY_ERR                       (0x04)
+#define UART_LSR_FRAME_ERR                        (0x08)
+#define UART_LSR_BREAK_INTERRUPT                  (0x10)
+#define UART_LSR_TRANSMIT_HOLDING_REG_EMPTY       (0x20)
+#define UART_LSR_TRANSMITTER_EMPTY                (0x40)
+#define UART_LSR_RECEIVER_FIFO_ERR                (0x80)
 
 /* MSR: modem status register */
-#define UART_MSR_DCTS                                   (0x01)
-#define UART_MSR_DDSR                                   (0x02)
-#define UART_MSR_TERI                                   (0x04)
-#define UART_MSR_DDCD                                   (0x08)
-#define UART_MSR_CTS                                    (0x10)
-#define UART_MSR_DSR                                    (0x20)
-#define UART_MSR_RI                                     (0x40)
-#define UART_MSR_DCD                                    (0x80)
+#define UART_MSR_DCTS                             (0x01)
+#define UART_MSR_DDSR                             (0x02)
+#define UART_MSR_TERI                             (0x04)
+#define UART_MSR_DDCD                             (0x08)
+#define UART_MSR_CTS                              (0x10)
+#define UART_MSR_DSR                              (0x20)
+#define UART_MSR_RI                               (0x40)
+#define UART_MSR_DCD                              (0x80)
 
 /* USR: uart status register */
-#define UART_USR_TRANSMIT_FIFO_NOT_FULL                 (0x02)
-#define UART_USR_TRANSMIT_FIFO_EMPTY                    (0x04)
-#define UART_USR_RECEIVE_FIFO_NOT_EMPTY                 (0x08)
-#define UART_USR_RECEIVE_FIFO_FULL                      (0x10)
+#define UART_USR_TRANSMIT_FIFO_NOT_FULL           (0x02)
+#define UART_USR_TRANSMIT_FIFO_EMPTY              (0x04)
+#define UART_USR_RECEIVE_FIFO_NOT_EMPTY           (0x08)
+#define UART_USR_RECEIVE_FIFO_FULL                (0x10)
 
 /* SFE: shadow FIFO enable register */
-#define UART_SFE_SHADOW_FIFO_ENABLE                     (0x01)
+#define UART_SFE_SHADOW_FIFO_ENABLE               (0x01)
 
 /* SRR: software reset register */
-#define UART_SRR_UART_RESET                             (0x01)
-#define UART_SRR_RCVR_FIFO_RESET                        (0x02)
-#define UART_SRR_TRANSMIT_FIFO_RESET                    (0x04)
+#define UART_SRR_UART_RESET                       (0x01)
+#define UART_SRR_RCVR_FIFO_RESET                  (0x02)
+#define UART_SRR_TRANSMIT_FIFO_RESET              (0x04)
 
 /* SRT: shadow receiver trigger register */
-#define UART_SRT_TRIGGER_1_CHAR_IN_FIFO                 (0x00)
-#define UART_SRT_TRIGGER_FIFO_1_BY_4_FULL               (0x01)
-#define UART_SRT_TRIGGER_FIFO_1_BY_2_FULL               (0x02)
-#define UART_SRT_TRIGGER_FIFO_2_LESS_THAN_FULL          (0x03)
+#define UART_SRT_TRIGGER_1_CHAR_IN_FIFO           (0x00)
+#define UART_SRT_TRIGGER_FIFO_1_BY_4_FULL         (0x01)
+#define UART_SRT_TRIGGER_FIFO_1_BY_2_FULL         (0x02)
+#define UART_SRT_TRIGGER_FIFO_2_LESS_THAN_FULL    (0x03)
 
 /* STET: Shadow TX empty register */
-#define UART_STET_FIFO_EMPTY                            (0x00)
-#define UART_STET_2_CHARS_IN_FIFO                       (0x01)
-#define UART_STET_1_BY_4_FULL                           (0x02)
-#define UART_STET_1_BY_2_FULL                           (0x03)
+#define UART_STET_FIFO_EMPTY                      (0x00)
+#define UART_STET_2_CHARS_IN_FIFO                 (0x01)
+#define UART_STET_1_BY_4_FULL                     (0x02)
+#define UART_STET_1_BY_2_FULL                     (0x03)
 
 /* CPR: component parameter register */
-#define UART_CPR_FIFO_STAT                              (1 << 10)
-#define UART_CPR_FIFO_MODE_OFFSET                       (16)
-#define UART_CPR_FIFO_MODE_MASK                         (0xFF)
-#define UART_CPR_FIFO_MODE                              (0xFF0000)
-#define UART_CPR_SHADOW_MODE                            (1 << 11)
+#define UART_CPR_FIFO_STAT                        (1 << 10)
+#define UART_CPR_FIFO_MODE_OFFSET                 (16)
+#define UART_CPR_FIFO_MODE_MASK                   (0xFF)
+#define UART_CPR_FIFO_MODE                        (0xFF0000)
+#define UART_CPR_SHADOW_MODE                      (1 << 11)
 
 /* DLF: divisor latch fraction register */
-#define UART_DLF_SIZE                                   (0x04)
+#define UART_DLF_SIZE                             (0x04)
 
 /* UART FIFO depth for Tx & Rx */
-#define UART_FIFO_DEPTH                                 (32)
+#define UART_FIFO_DEPTH                           (32)
 
 /* defines for uart baudrates */
-#define UART_BAUDRATE_9600                              (9600)      /* uart baudrate 9600bps   */
-#define UART_BAUDRATE_115200                            (115200)    /* uart baudrate 115200bps */
-#define UART_BAUDRATE_230400                            (230400)    /* uart baudrate 230400bps */
-#define UART_BAUDRATE_460800                            (460800)    /* uart baudrate 460800bps */
-#define UART_BAUDRATE_921600                            (921600)    /* uart baudrate 921600bps */
+#define UART_BAUDRATE_9600                        (9600)   /* uart baudrate 9600bps   */
+#define UART_BAUDRATE_115200                      (115200) /* uart baudrate 115200bps */
+#define UART_BAUDRATE_230400                      (230400) /* uart baudrate 230400bps */
+#define UART_BAUDRATE_460800                      (460800) /* uart baudrate 460800bps */
+#define UART_BAUDRATE_921600                      (921600) /* uart baudrate 921600bps */
 
 /* RS485 control registers.------------------------------ ---*/
 
 /* RS485 Mode Control.               */
-#define UART_RS485_MODE_DISABLE                         (0x00)
-#define UART_RS485_MODE_ENABLE                          (0x01)
+#define UART_RS485_MODE_DISABLE                   (0x00)
+#define UART_RS485_MODE_ENABLE                    (0x01)
 
 /* TCR: transceiver control register */
-#define UART_TCR_RS485_DISABLE                          (0x00)
-#define UART_TCR_RS485_ENABLE                           (0x01)
+#define UART_TCR_RS485_DISABLE                    (0x00)
+#define UART_TCR_RS485_ENABLE                     (0x01)
 
 /* RE_POL: Receiver Enable Polarity  */
-#define UART_TCR_RE_POL_ACTIVE_LOW                      (0x00)
-#define UART_TCR_RE_POL_ACTIVE_HIGH                     (0x02)
+#define UART_TCR_RE_POL_ACTIVE_LOW                (0x00)
+#define UART_TCR_RE_POL_ACTIVE_HIGH               (0x02)
 
 /* DE_POL: Driver Enable Polarity    */
-#define UART_TCR_DE_POL_ACTIVE_LOW                      (0x00)
-#define UART_TCR_DE_POL_ACTIVE_HIGH                     (0x04)
+#define UART_TCR_DE_POL_ACTIVE_LOW                (0x00)
+#define UART_TCR_DE_POL_ACTIVE_HIGH               (0x04)
 
 /* Transfer Modes */
-#define UART_TCR_XFER_MODE_MASK                         (0x18)
-#define UART_TCR_XFER_MODE_FULL_DUPLEX                  (0x00)
-#define UART_TCR_XFER_MODE_SW_CONTROL_HALF_DUPLEX       (0x08)
-#define UART_TCR_XFER_MODE_HW_CONTROL_HALF_DUPLEX       (0x10)
+#define UART_TCR_XFER_MODE_MASK                   (0x18)
+#define UART_TCR_XFER_MODE_FULL_DUPLEX            (0x00)
+#define UART_TCR_XFER_MODE_SW_CONTROL_HALF_DUPLEX (0x08)
+#define UART_TCR_XFER_MODE_HW_CONTROL_HALF_DUPLEX (0x10)
 
 /* DE_EN: driver output enable register   */
-#define UART_DE_EN_DISABLE                              (0x00)   /* de-assert de signal */
-#define UART_DE_EN_ENABLE                               (0x01)   /* assert    de signal */
+#define UART_DE_EN_DISABLE                        (0x00) /* de-assert de signal */
+#define UART_DE_EN_ENABLE                         (0x01) /* assert    de signal */
 
 /* RE_EN: receiver output enable register */
-#define UART_RE_EN_DISABLE                              (0x00)   /* de-assert re signal */
-#define UART_RE_EN_ENABLE                               (0x01)   /* assert    re signal */
+#define UART_RE_EN_DISABLE                        (0x00) /* de-assert re signal */
+#define UART_RE_EN_ENABLE                         (0x01) /* assert    re signal */
 
 /* DET: driver output enable timing register */
-#define UART_DET_TIME_MASK                              (0xFF)   /* 8 bits allocated for assertion and de-assertion time. */
-#define UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT          (16)     /* bit-shift for DE de-assertion time.                   */
+#define UART_DET_TIME_MASK                        (0xFF) /* 8 bits allocated for assertion and de-assertion time. */
+#define UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT                                                     \
+    (16) /* bit-shift for DE de-assertion time.                   */
 
 /* TAT: turn-around timing register */
-#define UART_TAT_TIME_MASK                              (0xFFFF) /* 16 bits allocated for RE to DE and DE to RE time.     */
-#define UART_TAT_RE_TO_DE_TIME_BIT_SHIFT                (16)     /* bit-shift for RE to DE time.                          */
-
+#define UART_TAT_TIME_MASK (0xFFFF) /* 16 bits allocated for RE to DE and DE to RE time.     */
+#define UART_TAT_RE_TO_DE_TIME_BIT_SHIFT                                                           \
+    (16) /* bit-shift for RE to DE time.                          */
 
 /**
  * UART Control Codes: Mode Parameters: Data Bits Types Enum
  */
-typedef enum
-{
-    UART_DATA_BITS_5  = 0,      /* 5 Data bits */
-    UART_DATA_BITS_6  = 1,      /* 6 Data bits */
-    UART_DATA_BITS_7  = 2,      /* 7 Data bits */
-    UART_DATA_BITS_8  = 3       /* 8 Data bits */
+typedef enum {
+    UART_DATA_BITS_5 = 0, /* 5 Data bits */
+    UART_DATA_BITS_6 = 1, /* 6 Data bits */
+    UART_DATA_BITS_7 = 2, /* 7 Data bits */
+    UART_DATA_BITS_8 = 3  /* 8 Data bits */
 } UART_DATA_BITS;
 
 /**
  * UART Control Codes: Mode Parameters: Parity Types Enum
  */
-typedef enum
-{
-    UART_PARITY_NONE  = 0,      /* No Parity   */
-    UART_PARITY_EVEN  = 1,      /* Even Parity */
-    UART_PARITY_ODD   = 2       /* Odd Parity  */
+typedef enum {
+    UART_PARITY_NONE = 0, /* No Parity   */
+    UART_PARITY_EVEN = 1, /* Even Parity */
+    UART_PARITY_ODD  = 2  /* Odd Parity  */
 } UART_PARITY;
 
 /**
  * UART Control Codes: Mode Parameters: Stop Bits Types Enum
  */
-typedef enum
-{
-    UART_STOP_BITS_1  = 0,      /* 1 Stop bit  */
-    UART_STOP_BITS_2  = 1       /* 2 Stop bits */
+typedef enum {
+    UART_STOP_BITS_1 = 0, /* 1 Stop bit  */
+    UART_STOP_BITS_2 = 1  /* 2 Stop bits */
 } UART_STOP_BITS;
 
 /**
  * UART Control Codes: Mode Parameters: Flow Control Types Enum
  */
-typedef enum
-{
-    UART_FLOW_CONTROL_NONE    = 0,      /* No Flow Control  */
-    UART_FLOW_CONTROL_RTS     = 1,      /* RTS Flow Control */
-    UART_FLOW_CONTROL_CTS     = 2,      /* CTS Flow Control */
-    UART_FLOW_CONTROL_RTS_CTS = 3       /* RTS/CTS Flow Control */
+typedef enum {
+    UART_FLOW_CONTROL_NONE    = 0, /* No Flow Control  */
+    UART_FLOW_CONTROL_RTS     = 1, /* RTS Flow Control */
+    UART_FLOW_CONTROL_CTS     = 2, /* CTS Flow Control */
+    UART_FLOW_CONTROL_RTS_CTS = 3  /* RTS/CTS Flow Control */
 } UART_FLOW_CONTROL;
 
 /**
@@ -236,12 +233,11 @@ typedef enum
  * in the transmitter FIFO at which the THRE
  * Interrupts will be generated.
  */
-typedef enum
-{
-    UART_TX_FIFO_EMPTY        = 0,      /* FIFO Empty            */
-    UART_TX_FIFO_CHAR_2       = 1,      /* 2 characters in FIFO  */
-    UART_TX_FIFO_QUARTER_FULL = 2,      /* FIFO 1/4 full         */
-    UART_TX_FIFO_HALF_FULL    = 3       /* FIFO 1/2 full         */
+typedef enum {
+    UART_TX_FIFO_EMPTY        = 0, /* FIFO Empty            */
+    UART_TX_FIFO_CHAR_2       = 1, /* 2 characters in FIFO  */
+    UART_TX_FIFO_QUARTER_FULL = 2, /* FIFO 1/4 full         */
+    UART_TX_FIFO_HALF_FULL    = 3  /* FIFO 1/2 full         */
 } UART_TX_TRIGGER;
 
 /**
@@ -250,51 +246,50 @@ typedef enum
  * in the receiver FIFO at which the Received Data Available
  * Interrupt will be generated.
  */
-typedef enum
-{
-    UART_RX_ONE_CHAR_IN_FIFO   = 0,     /* 1 character in FIFO   */
-    UART_RX_FIFO_QUARTER_FULL  = 1,     /* FIFO 1/4 Full         */
-    UART_RX_FIFO_HALF_FULL     = 2,     /* FIFO 1/2 full         */
-    UART_RX_FIFO_TWO_LESS_FULL = 3      /* FIFO 2 less than full */
+typedef enum {
+    UART_RX_ONE_CHAR_IN_FIFO   = 0, /* 1 character in FIFO   */
+    UART_RX_FIFO_QUARTER_FULL  = 1, /* FIFO 1/4 Full         */
+    UART_RX_FIFO_HALF_FULL     = 2, /* FIFO 1/2 full         */
+    UART_RX_FIFO_TWO_LESS_FULL = 3  /* FIFO 2 less than full */
 } UART_RX_TRIGGER;
 
 /* UART RS485 transfer modes */
-typedef enum
-{
-    UART_RS485_FULL_DULPLX_MODE            = 0,    /* RS485 full duplex mode                    */
-    UART_RS485_SW_CONTROL_HALF_DULPLX_MODE = 1,    /* RS485 software control half duplex mode   */
-    UART_RS485_HW_CONTROL_HALF_DULPLX_MODE = 2,    /* RS485 hardware control half duplex mode   */
+typedef enum {
+    UART_RS485_FULL_DULPLX_MODE            = 0, /* RS485 full duplex mode                    */
+    UART_RS485_SW_CONTROL_HALF_DULPLX_MODE = 1, /* RS485 software control half duplex mode   */
+    UART_RS485_HW_CONTROL_HALF_DULPLX_MODE = 2, /* RS485 hardware control half duplex mode   */
 } UART_RS485_TRANSFER_MODE;
 
 /**
  * enum UART_TRANSFER_STATUS.
  * Status of an ongoing UART transfer.
  */
-typedef enum
-{
-    UART_TRANSFER_STATUS_NONE              = 0,           /**< Transfer status none                           */
-    UART_TRANSFER_STATUS_SEND_COMPLETE     = (1UL << 0),  /**< Transfer status Send completed                 */
-    UART_TRANSFER_STATUS_RECEIVE_COMPLETE  = (1UL << 1),  /**< Transfer status Receive completed              */
-    UART_TRANSFER_STATUS_RX_TIMEOUT        = (1UL << 2),  /**< Transfer status Receive character timeout      */
-    UART_TRANSFER_STATUS_ERROR             = (1UL << 3),  /**< Transfer status Error                          */
-    UART_TRANSFER_STATUS_ERROR_RX_OVERRUN  = (1UL << 4),  /**< Transfer status Error: Receive Overrun error   */
-    UART_TRANSFER_STATUS_ERROR_RX_PARITY   = (1UL << 5),  /**< Transfer status Error: Receive Parity  error   */
-    UART_TRANSFER_STATUS_ERROR_RX_FRAMING  = (1UL << 6),  /**< Transfer status Error: Receive Framing error   */
-    UART_TRANSFER_STATUS_ERROR_RX_BREAK    = (1UL << 7),  /**< Transfer status Error: Receive Break Interrupt */
+typedef enum {
+    UART_TRANSFER_STATUS_NONE          = 0, /**< Transfer status none                           */
+    UART_TRANSFER_STATUS_SEND_COMPLETE = (1UL << 0),    /**< Transfer status Send completed    */
+    UART_TRANSFER_STATUS_RECEIVE_COMPLETE = (1UL << 1), /**< Transfer status Receive completed */
+    UART_TRANSFER_STATUS_RX_TIMEOUT = (1UL << 2), /**< Transfer status Receive character timeout */
+    UART_TRANSFER_STATUS_ERROR = (1UL << 3), /**< Transfer status Error                          */
+    UART_TRANSFER_STATUS_ERROR_RX_OVERRUN =
+        (1UL << 4), /**< Transfer status Error: Receive Overrun error   */
+    UART_TRANSFER_STATUS_ERROR_RX_PARITY =
+        (1UL << 5), /**< Transfer status Error: Receive Parity  error   */
+    UART_TRANSFER_STATUS_ERROR_RX_FRAMING =
+        (1UL << 6), /**< Transfer status Error: Receive Framing error   */
+    UART_TRANSFER_STATUS_ERROR_RX_BREAK =
+        (1UL << 7), /**< Transfer status Error: Receive Break Interrupt */
 } UART_TRANSFER_STATUS;
 
 /* UART Transfer Information (Run-Time) */
-typedef struct _UART_TRANSFER
-{
-    const uint8_t                    *tx_buf;                   /* Pointer to out data buffer                   */
-    uint32_t                          tx_total_num;             /* Total number of data to be send              */
-    volatile uint32_t                 tx_curr_cnt;              /* Current number of data sent from total num   */
-    uint8_t                          *rx_buf;                   /* Pointer to in data buffer                    */
-    uint32_t                          rx_total_num;             /* Total number of data to be received          */
-    volatile uint32_t                 rx_curr_cnt;              /* Number of data received                      */
-    volatile UART_TRANSFER_STATUS     status;                   /* transfer status                              */
+typedef struct _UART_TRANSFER {
+    const uint8_t                *tx_buf;       /* Pointer to out data buffer                   */
+    uint32_t                      tx_total_num; /* Total number of data to be send              */
+    volatile uint32_t             tx_curr_cnt;  /* Current number of data sent from total num   */
+    uint8_t                      *rx_buf;       /* Pointer to in data buffer                    */
+    uint32_t                      rx_total_num; /* Total number of data to be received          */
+    volatile uint32_t             rx_curr_cnt;  /* Number of data received                      */
+    volatile UART_TRANSFER_STATUS status;       /* transfer status                              */
 } UART_TRANSFER;
-
 
 /**
  * @fn      void uart_software_reset (UART_Type *uart)
@@ -303,10 +298,10 @@ typedef struct _UART_TRANSFER
  * @param   uart: Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_software_reset (UART_Type *uart)
+static inline void uart_software_reset(UART_Type *uart)
 {
     /* use shadow register srr software reset register */
-    uart->UART_SRR = UART_SRR_UART_RESET|UART_SRR_RCVR_FIFO_RESET|UART_SRR_TRANSMIT_FIFO_RESET;
+    uart->UART_SRR = UART_SRR_UART_RESET | UART_SRR_RCVR_FIFO_RESET | UART_SRR_TRANSMIT_FIFO_RESET;
 }
 
 /**
@@ -315,9 +310,9 @@ static inline void uart_software_reset (UART_Type *uart)
   \param[in]   uart   Pointer to UART register map
   \return      \ref  Return the address
 */
-static inline void* uart_get_dma_tx_addr(UART_Type *uart)
+static inline void *uart_get_dma_tx_addr(UART_Type *uart)
 {
-    return ((void *)&(uart->UART_THR));
+    return ((void *) &(uart->UART_THR));
 }
 
 /**
@@ -326,9 +321,9 @@ static inline void* uart_get_dma_tx_addr(UART_Type *uart)
   \param[in]   uart   Pointer to UART register map
   \return      \ref  Return the address
 */
-static inline void* uart_get_dma_rx_addr(UART_Type *uart)
+static inline void *uart_get_dma_rx_addr(UART_Type *uart)
 {
-    return ((void *)&(uart->UART_RBR));
+    return ((void *) &(uart->UART_RBR));
 }
 
 /**
@@ -342,8 +337,7 @@ static inline void* uart_get_dma_rx_addr(UART_Type *uart)
  * @param   tx_trigger  : enum UART_TX_TRIGGER
  * @retval  none
  */
-static inline void uart_set_tx_trigger (UART_Type       *uart,
-                                        UART_TX_TRIGGER  tx_trigger)
+static inline void uart_set_tx_trigger(UART_Type *uart, UART_TX_TRIGGER tx_trigger)
 {
     /* update stet shadow TX empty trigger register */
     uart->UART_STET = tx_trigger;
@@ -355,16 +349,15 @@ static inline void uart_set_tx_trigger (UART_Type       *uart,
  * @param   uart        : Pointer to uart register set structure
  * @retval  decoded uart transmitter trigger level value
  */
-static inline uint8_t uart_get_decoded_tx_trigger (UART_Type *uart)
+static inline uint8_t uart_get_decoded_tx_trigger(UART_Type *uart)
 {
-    UART_TX_TRIGGER tx_trigger = 0;
-    uint8_t decoded_tx_trigger = 0;
+    UART_TX_TRIGGER tx_trigger         = 0;
+    uint8_t         decoded_tx_trigger = 0;
 
     /* get TX trigger from stet shadow TX empty trigger register */
-    tx_trigger = uart->UART_STET;
+    tx_trigger                         = uart->UART_STET;
 
-    switch(tx_trigger)
-    {
+    switch (tx_trigger) {
     case UART_TX_FIFO_EMPTY:
         decoded_tx_trigger = 0;
         break;
@@ -374,11 +367,11 @@ static inline uint8_t uart_get_decoded_tx_trigger (UART_Type *uart)
         break;
 
     case UART_TX_FIFO_QUARTER_FULL:
-        decoded_tx_trigger = UART_FIFO_DEPTH/4;
+        decoded_tx_trigger = UART_FIFO_DEPTH / 4;
         break;
 
     case UART_TX_FIFO_HALF_FULL:
-        decoded_tx_trigger = UART_FIFO_DEPTH/2;
+        decoded_tx_trigger = UART_FIFO_DEPTH / 2;
         break;
     }
 
@@ -396,8 +389,7 @@ static inline uint8_t uart_get_decoded_tx_trigger (UART_Type *uart)
  * @param   rx_trigger  : enum UART_RX_TRIGGER
  * @retval  none
  */
-static inline void uart_set_rx_trigger (UART_Type       *uart,
-                                        UART_RX_TRIGGER  rx_trigger)
+static inline void uart_set_rx_trigger(UART_Type *uart, UART_RX_TRIGGER rx_trigger)
 {
     /* update srt shadow receiver trigger register */
     uart->UART_SRT = rx_trigger;
@@ -409,26 +401,25 @@ static inline void uart_set_rx_trigger (UART_Type       *uart,
  * @param   uart        : Pointer to uart register set structure
  * @retval  decoded uart receiver trigger level value
  */
-static inline uint8_t uart_get_decoded_rx_trigger (UART_Type *uart)
+static inline uint8_t uart_get_decoded_rx_trigger(UART_Type *uart)
 {
-    UART_RX_TRIGGER rx_trigger = 0;
-    uint8_t decoded_rx_trigger = 0;
+    UART_RX_TRIGGER rx_trigger         = 0;
+    uint8_t         decoded_rx_trigger = 0;
 
     /* update srt shadow receiver trigger register */
-    rx_trigger = uart->UART_SRT;
+    rx_trigger                         = uart->UART_SRT;
 
-    switch(rx_trigger)
-    {
+    switch (rx_trigger) {
     case UART_RX_ONE_CHAR_IN_FIFO:
         decoded_rx_trigger = 1;
         break;
 
     case UART_RX_FIFO_QUARTER_FULL:
-        decoded_rx_trigger = UART_FIFO_DEPTH/4;
+        decoded_rx_trigger = UART_FIFO_DEPTH / 4;
         break;
 
     case UART_RX_FIFO_HALF_FULL:
-        decoded_rx_trigger = UART_FIFO_DEPTH/2;
+        decoded_rx_trigger = UART_FIFO_DEPTH / 2;
         break;
 
     case UART_RX_FIFO_TWO_LESS_FULL:
@@ -446,7 +437,7 @@ static inline uint8_t uart_get_decoded_rx_trigger (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_set_break_control (UART_Type *uart)
+static inline void uart_set_break_control(UART_Type *uart)
 {
     /* set break_control bit in lcr line control register. */
     uart->UART_LCR |= UART_LCR_BREAK;
@@ -459,7 +450,7 @@ static inline void uart_set_break_control (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_clear_break_control (UART_Type *uart)
+static inline void uart_clear_break_control(UART_Type *uart)
 {
     /* clear break_control bit in lcr line control register. */
     uart->UART_LCR &= ~UART_LCR_BREAK;
@@ -472,7 +463,7 @@ static inline void uart_clear_break_control (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_enable_fifo (UART_Type *uart)
+static inline void uart_enable_fifo(UART_Type *uart)
 {
     /* enable uart fifo fcr FIFO control register */
     uart->UART_FCR = UART_FCR_FIFO_ENABLE;
@@ -485,7 +476,7 @@ static inline void uart_enable_fifo (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_select_dma_mode1 (UART_Type *uart)
+static inline void uart_select_dma_mode1(UART_Type *uart)
 {
     uart->UART_FCR |= UART_FCR_DMAM_MODE1;
 }
@@ -497,7 +488,7 @@ static inline void uart_select_dma_mode1 (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_reset_txfifo (UART_Type *uart)
+static inline void uart_reset_txfifo(UART_Type *uart)
 {
     /* set XMIT_FIFO_Reset bit in shadow register
      * srr software reset register */
@@ -511,7 +502,7 @@ static inline void uart_reset_txfifo (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_reset_rxfifo (UART_Type *uart)
+static inline void uart_reset_rxfifo(UART_Type *uart)
 {
     /* set RCVR_FIFO_Reset bit in shadow register
      * srr software reset register */
@@ -525,7 +516,7 @@ static inline void uart_reset_rxfifo (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_enable_tx_irq (UART_Type *uart)
+static inline void uart_enable_tx_irq(UART_Type *uart)
 {
     /* enable transmit_holding_register_empty bit in
      * ier interrupt enable register */
@@ -539,7 +530,7 @@ static inline void uart_enable_tx_irq (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_disable_tx_irq (UART_Type *uart)
+static inline void uart_disable_tx_irq(UART_Type *uart)
 {
     /* disable transmit_holding_register_empty bit in
      * ier interrupt enable register */
@@ -553,7 +544,7 @@ static inline void uart_disable_tx_irq (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_enable_rx_irq (UART_Type *uart)
+static inline void uart_enable_rx_irq(UART_Type *uart)
 {
     /* enable receiver interrupt */
     /* enable receive_data_available_interrupt bit in
@@ -571,7 +562,7 @@ static inline void uart_enable_rx_irq (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_disable_rx_irq (UART_Type *uart)
+static inline void uart_disable_rx_irq(UART_Type *uart)
 {
     /* disable receiver interrupt */
     /* disable receive_data_available_interrupt bit in
@@ -611,10 +602,10 @@ static inline void uart_disable_rx_irq (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_enable (UART_Type *uart)
+static inline void uart_rs485_enable(UART_Type *uart)
 {
     /* reset TCR transceiver control register. */
-    uart->UART_TCR = 0;
+    uart->UART_TCR  = 0;
 
     /* enable RS485 mode in TCR transceiver control register. */
     uart->UART_TCR |= UART_TCR_RS485_ENABLE;
@@ -631,7 +622,7 @@ static inline void uart_rs485_enable (UART_Type *uart)
  * @param   uart: Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_disable (UART_Type *uart)
+static inline void uart_rs485_disable(UART_Type *uart)
 {
     /* disable RS485 mode in TCR transceiver control register. */
     uart->UART_TCR &= ~UART_TCR_RS485_ENABLE;
@@ -643,19 +634,28 @@ static inline void uart_rs485_disable (UART_Type *uart)
  * @note    none
  * @param   uart: Pointer to uart register set structure
  * @param   mode: Available RS485 transfer modes
- *              - UART_RS485_FULL_DULPLX_MODE            : Not tested as Hardware is not supporting Full duplex mode.
- *              - UART_RS485_SW_CONTROL_HALF_DULPLX_MODE : Currently Driver APIs are not exposed for SW Control Half Duplex mode.
- *              - UART_RS485_HW_CONTROL_HALF_DULPLX_MODE : Tested and Verified, Able to send and receive data properly.
+ *              - UART_RS485_FULL_DULPLX_MODE            : Not tested as Hardware is not supporting
+ * Full duplex mode.
+ *              - UART_RS485_SW_CONTROL_HALF_DULPLX_MODE : Currently Driver APIs are not exposed for
+ * SW Control Half Duplex mode.
+ *              - UART_RS485_HW_CONTROL_HALF_DULPLX_MODE : Tested and Verified, Able to send and
+ * receive data properly.
  * @retval  none
  */
-static inline void uart_rs485_set_transfer_mode (UART_Type *uart, UART_RS485_TRANSFER_MODE mode)
+static inline void uart_rs485_set_transfer_mode(UART_Type *uart, UART_RS485_TRANSFER_MODE mode)
 {
     /* clear Transfer modes bits[4:3] */
     uart->UART_TCR &= (~UART_TCR_XFER_MODE_MASK);
 
-    if(mode == UART_RS485_FULL_DULPLX_MODE)            uart->UART_TCR |= UART_TCR_XFER_MODE_FULL_DUPLEX;
-    if(mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE) uart->UART_TCR |= UART_TCR_XFER_MODE_SW_CONTROL_HALF_DUPLEX;
-    if(mode == UART_RS485_HW_CONTROL_HALF_DULPLX_MODE) uart->UART_TCR |= UART_TCR_XFER_MODE_HW_CONTROL_HALF_DUPLEX;
+    if (mode == UART_RS485_FULL_DULPLX_MODE) {
+        uart->UART_TCR |= UART_TCR_XFER_MODE_FULL_DUPLEX;
+    }
+    if (mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE) {
+        uart->UART_TCR |= UART_TCR_XFER_MODE_SW_CONTROL_HALF_DUPLEX;
+    }
+    if (mode == UART_RS485_HW_CONTROL_HALF_DULPLX_MODE) {
+        uart->UART_TCR |= UART_TCR_XFER_MODE_HW_CONTROL_HALF_DUPLEX;
+    }
 }
 
 /**
@@ -665,7 +665,7 @@ static inline void uart_rs485_set_transfer_mode (UART_Type *uart, UART_RS485_TRA
  * @param   uart: Pointer to uart register set structure
  * @retval  selected RS485 transfer mode
  */
-static inline UART_RS485_TRANSFER_MODE uart_rs485_get_transfer_mode (UART_Type *uart)
+static inline UART_RS485_TRANSFER_MODE uart_rs485_get_transfer_mode(UART_Type *uart)
 {
     return ((uart->UART_TCR & UART_TCR_XFER_MODE_MASK) >> 3);
 }
@@ -679,7 +679,7 @@ static inline UART_RS485_TRANSFER_MODE uart_rs485_get_transfer_mode (UART_Type *
  * @param   assertion_time  : 8-bit DE Assertion time
  * @retval  none
  */
-static inline void uart_rs485_set_de_assertion_time (UART_Type *uart, uint32_t assertion_time)
+static inline void uart_rs485_set_de_assertion_time(UART_Type *uart, uint32_t assertion_time)
 {
     /* DE Assertion time: 8 bit only. */
 
@@ -699,15 +699,16 @@ static inline void uart_rs485_set_de_assertion_time (UART_Type *uart, uint32_t a
  * @param   deassertion_time    : 8-bit DE De-Assertion time
  * @retval  none
  */
-static inline void  uart_rs485_set_de_deassertion_time (UART_Type *uart, uint32_t deassertion_time)
+static inline void uart_rs485_set_de_deassertion_time(UART_Type *uart, uint32_t deassertion_time)
 {
     /* DE De-Assertion time: 8 bit only. */
 
     /* clear DE De-Assertion time: bits (23:16). */
-    uart->UART_DET &= ( ~ (UART_DET_TIME_MASK << UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT) );
+    uart->UART_DET &= (~(UART_DET_TIME_MASK << UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT));
 
     /* DE De-Assertion time: bits (23:16). */
-    uart->UART_DET |= ( (deassertion_time & UART_DET_TIME_MASK) << UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT );
+    uart->UART_DET |=
+        ((deassertion_time & UART_DET_TIME_MASK) << UART_DET_DE_DEASSERTION_TIME_BIT_SHIFT);
 }
 
 /**
@@ -719,7 +720,7 @@ static inline void  uart_rs485_set_de_deassertion_time (UART_Type *uart, uint32_
  * @param   de_to_re_time       : 16-bit DE to RE time
  * @retval  none
  */
-static inline void uart_rs485_set_de_to_re_turn_around_time (UART_Type *uart, uint32_t de_to_re_time)
+static inline void uart_rs485_set_de_to_re_turn_around_time(UART_Type *uart, uint32_t de_to_re_time)
 {
     /* Driver Enable DE to Receive Enable RE Turn Around time: 16 bit . */
 
@@ -739,15 +740,15 @@ static inline void uart_rs485_set_de_to_re_turn_around_time (UART_Type *uart, ui
  * @param   re_to_de_time   : 16-bit RE to DE time
  * @retval  none
  */
-static inline void uart_rs485_set_re_to_de_turn_around_time (UART_Type *uart, uint32_t re_to_de_time)
+static inline void uart_rs485_set_re_to_de_turn_around_time(UART_Type *uart, uint32_t re_to_de_time)
 {
     /* Receive Enable RE to Driver Enable DE Turn Around time: 16 bit . */
 
     /* Clear TAT RE to DE Turn Around time bits (31:16). */
-    uart->UART_TAT &= ( ~ (UART_TAT_TIME_MASK << UART_TAT_RE_TO_DE_TIME_BIT_SHIFT) );
+    uart->UART_TAT &= (~(UART_TAT_TIME_MASK << UART_TAT_RE_TO_DE_TIME_BIT_SHIFT));
 
     /* TAT RE to DE Turn Around time bits (31:16). */
-    uart->UART_TAT |= ( (re_to_de_time & UART_TAT_TIME_MASK) << UART_TAT_RE_TO_DE_TIME_BIT_SHIFT );
+    uart->UART_TAT |= ((re_to_de_time & UART_TAT_TIME_MASK) << UART_TAT_RE_TO_DE_TIME_BIT_SHIFT);
 }
 
 /**
@@ -757,7 +758,7 @@ static inline void uart_rs485_set_re_to_de_turn_around_time (UART_Type *uart, ui
  * @param   uart : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_enable_de_en (UART_Type *uart)
+static inline void uart_rs485_enable_de_en(UART_Type *uart)
 {
     uint32_t mode;
 
@@ -767,8 +768,7 @@ static inline void uart_rs485_enable_de_en (UART_Type *uart)
     /* Check rs485 transfer mode. */
     mode = uart_rs485_get_transfer_mode(uart);
 
-    if(mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE)
-    {
+    if (mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE) {
         /* In Software control Half-Duplex Mode DE and RE are mutually exclusive.
          * so anyone either DE or RE can be enable at a time.
          */
@@ -789,7 +789,7 @@ static inline void uart_rs485_enable_de_en (UART_Type *uart)
  * @param   uart : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_disable_de_en (UART_Type *uart)
+static inline void uart_rs485_disable_de_en(UART_Type *uart)
 {
     /* Disable the DE Driver Enable signal. */
     uart->UART_DE_EN = UART_DE_EN_DISABLE;
@@ -802,7 +802,7 @@ static inline void uart_rs485_disable_de_en (UART_Type *uart)
  * @param   uart : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_enable_re_en (UART_Type *uart)
+static inline void uart_rs485_enable_re_en(UART_Type *uart)
 {
     uint32_t mode;
 
@@ -812,8 +812,7 @@ static inline void uart_rs485_enable_re_en (UART_Type *uart)
     /* Check rs485 transfer mode. */
     mode = uart_rs485_get_transfer_mode(uart);
 
-    if(mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE)
-    {
+    if (mode == UART_RS485_SW_CONTROL_HALF_DULPLX_MODE) {
         /* In Software control Half-Duplex Mode DE and RE are mutually exclusive.
          * so anyone either DE or RE can be enable at a time.
          */
@@ -834,14 +833,13 @@ static inline void uart_rs485_enable_re_en (UART_Type *uart)
  * @param   uart    : Pointer to uart register set structure
  * @retval  none
  */
-static inline void uart_rs485_disable_re_en (UART_Type *uart)
+static inline void uart_rs485_disable_re_en(UART_Type *uart)
 {
     /* Disable the RE Receiver Enable signal. */
     uart->UART_RE_EN = UART_RE_EN_DISABLE;
 }
 
 /* ---------------------- END of RS485 Functions ---------------------------- */
-
 
 /**
  * @fn      void uart_set_baudrate (UART_Type *uart,uint32_t clk, uint32_t baudrate)
@@ -852,7 +850,7 @@ static inline void uart_rs485_disable_re_en (UART_Type *uart)
  * @param   baudrate : baudrate
  * @retval  none
  */
-void uart_set_baudrate (UART_Type  *uart, uint32_t clk, uint32_t baudrate);
+void uart_set_baudrate(UART_Type *uart, uint32_t clk, uint32_t baudrate);
 
 /**
  * @fn      void uart_set_data_parity_stop_bits(UART_Type       *uart,
@@ -867,10 +865,8 @@ void uart_set_baudrate (UART_Type  *uart, uint32_t clk, uint32_t baudrate);
  * @param   stop_bits : stop bits
  * @retval  none
  */
-void uart_set_data_parity_stop_bits(UART_Type       *uart,
-                                    UART_DATA_BITS   data_bits,
-                                    UART_PARITY      parity,
-                                    UART_STOP_BITS   stop_bits);
+void uart_set_data_parity_stop_bits(UART_Type *uart, UART_DATA_BITS data_bits, UART_PARITY parity,
+                                    UART_STOP_BITS stop_bits);
 
 /**
  * @fn      void uart_set_flow_control(UART_Type         *uart,
@@ -881,8 +877,7 @@ void uart_set_data_parity_stop_bits(UART_Type       *uart,
  * @param   flow_control : flow control (RTS/CTS)
  * @retval  none
  */
-void uart_set_flow_control(UART_Type         *uart,
-                           UART_FLOW_CONTROL  flow_control);
+void uart_set_flow_control(UART_Type *uart, UART_FLOW_CONTROL flow_control);
 
 /**
  * @fn      void uart_send_blocking (UART_Type *uart, UART_TRANSFER *transfer)
@@ -892,7 +887,7 @@ void uart_set_flow_control(UART_Type         *uart,
  * @param   transfer : Pointer to uart transfer structure
  * @retval  none
  */
-void uart_send_blocking (UART_Type *uart, UART_TRANSFER *transfer);
+void uart_send_blocking(UART_Type *uart, UART_TRANSFER *transfer);
 
 /**
  * @fn      void uart_receive_blocking (UART_Type *uart, UART_TRANSFER *transfer)
@@ -902,7 +897,7 @@ void uart_send_blocking (UART_Type *uart, UART_TRANSFER *transfer);
  * @param   transfer : Pointer to uart transfer structure
  * @retval  none
  */
-void uart_receive_blocking (UART_Type *uart, UART_TRANSFER *transfer);
+void uart_receive_blocking(UART_Type *uart, UART_TRANSFER *transfer);
 
 /**
  * @fn      void uart_irq_handler (UART_Type *uart, UART_TRANSFER *transfer)
@@ -918,7 +913,7 @@ void uart_receive_blocking (UART_Type *uart, UART_TRANSFER *transfer);
  * @param   transfer : Pointer to uart transfer structure
  * @retval  none
  */
-void uart_irq_handler (UART_Type *uart, UART_TRANSFER *transfer);
+void uart_irq_handler(UART_Type *uart, UART_TRANSFER *transfer);
 
 #ifdef __cplusplus
 }

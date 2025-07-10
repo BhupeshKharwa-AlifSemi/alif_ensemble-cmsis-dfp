@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_dma_memcpy_freertos.c
  * @author   : Sudhir Sreedharan
  * @email    : sudhir@alifsemi.com
@@ -27,59 +27,57 @@
 #include <RTE_Components.h>
 #include CMSIS_device_header
 
-#if defined( RTE_CMSIS_Compiler_STDOUT )
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 /*RTOS Includes */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+#include "sys_utils.h"
 
 /* Enable the DMA controller to test */
-//#define TEST_DMA0
-#if defined ( RTSS_HP )
-    #define TEST_DMA1
+// #define TEST_DMA0
+#if defined(RTSS_HP)
+#define TEST_DMA1
 #endif
-#if defined ( RTSS_HE )
-    #define TEST_DMA2
+#if defined(RTSS_HE)
+#define TEST_DMA2
 #endif
 
-
-#define DMA0 0                  /* DMA0 */
-#define DMA1 1                  /* DMA1 */
-#define DMA2 2                  /* DMA2 */
+#define DMA0         0 /* DMA0 */
+#define DMA1         1 /* DMA1 */
+#define DMA2         2 /* DMA2 */
 
 #define DMA_BS       BS_BYTE_8
 #define DMA_BLEN     16
 #define DMA_XFER_LEN 1000
 
-
-#if defined ( RTSS_HE )
+#if defined(RTSS_HE)
 /* TCM size is less in RTSS_HE */
-#define MAX_TRANSFER_LEN ( 1024 )               /* Total Number of bytes */
+#define MAX_TRANSFER_LEN (1024) /* Total Number of bytes */
 #else
-#define MAX_TRANSFER_LEN ( 130 * 1024 )         /* Total Number of bytes */
+#define MAX_TRANSFER_LEN (130 * 1024) /* Total Number of bytes */
 #endif
 
 /*
  * Add extra space at the end of the buffer. This will help to identify if
  * the DMA copies extra bytes
  */
-#define ACTUAL_BUFF_SIZE ( MAX_TRANSFER_LEN + 1024 )
+#define ACTUAL_BUFF_SIZE (MAX_TRANSFER_LEN + 1024)
 
-static uint8_t  ucSrcBuff[ACTUAL_BUFF_SIZE];
-static uint8_t  ucDstBuff[ACTUAL_BUFF_SIZE];
+static uint8_t ucSrcBuff[ACTUAL_BUFF_SIZE];
+static uint8_t ucDstBuff[ACTUAL_BUFF_SIZE];
 
-static TaskHandle_t         xTaskDMAMemcpy;
+static TaskHandle_t xTaskDMAMemcpy;
 
-#define DMA_MEMCPY_TASK_STACK_SIZE     1024
-#define DMA_MEMCPY_TASK_PRIORITY       3
+#define DMA_MEMCPY_TASK_STACK_SIZE 1024
+#define DMA_MEMCPY_TASK_PRIORITY   3
 
-#define DMA_SEND_COMPLETE_EVENT (1 << 0)
-#define DMA_ABORT_EVENT         (1 << 1)
-
+#define DMA_SEND_COMPLETE_EVENT    (1 << 0)
+#define DMA_ABORT_EVENT            (1 << 1)
 
 /**
   \fn          void prvFillBuffer( void * pvBuf, uint32_t ulSize )
@@ -87,13 +85,14 @@ static TaskHandle_t         xTaskDMAMemcpy;
   \param[in]   pvBuf Pointer to the buffer
   \param[in]   ulSize Buffer Size
 */
-static void prvFillBuffer( void * pvBuf, uint32_t ulSize )
+static void prvFillBuffer(void *pvBuf, uint32_t ulSize)
 {
-    uint8_t * pucTemp = ( uint8_t * )pvBuf;
+    uint8_t *pucTemp = (uint8_t *) pvBuf;
     uint32_t ulCount;
 
-    for( ulCount = 0; ulCount < ulSize; ulCount++ )
-        pucTemp[ulCount] = ( uint8_t )ulCount + 1;
+    for (ulCount = 0; ulCount < ulSize; ulCount++) {
+        pucTemp[ulCount] = (uint8_t) ulCount + 1;
+    }
 }
 
 /**
@@ -106,21 +105,18 @@ static void prvFillBuffer( void * pvBuf, uint32_t ulSize )
   \param[in]   ulDstBuffSize Total size of the ucDstBuff
   \return      0 for Success otherwise Error
 */
-static int32_t prvCompareBuffers( uint8_t *pucSrc, uint8_t *pucDst,
-                                  uint32_t ulTransferLen, uint32_t ulDstBuffSize )
+static int32_t prvCompareBuffers(uint8_t *pucSrc, uint8_t *pucDst, uint32_t ulTransferLen,
+                                 uint32_t ulDstBuffSize)
 {
     int32_t  lRet;
     uint32_t ulCount;
 
-    lRet = memcmp( pucSrc, pucDst, ulTransferLen );
+    lRet = memcmp(pucSrc, pucDst, ulTransferLen);
 
-    if( lRet == 0 )
-    {
-        for ( ulCount = ulTransferLen; ulCount < ulDstBuffSize; ulCount++ )
-        {
-            if ( pucDst[ulCount] != 0 )
-            {
-                printf( "DMA COPIED MORE BYTES\n" );
+    if (lRet == 0) {
+        for (ulCount = ulTransferLen; ulCount < ulDstBuffSize; ulCount++) {
+            if (pucDst[ulCount] != 0) {
+                printf("DMA COPIED MORE BYTES\n");
                 return -1;
             }
         }
@@ -135,40 +131,34 @@ static int32_t prvCompareBuffers( uint8_t *pucSrc, uint8_t *pucDst,
   \param[in]   ulEvent Event for which the callback has been called
   \param[in]   cPeripheralNum Peripheral number
 */
-static void prvDmacallback( uint32_t ulEvent, int8_t cPeripheralNum )
+static void prvDmacallback(uint32_t ulEvent, int8_t cPeripheralNum)
 {
-    ( void ) cPeripheralNum;
+    (void) cPeripheralNum;
 
     BaseType_t xHigherPriorityTaskWoken, xResult;
 
     xHigherPriorityTaskWoken = pdFALSE;
 
-    if( ulEvent & ARM_DMA_EVENT_COMPLETE )
-    {
+    if (ulEvent & ARM_DMA_EVENT_COMPLETE) {
         /* Send Success: Wake-up Thread. */
-        xResult = xTaskNotifyFromISR( xTaskDMAMemcpy,
-                                      DMA_SEND_COMPLETE_EVENT,
-                                      eSetBits,
-                                      &xHigherPriorityTaskWoken
-                                    );
+        xResult = xTaskNotifyFromISR(xTaskDMAMemcpy,
+                                     DMA_SEND_COMPLETE_EVENT,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
 
-        if(xResult == pdPASS)
-        {
+        if (xResult == pdPASS) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 
-    if( ulEvent & ARM_DMA_EVENT_ABORT )
-    {
+    if (ulEvent & ARM_DMA_EVENT_ABORT) {
         /* Send Success: Wake-up Thread. */
-        xResult = xTaskNotifyFromISR( xTaskDMAMemcpy,
-                                      DMA_ABORT_EVENT,
-                                      eSetBits,
-                                      &xHigherPriorityTaskWoken
-                                    );
+        xResult = xTaskNotifyFromISR(xTaskDMAMemcpy,
+                                     DMA_ABORT_EVENT,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
 
-        if(xResult == pdPASS)
-        {
+        if (xResult == pdPASS) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
@@ -179,61 +169,57 @@ static void prvDmacallback( uint32_t ulEvent, int8_t cPeripheralNum )
   \brief       DMA Thread to handle transmission
   \param[in]   pvParameters Task Private parameters
 */
-static void prvDmaMemcpyTask( void * pvParameters )
+static void prvDmaMemcpyTask(void *pvParameters)
 {
-    ARM_DRIVER_VERSION   xVersion;
-    ARM_DRIVER_DMA       *pxDMADrv;
-    int32_t              lStatus;
-    DMA_Handle_Type      xDMAHandle;
-    ARM_DMA_PARAMS       xDMAParams;
-    ARM_DMA_BS_Type      xDMABurstSize = DMA_BS;
-    uint8_t              ucDMABurstLen = DMA_BLEN;
-    uint32_t             ulLength      = DMA_XFER_LEN;
-    uint32_t             ulNotificationValue;
+    ARM_DRIVER_VERSION xVersion;
+    ARM_DRIVER_DMA    *pxDMADrv;
+    int32_t            lStatus;
+    DMA_Handle_Type    xDMAHandle;
+    ARM_DMA_PARAMS     xDMAParams;
+    ARM_DMA_BS_Type    xDMABurstSize = DMA_BS;
+    uint8_t            ucDMABurstLen = DMA_BLEN;
+    uint32_t           ulLength      = DMA_XFER_LEN;
+    uint32_t           ulNotificationValue;
 
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA1);
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA2);
+    extern ARM_DRIVER_DMA ARM_Driver_DMA_(DMA0);
 
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_( DMA1 );
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_( DMA2 );
-    extern ARM_DRIVER_DMA ARM_Driver_DMA_( DMA0 );
+    (void) pvParameters;
 
-    ( void ) pvParameters;
-
-#if defined( TEST_DMA0 )
-    pxDMADrv = &ARM_Driver_DMA_( DMA0 );
-#elif defined( TEST_DMA1 )
-    pxDMADrv = &ARM_Driver_DMA_( DMA1 );
-#elif defined( TEST_DMA2 )
-    pxDMADrv = &ARM_Driver_DMA_( DMA2 );
+#if defined(TEST_DMA0)
+    pxDMADrv = &ARM_Driver_DMA_(DMA0);
+#elif defined(TEST_DMA1)
+    pxDMADrv = &ARM_Driver_DMA_(DMA1);
+#elif defined(TEST_DMA2)
+    pxDMADrv = &ARM_Driver_DMA_(DMA2);
 #else
-    #error Select the DMA
+#error Select the DMA
 #endif
 
     /* Verify the DMA API Version for compatibility*/
     xVersion = pxDMADrv->GetVersion();
-    printf( "DMA API version = %d\n", xVersion.api );
+    printf("DMA API version = %d\n", xVersion.api);
 
     /* Initializes DMA interface */
     lStatus = pxDMADrv->Initialize();
-    if( lStatus )
-    {
-        printf( "DMA Init FAILED = %d\n", lStatus );
-        while( 1 );
+    if (lStatus) {
+        printf("DMA Init FAILED = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
     /* Power control for DMA */
-    lStatus = pxDMADrv->PowerControl( ARM_POWER_FULL );
-    if( lStatus )
-    {
-        printf( "DMA Power FAILED = %d\n", lStatus );
-        while( 1 );
+    lStatus = pxDMADrv->PowerControl(ARM_POWER_FULL);
+    if (lStatus) {
+        printf("DMA Power FAILED = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
     /* Allocate handle for DMA */
-    lStatus = pxDMADrv->Allocate( &xDMAHandle );
-    if( lStatus )
-    {
-        printf( "DMA Channel Allocation FAILED = %d\n", lStatus );
-        while( 1 );
+    lStatus = pxDMADrv->Allocate(&xDMAHandle);
+    if (lStatus) {
+        printf("DMA Channel Allocation FAILED = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
     xDMAParams.peri_reqno = -1;
@@ -246,55 +232,51 @@ static void prvDmaMemcpyTask( void * pvParameters )
     xDMAParams.burst_len  = ucDMABurstLen;
     xDMAParams.num_bytes  = ulLength;
 
-    printf( "DMA MEMCPY STARTED : Burst Size = %d, Burst len = %d, Transfer Len = %d\n",
-            xDMABurstSize, ucDMABurstLen, ulLength );
+    printf("DMA MEMCPY STARTED : Burst Size = %d, Burst len = %d, Transfer Len = %d\n",
+           xDMABurstSize,
+           ucDMABurstLen,
+           ulLength);
 
     /* Start transfer */
-    lStatus = pxDMADrv->Start( &xDMAHandle, &xDMAParams );
-    if( lStatus || (xDMAHandle < 0) )
-    {
-        printf( "DMA Start FAILED = %d\n", lStatus );
-        while( 1 );
+    lStatus = pxDMADrv->Start(&xDMAHandle, &xDMAParams);
+    if (lStatus || (xDMAHandle < 0)) {
+        printf("DMA Start FAILED = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
     /* wait for the dma callback */
-    if( xTaskNotifyWait( 0U, DMA_SEND_COMPLETE_EVENT | DMA_ABORT_EVENT,
-                     &ulNotificationValue, portMAX_DELAY ) == pdPASS)
-    {
-        if(ulNotificationValue & DMA_ABORT_EVENT)
-        {
-            printf( "DMA ABORT OCCURRED \n" );
-            while( 1 );
+    if (xTaskNotifyWait(0U,
+                        DMA_SEND_COMPLETE_EVENT | DMA_ABORT_EVENT,
+                        &ulNotificationValue,
+                        portMAX_DELAY) == pdPASS) {
+        if (ulNotificationValue & DMA_ABORT_EVENT) {
+            printf("DMA ABORT OCCURRED \n");
+            WAIT_FOREVER
         }
     }
 
     /* Now the buffer is ready, compare it */
-    lStatus = prvCompareBuffers( ucSrcBuff, ucDstBuff, ulLength, ACTUAL_BUFF_SIZE );
-    if( lStatus )
-    {
-      printf( "DMA MEMCPY *FAILED* \n" );
-    }
-    else
-    {
-      printf( "DMA MEMCPY SUCCESS\n" );
+    lStatus = prvCompareBuffers(ucSrcBuff, ucDstBuff, ulLength, ACTUAL_BUFF_SIZE);
+    if (lStatus) {
+        printf("DMA MEMCPY *FAILED* \n");
+    } else {
+        printf("DMA MEMCPY SUCCESS\n");
     }
 
-    lStatus = pxDMADrv->DeAllocate( &xDMAHandle );
-    if( lStatus )
-    {
-        printf( "DMA DeAllocate Failed = %d\n", lStatus );
-        while( 1 );
+    lStatus = pxDMADrv->DeAllocate(&xDMAHandle);
+    if (lStatus) {
+        printf("DMA DeAllocate Failed = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
     /* Power control for DMA */
-    lStatus = pxDMADrv->PowerControl( ARM_POWER_OFF );
-    if( lStatus )
-    {
-        printf( "DMA PowerOff failed = %d\n", lStatus );
-        while( 1 );
+    lStatus = pxDMADrv->PowerControl(ARM_POWER_OFF);
+    if (lStatus) {
+        printf("DMA PowerOff failed = %d\n", lStatus);
+        WAIT_FOREVER
     }
 
-    printf( "DMA TEST COMPLETED \n" );
+    printf("DMA TEST COMPLETED \n");
 }
 
 /**
@@ -302,45 +284,41 @@ static void prvDmaMemcpyTask( void * pvParameters )
   \brief       Application Main
   \return      int application exit status
 */
-int main (void)
+int main(void)
 {
-    extern void SystemCoreClockUpdate ( void );
+    extern void SystemCoreClockUpdate(void);
 
     BaseType_t xStatus;
 
-    #if defined( RTE_CMSIS_Compiler_STDOUT_Custom )
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     {
-	extern int stdout_init (void);
-        int32_t lRet;
+        extern int stdout_init(void);
+        int32_t    lRet;
         lRet = stdout_init();
-        if( lRet != ARM_DRIVER_OK )
-        {
-            while( 1 )
-            {
-            }
+        if (lRet != ARM_DRIVER_OK) {
+            WAIT_FOREVER
         }
     }
-    #endif
+#endif
 
-    memset( ucDstBuff, 0 , ACTUAL_BUFF_SIZE );
+    memset(ucDstBuff, 0, ACTUAL_BUFF_SIZE);
 
-    RTSS_CleanDCache_by_Addr( ucDstBuff, ACTUAL_BUFF_SIZE );
+    RTSS_CleanDCache_by_Addr(ucDstBuff, ACTUAL_BUFF_SIZE);
 
     /* Create random data for the DMA Source data*/
-    prvFillBuffer( ( void * ) ucSrcBuff, ACTUAL_BUFF_SIZE );
+    prvFillBuffer((void *) ucSrcBuff, ACTUAL_BUFF_SIZE);
 
-    xStatus = xTaskCreate( prvDmaMemcpyTask,
-                           "DMA Memcpy Task",
-                           DMA_MEMCPY_TASK_STACK_SIZE / sizeof(size_t),
-                           NULL,
-                           DMA_MEMCPY_TASK_PRIORITY,
-                           &xTaskDMAMemcpy );
-    if( xStatus != pdPASS )
-    {
-       vTaskDelete( xTaskDMAMemcpy );
-       printf( "Could not create DMA Task \n" );
+    xStatus = xTaskCreate(prvDmaMemcpyTask,
+                          "DMA Memcpy Task",
+                          DMA_MEMCPY_TASK_STACK_SIZE / sizeof(size_t),
+                          NULL,
+                          DMA_MEMCPY_TASK_PRIORITY,
+                          &xTaskDMAMemcpy);
+    if (xStatus != pdPASS) {
+        vTaskDelete(xTaskDMAMemcpy);
+        printf("Could not create DMA Task \n");
 
-       return -1;
+        return -1;
     }
 
     /* Start thread execution */

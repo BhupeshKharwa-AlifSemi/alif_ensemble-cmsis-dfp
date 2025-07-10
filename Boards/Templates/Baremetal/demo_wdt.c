@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_wdt.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -30,20 +30,18 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
-
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 /* watchdog Driver instance 0 */
-extern ARM_DRIVER_WDT Driver_WDT0;
+extern ARM_DRIVER_WDT  Driver_WDT0;
 static ARM_DRIVER_WDT *WDTdrv = &Driver_WDT0;
 
 void watchdog_demo_entry();
 
-
 void NMI_Handler(void)
 {
-	printf("\r\n NMI_Handler: Received Interrupt from Watchdog! \r\n");
-	while(1);
+    printf("\r\n NMI_Handler: Received Interrupt from Watchdog! \r\n");
+    WAIT_FOREVER
 }
 
 /**
@@ -60,117 +58,115 @@ void NMI_Handler(void)
 */
 void watchdog_demo_entry()
 {
-	uint32_t wdog_timeout_msec = 0;   /* watchdog timeout value in msec        */
-	uint32_t time_to_reset = 0;       /* watchdog remaining time before reset. */
-	uint32_t iter = 3;
-	int32_t  ret = 0;
-	ARM_DRIVER_VERSION version;
+    uint32_t           wdog_timeout_msec = 0; /* watchdog timeout value in msec        */
+    uint32_t           time_to_reset     = 0; /* watchdog remaining time before reset. */
+    uint32_t           iter              = 3;
+    int32_t            ret               = 0;
+    ARM_DRIVER_VERSION version;
 
-	printf("\r\n >>> watchdog demo starting up!!! <<< \r\n");
+    printf("\r\n >>> watchdog demo starting up!!! <<< \r\n");
 
-	version = WDTdrv->GetVersion();
-	printf("\r\n watchdog version api:%"PRIx16" driver:%"PRIx16"...\r\n",
-			version.api, version.drv);
+    version = WDTdrv->GetVersion();
+    printf("\r\n watchdog version api:%" PRIx16 " driver:%" PRIx16 "...\r\n",
+           version.api,
+           version.drv);
 
-	/* Watchdog timeout is set to 5000 msec (5 sec). */
-	wdog_timeout_msec = 5000;
+    /* Watchdog timeout is set to 5000 msec (5 sec). */
+    wdog_timeout_msec = 5000;
 
-	/* Initialize watchdog driver */
-	ret = WDTdrv->Initialize(wdog_timeout_msec);
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog init failed\n");
-		return;
-	}
+    /* Initialize watchdog driver */
+    ret               = WDTdrv->Initialize(wdog_timeout_msec);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog init failed\n");
+        return;
+    }
 
-	/* Power up watchdog peripheral */
-	ret = WDTdrv->PowerControl(ARM_POWER_FULL);
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog Power up failed\n");
-		goto error_uninitialize;
-	}
+    /* Power up watchdog peripheral */
+    ret = WDTdrv->PowerControl(ARM_POWER_FULL);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog Power up failed\n");
+        goto error_uninitialize;
+    }
 
-	/* Watchdog initialize will lock the timer, unlock it to change the register value. */
-	ret = WDTdrv->Control(ARM_WATCHDOG_UNLOCK, 0);
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog unlock failed\n");
-		goto error_poweroff;
-	}
+    /* Watchdog initialize will lock the timer, unlock it to change the register value. */
+    ret = WDTdrv->Control(ARM_WATCHDOG_UNLOCK, 0);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog unlock failed\n");
+        goto error_poweroff;
+    }
 
-	/* Start the watchDog Timer. */
-	ret = WDTdrv->Start();
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog start failed\n");
-		goto error_stop;
-	}
+    /* Start the watchDog Timer. */
+    ret = WDTdrv->Start();
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog start failed\n");
+        goto error_stop;
+    }
 
-	while(iter--)
-	{
-		/* Delay for 3 sec. */
-        for(uint32_t count = 0; count < 30; count++)
+    while (iter--) {
+        /* Delay for 3 sec. */
+        for (uint32_t count = 0; count < 30; count++) {
             sys_busy_loop_us(100000);
+        }
 
-		/* Get watchdog remaining time before reset. */
-		ret = WDTdrv->GetRemainingTime(&time_to_reset);
-		if(ret != ARM_DRIVER_OK){
-			printf("\r\n Error: watchdog get remaining time failed\n");
-			goto error_stop;
-		}
+        /* Get watchdog remaining time before reset. */
+        ret = WDTdrv->GetRemainingTime(&time_to_reset);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: watchdog get remaining time failed\n");
+            goto error_stop;
+        }
 
-		printf("\r\n Feed the WatchDog: %"PRIu32"...\r\n",iter);
-		ret = WDTdrv->Feed();
-		if(ret != ARM_DRIVER_OK){
-			printf("\r\n Error: watchdog feed failed\n");
-			goto error_stop;
-		}
-	}
+        printf("\r\n Feed the WatchDog: %" PRIu32 "...\r\n", iter);
+        ret = WDTdrv->Feed();
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: watchdog feed failed\n");
+            goto error_stop;
+        }
+    }
 
-	printf("\r\n now stop feeding to the watchdog, system will RESET on timeout. \r\n");
-	while(1);
-
+    printf("\r\n now stop feeding to the watchdog, system will RESET on timeout. \r\n");
+    WAIT_FOREVER
 
 error_stop:
-	/* First Unlock and then Stop watchdog peripheral. */
-	ret = WDTdrv->Control(ARM_WATCHDOG_UNLOCK, 0);
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog unlock failed\n");
-	}
+    /* First Unlock and then Stop watchdog peripheral. */
+    ret = WDTdrv->Control(ARM_WATCHDOG_UNLOCK, 0);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog unlock failed\n");
+    }
 
-	/* Stop watchdog peripheral */
-	ret = WDTdrv->Stop();
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog Stop failed.\r\n");
-	}
+    /* Stop watchdog peripheral */
+    ret = WDTdrv->Stop();
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog Stop failed.\r\n");
+    }
 
 error_poweroff:
-	/* Power off watchdog peripheral */
-	ret = WDTdrv->PowerControl(ARM_POWER_OFF);
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog Power OFF failed.\r\n");
-	}
+    /* Power off watchdog peripheral */
+    ret = WDTdrv->PowerControl(ARM_POWER_OFF);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog Power OFF failed.\r\n");
+    }
 
 error_uninitialize:
-	/* Un-initialize watchdog driver */
-	ret = WDTdrv->Uninitialize();
-	if(ret != ARM_DRIVER_OK){
-		printf("\r\n Error: watchdog Uninitialize failed.\r\n");
-	}
+    /* Un-initialize watchdog driver */
+    ret = WDTdrv->Uninitialize();
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: watchdog Uninitialize failed.\r\n");
+    }
 
-	printf("\r\n XXX watchdog demo thread exiting XXX...\r\n");
+    printf("\r\n XXX watchdog demo thread exiting XXX...\r\n");
 }
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
 
     watchdog_demo_entry();
 }

@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     gpio.h
  * @author   Girish BN, Manoj A Murudi
  * @email    girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
@@ -22,9 +22,8 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -36,8 +35,8 @@ extern "C"
  * gpio pin direction.
  */
 typedef enum _GPIO_PIN_DIR {
-    GPIO_PIN_DIR_INPUT,               /**<GPIO PIN direction to input>*/
-    GPIO_PIN_DIR_OUTPUT,              /**<GPIO PIN direction to output>*/
+    GPIO_PIN_DIR_INPUT,  /**<GPIO PIN direction to input>*/
+    GPIO_PIN_DIR_OUTPUT, /**<GPIO PIN direction to output>*/
 } GPIO_PIN_DIR;
 
 /**
@@ -47,7 +46,7 @@ typedef enum _GPIO_PIN_DIR {
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_direction_input (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_direction_input(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DDR &= ~(1 << pin_no);
 }
@@ -59,7 +58,7 @@ static inline void gpio_set_direction_input (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_direction_output (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_direction_output(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DDR |= (1 << pin_no);
 }
@@ -71,14 +70,11 @@ static inline void gpio_set_direction_output (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      direction
 */
-static inline GPIO_PIN_DIR gpio_get_direction (GPIO_Type *gpio, uint8_t pin_no)
+static inline GPIO_PIN_DIR gpio_get_direction(GPIO_Type *gpio, uint8_t pin_no)
 {
-    if ((gpio->GPIO_SWPORTA_DDR & (1 << pin_no)) >> pin_no)
-    {
+    if ((gpio->GPIO_SWPORTA_DDR & (1 << pin_no)) >> pin_no) {
         return GPIO_PIN_DIR_OUTPUT;
-    }
-    else
-    {
+    } else {
         return GPIO_PIN_DIR_INPUT;
     }
 }
@@ -90,7 +86,7 @@ static inline GPIO_PIN_DIR gpio_get_direction (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_value_low(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DR &= ~(1 << pin_no);
 }
@@ -102,7 +98,7 @@ static inline void gpio_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_value_high(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DR |= (1 << pin_no);
 }
@@ -114,7 +110,7 @@ static inline void gpio_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_toggle_value(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_DR ^= (1 << pin_no);
 }
@@ -127,7 +123,7 @@ static inline void gpio_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_bit_man_set_value_low(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_BIT_MAN_CTRL_W1C = (1 << pin_no);
 }
@@ -139,7 +135,7 @@ static inline void gpio_bit_man_set_value_low (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_bit_man_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_bit_man_set_value_high(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_BIT_MAN_CTRL_W1S = (1 << pin_no);
 }
@@ -151,7 +147,7 @@ static inline void gpio_bit_man_set_value_high (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_bit_man_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_bit_man_toggle_value(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_BIT_MAN_CTRL_W1F = (1 << pin_no);
 }
@@ -164,9 +160,9 @@ static inline void gpio_bit_man_toggle_value (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      value
 */
-static inline uint8_t gpio_get_value (GPIO_Type *gpio, uint8_t pin_no)
+static inline uint8_t gpio_get_value(GPIO_Type *gpio, uint8_t pin_no)
 {
-    return gpio->GPIO_EXT_PORTA & (1 << pin_no) ? 1: 0;
+    return gpio->GPIO_EXT_PORTA & (1 << pin_no) ? 1 : 0;
 }
 
 /**
@@ -176,7 +172,7 @@ static inline uint8_t gpio_get_value (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      register value
 */
-static inline uint32_t gpio_read_config1 (GPIO_Type *gpio)
+static inline uint32_t gpio_read_config1(GPIO_Type *gpio)
 {
     return gpio->GPIO_CONFIG_REG1;
 }
@@ -188,7 +184,7 @@ static inline uint32_t gpio_read_config1 (GPIO_Type *gpio)
   \param       pin_no   pin number
   \return      register value
 */
-static inline uint32_t gpio_read_config2 (GPIO_Type *gpio)
+static inline uint32_t gpio_read_config2(GPIO_Type *gpio)
 {
     return gpio->GPIO_CONFIG_REG2;
 }
@@ -200,7 +196,7 @@ static inline uint32_t gpio_read_config2 (GPIO_Type *gpio)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_enable_interrupt (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_enable_interrupt(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTEN |= (1 << pin_no);
 }
@@ -212,7 +208,7 @@ static inline void gpio_enable_interrupt (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_disable_interrupt (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_disable_interrupt(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTEN &= ~(1 << pin_no);
 }
@@ -223,9 +219,9 @@ static inline void gpio_disable_interrupt (GPIO_Type *gpio, uint8_t pin_no)
   \param       gpio     Pointer to the GPIO register map
   \return      GPIO_INTEN value
 */
-static inline uint8_t gpio_get_enabled_interrupt (GPIO_Type *gpio)
+static inline uint8_t gpio_get_enabled_interrupt(GPIO_Type *gpio)
 {
-    return (uint8_t)gpio->GPIO_INTEN;
+    return (uint8_t) gpio->GPIO_INTEN;
 }
 
 /**
@@ -235,7 +231,7 @@ static inline uint8_t gpio_get_enabled_interrupt (GPIO_Type *gpio)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_mask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_mask_interrupt(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTMASK |= (1 << pin_no);
 }
@@ -247,7 +243,7 @@ static inline void gpio_mask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_unmask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_unmask_interrupt(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTMASK &= ~(1 << pin_no);
 }
@@ -258,9 +254,9 @@ static inline void gpio_unmask_interrupt (GPIO_Type *gpio, uint8_t pin_no)
   \param       gpio     Pointer to the GPIO register map
   \return      none
 */
-static inline uint8_t gpio_interrupt_status (GPIO_Type *gpio)
+static inline uint8_t gpio_interrupt_status(GPIO_Type *gpio)
 {
-    return (uint8_t)gpio->GPIO_INTSTATUS;
+    return (uint8_t) gpio->GPIO_INTSTATUS;
 }
 
 /**
@@ -270,19 +266,17 @@ static inline uint8_t gpio_interrupt_status (GPIO_Type *gpio)
   \param       pin_no   pin number
   \return      none
 */
-static inline bool gpio_read_int_rawstatus (GPIO_Type *gpio, uint8_t pin_no)
+static inline bool gpio_read_int_rawstatus(GPIO_Type *gpio, uint8_t pin_no)
 {
     return ((gpio->GPIO_RAW_INTSTATUS & (1 << pin_no)) >> pin_no);
 }
 
 /**
-  \fn          static inline void gpio_interrupt_set_both_edge_trigger (GPIO_Type *gpio, uint8_t pin_no)
-  \brief       GPIO set interrupt on both edge.
-  \param       gpio     Pointer to the GPIO register map
-  \param       pin_no   pin number
-  \return      none
+  \fn          static inline void gpio_interrupt_set_both_edge_trigger (GPIO_Type *gpio, uint8_t
+  pin_no) \brief       GPIO set interrupt on both edge. \param       gpio     Pointer to the GPIO
+  register map \param       pin_no   pin number \return      none
 */
-static inline void gpio_interrupt_set_both_edge_trigger (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_set_both_edge_trigger(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INT_BOTHEDGE |= (1 << pin_no);
 }
@@ -294,7 +288,7 @@ static inline void gpio_interrupt_set_both_edge_trigger (GPIO_Type *gpio, uint8_
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_interrupt_set_level_trigger (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_set_level_trigger(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTTYPE_LEVEL &= ~(1 << pin_no);
 }
@@ -306,7 +300,7 @@ static inline void gpio_interrupt_set_level_trigger (GPIO_Type *gpio, uint8_t pi
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_interrupt_set_edge_trigger (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_set_edge_trigger(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INTTYPE_LEVEL |= (1 << pin_no);
 }
@@ -318,7 +312,7 @@ static inline void gpio_interrupt_set_edge_trigger (GPIO_Type *gpio, uint8_t pin
   \param       pin_no   pin number
   \return      none
 */
-static inline bool gpio_get_interrupt_trigger_type (GPIO_Type *gpio, uint8_t pin_no)
+static inline bool gpio_get_interrupt_trigger_type(GPIO_Type *gpio, uint8_t pin_no)
 {
     return ((gpio->GPIO_INTTYPE_LEVEL & (1 << pin_no)) >> pin_no);
 }
@@ -330,7 +324,7 @@ static inline bool gpio_get_interrupt_trigger_type (GPIO_Type *gpio, uint8_t pin
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_interrupt_set_polarity_high (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_set_polarity_high(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INT_POLARITY |= (1 << pin_no);
 }
@@ -342,7 +336,7 @@ static inline void gpio_interrupt_set_polarity_high (GPIO_Type *gpio, uint8_t pi
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_interrupt_set_polarity_low (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_set_polarity_low(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_INT_POLARITY &= ~(1 << pin_no);
 }
@@ -354,7 +348,7 @@ static inline void gpio_interrupt_set_polarity_low (GPIO_Type *gpio, uint8_t pin
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_enable_debounce (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_enable_debounce(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_DEBOUNCE |= (1 << pin_no);
 }
@@ -366,7 +360,7 @@ static inline void gpio_enable_debounce (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_disable_debounce (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_disable_debounce(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_DEBOUNCE &= ~(1 << pin_no);
 }
@@ -378,7 +372,7 @@ static inline void gpio_disable_debounce (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_interrupt_eoi (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_interrupt_eoi(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_PORTA_EOI |= (1 << pin_no);
     (void) gpio->GPIO_PORTA_EOI;
@@ -391,7 +385,7 @@ static inline void gpio_interrupt_eoi (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_hardware_mode (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_hardware_mode(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_CTL |= (1 << pin_no);
 }
@@ -403,7 +397,7 @@ static inline void gpio_set_hardware_mode (GPIO_Type *gpio, uint8_t pin_no)
   \param       pin_no   pin number
   \return      none
 */
-static inline void gpio_set_software_mode (GPIO_Type *gpio, uint8_t pin_no)
+static inline void gpio_set_software_mode(GPIO_Type *gpio, uint8_t pin_no)
 {
     gpio->GPIO_SWPORTA_CTL &= ~(1 << pin_no);
 }

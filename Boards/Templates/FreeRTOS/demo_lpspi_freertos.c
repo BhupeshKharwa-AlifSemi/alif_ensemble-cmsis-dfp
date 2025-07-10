@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_lpspi_freertos.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -35,43 +35,45 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "sys_utils.h"
 
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
 
-// Set to 0: Use application-defined lpspi and spi pin configuration (via board_lpspi_pins_config()).
-// Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
+// Set to 0: Use application-defined lpspi and spi pin configuration (via
+// board_lpspi_pins_config()). Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* Use below macro to specify transfer type
  * 1 - Uses SPI Transfer function
  * 0 - Uses SPI Send & Receive function
  * */
-#define DATA_TRANSFER_TYPE  0
+#define DATA_TRANSFER_TYPE             0
 
-#define  LPSPI          LP   /* LPSPI instance */
-#define  SPI0           0    /* SPI0 instance */
+#define LPSPI                          LP /* LPSPI instance */
+#define SPI0                           0  /* SPI0 instance */
 
 extern ARM_DRIVER_SPI ARM_Driver_SPI_(LPSPI);
-ARM_DRIVER_SPI *ptrLPSPI = &ARM_Driver_SPI_(LPSPI);
+ARM_DRIVER_SPI       *ptrLPSPI = &ARM_Driver_SPI_(LPSPI);
 
 extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI0);
-ARM_DRIVER_SPI *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
+ARM_DRIVER_SPI       *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
 
 /*Define for the FreeRTOS objects*/
-#define LPSPI_CALLBACK_EVENT       0x01
-#define SPI0_CALLBACK_EVENT        0x02
+#define LPSPI_CALLBACK_EVENT          0x01
+#define SPI0_CALLBACK_EVENT           0x02
 
 /*Define for FreeRTOS*/
-#define STACK_SIZE     1024
-#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH // 512
-#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE // 1024
+#define STACK_SIZE                    1024
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH  // 512
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE      // 1024
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 /* Thread id of thread */
@@ -80,92 +82,112 @@ TaskHandle_t spi_xHandle;
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
- *ppxIdleTaskTCBBuffer = &IdleTcb;
- *ppxIdleTaskStackBuffer = IdleStack;
- *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
+    *ppxIdleTaskStackBuffer = IdleStack;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
- (void) pxTask;
+    (void) pxTask;
 
- for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-    StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
- *ppxTimerTaskTCBBuffer = &TimerTcb;
- *ppxTimerTaskStackBuffer = TimerStack;
- *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
+    *ppxTimerTaskStackBuffer = TimerStack;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
- for (;;);
+    ASSERT_HANG
 }
 
 /*****************Only for FreeRTOS use *************************/
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-* @fn      static int32_t board_lpspi_pins_config(void)
-* @brief   Configure additional lpspi pinmux settings not handled
-*          by the board support library.
-* @retval  execution status.
-*/
+ * @fn      static int32_t board_lpspi_pins_config(void)
+ * @brief   Configure additional lpspi pinmux settings not handled
+ *          by the board support library.
+ * @retval  execution status.
+ */
 static int32_t board_lpspi_pins_config(void)
 {
     int32_t ret;
 
     /* pinmux configurations for LPSPI pins */
-    ret = pinconf_set(PORT_(BOARD_LPSPI_MISO_GPIO_PORT), BOARD_LPSPI_MISO_GPIO_PIN, BOARD_LPSPI_MISO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MISO_GPIO_PORT),
+                      BOARD_LPSPI_MISO_GPIO_PIN,
+                      BOARD_LPSPI_MISO_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_MOSI_GPIO_PORT), BOARD_LPSPI_MOSI_GPIO_PIN, BOARD_LPSPI_MOSI_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_LPSPI_MOSI_GPIO_PORT),
+                      BOARD_LPSPI_MOSI_GPIO_PIN,
+                      BOARD_LPSPI_MOSI_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for LPSPI_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_SCLK_GPIO_PORT), BOARD_LPSPI_SCLK_GPIO_PIN, BOARD_LPSPI_SCLK_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SCLK_GPIO_PORT),
+                      BOARD_LPSPI_SCLK_GPIO_PIN,
+                      BOARD_LPSPI_SCLK_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for LPSPI_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_LPSPI_SS_GPIO_PORT), BOARD_LPSPI_SS_GPIO_PIN, BOARD_LPSPI_SS_ALTERNATE_FUNCTION, 0);
-    if (ret)
-        {printf("ERROR: Failed to configure PINMUX for LPSPI_SS_PIN\n");
+    ret = pinconf_set(PORT_(BOARD_LPSPI_SS_GPIO_PORT),
+                      BOARD_LPSPI_SS_GPIO_PIN,
+                      BOARD_LPSPI_SS_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
+        printf("ERROR: Failed to configure PINMUX for LPSPI_SS_PIN\n");
         return ret;
     }
 
-     /* pinmux configurations for SPI0 pins */
-    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT), BOARD_SPI0_MISO_GPIO_PIN, BOARD_SPI0_MISO_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    /* pinmux configurations for SPI0 pins */
+    ret = pinconf_set(PORT_(BOARD_SPI0_MISO_GPIO_PORT),
+                      BOARD_SPI0_MISO_GPIO_PIN,
+                      BOARD_SPI0_MISO_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT), BOARD_SPI0_MOSI_GPIO_PIN, BOARD_SPI0_MOSI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT),
+                      BOARD_SPI0_MOSI_GPIO_PIN,
+                      BOARD_SPI0_MOSI_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT), BOARD_SPI0_SCLK_GPIO_PIN, BOARD_SPI0_SCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT),
+                      BOARD_SPI0_SCLK_GPIO_PIN,
+                      BOARD_SPI0_SCLK_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT), BOARD_SPI0_SS0_GPIO_PIN, BOARD_SPI0_SS0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT),
+                      BOARD_SPI0_SS0_GPIO_PIN,
+                      BOARD_SPI0_SS0_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");
         return ret;
     }
@@ -180,15 +202,16 @@ static int32_t board_lpspi_pins_config(void)
  * @param   event: SPI event.
  * @retval  none.
  */
-static void LPSPI_cb_func (uint32_t event)
+static void LPSPI_cb_func(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
-    {
+    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE) {
         xTaskNotifyFromISR(spi_xHandle, LPSPI_CALLBACK_EVENT, eSetBits, &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 }
 
@@ -199,15 +222,16 @@ static void LPSPI_cb_func (uint32_t event)
  * @param   event: SPI event.
  * @retval  none.
  */
-static void SPI0_cb_func (uint32_t event)
+static void SPI0_cb_func(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
-    {
+    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE) {
         xTaskNotifyFromISR(spi_xHandle, SPI0_CALLBACK_EVENT, eSetBits, &xHigherPriorityTaskWoken);
 
-        if (xResult == pdTRUE)        {    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );    }
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 }
 
@@ -220,9 +244,9 @@ static void SPI0_cb_func (uint32_t event)
  */
 static void lpspi_spi0_transfer(void *pvParameters)
 {
-    uint32_t lpspi_tx_buff, spi0_rx_buff = 0;
-    int32_t ret = ARM_DRIVER_OK;
-    uint32_t lpspi_control, spi0_control;
+    uint32_t   lpspi_tx_buff, spi0_rx_buff = 0;
+    int32_t    ret = ARM_DRIVER_OK;
+    uint32_t   lpspi_control, spi0_control;
     BaseType_t xReturned;
 #if DATA_TRANSFER_TYPE
     uint32_t spi0_tx_buff, lpspi_rx_buff = 0;
@@ -241,8 +265,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
@@ -253,112 +276,97 @@ static void lpspi_spi0_transfer(void *pvParameters)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_lpspi_pins_config();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
 #endif
 
     /* config flexio pins to 1.8V */
-    uint32_t error_code = SERVICES_REQ_SUCCESS;
-    uint32_t service_error_code;
+    uint32_t      error_code = SERVICES_REQ_SUCCESS;
+    uint32_t      service_error_code;
     run_profile_t runp;
 
     /* Initialize the SE services */
     se_services_port_init();
 
     /* Get the current run configuration from SE */
-    error_code = SERVICES_get_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Get Current run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     /* Set the new run configuration */
-    error_code = SERVICES_set_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Set new run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     /* LPSPI Configuration as master */
     ret = ptrLPSPI->Initialize(LPSPI_cb_func);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize the LPSPI\n");
         return;
     }
 
     ret = ptrLPSPI->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power LPSPI\n");
         goto error_lpspi_uninitialize;
     }
 
-    lpspi_control = (ARM_SPI_MODE_MASTER | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
+    lpspi_control = (ARM_SPI_MODE_MASTER | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_CPOL0_CPHA0 |
+                     ARM_SPI_DATA_BITS(32));
 
     /* Baudrate is 1MHz */
-    ret = ptrLPSPI->Control(lpspi_control, 1000000);
-    if (ret != ARM_DRIVER_OK)
-    {
+    ret           = ptrLPSPI->Control(lpspi_control, 1000000);
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure LPSPI\n");
         goto error_lpspi_power_off;
     }
 
     /* SPI0 Configuration as slave */
     ret = ptrSPI0->Initialize(SPI0_cb_func);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize the SPI0\n");
         goto error_lpspi_power_off;
     }
 
     ret = ptrSPI0->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power SPI0\n");
         goto error_spi0_uninitialize;
     }
 
     spi0_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
 
-    ret = ptrSPI0->Control(spi0_control, NULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    ret          = ptrSPI0->Control(spi0_control, NULL);
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI0\n");
         goto error_spi0_power_off;
     }
 
     ret = ptrLPSPI->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to enable the slave select of LPSPI\n");
         goto error_spi0_power_off;
     }
 
 #if DATA_TRANSFER_TYPE
     lpspi_tx_buff = 0xAAAAAAAA;
-    spi0_tx_buff = 0x55555555;
+    spi0_tx_buff  = 0x55555555;
 
-    ret = ptrSPI0->Transfer(&spi0_tx_buff, &spi0_rx_buff, 1);
-    if (ret != ARM_DRIVER_OK)
-    {
+    ret           = ptrSPI0->Transfer(&spi0_tx_buff, &spi0_rx_buff, 1);
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed SPI0 to configure as tx_rx\n");
         goto error_spi0_power_off;
     }
 
     ret = ptrLPSPI->Transfer(&lpspi_tx_buff, &lpspi_rx_buff, 1);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: LPSPI Failed to configure as tx_rx\n");
         goto error_spi0_power_off;
     }
@@ -366,29 +374,28 @@ static void lpspi_spi0_transfer(void *pvParameters)
 #else
     lpspi_tx_buff = 0x12345678;
 
-    ret = ptrSPI0->Receive(&spi0_rx_buff, 1);
-    if (ret != ARM_DRIVER_OK)
-    {
+    ret           = ptrSPI0->Receive(&spi0_rx_buff, 1);
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: SPI0 Failed to configure as receive only\n");
         goto error_spi0_power_off;
     }
 
     ret = ptrLPSPI->Send(&lpspi_tx_buff, 1);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("ERROR: LPSPI Failed to configure as send only\n");
         goto error_spi0_power_off;
     }
 #endif
 
-    xReturned = xTaskNotifyWait(NULL,LPSPI_CALLBACK_EVENT|SPI0_CALLBACK_EVENT,NULL, portMAX_DELAY);
-    if (xReturned != pdTRUE )
-    {
+    xReturned =
+        xTaskNotifyWait(NULL, LPSPI_CALLBACK_EVENT | SPI0_CALLBACK_EVENT, NULL, portMAX_DELAY);
+    if (xReturned != pdTRUE) {
         printf("\n\r Task Wait Time out expired \n\r");
         goto error_spi0_power_off;
     }
 
-    while (!((ptrLPSPI->GetStatus().busy == 0) && (ptrSPI0->GetStatus().busy == 0)));
+    while (!((ptrLPSPI->GetStatus().busy == 0) && (ptrSPI0->GetStatus().busy == 0))) {
+    }
     printf("Data Transfer completed\n");
 
     printf("SPI0 received value 0x%x\n", spi0_rx_buff);
@@ -396,31 +403,27 @@ static void lpspi_spi0_transfer(void *pvParameters)
     printf("LPSPI received value 0x%x\n", lpspi_rx_buff);
 #endif
 
-error_spi0_power_off :
+error_spi0_power_off:
     ret = ptrSPI0->PowerControl(ARM_POWER_OFF);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("Failed to Power off SPI0\n");
     }
 
-error_spi0_uninitialize :
+error_spi0_uninitialize:
     ret = ptrSPI0->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("Failed to Un-Initialized SPI0\n");
     }
 
-error_lpspi_power_off :
+error_lpspi_power_off:
     ret = ptrLPSPI->PowerControl(ARM_POWER_OFF);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("Failed to Power off LPSPI\n");
     }
 
-error_lpspi_uninitialize :
+error_lpspi_uninitialize:
     ret = ptrLPSPI->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("Failed to Un-Initialized LPSPI\n");
     }
 
@@ -433,32 +436,32 @@ error_lpspi_uninitialize :
 /*----------------------------------------------------------------------------
  *      Main: Initialize and start the FreeRTOS Kernel
  *---------------------------------------------------------------------------*/
-int main( void )
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(lpspi_spi0_transfer, "SPI_Thread", 216, NULL,configMAX_PRIORITIES-1, &spi_xHandle);
-   if (xReturned != pdPASS)
-   {
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(lpspi_spi0_transfer,
+                                       "SPI_Thread",
+                                       216,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &spi_xHandle);
+    if (xReturned != pdPASS) {
 
-       vTaskDelete(spi_xHandle);
-       return -1;
+        vTaskDelete(spi_xHandle);
+        return -1;
     }
 
     /* Start thread execution */
     vTaskStartScheduler();
-
 }

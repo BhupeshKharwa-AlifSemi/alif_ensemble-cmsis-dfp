@@ -32,113 +32,109 @@
 /* I3C Driver */
 #include "Driver_I3C.h"
 
-#if defined (RTE_Drivers_BMI323)
+#if defined(RTE_Drivers_BMI323)
 
 /* BMI Interrupt pin control IO port */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_BMI323_INT_IO_PORT);
+extern ARM_DRIVER_GPIO  ARM_Driver_GPIO_(RTE_BMI323_INT_IO_PORT);
 static ARM_DRIVER_GPIO *IO_Driver_INT = &ARM_Driver_GPIO_(RTE_BMI323_INT_IO_PORT);
 
-#define ARM_IMU_DRV_VERSION  ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)
+#define ARM_IMU_DRV_VERSION            ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)
 
 /* Timeout in Microsec */
-#define IMU_I3C_TIMEOUT_US              (100000)
+#define IMU_I3C_TIMEOUT_US             (100000)
 
 /* BMI323 dummy bytes*/
-#define BMI323_INITIAL_DUMMY_BYTES_LEN  (2)
+#define BMI323_INITIAL_DUMMY_BYTES_LEN (2)
 
 /* Register offest */
-#define BMI323_ADDR_REG_IDX_SIZE        (1)
+#define BMI323_ADDR_REG_IDX_SIZE       (1)
 
 /* BMI323 Driver status */
-#define BMI323_DRIVER_INITIALIZED       (1 << 0U)
-#define BMI323_DRIVER_POWERED           (1 << 1U)
+#define BMI323_DRIVER_INITIALIZED      (1 << 0U)
+#define BMI323_DRIVER_POWERED          (1 << 1U)
 
 /* Target Slave Address */
-#define BMI323_DEFAULT_ADDR             (0x69)
+#define BMI323_DEFAULT_ADDR            (0x69)
 
 /* Target Slave's Chip ID Reg addr and it's value */
-#define BMI323_CHIP_ID_REG              (0x0)
-#define BMI323_CHIP_ID_SIZE             (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_CHIP_ID_VAL              (0x43)
-#define BMI323_CHIP_ID_OFFSET           (0x2)
+#define BMI323_CHIP_ID_REG             (0x0)
+#define BMI323_CHIP_ID_SIZE            (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_CHIP_ID_VAL             (0x43)
+#define BMI323_CHIP_ID_OFFSET          (0x2)
 
 /*  Data Registers */
-#define BMI323_TEMP_DATA_REG            (0x09)
-#define BMI323_TEMP_DATA_SIZE           (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_ACCEL_DATA_REG           (0x03)
-#define BMI323_ACCEL_DATA_SIZE          (0x06 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_GYRO_DATA_REG            (0x06)
-#define BMI323_GYRO_DATA_SIZE           (0x06 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_TEMP_DATA_REG           (0x09)
+#define BMI323_TEMP_DATA_SIZE          (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_ACCEL_DATA_REG          (0x03)
+#define BMI323_ACCEL_DATA_SIZE         (0x06 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_GYRO_DATA_REG           (0x06)
+#define BMI323_GYRO_DATA_SIZE          (0x06 + BMI323_INITIAL_DUMMY_BYTES_LEN)
 
 /* Data registers offset */
-#define BMI323_TEMP_DATA_OFFSET         (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_ACCEL_DATA_X_OFFSET      (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_ACCEL_DATA_Y_OFFSET      (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_ACCEL_DATA_Z_OFFSET      (0x04 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_GYRO_DATA_X_OFFSET       (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_GYRO_DATA_Y_OFFSET       (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
-#define BMI323_GYRO_DATA_Z_OFFSET       (0x04 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_TEMP_DATA_OFFSET        (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_ACCEL_DATA_X_OFFSET     (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_ACCEL_DATA_Y_OFFSET     (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_ACCEL_DATA_Z_OFFSET     (0x04 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_GYRO_DATA_X_OFFSET      (0x00 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_GYRO_DATA_Y_OFFSET      (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_GYRO_DATA_Z_OFFSET      (0x04 + BMI323_INITIAL_DUMMY_BYTES_LEN)
 
 /* Configuration Registers */
-#define BMI323_CONFIG_REG_SIZE          (0x02)
-#define BMI323_ACCEL_CONFIG_REG         (0x20)
-#define BMI323_ACCEL_CONFIG_VAL         (0x4037) /* Enable Normal mode */
-#define BMI323_GYRO_CONFIG_REG          (0x21)
-#define BMI323_GYRO_CONFIG_VAL          (0x404B) /* Enable Normal mode */
+#define BMI323_CONFIG_REG_SIZE         (0x02)
+#define BMI323_ACCEL_CONFIG_REG        (0x20)
+#define BMI323_ACCEL_CONFIG_VAL        (0x4037) /* Enable Normal mode */
+#define BMI323_GYRO_CONFIG_REG         (0x21)
+#define BMI323_GYRO_CONFIG_VAL         (0x404B) /* Enable Normal mode */
 
 /* Interrupt config, status and src register */
-#define BMI323_IO_INT_CTRL_REG          (0x38)
-#define BMI323_IO_INT_CTRL_VAL          (0x4)     /* Enable interrupt output enable */
+#define BMI323_IO_INT_CTRL_REG         (0x38)
+#define BMI323_IO_INT_CTRL_VAL         (0x4) /* Enable interrupt output enable */
 
-#define BMI323_INT_MAP2_REG             (0x3B)    /* Interrupt configuration Register */
-#define BMI323_INT_MAP2_VAL             (0x540)   /* Route Acc, Gyr, Temp data ready intr to INT1 */
+#define BMI323_INT_MAP2_REG            (0x3B)  /* Interrupt configuration Register */
+#define BMI323_INT_MAP2_VAL            (0x540) /* Route Acc, Gyr, Temp data ready intr to INT1 */
 
 /* Interrupt status macro*/
-#define BMI323_INT1_STATUS_REG          (0x0D)
-#define BMI323_INT1_STATUS_SIZE         (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
+#define BMI323_INT1_STATUS_REG         (0x0D)
+#define BMI323_INT1_STATUS_SIZE        (0x02 + BMI323_INITIAL_DUMMY_BYTES_LEN)
 
 /* Data ready status macros */
-#define BMI323_INT1_STATUS_TEMP_DRDY    (0x800)   /* Temperature data is ready   */
-#define BMI323_INT1_STATUS_GYRO_DRDY    (0x1000)  /* Gyroscope data is ready     */
-#define BMI323_INT1_STATUS_ACCEL_DRDY   (0x2000)  /* Accelerometer data is ready */
+#define BMI323_INT1_STATUS_TEMP_DRDY   (0x800)  /* Temperature data is ready   */
+#define BMI323_INT1_STATUS_GYRO_DRDY   (0x1000) /* Gyroscope data is ready     */
+#define BMI323_INT1_STATUS_ACCEL_DRDY  (0x2000) /* Accelerometer data is ready */
 
-#define BMI323_ACCEL_CALIB_VAL          (2048U)   /*Calibration for full scale output selection of +-16g */
-#define BMI323_GYRO_CALIB_VAL           (16.384)  /*Calibration for full scale output selection of +-2kdps */
+#define BMI323_ACCEL_CALIB_VAL         (2048U) /*Calibration for full scale output selection of +-16g */
+#define BMI323_GYRO_CALIB_VAL          (16.384) /*Calibration for full scale output selection of +-2kdps */
 
-#define BMI323_ACCEL_VAL(x)             ((x * 1000) / (BMI323_ACCEL_CALIB_VAL)) /* Acceleration value in mg*/
-#define BMI323_GYRO_VAL(x)              ((x * 1000) / (BMI323_GYRO_CALIB_VAL))  /* Gyro value in mdps */
-#define BMI323_TEMPERATURE(x)           ((x / 512.0) + 23)                      /* Temp value in C */
+#define BMI323_ACCEL_VAL(x)            ((x * 1000) / (BMI323_ACCEL_CALIB_VAL)) /* Acceleration value in mg*/
+#define BMI323_GYRO_VAL(x)             ((x * 1000) / (BMI323_GYRO_CALIB_VAL)) /* Gyro value in mdps */
+#define BMI323_TEMPERATURE(x)          ((x / 512.0) + 23)                     /* Temp value in C */
 
-#define BMI323_CFG_DELAY_US             10
-#define DELAY_1US                       1
+#define BMI323_CFG_DELAY_US            10
+#define DELAY_1US                      1
 
 /* BMI323 driver Info variable */
-static struct BMI323_DRV_INFO
-{
-    uint8_t                    state;              /* Driver state                   */
-    uint8_t                    target_addr;        /* Target slave's dynamic address */
-    uint16_t                   reserved;           /* Reserved                       */
-    volatile uint32_t          imu_i3c_event;      /* I3C Event status               */
-    volatile ARM_IMU_STATUS    status;             /* Driver status                  */
+static struct BMI323_DRV_INFO {
+    uint8_t                 state;         /* Driver state                   */
+    uint8_t                 target_addr;   /* Target slave's dynamic address */
+    uint16_t                reserved;      /* Reserved                       */
+    volatile uint32_t       imu_i3c_event; /* I3C Event status               */
+    volatile ARM_IMU_STATUS status;        /* Driver status                  */
 } bmi323_drv_info;
 
 /* Driver version*/
-static const ARM_DRIVER_VERSION DriverVersion = {
-    ARM_IMU_API_VERSION,
-    ARM_IMU_DRV_VERSION
-};
+static const ARM_DRIVER_VERSION DriverVersion = {ARM_IMU_API_VERSION, ARM_IMU_DRV_VERSION};
 
 /* I3C driver */
-extern ARM_DRIVER_I3C Driver_I3C;
-static ARM_DRIVER_I3C *I3C_Driver = &Driver_I3C;
+extern ARM_DRIVER_I3C  Driver_I3C;
+static ARM_DRIVER_I3C *I3C_Driver                    = &Driver_I3C;
 
 /* Driver Capabilities */
 static const ARM_IMU_CAPABILITIES DriverCapabilities = {
-    1,  /* Supports Accelerometer data */
-    1,  /* Supports Gyroscope data */
-    0,  /* Doesn't support Magnetometer data */
-    1,  /* Supports Temperature sens data */
-    0   /* reserved (must be zero)*/
+    1, /* Supports Accelerometer data */
+    1, /* Supports Gyroscope data */
+    0, /* Doesn't support Magnetometer data */
+    1, /* Supports Temperature sens data */
+    0  /* reserved (must be zero)*/
 };
 
 /* Gets data ready status */
@@ -187,23 +183,18 @@ static ARM_IMU_STATUS ARM_IMU_GetStatus(void)
 static int32_t ARM_IMU_IntEnable(bool enable)
 {
     uint32_t arg = ARM_GPIO_IRQ_POLARITY_LOW | ARM_GPIO_IRQ_SENSITIVE_LEVEL;
-    int32_t ret;
+    int32_t  ret;
 
     if (enable) {
         /* Enable interrupt */
-        ret = IO_Driver_INT->Control(RTE_BMI323_INT_PIN_NO,
-                                     ARM_GPIO_ENABLE_INTERRUPT,
-                                     &arg);
+        ret = IO_Driver_INT->Control(RTE_BMI323_INT_PIN_NO, ARM_GPIO_ENABLE_INTERRUPT, &arg);
     } else {
         /* Disable interrupt */
-        ret = IO_Driver_INT->Control(RTE_BMI323_INT_PIN_NO,
-                                     ARM_GPIO_DISABLE_INTERRUPT,
-                                     NULL);
+        ret = IO_Driver_INT->Control(RTE_BMI323_INT_PIN_NO, ARM_GPIO_DISABLE_INTERRUPT, NULL);
     }
 
     return ret;
 }
-
 
 /**
   \fn           void ARM_IMU_IO_CB(uint32_t event)
@@ -213,10 +204,10 @@ static int32_t ARM_IMU_IntEnable(bool enable)
 */
 void ARM_IMU_IO_CB(uint32_t event)
 {
-    ARG_UNUSED (event);
+    ARG_UNUSED(event);
 
     /* Disable IMU interrupt */
-    (void)ARM_IMU_IntEnable(false);
+    (void) ARM_IMU_IntEnable(false);
 
     /* Sets Data Rcvd to true */
     bmi323_drv_info.status.data_rcvd = true;
@@ -242,23 +233,22 @@ static int32_t IMU_ResetDynAddr(void)
 {
     int32_t ret;
 
-    ARM_I3C_CMD i3c_cmd   = {0};
+    ARM_I3C_CMD i3c_cmd = {0};
 
     /* Reset slave address */
-    i3c_cmd.rw            = 0U;
-    i3c_cmd.cmd_id        = I3C_CCC_RSTDAA(true);
-    i3c_cmd.len           = 0U;
-    i3c_cmd.addr          = 0;
+    i3c_cmd.rw          = 0U;
+    i3c_cmd.cmd_id      = I3C_CCC_RSTDAA(true);
+    i3c_cmd.len         = 0U;
+    i3c_cmd.addr        = 0;
 
-    ret = I3C_Driver->MasterSendCommand(&i3c_cmd);
+    ret                 = I3C_Driver->MasterSendCommand(&i3c_cmd);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* wait for callback event. */
     while (!((bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_DONE) ||
-            (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)))
-        ;
+             (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)));
 
     if (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR) {
         return ARM_DRIVER_ERROR;
@@ -279,25 +269,24 @@ static int32_t IMU_SetDynAddr(void)
     int32_t ret;
 
     /* I3C CCC (Common Command Codes) */
-    ARM_I3C_CMD i3c_cmd   = {0};
+    ARM_I3C_CMD i3c_cmd = {0};
 
-    i3c_cmd.rw            = 0U;
-    i3c_cmd.cmd_id        = I3C_CCC_SETDASA;
-    i3c_cmd.len           = 1U;
+    i3c_cmd.rw          = 0U;
+    i3c_cmd.cmd_id      = I3C_CCC_SETDASA;
+    i3c_cmd.len         = 1U;
 
     /* Assign IMU's Static address */
-    i3c_cmd.addr          = BMI323_DEFAULT_ADDR;
+    i3c_cmd.addr        = BMI323_DEFAULT_ADDR;
 
     /* Assign Dynamic address */
-    ret = I3C_Driver->MasterAssignDA(&i3c_cmd);
+    ret                 = I3C_Driver->MasterAssignDA(&i3c_cmd);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* wait for callback event. */
     while (!((bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_DONE) ||
-            (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)))
-        ;
+             (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR)));
 
     if (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR) {
         return ARM_DRIVER_ERROR;
@@ -306,8 +295,7 @@ static int32_t IMU_SetDynAddr(void)
     bmi323_drv_info.imu_i3c_event = IMU_EVENT_NONE;
 
     /* Fetch the assigned dynamic address */
-    ret = I3C_Driver->GetSlaveDynAddr(BMI323_DEFAULT_ADDR,
-                                      &bmi323_drv_info.target_addr);
+    ret = I3C_Driver->GetSlaveDynAddr(BMI323_DEFAULT_ADDR, &bmi323_drv_info.target_addr);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
@@ -324,14 +312,14 @@ static int32_t IMU_SetDynAddr(void)
 */
 static int32_t IMU_Init(void)
 {
-    int32_t ret;
+    int32_t            ret;
     ARM_DRIVER_VERSION version;
 
     /* Get i3c driver version. */
     version = I3C_Driver->GetVersion();
 
-    if ((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))       ||
-       (version.drv < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))) {
+    if ((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U)) ||
+        (version.drv < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))) {
         return ARM_DRIVER_ERROR;
     }
 
@@ -370,8 +358,7 @@ static int32_t IMU_Init(void)
   \param[in]   len      : Number of bytes to write.
   \return      \ref Execution status.
 */
-static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr,
-                         uint8_t *reg_data, uint8_t len)
+static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data, uint8_t len)
 
 {
     int32_t  ret     = 0U;
@@ -380,7 +367,7 @@ static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr,
     uint8_t  tx_buf[4];
 
     /* Store register's address in 0th index */
-    tx_buf[0]        = reg_addr;
+    tx_buf[0] = reg_addr;
 
     if (len) {
         for (iter = 0U; iter < len; iter++) {
@@ -391,16 +378,14 @@ static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr,
     bmi323_drv_info.imu_i3c_event = IMU_EVENT_NONE;
 
     /* Send msg to slave */
-    ret = I3C_Driver->MasterTransmit(tar_addr,
-                                     tx_buf,
-                                     (len + BMI323_ADDR_REG_IDX_SIZE));
+    ret = I3C_Driver->MasterTransmit(tar_addr, tx_buf, (len + BMI323_ADDR_REG_IDX_SIZE));
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* wait for callback event. */
     while (!((bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_DONE) ||
-            (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR))) {
+             (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR))) {
         if (counter++ < IMU_I3C_TIMEOUT_US) {
             sys_busy_loop_us(DELAY_1US);
         } else {
@@ -426,14 +411,13 @@ static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr,
   \param[in]   len      : Number of bytes to read.
   \return      \ref Execution status.
 */
-static int32_t IMU_Read(uint8_t tar_addr, uint16_t reg_addr,
-                        uint8_t *reg_data, uint8_t len)
+static int32_t IMU_Read(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data, uint8_t len)
 {
     int32_t  ret;
     uint32_t counter = 0U;
 
     /* Send register address */
-    ret = IMU_Write(tar_addr, reg_addr, NULL, 0U);
+    ret              = IMU_Write(tar_addr, reg_addr, NULL, 0U);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
@@ -445,10 +429,8 @@ static int32_t IMU_Read(uint8_t tar_addr, uint16_t reg_addr,
     }
 
     /* wait for callback event. */
-    while (!((bmi323_drv_info.imu_i3c_event &
-             ARM_I3C_EVENT_TRANSFER_DONE)  ||
-            (bmi323_drv_info.imu_i3c_event  &
-             ARM_I3C_EVENT_TRANSFER_ERROR))) {
+    while (!((bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_DONE) ||
+             (bmi323_drv_info.imu_i3c_event & ARM_I3C_EVENT_TRANSFER_ERROR))) {
         if (counter++ < IMU_I3C_TIMEOUT_US) {
             sys_busy_loop_us(DELAY_1US);
         } else {
@@ -475,14 +457,16 @@ static int32_t IMU_AccelConfig(void)
     /* Configure Accelerometer */
     data[0] = BMI323_ACCEL_CONFIG_VAL;
     IMU_Write(bmi323_drv_info.target_addr,
-              BMI323_ACCEL_CONFIG_REG, (uint8_t *)data,
+              BMI323_ACCEL_CONFIG_REG,
+              (uint8_t *) data,
               BMI323_CONFIG_REG_SIZE);
 
     sys_busy_loop_us(BMI323_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_ACCEL_CONFIG_REG, (uint8_t *)data,
+             BMI323_ACCEL_CONFIG_REG,
+             (uint8_t *) data,
              (BMI323_CONFIG_REG_SIZE + BMI323_INITIAL_DUMMY_BYTES_LEN));
 
     if (data[1] != BMI323_ACCEL_CONFIG_VAL) {
@@ -504,14 +488,16 @@ static int32_t IMU_GyroConfig(void)
     /* Configure Gyroscope */
     data[0] = BMI323_GYRO_CONFIG_VAL;
     IMU_Write(bmi323_drv_info.target_addr,
-              BMI323_GYRO_CONFIG_REG, (uint8_t *)data,
+              BMI323_GYRO_CONFIG_REG,
+              (uint8_t *) data,
               BMI323_CONFIG_REG_SIZE);
 
     sys_busy_loop_us(BMI323_CFG_DELAY_US);
 
     data[0] = 0;
     IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_GYRO_CONFIG_REG, (uint8_t *)data,
+             BMI323_GYRO_CONFIG_REG,
+             (uint8_t *) data,
              (BMI323_CONFIG_REG_SIZE + BMI323_INITIAL_DUMMY_BYTES_LEN));
 
     if (data[1] != BMI323_GYRO_CONFIG_VAL) {
@@ -532,7 +518,8 @@ static int32_t IMU_INTConfig(void)
     /* Below code is for for configuring Interrupt */
     data[0] = BMI323_INT_MAP2_VAL;
     IMU_Write(bmi323_drv_info.target_addr,
-              BMI323_INT_MAP2_REG, (uint8_t *)data,
+              BMI323_INT_MAP2_REG,
+              (uint8_t *) data,
               BMI323_CONFIG_REG_SIZE);
 
     sys_busy_loop_us(BMI323_CFG_DELAY_US);
@@ -540,7 +527,8 @@ static int32_t IMU_INTConfig(void)
     /* Below code is for for Enabling Interrupt */
     data[0] = BMI323_IO_INT_CTRL_VAL;
     IMU_Write(bmi323_drv_info.target_addr,
-              BMI323_IO_INT_CTRL_REG, (uint8_t *)data,
+              BMI323_IO_INT_CTRL_REG,
+              (uint8_t *) data,
               BMI323_CONFIG_REG_SIZE);
 
     sys_busy_loop_us(BMI323_CFG_DELAY_US);
@@ -548,7 +536,8 @@ static int32_t IMU_INTConfig(void)
     /* Read back the Interrupt configuration  */
     data[0] = 0;
     IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_INT_MAP2_REG, (uint8_t *)data,
+             BMI323_INT_MAP2_REG,
+             (uint8_t *) data,
              (BMI323_CONFIG_REG_SIZE + BMI323_INITIAL_DUMMY_BYTES_LEN));
 
     if (data[1] != BMI323_INT_MAP2_VAL) {
@@ -606,8 +595,7 @@ static int32_t IMU_Setup(void)
     }
 
     /* i3c Speed Mode Configuration: Slow mode*/
-    ret = I3C_Driver->Control(I3C_MASTER_SET_BUS_MODE,
-                              I3C_BUS_SLOW_MODE);
+    ret = I3C_Driver->Control(I3C_MASTER_SET_BUS_MODE, I3C_BUS_SLOW_MODE);
 
     /* Rejects Hot-Join request */
     ret = I3C_Driver->Control(I3C_MASTER_SETUP_HOT_JOIN_ACCEPTANCE, 0);
@@ -640,13 +628,10 @@ static int32_t IMU_Setup(void)
     }
 
     /* i3c Speed Mode Configuration: Normal mode*/
-    ret = I3C_Driver->Control(I3C_MASTER_SET_BUS_MODE,
-                              I3C_BUS_NORMAL_MODE);
+    ret = I3C_Driver->Control(I3C_MASTER_SET_BUS_MODE, I3C_BUS_NORMAL_MODE);
 
     /* Reads Chip ID */
-    IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_CHIP_ID_REG, data,
-             BMI323_CHIP_ID_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_CHIP_ID_REG, data, BMI323_CHIP_ID_SIZE);
 
     if (data[BMI323_CHIP_ID_OFFSET] != BMI323_CHIP_ID_VAL) {
         return ARM_DRIVER_ERROR;
@@ -664,8 +649,7 @@ static int32_t IMU_Setup(void)
         return ret;
     }
 
-    ret = IO_Driver_INT->SetDirection(RTE_BMI323_INT_PIN_NO,
-                                      GPIO_PIN_DIRECTION_INPUT);
+    ret = IO_Driver_INT->SetDirection(RTE_BMI323_INT_PIN_NO, GPIO_PIN_DIRECTION_INPUT);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
@@ -692,7 +676,7 @@ static uint8_t IMU_GetDataStatus(void)
     /* Reads data ready status */
     IMU_Read(bmi323_drv_info.target_addr,
              BMI323_INT1_STATUS_REG,
-             (uint8_t *)buf,
+             (uint8_t *) buf,
              BMI323_INT1_STATUS_SIZE);
 
     /* Set status as per data availabilty */
@@ -723,15 +707,12 @@ static int32_t IMU_GetAccelData(ARM_IMU_COORDINATES *accel_data)
     uint8_t             buf[BMI323_ACCEL_DATA_SIZE];
 
     /* Reads Acceleromter data */
-    IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_ACCEL_DATA_REG,
-             buf,
-             BMI323_ACCEL_DATA_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_ACCEL_DATA_REG, buf, BMI323_ACCEL_DATA_SIZE);
 
     /* Processes Accelerometer data */
-    data.x       = buf[BMI323_ACCEL_DATA_X_OFFSET];
-    data.y       = buf[BMI323_ACCEL_DATA_Y_OFFSET];
-    data.z       = buf[BMI323_ACCEL_DATA_Z_OFFSET];
+    data.x        = buf[BMI323_ACCEL_DATA_X_OFFSET];
+    data.y        = buf[BMI323_ACCEL_DATA_Y_OFFSET];
+    data.z        = buf[BMI323_ACCEL_DATA_Z_OFFSET];
 
     accel_data->x = BMI323_ACCEL_VAL(data.x);
     accel_data->y = BMI323_ACCEL_VAL(data.y);
@@ -752,10 +733,7 @@ static int32_t IMU_GetGyroData(ARM_IMU_COORDINATES *gyro_data)
     uint8_t             buf[BMI323_GYRO_DATA_SIZE];
 
     /* Reads Gyroscope data */
-    IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_GYRO_DATA_REG,
-             buf,
-             BMI323_GYRO_DATA_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_GYRO_DATA_REG, buf, BMI323_GYRO_DATA_SIZE);
 
     /* Processes Gyroscope data */
     data.x       = buf[BMI323_GYRO_DATA_X_OFFSET];
@@ -781,10 +759,7 @@ static int32_t IMU_GetTempData(float *temp_data)
     uint8_t buf[BMI323_TEMP_DATA_SIZE];
 
     /* Reads Temperature Sensor data */
-    IMU_Read(bmi323_drv_info.target_addr,
-             BMI323_TEMP_DATA_REG,
-             buf,
-             BMI323_TEMP_DATA_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_TEMP_DATA_REG, buf, BMI323_TEMP_DATA_SIZE);
 
     /* Processes Temp data */
     ltemp      = buf[BMI323_TEMP_DATA_OFFSET];
@@ -925,7 +900,7 @@ static int32_t ARM_IMU_PowerControl(ARM_POWER_STATE state)
 */
 static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
 {
-    void *ptr;
+    void  *ptr;
     float *temp_data;
 
     switch (control) {
@@ -933,51 +908,51 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
         if (!arg) {
             return ARM_DRIVER_ERROR;
         }
-        ptr = (ARM_IMU_COORDINATES *)arg;
+        ptr = (ARM_IMU_COORDINATES *) arg;
 
         /* Gets Accelerometer data */
         IMU_GetAccelData(ptr);
 
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_ACCELEROMETER_DATA_READY);
-        bmi323_drv_info.status.data_rcvd  = false;
+        bmi323_drv_info.status.data_rcvd = false;
 
         /* Enable IMU interrupt */
-        (void)ARM_IMU_IntEnable(true);
+        (void) ARM_IMU_IntEnable(true);
         break;
 
     case IMU_GET_GYROSCOPE_DATA:
         if (!arg) {
             return ARM_DRIVER_ERROR;
         }
-        ptr = (ARM_IMU_COORDINATES *)arg;
+        ptr = (ARM_IMU_COORDINATES *) arg;
 
         /* Gets Gyroscope data */
         IMU_GetGyroData(ptr);
 
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_GYRO_DATA_READY);
-        bmi323_drv_info.status.data_rcvd  = false;
+        bmi323_drv_info.status.data_rcvd = false;
 
         /* Enable IMU interrupt */
-        (void)ARM_IMU_IntEnable(true);
+        (void) ARM_IMU_IntEnable(true);
         break;
 
     case IMU_GET_TEMPERATURE_DATA:
         if (!arg) {
             return ARM_DRIVER_ERROR;
         }
-        temp_data = (float *)arg;
+        temp_data = (float *) arg;
 
         /* Gets Temperature data */
         IMU_GetTempData(temp_data);
 
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_TEMPERATURE_DATA_READY);
-        bmi323_drv_info.status.data_rcvd  = false;
+        bmi323_drv_info.status.data_rcvd = false;
 
         /* Enable IMU interrupt */
-        (void)ARM_IMU_IntEnable(true);
+        (void) ARM_IMU_IntEnable(true);
         break;
 
     case IMU_GET_MAGNETOMETER_DATA:

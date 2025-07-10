@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     sys_ctrl_dma.h
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
@@ -27,44 +27,44 @@
 #include "RTE_Device.h"
 #include "soc.h"
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define PERIPH_CLK_ENA_DMA_CKEN             (1U << 4)                       /* Enable clock supply for DMA0 */
+#define PERIPH_CLK_ENA_DMA_CKEN (1U << 4) /* Enable clock supply for DMA0 */
 
-#define DMA_CTRL_BOOT_MANAGER               (1U << 0)                       /* 0: Secure, 1: Non-Secure */
-#define DMA_CTRL_SW_RST                     (1U << 16)                      /* Software reset of DMA */
+#define DMA_CTRL_BOOT_MANAGER   (1U << 0)  /* 0: Secure, 1: Non-Secure */
+#define DMA_CTRL_SW_RST         (1U << 16) /* Software reset of DMA */
 
-#define DMA_SEL_FLT_ENA_Pos                 (24)                            /* Glitch filter Pos for  GPIO   */
-#define DMA_SEL_FLT_ENA_Msk                 (0xFF << DMA_SEL_FLT_ENA_Pos)   /* Glitch filter Mask for GPIO   */
+#define DMA_SEL_FLT_ENA_Pos     (24)                          /* Glitch filter Pos for  GPIO   */
+#define DMA_SEL_FLT_ENA_Msk     (0xFF << DMA_SEL_FLT_ENA_Pos) /* Glitch filter Mask for GPIO   */
 
-#define CLK_ENA_DMA_CKEN                    (1U << 4)                       /* Enable clock supply for DMA */
+#define CLK_ENA_DMA_CKEN        (1U << 4) /* Enable clock supply for DMA */
 
 #if SOC_FEAT_HAS_FLT_ENA_IN_DMA_SEL_REG
-#define HE_DMA_SEL_FLT_ENA_Pos              (24)                            /* Glitch filter Pos for LPGPIO    */
-#define HE_DMA_SEL_FLT_ENA_Msk              (0xFF)                          /* Glitch filter Mask for LPGPIO   */
+#define HE_DMA_SEL_FLT_ENA_Pos (24)   /* Glitch filter Pos for LPGPIO    */
+#define HE_DMA_SEL_FLT_ENA_Msk (0xFF) /* Glitch filter Mask for LPGPIO   */
 #endif
-#define HE_DMA_SEL_PDM_DMA0                 (1U << 16)                      /* Select DMA0 for LPPDM           */
-#define HE_DMA_SEL_I2S_DMA0                 (1U << 12)                      /* Select DMA0 for LPI2S           */
-#define HE_DMA_SEL_I3C_DMA0                 (1U << 9)                       /* Select DMA0 for LPI3C           */
-#define HE_DMA_SEL_I2C_DMA0                 (1U << 8)                       /* Select DMA0 for LPI2C1          */
-#define HE_DMA_SEL_LPSPI_Pos                (4)                             /* Pos to Select DMA0 for LPSPI    */
-#define HE_DMA_SEL_LPSPI_Msk                (0x3U << HE_DMA_SEL_LPSPI_Pos)  /* Mask to Select DMA0 for LPSPI   */
-#define HE_DMA_SEL_LPSPI_DMA2               (0x0U << HE_DMA_SEL_LPSPI_Pos)  /* Select DMA2 for LPSPI           */
-#define HE_DMA_SEL_LPSPI_DMA0_GROUP1        (0x1U << HE_DMA_SEL_LPSPI_Pos)  /* Select DMA0 Group1 for LPSPI    */
-#define HE_DMA_SEL_LPSPI_DMA0_GROUP2        (0x2U << HE_DMA_SEL_LPSPI_Pos)  /* Select DMA0 Group2 for LPSPI    */
-#define HE_DMA_SEL_LPUART_DMA0              (1U << 0)                       /* Select DMA0 for LPUART          */
+#define HE_DMA_SEL_PDM_DMA0   (1U << 16)                     /* Select DMA0 for LPPDM           */
+#define HE_DMA_SEL_I2S_DMA0   (1U << 12)                     /* Select DMA0 for LPI2S           */
+#define HE_DMA_SEL_I3C_DMA0   (1U << 9)                      /* Select DMA0 for LPI3C           */
+#define HE_DMA_SEL_I2C_DMA0   (1U << 8)                      /* Select DMA0 for LPI2C1          */
+#define HE_DMA_SEL_LPSPI_Pos  (4)                            /* Pos to Select DMA0 for LPSPI    */
+#define HE_DMA_SEL_LPSPI_Msk  (0x3U << HE_DMA_SEL_LPSPI_Pos) /* Mask to Select DMA0 for LPSPI   */
+#define HE_DMA_SEL_LPSPI_DMA2 (0x0U << HE_DMA_SEL_LPSPI_Pos) /* Select DMA2 for LPSPI           */
+#define HE_DMA_SEL_LPSPI_DMA0_GROUP1                                                               \
+    (0x1U << HE_DMA_SEL_LPSPI_Pos) /* Select DMA0 Group1 for LPSPI    */
+#define HE_DMA_SEL_LPSPI_DMA0_GROUP2                                                               \
+    (0x2U << HE_DMA_SEL_LPSPI_Pos)       /* Select DMA0 Group2 for LPSPI    */
+#define HE_DMA_SEL_LPUART_DMA0 (1U << 0) /* Select DMA0 for LPUART          */
 
 /**
  * enum DMA_INSTANCE
  * DMA instances
  */
-typedef enum _DMA_INSTANCE
-{
-    DMA_INSTANCE_0,                         /**< DMA0       */
-    DMA_INSTANCE_LOCAL,                     /**< DMALOCAL   */
+typedef enum _DMA_INSTANCE {
+    DMA_INSTANCE_0,     /**< DMA0       */
+    DMA_INSTANCE_LOCAL, /**< DMALOCAL   */
 } DMA_INSTANCE;
 
 #if (RTE_DMA0)
@@ -204,7 +204,7 @@ static inline void lpspi_select_dma2_group(uint8_t group)
 
 #endif /* ((RTE_DMA1) || (RTE_DMA2)) */
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* SYS_CTRL_DMA_H */

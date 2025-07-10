@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_crc.c
  * @author   : Nisarga A M
  * @email    : nisarga.am@alifsemi.com
@@ -32,28 +32,27 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
-
-#define ENABLE   1
-#define DISABLE  0
+#define ENABLE                     1
+#define DISABLE                    0
 
 /* Select the CRC algorithm */
-#define CRC_8_BIT           1
-#define CRC_16_BIT          0
-#define CRC_32_BIT          0
-#define CRC_CUSTOM_32_BIT   0
+#define CRC_8_BIT                  1
+#define CRC_16_BIT                 0
+#define CRC_32_BIT                 0
+#define CRC_CUSTOM_32_BIT          0
 
 /* Select the type of input */
-#define INPUT_HEX_VALUE     1
-#define INPUT_STRING_VALUE  0
+#define INPUT_HEX_VALUE            1
+#define INPUT_STRING_VALUE         0
 
-#define CRC_CALLBACK_EVENT_SUCCESS    1
+#define CRC_CALLBACK_EVENT_SUCCESS 1
 
-static volatile int32_t call_back_event = 0;
+static volatile int32_t call_back_event;
 
 /* CRC driver instance */
-extern ARM_DRIVER_CRC Driver_CRC0;
+extern ARM_DRIVER_CRC  Driver_CRC0;
 static ARM_DRIVER_CRC *CRCdrv = &Driver_CRC0;
 
 static void crc_demo(void);
@@ -71,28 +70,27 @@ uint8_t input_value[] = {"Hello"};
 #endif
 
 #if CRC_8_BIT
-static uint32_t seed_value_8_bit   = (0x00000000);  /* Seed value for 8 bit */
+static uint32_t seed_value_8_bit = (0x00000000); /* Seed value for 8 bit */
 
 #elif CRC_16_BIT
-static uint32_t seed_value_16_bit  = (0x00000000);  /* Seed value for 16 bit */
+static uint32_t seed_value_16_bit = (0x00000000); /* Seed value for 16 bit */
 
 #elif CRC_32_BIT
-static uint32_t seed_value_32_bit  = (0xFFFFFFFF);  /* Seed value for 32 bit */
+static uint32_t seed_value_32_bit = (0xFFFFFFFF); /* Seed value for 32 bit */
 
 #elif CRC_CUSTOM_32_BIT
-static uint32_t seed_value_32C_bit = (0xFFFFFFFF);  /* Seed value for 32 bit custom polynomial */
-static uint32_t polynomial = 0x2CEEA6C8;            /* polynomial value for 32 bit custom polynomial */
+static uint32_t seed_value_32C_bit = (0xFFFFFFFF); /* Seed value for 32 bit custom polynomial */
+static uint32_t polynomial         = 0x2CEEA6C8; /* polynomial value for 32 bit custom polynomial */
 #endif
 
 /*
  * @func   : void crc_compute_callback(uint32_t event)
  * @brief  : CRC compute callback event
  *.@return : NONE
-*/
+ */
 static void crc_compute_callback(uint32_t event)
 {
-    if(event & ARM_CRC_COMPUTE_EVENT_DONE)
-    {
+    if (event & ARM_CRC_COMPUTE_EVENT_DONE) {
         call_back_event = CRC_CALLBACK_EVENT_SUCCESS;
     }
 }
@@ -113,26 +111,26 @@ static void crc_compute_callback(uint32_t event)
  */
 static void crc_demo(void)
 {
-    int32_t  ret = 0;
-    uint8_t len;
-    uint32_t crc_output;
+    int32_t            ret = 0;
+    uint8_t            len;
+    uint32_t           crc_output;
     ARM_DRIVER_VERSION version;
 
     printf("\r\n >>> CRC demo starting up!!! <<< \r\n");
 
     version = CRCdrv->GetVersion();
-    printf("\r\n CRC version api:%"PRIu16" driver:%"PRIu16"...\r\n", version.api, version.drv);
+    printf("\r\n CRC version api:%" PRIu16 " driver:%" PRIu16 "...\r\n", version.api, version.drv);
 
     /* Initialize CRC driver */
     ret = CRCdrv->Initialize(crc_compute_callback);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC init failed\n");
         return;
     }
 
     /* Enable the power for CRC */
     ret = CRCdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Power up failed\n");
         goto error_uninitialize;
     }
@@ -142,7 +140,7 @@ static void crc_demo(void)
 #endif
 
 #if INPUT_STRING_VALUE
-    len = strlen((char *)input_value);
+    len = strlen((char *) input_value);
 #endif
 
 /* For 8 bit */
@@ -150,32 +148,31 @@ static void crc_demo(void)
 
     /* To disable the Reflect, Invert, Bit, Byte, Custom polynomial bit of CRC */
     ret = CRCdrv->Control(ARM_CRC_CONTROL_MASK, DISABLE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control mask for 8 bit data failed\n");
         goto error_poweroff;
     }
 
     /* To select the 8_BIT_CCITT */
-    ret= CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_8_BIT_CCITT);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_8_BIT_CCITT);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control Algorithm for 8 bit data failed\n");
         goto error_poweroff;
     }
 
     /* Adding 8 bit seed value to the seed register */
     ret = CRCdrv->Seed(seed_value_8_bit);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error:CRC Seed value for 8 bit failed\n");
         goto error_uninitialize;
     }
 
     /*sending User input */
     ret = CRCdrv->Compute(input_value, len, &crc_output);
-    printf("8 bit output : %"PRIx32"\n", crc_output);
-    if(ret != ARM_DRIVER_OK){
+    printf("8 bit output : %" PRIx32 "\n", crc_output);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC 8 bit data sending failed\n");
         goto error_send;
-
     }
 
 /* For 16 bit CRC*/
@@ -183,29 +180,29 @@ static void crc_demo(void)
 
     /* To disable the Reflect, Invert, Bit, Byte, Custom polynomial bit of CRC */
     ret = CRCdrv->Control(ARM_CRC_CONTROL_MASK, DISABLE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control mask for 16 bit data failed\n");
         goto error_poweroff;
     }
 
     /* To select the 16_BIT_CCITT */
-    ret= CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_16_BIT_CCITT);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_16_BIT_CCITT);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control Algorithm for 16 bit data failed\n");
         goto error_poweroff;
     }
 
     /* Adding 16 bit seed value to the seed register */
     ret = CRCdrv->Seed(seed_value_16_bit);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Seed value for 16 bit data failed\n");
         goto error_uninitialize;
     }
 
     /*sending user input */
-    ret = CRCdrv->Compute (input_value, len, &crc_output);
-    printf("16 bit output : %"PRIx32"\n", crc_output);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Compute(input_value, len, &crc_output);
+    printf("16 bit output : %" PRIx32 "\n", crc_output);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC 16 bit data sending failed\n");
         goto error_send;
     }
@@ -214,33 +211,32 @@ static void crc_demo(void)
 #elif CRC_32_BIT
 
     /* To Enable the Reflect, Invert, Bit swap and Byte swap of CRC control register */
-    ret = CRCdrv->Control(ARM_CRC_ENABLE_BIT_SWAP      |
-                          ARM_CRC_ENABLE_BYTE_SWAP     |
-                          ARM_CRC_ENABLE_INVERT_OUTPUT |
-                          ARM_CRC_ENABLE_REFLECT_OUTPUT, ENABLE);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ENABLE_BIT_SWAP | ARM_CRC_ENABLE_BYTE_SWAP |
+                              ARM_CRC_ENABLE_INVERT_OUTPUT | ARM_CRC_ENABLE_REFLECT_OUTPUT,
+                          ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control for 32 bit failed\n");
         goto error_poweroff;
     }
 
     /* To select the 32_BIT CRC algorithm */
-    ret= CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_32_BIT);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_32_BIT);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control Algorithm for 32 bit data failed\n");
         goto error_poweroff;
     }
 
     /* Adding 32 bit seed value to the seed register */
     ret = CRCdrv->Seed(seed_value_32_bit);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Seed value for 32 bit failed\n");
         goto error_uninitialize;
     }
 
     /*sending user input */
     ret = CRCdrv->Compute(input_value, len, &crc_output);
-    printf("32 bit output : %"PRIx32"\n", crc_output);
-    if(ret != ARM_DRIVER_OK){
+    printf("32 bit output : %" PRIx32 "\n", crc_output);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC 32 bit data sending failed\n");
         goto error_send;
     }
@@ -250,69 +246,69 @@ static void crc_demo(void)
 
     /* Adding polynomial value */
     ret = CRCdrv->PolyCustom(polynomial);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC PolyCustom value failed\n");
         goto error_uninitialize;
     }
 
     /* To enable the CRC custom polynomial */
     ret = CRCdrv->Control(ARM_CRC_ENABLE_CUSTOM_POLY, ENABLE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control custom polynomial value failed\n");
         goto error_poweroff;
     }
 
     /* To select the 32_BIT_CUSTOM_POLY crc algorithm */
-    ret= CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_32_BIT_CUSTOM_POLY);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ALGORITHM_SEL, ARM_CRC_ALGORITHM_SEL_32_BIT_CUSTOM_POLY);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control Algorithm for 32 bit data custom polynomial failed\n");
         goto error_poweroff;
     }
 
     /* To enable the Invert, Bit swap, Byte swap of CRC control register */
-    ret = CRCdrv->Control(ARM_CRC_ENABLE_BYTE_SWAP |
-                          ARM_CRC_ENABLE_BIT_SWAP  |
-                          ARM_CRC_ENABLE_INVERT_OUTPUT, ENABLE);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Control(ARM_CRC_ENABLE_BYTE_SWAP | ARM_CRC_ENABLE_BIT_SWAP |
+                              ARM_CRC_ENABLE_INVERT_OUTPUT,
+                          ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Control for 32 bit custom polynomial failed\n");
         goto error_poweroff;
     }
 
     /* Adding 32 bit poly custom seed value to the seed register */
     ret = CRCdrv->Seed(seed_value_32C_bit);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Seed value for 32 bit data custom polynomial failed\n");
         goto error_uninitialize;
     }
 
     /*sending user input */
-    ret = CRCdrv->Compute (input_value, len, &crc_output);
-    printf("32 bit CUSTOM POLY output value: %"PRIx32"\n", crc_output);
-    if(ret != ARM_DRIVER_OK){
+    ret = CRCdrv->Compute(input_value, len, &crc_output);
+    printf("32 bit CUSTOM POLY output value: %" PRIx32 "\n", crc_output);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC 32 bit custom polynomial data sending failed\n");
         goto error_send;
     }
 #endif
 
     /* wait for the call back event */
-    while(call_back_event == 0);
+    while (call_back_event == 0) {
+    }
     call_back_event = 0;
 
     printf("\n >>> CRC Compute done \n");
 
-    error_send:
-    error_poweroff:
+error_send:
+error_poweroff:
     /* Power off CRC peripheral */
     ret = CRCdrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Power OFF failed.\r\n");
     }
 
-    error_uninitialize:
+error_uninitialize:
     /* UnInitialize CRC driver */
     ret = CRCdrv->Uninitialize();
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CRC Uninitialize failed.\r\n");
     }
 }
@@ -320,17 +316,15 @@ static void crc_demo(void)
 /* Define main entry point */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
     crc_demo();
 
     return 0;

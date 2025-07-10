@@ -8,17 +8,17 @@
  *
  */
 
- #ifndef ALIF_H
- #define ALIF_H
+#ifndef ALIF_H
+#define ALIF_H
 
- #include "soc.h"
- #include "soc_features.h"
- #include "soc_dma_map.h"
- #include "soc_strings.h"
- #include "core_defines.h"
- #include "system.h"
- #include "cache.h"
- #include "mpu.h"
- #include "pm.h"
+#include "soc.h"
+#include "soc_features.h"
+#include "soc_dma_map.h"
+#include "soc_strings.h"
+#include "core_defines.h"
+#include "system.h"
+#include "cache.h"
+#include "mpu.h"
+#include "pm.h"
 
- #endif /* ALIF_H */
+#endif /* ALIF_H */

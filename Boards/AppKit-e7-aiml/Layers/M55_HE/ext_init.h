@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 /* Initialize reset and power I/Os to the external devices. */
-extern void ext_init (void);
+extern void ext_init(void);
 
 #ifdef __cplusplus
 }

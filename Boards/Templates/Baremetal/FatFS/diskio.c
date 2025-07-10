@@ -7,36 +7,36 @@
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
-#include "ff.h"            /* Obtains integer types */
-#include "diskio.h"        /* Declarations of disk functions */
+#include "ff.h"     /* Obtains integer types */
+#include "diskio.h" /* Declarations of disk functions */
 #include "string.h"
 #include "stdio.h"
 #include "sys_utils.h"
 
 /* Definitions of physical drive number for each drive */
-#define DEV_MMC        0    /* Example: Map MMC/SD card to physical drive 1 */
-#define DEV_USB        1    /* Example: Map USB MSD to physical drive 2 */
+#define DEV_MMC 0 /* Example: Map MMC/SD card to physical drive 1 */
+#define DEV_USB 1 /* Example: Map USB MSD to physical drive 2 */
 
 /* SD Card Instance */
 extern sd_handle_t Hsd;
-const diskio_t  *p_SD_Driver = &SD_Driver;
+const diskio_t    *p_SD_Driver = &SD_Driver;
 
 /* Interrupt Handler callback */
 volatile uint32_t dma_done_irq;
-void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
+void              sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 {
     ARG_UNUSED(cmd_status);
 
-    if(xfer_status)
+    if (xfer_status) {
         dma_done_irq = 1;
+    }
 }
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
 /*-----------------------------------------------------------------------*/
 
-DSTATUS disk_status (
-    BYTE pdrv        /* Physical drive number to identify the drive */
+DSTATUS disk_status(BYTE pdrv /* Physical drive number to identify the drive */
 )
 {
     ARG_UNUSED(pdrv);
@@ -44,60 +44,58 @@ DSTATUS disk_status (
     return RES_OK;
 }
 
-
-
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 /*-----------------------------------------------------------------------*/
 
-DSTATUS disk_initialize(BYTE drivenum)//FATFS *p_sd_card, char *MEDIA_NAME, void * media_memory, uint32_t media_size)
+DSTATUS disk_initialize(BYTE drivenum)  // FATFS *p_sd_card, char *MEDIA_NAME, void * media_memory,
+                                        // uint32_t media_size)
 {
-    int status;
+    int        status;
     sd_param_t sd_param;
 
     ARG_UNUSED(drivenum);
 
-    sd_param.dev_id         = SDMMC_DEV_ID;
-    sd_param.clock_id       = RTE_SDC_CLOCK_SELECT;
-    sd_param.bus_width      = RTE_SDC_BUS_WIDTH;
-    sd_param.dma_mode       = RTE_SDC_DMA_SELECT;
-    sd_param.app_callback   = sd_cb;
+    sd_param.dev_id       = SDMMC_DEV_ID;
+    sd_param.clock_id     = RTE_SDC_CLOCK_SELECT;
+    sd_param.bus_width    = RTE_SDC_BUS_WIDTH;
+    sd_param.dma_mode     = RTE_SDC_DMA_SELECT;
+    sd_param.app_callback = sd_cb;
 
-    status = p_SD_Driver->disk_initialize(&sd_param);
+    status                = p_SD_Driver->disk_initialize(&sd_param);
 
-    if(status)
+    if (status) {
         return STA_NOINIT;
+    }
 
     sys_busy_loop_us(2000);
 
     return RES_OK;
 }
 
-
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_read (
-    BYTE pdrv,        /* Physical drive number to identify the drive */
-    BYTE *buff,        /* Data buffer to store read data */
-    LBA_t sector,    /* Start sector in LBA */
-    UINT count        /* Number of sectors to read */
+DRESULT disk_read(BYTE  pdrv,   /* Physical drive number to identify the drive */
+                  BYTE *buff,   /* Data buffer to store read data */
+                  LBA_t sector, /* Start sector in LBA */
+                  UINT  count   /* Number of sectors to read */
 )
 {
     ARG_UNUSED(pdrv);
 
     dma_done_irq = 0;
 
-    (void)p_SD_Driver->disk_read(sector, count, buff);
+    (void) p_SD_Driver->disk_read(sector, count, buff);
 
-    while(!dma_done_irq);
+    while (!dma_done_irq) {
+    }
 
-    RTSS_InvalidateDCache_by_Addr((volatile void *)buff, count * SDMMC_BLK_SIZE_512_Msk);
+    RTSS_InvalidateDCache_by_Addr((volatile void *) buff, count * SDMMC_BLK_SIZE_512_Msk);
 
     return RES_OK;
 }
-
 
 /*-----------------------------------------------------------------------*/
 /* Write Sector(s)                                                       */
@@ -105,11 +103,10 @@ DRESULT disk_read (
 
 #if FF_FS_READONLY == 0
 
-DRESULT disk_write (
-    BYTE pdrv,          /* Physical drive number to identify the drive */
-    const BYTE *buff,   /* Data to be written */
-    LBA_t sector,       /* Start sector in LBA */
-    UINT count          /* Number of sectors to write */
+DRESULT disk_write(BYTE        pdrv,   /* Physical drive number to identify the drive */
+                   const BYTE *buff,   /* Data to be written */
+                   LBA_t       sector, /* Start sector in LBA */
+                   UINT        count   /* Number of sectors to write */
 )
 {
     DRESULT res = RES_OK;
@@ -117,27 +114,27 @@ DRESULT disk_write (
     ARG_UNUSED(pdrv);
 
     dma_done_irq = 0;
-    RTSS_CleanDCache_by_Addr((volatile void *)buff, count * SDMMC_BLK_SIZE_512_Msk);
+    RTSS_CleanDCache_by_Addr((volatile void *) buff, count * SDMMC_BLK_SIZE_512_Msk);
 
-    if( p_SD_Driver->disk_write(sector, count, (volatile uint8_t *)buff) != SD_DRV_STATUS_OK )
+    if (p_SD_Driver->disk_write(sector, count, (volatile uint8_t *) buff) != SD_DRV_STATUS_OK) {
         res = RES_ERROR;
+    }
 
-    while(!dma_done_irq);
+    while (!dma_done_irq) {
+    }
 
     return res;
 }
 
 #endif
 
-
 /*-----------------------------------------------------------------------*/
 /* Miscellaneous Functions                                               */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_ioctl (
-    BYTE pdrv,        /* Physical drive number (0..) */
-    BYTE cmd,         /* Control code */
-    void *buff        /* Buffer to send/receive control data */
+DRESULT disk_ioctl(BYTE  pdrv, /* Physical drive number (0..) */
+                   BYTE  cmd,  /* Control code */
+                   void *buff  /* Buffer to send/receive control data */
 )
 {
     DRESULT res = 0;
@@ -146,13 +143,13 @@ DRESULT disk_ioctl (
     ARG_UNUSED(buff);
 
     switch (pdrv) {
-    case DEV_MMC :
+    case DEV_MMC:
 
         // Process of the command for the MMC/SD card
 
         return res;
 
-    case DEV_USB :
+    case DEV_USB:
 
         // Process of the command the USB drive
 
@@ -161,4 +158,3 @@ DRESULT disk_ioctl (
 
     return RES_PARERR;
 }
-

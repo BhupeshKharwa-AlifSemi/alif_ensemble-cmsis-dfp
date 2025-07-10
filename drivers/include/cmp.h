@@ -11,29 +11,28 @@
 #ifndef CMP_H_
 #define CMP_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
 #include "soc.h"
 
-#define CMP_FILTER_CONTROL_ENABLE      (1U << 0)     /* To enable the filter control                 */
+#define CMP_FILTER_CONTROL_ENABLE (1U << 0) /* To enable the filter control                 */
 
-#define CMP_PRESCALER_MAX_VALUE        (0x3FU)       /* Maximum value of prescaler control           */
-#define CMP_POLARITY_MAX_VALUE         (0x2U)        /* Maximum value of polarity control            */
-#define CMP_WINDOW_MAX_VALUE           (0x3U)        /* Maximum value of window control              */
-#define CMP_FILTER_MIN_VALUE           (0x2U)        /* Minimum value of filter control              */
-#define CMP_FILTER_MAX_VALUE           (0x8U)        /* Maximum value of filter control              */
+#define CMP_PRESCALER_MAX_VALUE   (0x3FU) /* Maximum value of prescaler control           */
+#define CMP_POLARITY_MAX_VALUE    (0x2U)  /* Maximum value of polarity control            */
+#define CMP_WINDOW_MAX_VALUE      (0x3U)  /* Maximum value of window control              */
+#define CMP_FILTER_MIN_VALUE      (0x2U)  /* Minimum value of filter control              */
+#define CMP_FILTER_MAX_VALUE      (0x8U)  /* Maximum value of filter control              */
 
-#define CMP_INT_MASK                   (0x01UL)      /* Mask for the interrupt                       */
-#define CMP_INTERRUPT_CLEAR            (0x01UL)      /* To clear the interrupt                       */
+#define CMP_INT_MASK              (0x01UL) /* Mask for the interrupt                       */
+#define CMP_INTERRUPT_CLEAR       (0x01UL) /* To clear the interrupt                       */
 
-#define LPCMP_MSK_CTRL_VAL             (0xFEU << 24) /* Mask all LPCMP configuration value           */
+#define LPCMP_MSK_CTRL_VAL        (0xFEU << 24) /* Mask all LPCMP configuration value           */
 
-#define CMP_FILTER_EVENT0_CLEAR        (1U << 0)     /* Clear FILTER_EVENT0 interrupt                */
-#define CMP_FILTER_EVENT1_CLEAR        (1U << 1)     /* Clear FILTER_EVENT1 interrupt                */
+#define CMP_FILTER_EVENT0_CLEAR   (1U << 0) /* Clear FILTER_EVENT0 interrupt                */
+#define CMP_FILTER_EVENT1_CLEAR   (1U << 1) /* Clear FILTER_EVENT1 interrupt                */
 
 /**
   @fn          void cmp_enable_interrupt(CMP_Type *cmp)
@@ -103,7 +102,8 @@ static inline void cmp_set_polarity_ctrl(CMP_Type *cmp, uint32_t arg)
 }
 
 /**
-  @fn          void cmp_set_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t window_ctrl_enable)
+  @fn          void cmp_set_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t
+  window_ctrl_enable)
   @brief       Select one of the 4 inputs which will control the windowing
                (gating) function.
   @param[in]   cmp    Pointer to the CMP register map
@@ -111,20 +111,23 @@ static inline void cmp_set_polarity_ctrl(CMP_Type *cmp, uint32_t arg)
   @param[in]   window_ctrl_enable HSCMP device specific window function
   @return      none
 */
-static inline void cmp_set_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t window_ctrl_enable)
+static inline void cmp_set_window_ctrl(CMP_Type *cmp, uint32_t event,
+                                       const uint8_t window_ctrl_enable)
 {
     cmp->CMP_WINDOW_CTRL = (window_ctrl_enable | event << 8);
 }
 
 /**
-  @fn          void cmp_clear_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t window_ctrl_enable)
+  @fn          void cmp_clear_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t
+  window_ctrl_enable)
   @brief       Clear the windowing inputs to the comparator
   @param[in]   cmp    Pointer to the CMP register map
   @param[in]   event  4 input events to control the processing window.
   @param[in]   window_ctrl_enable HSCMP device specific window function
   @return      none
 */
-static inline void cmp_clear_window_ctrl(CMP_Type *cmp, uint32_t event, const uint8_t window_ctrl_enable)
+static inline void cmp_clear_window_ctrl(CMP_Type *cmp, uint32_t event,
+                                         const uint8_t window_ctrl_enable)
 {
     cmp->CMP_WINDOW_CTRL &= ~(window_ctrl_enable | event << 8);
 }

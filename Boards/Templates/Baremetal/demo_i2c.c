@@ -46,92 +46,101 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#define ADDRESS_MODE_7BIT   1                   /* I2C 7 bit addressing mode     */
-#define ADDRESS_MODE_10BIT  2                   /* I2C 10 bit addressing mode    */
-#define ADDRESS_MODE        ADDRESS_MODE_7BIT   /* 7 bit addressing mode chosen  */
+#define ADDRESS_MODE_7BIT  1                 /* I2C 7 bit addressing mode     */
+#define ADDRESS_MODE_10BIT 2                 /* I2C 10 bit addressing mode    */
+#define ADDRESS_MODE       ADDRESS_MODE_7BIT /* 7 bit addressing mode chosen  */
 
 /* I2C Driver instance */
-extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
+extern ARM_DRIVER_I2C  ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
 static ARM_DRIVER_I2C *I2C_MstDrv = &ARM_Driver_I2C_(BOARD_MASTER_I2C_INSTANCE);
 
-extern ARM_DRIVER_I2C ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
-static ARM_DRIVER_I2C *I2C_SlvDrv = &ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
+extern ARM_DRIVER_I2C  ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
+static ARM_DRIVER_I2C *I2C_SlvDrv      = &ARM_Driver_I2C_(BOARD_SLAVE_I2C_INSTANCE);
 
-static volatile uint32_t mst_cb_status = 0;
-static volatile uint32_t slv_cb_status = 0;
+static volatile uint32_t mst_cb_status;
+static volatile uint32_t slv_cb_status;
 
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
-    #define TAR_ADDRS       (0X2D0)  /* 10 bit Target(Slave) Address, use by Master */
-    #define SAR_ADDRS       (0X2D0)  /* 10 bit Slave Own Address,     use by Slave  */
+#define TAR_ADDRS (0X2D0) /* 10 bit Target(Slave) Address, use by Master */
+#define SAR_ADDRS (0X2D0) /* 10 bit Slave Own Address,     use by Slave  */
 #else
-    #define TAR_ADDRS       (0X40)   /* 7 bit Target(Slave) Address, use by Master  */
-    #define SAR_ADDRS       (0X40)   /* 7 bit Slave Own Address,     use by Slave   */
+#define TAR_ADDRS (0X40) /* 7 bit Target(Slave) Address, use by Master  */
+#define SAR_ADDRS (0X40) /* 7 bit Slave Own Address,     use by Slave   */
 #endif
 
-#define STOP            (0X00)
+#define STOP (0X00)
 #if (RTE_I2C0_DMA_ENABLE && RTE_I2C1_DMA_ENABLE)
-    #define I2C_DMA_ENABLED     1
+#define I2C_DMA_ENABLED 1
 #else
-    #define I2C_DMA_ENABLED     0
+#define I2C_DMA_ENABLED 0
 #endif
 #if I2C_DMA_ENABLED
-    /* master transmit and slave receive */
-    #define MST_BYTE_TO_TRANSMIT            11
-    /* slave transmit and master receive */
-    #define SLV_BYTE_TO_TRANSMIT            10
-    /* Tx and Rx buffers are in multiples of 2bytes
-     * as the DMA processes in 2bytes fashion only */
-    /* Master parameter set */
-    /* Master TX Data */
-    static uint16_t __ALIGNED(4) MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
-    {
-        /* MST_TX_BUF data = "Master_Data" */
-        77, 97, 115, 116, 101, 114, 95, 68, 97, 116, 97
-    };
-    /* master receive buffer */
-    static uint16_t __ALIGNED(4) MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
-    /* Master parameter set END  */
-    /* Slave parameter set */
-    /* slave receive buffer */
-    static uint16_t __ALIGNED(4) SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
-    static uint16_t __ALIGNED(4) SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
-    {
-        /* SLV_TX_BUF data =  "Slave_Data" */
-        83, 108, 97, 118, 101, 95, 68, 97, 116, 97
-    };
-    /* Slave parameter set END */
+/* master transmit and slave receive */
+#define MST_BYTE_TO_TRANSMIT 11
+/* slave transmit and master receive */
+#define SLV_BYTE_TO_TRANSMIT 10
+/* Tx and Rx buffers are in multiples of 2bytes
+ * as the DMA processes in 2bytes fashion only */
+/* Master parameter set */
+/* Master TX Data */
+static uint16_t __ALIGNED(4) MST_TX_BUF[MST_BYTE_TO_TRANSMIT] = {
+    /* MST_TX_BUF data = "Master_Data" */
+    77,
+    97,
+    115,
+    116,
+    101,
+    114,
+    95,
+    68,
+    97,
+    116,
+    97};
+/* master receive buffer */
+static uint16_t __ALIGNED(4) MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
+/* Master parameter set END  */
+/* Slave parameter set */
+/* slave receive buffer */
+static uint16_t __ALIGNED(4) SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
+static uint16_t __ALIGNED(4) SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] = {
+    /* SLV_TX_BUF data =  "Slave_Data" */
+    83,
+    108,
+    97,
+    118,
+    101,
+    95,
+    68,
+    97,
+    116,
+    97};
+/* Slave parameter set END */
 #else
-    /* master transmit and slave receive */
-    #define MST_BYTE_TO_TRANSMIT            30
-    /* slave transmit and master receive */
-    #define SLV_BYTE_TO_TRANSMIT            29
-    /* Master parameter set */
-    /* Master TX Data */
-    static uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] =
-    {
-        "!*!Test Message from Master!*!"
-    };
-    /* master receive buffer */
-    static uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
-    /* Master parameter set END  */
-    /* Slave parameter set */
-    /* slave receive buffer */
-    static uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
-    /* Slave TX Data */
-    static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] =
-    {
-        "!*!Test Message from Slave!*!"
-    };
-    /* Slave parameter set END */
+/* master transmit and slave receive */
+#define MST_BYTE_TO_TRANSMIT 30
+/* slave transmit and master receive */
+#define SLV_BYTE_TO_TRANSMIT 29
+/* Master parameter set */
+/* Master TX Data */
+static uint8_t MST_TX_BUF[MST_BYTE_TO_TRANSMIT] = {"!*!Test Message from Master!*!"};
+/* master receive buffer */
+static uint8_t MST_RX_BUF[SLV_BYTE_TO_TRANSMIT];
+/* Master parameter set END  */
+/* Slave parameter set */
+/* slave receive buffer */
+static uint8_t SLV_RX_BUF[MST_BYTE_TO_TRANSMIT];
+/* Slave TX Data */
+static uint8_t SLV_TX_BUF[SLV_BYTE_TO_TRANSMIT] = {"!*!Test Message from Slave!*!"};
+/* Slave parameter set END */
 #endif
 
-typedef enum _I2C_CB_EVENT{
-    I2C_CB_EVENT_TRANSFER_DONE        = (1 << 0),
-    I2C_CB_EVENT_ADDRESS_NACK         = (1 << 1),
-    I2C_CB_EVENT_TRANSFER_INCOMPLETE  = (1 << 2)
-}I2C_CB_EVENT;
+typedef enum _I2C_CB_EVENT {
+    I2C_CB_EVENT_TRANSFER_DONE       = (1 << 0),
+    I2C_CB_EVENT_ADDRESS_NACK        = (1 << 1),
+    I2C_CB_EVENT_TRANSFER_INCOMPLETE = (1 << 2)
+} I2C_CB_EVENT;
 
 /**
  * @fn      static void i2c_mst_conversion_callback(uint32_t event)
@@ -142,24 +151,20 @@ typedef enum _I2C_CB_EVENT{
  */
 static void i2c_mst_conversion_callback(uint32_t event)
 {
-    if (event & ARM_I2C_EVENT_TRANSFER_DONE)
-    {
+    if (event & ARM_I2C_EVENT_TRANSFER_DONE) {
         /* Transfer or receive is finished */
         mst_cb_status |= I2C_CB_EVENT_TRANSFER_DONE;
     }
 
-    if (event & ARM_I2C_EVENT_ADDRESS_NACK)
-    {
+    if (event & ARM_I2C_EVENT_ADDRESS_NACK) {
         /* Address NACKED */
         mst_cb_status |= I2C_CB_EVENT_ADDRESS_NACK;
     }
 
-    if (event & ARM_I2C_EVENT_TRANSFER_INCOMPLETE)
-    {
+    if (event & ARM_I2C_EVENT_TRANSFER_INCOMPLETE) {
         /* Transfer or receive is incomplete */
         mst_cb_status |= I2C_CB_EVENT_TRANSFER_INCOMPLETE;
     }
-
 }
 
 /**
@@ -171,10 +176,9 @@ static void i2c_mst_conversion_callback(uint32_t event)
  */
 static void i2c_slv_conversion_callback(uint32_t event)
 {
-    if (event & ARM_I2C_EVENT_TRANSFER_DONE)
-    {
+    if (event & ARM_I2C_EVENT_TRANSFER_DONE) {
         /* Transfer or receive is finished */
-           slv_cb_status = I2C_CB_EVENT_TRANSFER_DONE;
+        slv_cb_status = I2C_CB_EVENT_TRANSFER_DONE;
     }
 }
 
@@ -187,71 +191,64 @@ static void i2c_slv_conversion_callback(uint32_t event)
  */
 static void I2C_demo(void)
 {
-    int32_t ret      = 0;
+    int32_t            ret = 0;
     ARM_DRIVER_VERSION version;
 
     printf("\r\n >>> I2C demo starting up!!! <<< \r\n");
 
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
     version = I2C_MstDrv->GetVersion();
-    printf("\r\n I2C version api:0x%"PRIx16" driver:0x%"PRIx16"...\r\n",
-            version.api, version.drv);
+    printf("\r\n I2C version api:0x%" PRIx16 " driver:0x%" PRIx16 "...\r\n",
+           version.api,
+           version.drv);
     /* Initialize Master I2C driver */
     ret = I2C_MstDrv->Initialize(i2c_mst_conversion_callback);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C master init failed\n");
         return;
     }
 
     /* Initialize Slave I2C driver */
     ret = I2C_SlvDrv->Initialize(i2c_slv_conversion_callback);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C slave init failed\n");
         return;
     }
 
     /* I2C Master Power control  */
     ret = I2C_MstDrv->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Master Power up failed\n");
         goto error_uninitialize;
     }
 
     /* I2C Slave Power control */
     ret = I2C_SlvDrv->PowerControl(ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Slave Power up failed\n");
         goto error_uninitialize;
     }
 
     /* I2C Master Control */
     ret = I2C_MstDrv->Control(ARM_I2C_BUS_SPEED, ARM_I2C_BUS_SPEED_FAST_PLUS);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C master control failed\n");
         goto error_poweroff;
     }
 
     /* I2C Slave Control */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
-    ret = I2C_SlvDrv->Control(ARM_I2C_OWN_ADDRESS,
-                             (SAR_ADDRS | ARM_I2C_ADDRESS_10BIT));
+    ret = I2C_SlvDrv->Control(ARM_I2C_OWN_ADDRESS, (SAR_ADDRS | ARM_I2C_ADDRESS_10BIT));
 #else
     ret = I2C_SlvDrv->Control(ARM_I2C_OWN_ADDRESS, SAR_ADDRS);
 #endif
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C slave control failed\n");
         goto error_poweroff;
     }
@@ -263,10 +260,8 @@ static void I2C_demo(void)
     slv_cb_status = 0;
 
     /* I2C Slave Receive */
-    ret = I2C_SlvDrv->SlaveReceive((uint8_t*)SLV_RX_BUF,
-                                   MST_BYTE_TO_TRANSMIT);
-    if (ret != ARM_DRIVER_OK)
-    {
+    ret           = I2C_SlvDrv->SlaveReceive((uint8_t *) SLV_RX_BUF, MST_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Slave Receive failed\n");
         goto error_poweroff;
     }
@@ -274,37 +269,34 @@ static void I2C_demo(void)
     /* delay */
     sys_busy_loop_us(500);
 
-     /* I2C Master Transmit*/
+    /* I2C Master Transmit*/
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
     I2C_MstDrv->MasterTransmit((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
-                               (uint8_t*)MST_TX_BUF,
+                               (uint8_t *) MST_TX_BUF,
                                MST_BYTE_TO_TRANSMIT,
                                STOP);
 #else
-    I2C_MstDrv->MasterTransmit(TAR_ADDRS, (uint8_t*)MST_TX_BUF,
-                               MST_BYTE_TO_TRANSMIT, STOP);
+    I2C_MstDrv->MasterTransmit(TAR_ADDRS, (uint8_t *) MST_TX_BUF, MST_BYTE_TO_TRANSMIT, STOP);
 #endif
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Master Transmit failed\n");
         goto error_poweroff;
     }
 
     /* wait for master/slave callback. */
-    while(mst_cb_status == 0);
+    while (mst_cb_status == 0) {
+    }
 
-    if (mst_cb_status & I2C_CB_EVENT_ADDRESS_NACK)
-    {
+    if (mst_cb_status & I2C_CB_EVENT_ADDRESS_NACK) {
         printf("\r\n Error: Slave NACKED\n");
         goto error_poweroff;
-    }
-    else if (mst_cb_status & I2C_CB_EVENT_TRANSFER_INCOMPLETE)
-    {
+    } else if (mst_cb_status & I2C_CB_EVENT_TRANSFER_INCOMPLETE) {
         printf("\r\n Error: Transfer incomplete\n");
         goto error_poweroff;
     }
 
-    while(slv_cb_status == 0);
+    while (slv_cb_status == 0) {
+    }
 
     /* Compare received data. */
 #if I2C_DMA_ENABLED
@@ -315,7 +307,7 @@ static void I2C_demo(void)
     {
         printf("\n Error: Master transmit/slave receive failed \n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        while(1);
+        WAIT_FOREVER
     }
 
     printf("\n-------Master receive/slave transmit-------\n");
@@ -325,10 +317,8 @@ static void I2C_demo(void)
     slv_cb_status = 0;
 
     /* I2C Slave Transmit */
-    I2C_SlvDrv->SlaveTransmit((uint8_t*)SLV_TX_BUF,
-                              SLV_BYTE_TO_TRANSMIT);
-    if (ret != ARM_DRIVER_OK)
-    {
+    I2C_SlvDrv->SlaveTransmit((uint8_t *) SLV_TX_BUF, SLV_BYTE_TO_TRANSMIT);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Slave Transmit failed\n");
         goto error_poweroff;
     }
@@ -336,35 +326,32 @@ static void I2C_demo(void)
     /* I2C Master Receive */
 #if (ADDRESS_MODE == ADDRESS_MODE_10BIT)
     ret = I2C_MstDrv->MasterReceive((TAR_ADDRS | ARM_I2C_ADDRESS_10BIT),
-                                    (uint8_t*)MST_RX_BUF,
+                                    (uint8_t *) MST_RX_BUF,
                                     SLV_BYTE_TO_TRANSMIT,
                                     STOP);
 #else
-    ret = I2C_MstDrv->MasterReceive(TAR_ADDRS, (uint8_t*)MST_RX_BUF,
-                                    SLV_BYTE_TO_TRANSMIT, STOP);
+    ret = I2C_MstDrv->MasterReceive(TAR_ADDRS, (uint8_t *) MST_RX_BUF, SLV_BYTE_TO_TRANSMIT, STOP);
 #endif
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Master Receive failed\n");
         goto error_poweroff;
     }
 
     /* wait for master/slave callback. */
-    while(mst_cb_status == 0);
+    while (mst_cb_status == 0) {
+    }
 
     /* Slave Address NACKED */
-    if (mst_cb_status & I2C_CB_EVENT_ADDRESS_NACK)
-    {
+    if (mst_cb_status & I2C_CB_EVENT_ADDRESS_NACK) {
         printf("\r\n Error: Slave NACKED\n");
         goto error_poweroff;
-    }
-    else if (mst_cb_status & I2C_CB_EVENT_TRANSFER_INCOMPLETE) /* Transfer incomplete */
-    {
+    } else if (mst_cb_status & I2C_CB_EVENT_TRANSFER_INCOMPLETE) /* Transfer incomplete */ {
         printf("\r\n Error: Transfer incomplete\n");
         goto error_poweroff;
     }
 
-    while(slv_cb_status == 0);
+    while (slv_cb_status == 0) {
+    }
 
     sys_busy_loop_us(1000);
 
@@ -377,41 +364,37 @@ static void I2C_demo(void)
     {
         printf("\n Error: Master receive/slave transmit failed\n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        while(1);
+        WAIT_FOREVER
     }
 
     printf("\n >>> I2C conversion completed without any error <<< \n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    while(1);
+    WAIT_FOREVER
 
 error_poweroff:
     /* Power off I2C peripheral */
     ret = I2C_MstDrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Master Power OFF failed\r\n");
     }
     ret = I2C_SlvDrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Slave Power OFF failed\r\n");
     }
 
 error_uninitialize:
     /* Un-initialize I2C driver */
     ret = I2C_MstDrv->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n I2C Master Uninitialize failed\r\n");
     }
     ret = I2C_SlvDrv->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n I2C Slave Uninitialize failed\r\n");
     }
     printf("\r\n I2C demo thread exiting...\r\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    while(1);
+    WAIT_FOREVER
 }
 
 /**
@@ -421,20 +404,17 @@ error_uninitialize:
  * @param   none
  * @retval  none
  */
-int main (void)
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     I2C_demo();
-    while(1);
+    WAIT_FOREVER
 }

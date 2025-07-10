@@ -7,7 +7,7 @@
  * contact@alifsemi.com, or visit: https://alifsemi.com/license
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_i3c_slave.c
  * @author   : Prabhakar kumar
  * @email    : prabhakar.kumar@alifsemi.com
@@ -57,20 +57,20 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 /* i3c Driver instance 0 */
-extern ARM_DRIVER_I3C Driver_I3C;
+extern ARM_DRIVER_I3C  Driver_I3C;
 static ARM_DRIVER_I3C *I3Cdrv = &Driver_I3C;
 
 /* set slave address */
-#define I3C_SLAVE_ADDRESS             (0X48)
+#define I3C_SLAVE_ADDRESS (0X48)
 
 /* receive data from i3c */
-uint8_t __ALIGNED(4) rx_data[4] = {0x00};
+uint8_t __ALIGNED(4) rx_data[4];
 
-uint32_t tx_cnt = 0;
-uint32_t rx_cnt = 0;
+uint32_t tx_cnt;
+uint32_t rx_cnt;
 
 /* flag for callback event. */
 volatile uint32_t cb_event;
@@ -78,10 +78,10 @@ volatile uint32_t cb_event;
 void i3c_slave_loopback_demo(void);
 
 /* i3c callback events */
-typedef enum _I3C_CB_EVENT{
-    I3C_CB_EVENT_SUCCESS            = (1 << 0),
-    I3C_CB_EVENT_ERROR              = (1 << 1)
-}I3C_CB_EVENT;
+typedef enum _I3C_CB_EVENT {
+    I3C_CB_EVENT_SUCCESS = (1 << 0),
+    I3C_CB_EVENT_ERROR   = (1 << 1)
+} I3C_CB_EVENT;
 
 /**
   \fn          int32_t hardware_init(void)
@@ -93,7 +93,7 @@ typedef enum _I3C_CB_EVENT{
 */
 int32_t hardware_init(void)
 {
-    int32_t  ret = 0;
+    int32_t ret = 0;
 #if BOARD_I3C_FLEXIO_PRESENT
     /* for I3C_D(PORT_7 PIN_6(SDA)/PIN_7(SCL)) instance,
      *  for I3C in I3C mode (not required for I3C in I2C mode)
@@ -109,40 +109,33 @@ int32_t hardware_init(void)
      *  P7_6 and P7_7 pins are part of GPIO flex I/O pins.
      */
     /* config flexio pins to 1.8V */
-    uint32_t error_code = SERVICES_REQ_SUCCESS;
-    uint32_t service_error_code;
+    uint32_t      error_code = SERVICES_REQ_SUCCESS;
+    uint32_t      service_error_code;
     run_profile_t runp;
 
     /* Initialize the SE services */
     se_services_port_init();
 
     /* Get the current run configuration from SE */
-    error_code = SERVICES_get_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Get Current run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     /* Set the new run configuration */
-    error_code = SERVICES_set_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Set new run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 #endif
 
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if(ret != ARM_DRIVER_OK)
-    {
-        printf("ERROR: Pin configuration failed: %"PRId32"\n", ret);
+    if (ret != ARM_DRIVER_OK) {
+        printf("ERROR: Pin configuration failed: %" PRId32 "\n", ret);
         return ret;
     }
 
@@ -157,12 +150,10 @@ int32_t hardware_init(void)
 */
 static void I3C_callback(uint32_t event)
 {
-    if (event & ARM_I3C_EVENT_TRANSFER_DONE)
-    {
+    if (event & ARM_I3C_EVENT_TRANSFER_DONE) {
         cb_event = I3C_CB_EVENT_SUCCESS;
     }
-    if (event & ARM_I3C_EVENT_TRANSFER_ERROR)
-    {
+    if (event & ARM_I3C_EVENT_TRANSFER_ERROR) {
         cb_event = I3C_CB_EVENT_ERROR;
     }
 }
@@ -178,8 +169,8 @@ static void I3C_callback(uint32_t event)
 */
 void i3c_slave_loopback_demo(void)
 {
-    int   ret    = 0;
-    int   len    = 0;
+    int ret = 0;
+    int len = 0;
 
     ARM_DRIVER_VERSION version;
 
@@ -187,11 +178,12 @@ void i3c_slave_loopback_demo(void)
 
     /* Get i3c driver version. */
     version = I3Cdrv->GetVersion();
-    printf("\r\n i3c version api:0x%"PRIx16" driver:0x%"PRIx16" \r\n",
-                           version.api, version.drv);
+    printf("\r\n i3c version api:0x%" PRIx16 " driver:0x%" PRIx16 " \r\n",
+           version.api,
+           version.drv);
 
-    if((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U))       ||
-       (version.drv < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U)))
+    if ((version.api < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U)) ||
+        (version.drv < ARM_DRIVER_VERSION_MAJOR_MINOR(7U, 0U)))
     {
         printf("\r\n Error: >>>Old driver<<< Please use new one \r\n");
         return;
@@ -199,8 +191,7 @@ void i3c_slave_loopback_demo(void)
 
     /* Initialize i3c hardware pins using PinMux Driver. */
     ret = hardware_init();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("\r\n Error: i3c hardware_init failed.\r\n");
         return;
     }
@@ -211,80 +202,72 @@ void i3c_slave_loopback_demo(void)
 #else
     ret = I3Cdrv->Initialize(I3C_callback);
 #endif
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I3C Initialize failed.\r\n");
         return;
     }
 
     /* Power up I3C peripheral */
     ret = I3Cdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I3C Power Up failed.\r\n");
         goto error_poweroff;
     }
 
     /* Control I3C interface */
     ret = I3Cdrv->Control(I3C_SLAVE_SET_ADDR, I3C_SLAVE_ADDRESS);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I3C Control failed.\r\n");
         goto error_uninitialize;
     }
 
-    while(1)
-    {
-        len = 4;
+    while (1) {
+        len      = 4;
 
         /* clear callback event flag. */
         cb_event = 0;
 
         /* Slave Receive */
-        ret = I3Cdrv->SlaveReceive(rx_data, len);
-        if(ret != ARM_DRIVER_OK)
-        {
+        ret      = I3Cdrv->SlaveReceive(rx_data, len);
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error: I3C Slave Receive failed. \r\n");
             goto error_poweroff;
         }
 
 #if !RTE_I3C_BLOCKING_MODE_ENABLE
         /* wait for callback event. */
-        while(!((cb_event == I3C_CB_EVENT_SUCCESS) ||
-                (cb_event == I3C_CB_EVENT_ERROR)));
+        while (!((cb_event == I3C_CB_EVENT_SUCCESS) || (cb_event == I3C_CB_EVENT_ERROR))) {
+        }
 
-        if(cb_event == I3C_CB_EVENT_ERROR)
-        {
+        if (cb_event == I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C Slave Receive failed\n");
-            while(1);
+            WAIT_FOREVER
         }
 #endif
-        rx_cnt += 1;
+        rx_cnt   += 1;
 
         /* clear callback event flag. */
-        cb_event = 0;
+        cb_event  = 0;
 
         /* For loop back test,
          * Slave will send received data back to Master.
          */
 
         /* Slave Transmit*/
-        ret = I3Cdrv->SlaveTransmit(rx_data, len);
-        if(ret != ARM_DRIVER_OK)
-        {
+        ret       = I3Cdrv->SlaveTransmit(rx_data, len);
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error: I3C slave Transmit failed. \r\n");
             goto error_poweroff;
         }
 
 #if !RTE_I3C_BLOCKING_MODE_ENABLE
         /* wait for callback event. */
-        while(!((cb_event == I3C_CB_EVENT_SUCCESS) ||
-                (cb_event == I3C_CB_EVENT_ERROR)));
+        while (!((cb_event == I3C_CB_EVENT_SUCCESS) || (cb_event == I3C_CB_EVENT_ERROR))) {
+        }
 
-        if(cb_event == I3C_CB_EVENT_ERROR)
-        {
+        if (cb_event == I3C_CB_EVENT_ERROR) {
             printf("\nError: I2C Slave Transmit failed\n");
-            while(1);
+            WAIT_FOREVER
         }
 #endif
         tx_cnt += 1;
@@ -294,17 +277,15 @@ error_poweroff:
 
     /* Power off I3C peripheral */
     ret = I3Cdrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
-         printf("\r\n Error: I3C Power OFF failed.\r\n");
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: I3C Power OFF failed.\r\n");
     }
 
 error_uninitialize:
 
     /* Un-initialize I3C driver */
     ret = I3Cdrv->Uninitialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I3C Uninitialize failed.\r\n");
     }
 
@@ -314,17 +295,15 @@ error_uninitialize:
 /* Define main entry point.  */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
     /* Enter the I3C.  */
     i3c_slave_loopback_demo();
 }

@@ -24,7 +24,7 @@
 
 /* Thread attributes for the app_main thread */
 osThreadAttr_t attr_app_main = {
-  .name = "app_main",
+    .name = "app_main",
 };
 
 /* Loop counter */
@@ -33,33 +33,35 @@ uint32_t core1_loop_counter = 0xFFFFFFFFU;
 /*
   Application main thread.
 */
-__NO_RETURN void app_main_thread (void *argument) {
-  (void)argument;
- 
-  /* Initialize loop counter */
-  core1_loop_counter = 0;
+__NO_RETURN void app_main_thread(void *argument)
+{
+    (void) argument;
 
-  while (1) {
-    /* Switch LED1 on */
-    vioSetSignal(vioLED1, vioLEDon);
-    /* Wait a bit */
-    osDelay(500);
-    /* Switch LED1 off */
-    vioSetSignal(vioLED1, vioLEDoff);
-    /* Wait a bit */
-    osDelay(500);
+    /* Initialize loop counter */
+    core1_loop_counter = 0;
 
-    /* Increment loop counter */
-    core1_loop_counter += 1;
-  }
+    while (1) {
+        /* Switch LED1 on */
+        vioSetSignal(vioLED1, vioLEDon);
+        /* Wait a bit */
+        osDelay(500);
+        /* Switch LED1 off */
+        vioSetSignal(vioLED1, vioLEDoff);
+        /* Wait a bit */
+        osDelay(500);
+
+        /* Increment loop counter */
+        core1_loop_counter += 1;
+    }
 }
 
 /*
   Application initialization.
 */
-int app_main (void) {
-  osKernelInitialize();                         /* Initialize CMSIS-RTOS2 */
-  osThreadNew(app_main_thread, NULL, &attr_app_main);
-  osKernelStart();                              /* Start thread execution */
-  return 0;
+int app_main(void)
+{
+    osKernelInitialize(); /* Initialize CMSIS-RTOS2 */
+    osThreadNew(app_main_thread, NULL, &attr_app_main);
+    osKernelStart(); /* Start thread execution */
+    return 0;
 }

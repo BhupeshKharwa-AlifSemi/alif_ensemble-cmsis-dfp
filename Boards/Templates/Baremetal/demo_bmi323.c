@@ -30,13 +30,13 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 #include "Driver_IO.h"
 #include "Driver_IMU.h"
 
 /* IMU Driver instance */
-extern ARM_DRIVER_IMU BMI323;
+extern ARM_DRIVER_IMU  BMI323;
 static ARM_DRIVER_IMU *Drv_IMU = &BMI323;
 
 /**
@@ -62,9 +62,9 @@ static int32_t hardware_init(void)
     /* Configure GPIO flex I/O pins to 1.8-V:
      *  P7_6 and P7_7 pins are part of GPIO flex I/O pins.
      */
-    int32_t  ret = 0;
-    uint32_t error_code = SERVICES_REQ_SUCCESS;
-    uint32_t service_error_code;
+    int32_t       ret        = 0;
+    uint32_t      error_code = SERVICES_REQ_SUCCESS;
+    uint32_t      service_error_code;
     run_profile_t runp;
 
     /* config flexio pins to 1.8V */
@@ -72,31 +72,24 @@ static int32_t hardware_init(void)
     se_services_port_init();
 
     /* Get the current run configuration from SE */
-    error_code = SERVICES_get_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Get Current run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
     /* Set the new run configuration */
-    error_code = SERVICES_set_run_cfg(se_services_s_handle,
-                                      &runp,
-                                      &service_error_code);
-    if(error_code)
-    {
+    error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
         printf("Set new run config failed\n");
-        while(1);
+        WAIT_FOREVER
     }
 
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return ret;
     }
     return ARM_DRIVER_OK;
@@ -123,79 +116,67 @@ static void imu_bmi323_demo(void)
 
     /* Initialize i3c hardware pins using PinMux Driver. */
     ret = hardware_init();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("\r\n Error: i3c hardware_init failed.\r\n");
         return;
     }
 
     /* IMU version */
     version = Drv_IMU->GetVersion();
-    printf("\r\n IMU version api:0x%"PRId16" driver:0x%"PRId16" \r\n",
-            version.api, version.drv);
+    printf("\r\n IMU version api:0x%" PRId16 " driver:0x%" PRId16 " \r\n",
+           version.api,
+           version.drv);
 
     /* IMU initialization */
     ret = Drv_IMU->Initialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: IMU Initialize failed.\r\n");
         goto error_uninitialize;
     }
 
     /* IMU power up */
     ret = Drv_IMU->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: IMU Power-up failed.\r\n");
         goto error_poweroff;
     }
 
-    while(1)
-    {
+    while (1) {
         /* Gets IMU status */
         status = Drv_IMU->GetStatus();
 
-        if(status.drdy_status & IMU_ACCELEROMETER_DATA_READY)
-        {
+        if (status.drdy_status & IMU_ACCELEROMETER_DATA_READY) {
             /* Read Accelerometer data */
-            ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA,
-                                   (uint32_t)&data);
-            if(ret != ARM_DRIVER_OK)
-            {
+            ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA, (uint32_t) &data);
+            if (ret != ARM_DRIVER_OK) {
                 printf("\r\n Error: IMU Accelerometer data \r\n");
                 goto error_poweroff;
             }
 
-            printf("\t\tAccel Data--> x:%"PRId16"mg, y:%"PRId16"mg, z:%"PRId16"mg\r\n",
-                    data.x,
-                    data.y,
-                    data.z);
+            printf("\t\tAccel Data--> x:%" PRId16 "mg, y:%" PRId16 "mg, z:%" PRId16 "mg\r\n",
+                   data.x,
+                   data.y,
+                   data.z);
         }
 
-        if(status.drdy_status & IMU_GYRO_DATA_READY)
-        {
+        if (status.drdy_status & IMU_GYRO_DATA_READY) {
             /* Read Gyroscope data */
-            ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA,
-                                   (uint32_t)&data);
-            if(ret != ARM_DRIVER_OK)
-            {
+            ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA, (uint32_t) &data);
+            if (ret != ARM_DRIVER_OK) {
                 printf("\r\n Error: IMU Gyroscope data \r\n");
                 goto error_poweroff;
             }
 
-            printf("\t\tGyro Data-->  x:%"PRId16"mdps, y:%"PRId16"mdps, z:%"PRId16"mdps\r\n",
-                    data.x,
-                    data.y,
-                    data.z);
+            printf("\t\tGyro Data-->  x:%" PRId16 "mdps, y:%" PRId16 "mdps, z:%" PRId16 "mdps\r\n",
+                   data.x,
+                   data.y,
+                   data.z);
         }
 
-        if(status.drdy_status & IMU_TEMPERATURE_DATA_READY)
-        {
+        if (status.drdy_status & IMU_TEMPERATURE_DATA_READY) {
             /* Read Temperature data */
-            ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA,
-                                   (uint32_t)&temperature);
-            if(ret != ARM_DRIVER_OK)
-            {
+            ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA, (uint32_t) &temperature);
+            if (ret != ARM_DRIVER_OK) {
                 printf("\r\n Error: IMU Temperature data \r\n");
                 goto error_poweroff;
             }
@@ -203,8 +184,7 @@ static void imu_bmi323_demo(void)
             printf("\t\tTemp Data-->  %fC\r\n\r\n", temperature);
         }
         /* wait for 1 sec */
-        for(iter = 0; iter < 10; iter++)
-        {
+        for (iter = 0; iter < 10; iter++) {
             sys_busy_loop_us(100000);
         }
     }
@@ -212,8 +192,7 @@ static void imu_bmi323_demo(void)
 error_poweroff:
     /* Power off IMU driver*/
     ret = Drv_IMU->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         /* Error in IMU Power OFF. */
         printf("ERROR: Could not power OFF IMU\n");
         return;
@@ -222,8 +201,7 @@ error_poweroff:
 error_uninitialize:
     /* Un-initialize IMU driver */
     ret = Drv_IMU->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         /* Error in IMU uninitialize. */
         printf("ERROR: Could not unintialize IMU\n");
         return;
@@ -234,16 +212,14 @@ error_uninitialize:
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-        int32_t ret;
-        ret = stdout_init();
-        if(ret != ARM_DRIVER_OK)
-        {
-            while(1)
-            {
-            }
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    int32_t ret;
+    ret = stdout_init();
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
-    #endif
+    }
+#endif
     /* Enter the Demo.  */
     imu_bmi323_demo();
 

@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#define RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE (128*1024)
+#define RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE (128 * 1024)
 
 // Function documentation
 
@@ -42,9 +42,7 @@ bool RTSS_Is_DCache_Dirty(void)
     uint32_t mscr = MEMSYSCTL->MSCR;
 
     /* Return True, if Cache is active and not known to be clean */
-    if((mscr & MEMSYSCTL_MSCR_DCACTIVE_Msk)
-       && !(mscr & MEMSYSCTL_MSCR_DCCLEAN_Msk))
-    {
+    if ((mscr & MEMSYSCTL_MSCR_DCACTIVE_Msk) && !(mscr & MEMSYSCTL_MSCR_DCCLEAN_Msk)) {
         return true;
     }
 
@@ -56,7 +54,7 @@ bool RTSS_Is_DCache_Dirty(void)
   \brief       Return True if Global Cache Clean operation is required
   return       True : If CacheOperation Required, else False
 */
-bool RTSS_IsGlobalCacheClean_Required (void);
+bool RTSS_IsGlobalCacheClean_Required(void);
 
 /**
   \fn          void RTSS_IsCacheInvalidate_Required_by_Addr (volatile void *addr, int32_t size)
@@ -66,7 +64,7 @@ bool RTSS_IsGlobalCacheClean_Required (void);
   \param[in]   size   size of memory block (in number of bytes)
   return       True : If CacheOperation Required, else False
 */
-bool RTSS_IsCacheInvalidate_Required_by_Addr (volatile void *addr, int32_t size);
+bool RTSS_IsCacheInvalidate_Required_by_Addr(volatile void *addr, int32_t size);
 
 /**
   \fn          void RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size)
@@ -76,7 +74,7 @@ bool RTSS_IsCacheInvalidate_Required_by_Addr (volatile void *addr, int32_t size)
   \param[in]   size   size of memory block (in number of bytes)
   return       True : If CacheOperation Required, else False
 */
-bool RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size);
+bool RTSS_IsCacheClean_Required_by_Addr(volatile void *addr, int32_t size);
 
 /**
   \fn          void RTSS_InvalidateICache_by_Addr (volatile void *addr, int32_t isize)
@@ -86,14 +84,11 @@ bool RTSS_IsCacheClean_Required_by_Addr (volatile void *addr, int32_t size);
   \param[in]   isize   size of memory block (in number of bytes)
 */
 __STATIC_FORCEINLINE
-void RTSS_InvalidateICache_by_Addr (volatile void *addr, int32_t isize)
+void RTSS_InvalidateICache_by_Addr(volatile void *addr, int32_t isize)
 {
-    if(RTSS_IsCacheInvalidate_Required_by_Addr (addr, isize))
-    {
-        SCB_InvalidateICache_by_Addr (addr, isize);
-    }
-    else
-    {
+    if (RTSS_IsCacheInvalidate_Required_by_Addr(addr, isize)) {
+        SCB_InvalidateICache_by_Addr(addr, isize);
+    } else {
         __DSB();
         __ISB();
     }
@@ -117,10 +112,9 @@ void RTSS_InvalidateICache_by_Addr (volatile void *addr, int32_t isize)
   \param[in]   dsize   size of memory block (in number of bytes)
 */
 __STATIC_FORCEINLINE
-void RTSS_InvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
+void RTSS_InvalidateDCache_by_Addr(volatile void *addr, int32_t dsize)
 {
-    if(RTSS_IsCacheInvalidate_Required_by_Addr (addr, dsize))
-    {
+    if (RTSS_IsCacheInvalidate_Required_by_Addr(addr, dsize)) {
         /*
          * Considering the time required to Invalidate by address for
          * more than 128K size, it is better to do global clean and Invalidate.
@@ -128,13 +122,12 @@ void RTSS_InvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
          * Perform the check for threshold size and decide.
          *
          */
-        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE)
-            SCB_InvalidateDCache_by_Addr (addr, dsize);
-        else
-            SCB_CleanInvalidateDCache ();
-    }
-    else
-    {
+        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE) {
+            SCB_InvalidateDCache_by_Addr(addr, dsize);
+        } else {
+            SCB_CleanInvalidateDCache();
+        }
+    } else {
         __DSB();
         __ISB();
     }
@@ -148,10 +141,9 @@ void RTSS_InvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
   \param[in]   dsize   size of memory block (in number of bytes)
 */
 __STATIC_FORCEINLINE
-void RTSS_CleanDCache_by_Addr (volatile void *addr, int32_t dsize)
+void RTSS_CleanDCache_by_Addr(volatile void *addr, int32_t dsize)
 {
-    if(RTSS_IsCacheClean_Required_by_Addr (addr, dsize))
-    {
+    if (RTSS_IsCacheClean_Required_by_Addr(addr, dsize)) {
         /*
          * Considering the time required to Clean by address for more
          * than 128K size, it is better to do global clean.
@@ -159,13 +151,12 @@ void RTSS_CleanDCache_by_Addr (volatile void *addr, int32_t dsize)
          * Perform the check for threshold size and decide.
          *
          */
-        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE)
-            SCB_CleanDCache_by_Addr (addr, dsize);
-        else
-            SCB_CleanDCache ();
-    }
-    else
-    {
+        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE) {
+            SCB_CleanDCache_by_Addr(addr, dsize);
+        } else {
+            SCB_CleanDCache();
+        }
+    } else {
         __DSB();
         __ISB();
     }
@@ -176,10 +167,11 @@ void RTSS_CleanDCache_by_Addr (volatile void *addr, int32_t dsize)
   \brief       Clean the Cache only if the line is dirty.
 */
 __STATIC_FORCEINLINE
-void RTSS_CleanDCache (void)
+void RTSS_CleanDCache(void)
 {
-    if(RTSS_IsGlobalCacheClean_Required() && RTSS_Is_DCache_Dirty())
+    if (RTSS_IsGlobalCacheClean_Required() && RTSS_Is_DCache_Dirty()) {
         SCB_CleanDCache();
+    }
 }
 
 /**
@@ -190,16 +182,15 @@ void RTSS_CleanDCache (void)
   \param[in]   dsize   size of memory block (in number of bytes)
 */
 __STATIC_FORCEINLINE
-void RTSS_CleanInvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
+void RTSS_CleanInvalidateDCache_by_Addr(volatile void *addr, int32_t dsize)
 {
-    bool clean_req = true;
-    bool invalidate_req =  true;
+    bool clean_req      = true;
+    bool invalidate_req = true;
 
-    clean_req = RTSS_IsCacheClean_Required_by_Addr (addr, dsize);
-    invalidate_req = RTSS_IsCacheInvalidate_Required_by_Addr (addr, dsize);
+    clean_req           = RTSS_IsCacheClean_Required_by_Addr(addr, dsize);
+    invalidate_req      = RTSS_IsCacheInvalidate_Required_by_Addr(addr, dsize);
 
-    if(clean_req && invalidate_req)
-    {
+    if (clean_req && invalidate_req) {
         /*
          * Considering the time required to CleanInvalidate by address
          * for more than 128K size, it is better to do global clean & Invalidate.
@@ -207,32 +198,28 @@ void RTSS_CleanInvalidateDCache_by_Addr (volatile void *addr, int32_t dsize)
          * Perform the check for threshold size and decide.
          *
          */
-        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE)
-            SCB_CleanInvalidateDCache_by_Addr (addr, dsize);
-        else
-            SCB_CleanInvalidateDCache ();
-    }
-    else if(clean_req)
-    {
-        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE)
-            SCB_CleanDCache_by_Addr (addr, dsize);
-        else
-            SCB_CleanDCache ();
-    }
-    else if(invalidate_req)
-    {
-        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE)
-            SCB_InvalidateDCache_by_Addr (addr, dsize);
-        else
-            SCB_CleanInvalidateDCache ();
-    }
-    else
-    {
+        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE) {
+            SCB_CleanInvalidateDCache_by_Addr(addr, dsize);
+        } else {
+            SCB_CleanInvalidateDCache();
+        }
+    } else if (clean_req) {
+        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE) {
+            SCB_CleanDCache_by_Addr(addr, dsize);
+        } else {
+            SCB_CleanDCache();
+        }
+    } else if (invalidate_req) {
+        if (dsize < RTSS_FORCE_GLOBAL_CLEAN_INVALIDATE_THRESHOLD_SIZE) {
+            SCB_InvalidateDCache_by_Addr(addr, dsize);
+        } else {
+            SCB_CleanInvalidateDCache();
+        }
+    } else {
         __DSB();
         __ISB();
     }
 }
-
 
 #ifdef __cplusplus
 }

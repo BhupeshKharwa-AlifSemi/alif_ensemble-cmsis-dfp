@@ -16,98 +16,119 @@
 #include "soc.h"
 
 /**
-  * @brief PDM_PDM_CHANNEL_CFG [PDM_CHANNEL_CFG] ([0..7])
-  */
+ * @brief PDM_PDM_CHANNEL_CFG [PDM_CHANNEL_CFG] ([0..7])
+ */
 typedef struct {
-  volatile uint32_t  PDM_CH_FIR_COEF_0;            /*!< (@ 0x00000000) Channel (n) FIR Filter Coefficient 0 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_1;            /*!< (@ 0x00000004) Channel (n) FIR Filter Coefficient 1 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_2;            /*!< (@ 0x00000008) Channel (n) FIR Filter Coefficient 2 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_3;            /*!< (@ 0x0000000C) Channel (n) FIR Filter Coefficient 3 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_4;            /*!< (@ 0x00000010) Channel (n) FIR Filter Coefficient 4 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_5;            /*!< (@ 0x00000014) Channel (n) FIR Filter Coefficient 5 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_6;            /*!< (@ 0x00000018) Channel (n) FIR Filter Coefficient 6 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_7;            /*!< (@ 0x0000001C) Channel (n) FIR Filter Coefficient 7 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_8;            /*!< (@ 0x00000020) Channel (n) FIR Filter Coefficient 8 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_9;            /*!< (@ 0x00000024) Channel (n) FIR Filter Coefficient 9 Register              */
-  volatile uint32_t  PDM_CH_FIR_COEF_10;           /*!< (@ 0x00000028) Channel (n) FIR Filter Coefficient 10 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_11;           /*!< (@ 0x0000002C) Channel (n) FIR Filter Coefficient 11 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_12;           /*!< (@ 0x00000030) Channel (n) FIR Filter Coefficient 12 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_13;           /*!< (@ 0x00000034) Channel (n) FIR Filter Coefficient 13 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_14;           /*!< (@ 0x00000038) Channel (n) FIR Filter Coefficient 14 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_15;           /*!< (@ 0x0000003C) Channel (n) FIR Filter Coefficient 15 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_16;           /*!< (@ 0x00000040) Channel (n) FIR Filter Coefficient 16 Register             */
-  volatile uint32_t  PDM_CH_FIR_COEF_17;           /*!< (@ 0x00000044) Channel (n) FIR Filter Coefficient 17 Register             */
-  volatile const  uint32_t  RESERVED[14];
-  volatile uint32_t  PDM_CH_IIR_COEF_SEL;          /*!< (@ 0x00000080) Channel (n) IIR Filter Coefficient Selection Register      */
-  volatile uint32_t  PDM_CH_PHASE;                 /*!< (@ 0x00000084) Channel (n) Phase Control Register                         */
-  volatile uint32_t  PDM_CH_GAIN;                  /*!< (@ 0x00000088) Channel (n) Gain Control Register                          */
-  volatile uint32_t  PDM_CH_PKDET_TH;              /*!< (@ 0x0000008C) Channel (n) Peak Detector Threshold Register               */
-  volatile uint32_t  PDM_CH_PKDET_ITV;             /*!< (@ 0x00000090) Channel (n) Peak Detector Interval Register                */
-  volatile const  uint32_t  PDM_CH_PKDET_STAT;     /*!< (@ 0x00000094) Channel (n) Peak Detector Status Register                  */
-  volatile const  uint32_t  RESERVED1[26];
-} PDM_PDM_CHANNEL_CFG_Type;                        /*!< Size = 256 (0x100)                                                        */
+    volatile uint32_t PDM_CH_FIR_COEF_0;  /*!< (@ 0x00000000) Channel (n) FIR Filter Coefficient 0
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_1;  /*!< (@ 0x00000004) Channel (n) FIR Filter Coefficient 1
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_2;  /*!< (@ 0x00000008) Channel (n) FIR Filter Coefficient 2
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_3;  /*!< (@ 0x0000000C) Channel (n) FIR Filter Coefficient 3
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_4;  /*!< (@ 0x00000010) Channel (n) FIR Filter Coefficient 4
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_5;  /*!< (@ 0x00000014) Channel (n) FIR Filter Coefficient 5
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_6;  /*!< (@ 0x00000018) Channel (n) FIR Filter Coefficient 6
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_7;  /*!< (@ 0x0000001C) Channel (n) FIR Filter Coefficient 7
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_8;  /*!< (@ 0x00000020) Channel (n) FIR Filter Coefficient 8
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_9;  /*!< (@ 0x00000024) Channel (n) FIR Filter Coefficient 9
+                                             Register              */
+    volatile uint32_t PDM_CH_FIR_COEF_10; /*!< (@ 0x00000028) Channel (n) FIR Filter Coefficient 10
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_11; /*!< (@ 0x0000002C) Channel (n) FIR Filter Coefficient 11
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_12; /*!< (@ 0x00000030) Channel (n) FIR Filter Coefficient 12
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_13; /*!< (@ 0x00000034) Channel (n) FIR Filter Coefficient 13
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_14; /*!< (@ 0x00000038) Channel (n) FIR Filter Coefficient 14
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_15; /*!< (@ 0x0000003C) Channel (n) FIR Filter Coefficient 15
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_16; /*!< (@ 0x00000040) Channel (n) FIR Filter Coefficient 16
+                                             Register             */
+    volatile uint32_t PDM_CH_FIR_COEF_17; /*!< (@ 0x00000044) Channel (n) FIR Filter Coefficient 17
+                                             Register             */
+    volatile const uint32_t RESERVED[14];
+    volatile uint32_t PDM_CH_IIR_COEF_SEL; /*!< (@ 0x00000080) Channel (n) IIR Filter Coefficient
+                                              Selection Register      */
+    volatile uint32_t PDM_CH_PHASE;        /*!< (@ 0x00000084) Channel (n) Phase Control Register        */
+    volatile uint32_t PDM_CH_GAIN;         /*!< (@ 0x00000088) Channel (n) Gain Control Register         */
+    volatile uint32_t PDM_CH_PKDET_TH;     /*!< (@ 0x0000008C) Channel (n) Peak Detector Threshold
+                                              Register               */
+    volatile uint32_t PDM_CH_PKDET_ITV;    /*!< (@ 0x00000090) Channel (n) Peak Detector Interval
+                                              Register                */
+    volatile const uint32_t PDM_CH_PKDET_STAT; /*!< (@ 0x00000094) Channel (n) Peak Detector Status
+                                                  Register                  */
+    volatile const uint32_t RESERVED1[26];
+} PDM_PDM_CHANNEL_CFG_Type; /*!< Size = 256 (0x100) */
 
-#define PDM0_IRQ_ENABLE               (0xFF03U)                   /* To enable the interrupt status register */
-#define PDM_BYPASS_IIR                (1U << 2U)                  /* Bypass DC blocking IIR filter           */
-#define PDM_BYPASS_FIR                (1U << 3U)                  /* Bypass FIR filter                       */
-#define PDM_PEAK_DETECT_NODE          (1U << 4U)                  /* Peak detection node                     */
-#define PDM_DMA_HANDSHAKE             (1U << 24U)                 /* DMA handshaking signals for flow control*/
-#define PDM_SAMPLE_ADV                (1U << 17U)                 /* Sample advance                          */
+#define PDM0_IRQ_ENABLE            (0xFF03U)   /* To enable the interrupt status register */
+#define PDM_BYPASS_IIR             (1U << 2U)  /* Bypass DC blocking IIR filter           */
+#define PDM_BYPASS_FIR             (1U << 3U)  /* Bypass FIR filter                       */
+#define PDM_PEAK_DETECT_NODE       (1U << 4U)  /* Peak detection node                     */
+#define PDM_DMA_HANDSHAKE          (1U << 24U) /* DMA handshaking signals for flow control*/
+#define PDM_SAMPLE_ADV             (1U << 17U) /* Sample advance                          */
 
-#define PDM_INTERRUPT_STATUS_VALUE    (0x1U)                      /* To check the interrupt status           */
+#define PDM_INTERRUPT_STATUS_VALUE (0x1U) /* To check the interrupt status           */
 
-#define PDM_FIFO_ALMOST_FULL_IRQ      (0x1U << 0U)                /* FIFO almost full Interrupt              */
-#define PDM_FIFO_OVERFLOW_IRQ         (0x1U << 1U)                /* FIFO overflow interrupt                 */
-#define PDM_AUDIO_DETECT_IRQ_STAT     (0xFFU << 8U)               /* Audio detect interrupt                  */
-#define PDM_CHANNEL_ENABLE            (0xFFU)                     /* To check the which channel is enabled   */
-#define PDM_MODES                     (0xFFU << 16U)              /* To check for the PDM modes              */
+#define PDM_FIFO_ALMOST_FULL_IRQ   (0x1U << 0U)   /* FIFO almost full Interrupt              */
+#define PDM_FIFO_OVERFLOW_IRQ      (0x1U << 1U)   /* FIFO overflow interrupt                 */
+#define PDM_AUDIO_DETECT_IRQ_STAT  (0xFFU << 8U)  /* Audio detect interrupt                  */
+#define PDM_CHANNEL_ENABLE         (0xFFU)        /* To check the which channel is enabled   */
+#define PDM_MODES                  (0xFFU << 16U) /* To check for the PDM modes              */
 
-#define PDM_FIFO_CLEAR                (1U << 31U)                 /* To clear FIFO clear bit                 */
+#define PDM_FIFO_CLEAR             (1U << 31U) /* To clear FIFO clear bit                 */
 
-#define PDM_MAX_FIR_COEFFICIENT       18                          /* PDM channel FIR length                  */
-#define PDM_MAX_DMA_CHANNEL           1U                          /* PDM DMA maximum channel                 */
+#define PDM_MAX_FIR_COEFFICIENT    18 /* PDM channel FIR length                  */
+#define PDM_MAX_DMA_CHANNEL        1U /* PDM DMA maximum channel                 */
 
-#define PDM_AUDIO_CH_0_1              0U                          /* PDM audio channel 0 and 1               */
-#define PDM_AUDIO_CH_2_3              1U                          /* PDM audio channel 2 and 3               */
-#define PDM_AUDIO_CH_4_5              2U                          /* PDM audio channel 4 and 5               */
-#define PDM_AUDIO_CH_6_7              3U                          /* PDM audio channel 6 and 7               */
-#define PDM_CLK_MODE                  16U                         /* PDM clock frequency mode                */
+#define PDM_AUDIO_CH_0_1           0U  /* PDM audio channel 0 and 1               */
+#define PDM_AUDIO_CH_2_3           1U  /* PDM audio channel 2 and 3               */
+#define PDM_AUDIO_CH_4_5           2U  /* PDM audio channel 4 and 5               */
+#define PDM_AUDIO_CH_6_7           3U  /* PDM audio channel 6 and 7               */
+#define PDM_CLK_MODE               16U /* PDM clock frequency mode                */
 
-#define PDM_MAX_PHASE_CTRL            0x3FU                       /* PDM phase maximum value                 */
-#define PDM_MAX_GAIN_CTRL             0xFFFU                      /* PDM gain maximum value                  */
-#define PDM_MAX_CHANNEL               8U                          /* PDM supports a maximum of 8 channels    */
+#define PDM_MAX_PHASE_CTRL         0x3FU  /* PDM phase maximum value                 */
+#define PDM_MAX_GAIN_CTRL          0xFFFU /* PDM gain maximum value                  */
+#define PDM_MAX_CHANNEL            8U     /* PDM supports a maximum of 8 channels    */
 
-#define PDM_AUDIO_CHANNEL             (0x3U)
-#define PDM_CHANNEL_0_1               (PDM_AUDIO_CHANNEL << 0U)   /* check for channel 0 and 1               */
-#define PDM_CHANNEL_2_3               (PDM_AUDIO_CHANNEL << 2U)   /* check for channel 2 and 3               */
-#define PDM_CHANNEL_4_5               (PDM_AUDIO_CHANNEL << 4U)   /* check for channel 4 and 5               */
-#define PDM_CHANNEL_6_7               (PDM_AUDIO_CHANNEL << 6U)   /* check for channel 6 and 7               */
-#define PDM_CHANNEL_0                 (1U << 0U)
-#define PDM_CHANNEL_1                 (1U << 1U)
-#define PDM_CHANNEL_2                 (1U << 2U)
-#define PDM_CHANNEL_3                 (1U << 3U)
-#define PDM_CHANNEL_4                 (1U << 4U)
-#define PDM_CHANNEL_5                 (1U << 5U)
-#define PDM_CHANNEL_6                 (1U << 6U)
-#define PDM_CHANNEL_7                 (1U << 7U)
+#define PDM_AUDIO_CHANNEL          (0x3U)
+#define PDM_CHANNEL_0_1            (PDM_AUDIO_CHANNEL << 0U) /* check for channel 0 and 1               */
+#define PDM_CHANNEL_2_3            (PDM_AUDIO_CHANNEL << 2U) /* check for channel 2 and 3               */
+#define PDM_CHANNEL_4_5            (PDM_AUDIO_CHANNEL << 4U) /* check for channel 4 and 5               */
+#define PDM_CHANNEL_6_7            (PDM_AUDIO_CHANNEL << 6U) /* check for channel 6 and 7               */
+#define PDM_CHANNEL_0              (1U << 0U)
+#define PDM_CHANNEL_1              (1U << 1U)
+#define PDM_CHANNEL_2              (1U << 2U)
+#define PDM_CHANNEL_3              (1U << 3U)
+#define PDM_CHANNEL_4              (1U << 4U)
+#define PDM_CHANNEL_5              (1U << 5U)
+#define PDM_CHANNEL_6              (1U << 6U)
+#define PDM_CHANNEL_7              (1U << 7U)
 
-typedef enum _PDM_TRANSFER_STATUS
-{
-    PDM_CAPTURE_STATUS_NONE,        /* PDM capture status none     */
-    PDM_AUDIO_STATUS_DETECTION,     /* PDM status audio detection  */
-    PDM_CAPTURE_STATUS_COMPLETE,    /* PDM capture status complete */
-    PDM_ERROR_DETECT,               /* PDM error detection status  */
-}PDM_TRANSFER_STATUS;
+typedef enum _PDM_TRANSFER_STATUS {
+    PDM_CAPTURE_STATUS_NONE,     /* PDM capture status none     */
+    PDM_AUDIO_STATUS_DETECTION,  /* PDM status audio detection  */
+    PDM_CAPTURE_STATUS_COMPLETE, /* PDM capture status complete */
+    PDM_ERROR_DETECT,            /* PDM error detection status  */
+} PDM_TRANSFER_STATUS;
 
 /**
  @brief struct pdm_transfer_t:- To store PDM Receive Configuration
  */
-typedef struct{
-    uint32_t curr_cnt;                    /* Current count value                                      */
-    uint32_t total_cnt;                   /* Total count value                                        */
-    void *buf;                            /* Channel audio output values are stored in this address   */
-    volatile PDM_TRANSFER_STATUS status;  /* transfer status                                          */
-}pdm_transfer_t;
+typedef struct {
+    uint32_t curr_cnt;  /* Current count value                                      */
+    uint32_t total_cnt; /* Total count value                                        */
+    void    *buf;       /* Channel audio output values are stored in this address   */
+    volatile PDM_TRANSFER_STATUS status; /* transfer status */
+} pdm_transfer_t;
 
 /**
  @fn          void pdm_bypass_iir(PDM_Type *pdm, bool arg)
@@ -118,11 +139,11 @@ typedef struct{
  */
 static inline void pdm_bypass_iir(PDM_Type *pdm, bool arg)
 {
-    if(arg)  /* Enable the bypass IIR filter */
+    if (arg) /* Enable the bypass IIR filter */ {
         pdm->PDM_CTL1 |= PDM_BYPASS_IIR;
-
-    else  /* Disable the bypass IIR filter */
+    } else { /* Disable the bypass IIR filter */
         pdm->PDM_CTL1 &= ~(PDM_BYPASS_IIR);
+    }
 }
 
 /**
@@ -134,11 +155,11 @@ static inline void pdm_bypass_iir(PDM_Type *pdm, bool arg)
  */
 static inline void pdm_bypass_fir(PDM_Type *pdm, bool arg)
 {
-    if(arg)  /* Enable the bypass FIR filter */
+    if (arg) /* Enable the bypass FIR filter */ {
         pdm->PDM_CTL1 |= PDM_BYPASS_FIR;
-
-    else  /* Disable the bypass FIR filter */
+    } else { /* Disable the bypass FIR filter */
         pdm->PDM_CTL1 &= ~(PDM_BYPASS_FIR);
+    }
 }
 
 /**
@@ -150,11 +171,11 @@ static inline void pdm_bypass_fir(PDM_Type *pdm, bool arg)
  */
 static inline void pdm_peak_detect(PDM_Type *pdm, bool arg)
 {
-    if(arg)  /* peak detection after gain stage */
+    if (arg) /* peak detection after gain stage */ {
         pdm->PDM_CTL1 |= PDM_PEAK_DETECT_NODE;
-
-    else  /* peak detection before gain stage */
+    } else { /* peak detection before gain stage */
         pdm->PDM_CTL1 &= ~(PDM_PEAK_DETECT_NODE);
+    }
 }
 
 /**
@@ -166,11 +187,11 @@ static inline void pdm_peak_detect(PDM_Type *pdm, bool arg)
  */
 static inline void pdm_sample_advance(PDM_Type *pdm, bool arg)
 {
-    if(arg)  /* Enable the Sample advance */
+    if (arg) /* Enable the Sample advance */ {
         pdm->PDM_CTL1 |= PDM_SAMPLE_ADV;
-
-    else  /* Disable the Sample advance */
+    } else { /* Disable the Sample advance */
         pdm->PDM_CTL1 &= ~(PDM_SAMPLE_ADV);
+    }
 }
 
 /**
@@ -183,11 +204,11 @@ static inline void pdm_sample_advance(PDM_Type *pdm, bool arg)
  */
 static inline void pdm_dma_handshake(PDM_Type *pdm, bool arg)
 {
-    if(arg)  /* Enable the DMA handshake */
+    if (arg) /* Enable the DMA handshake */ {
         pdm->PDM_CTL1 |= PDM_DMA_HANDSHAKE;
-
-    else  /* Disable the DMA handshake */
+    } else { /* Disable the DMA handshake */
         pdm->PDM_CTL1 &= ~(PDM_DMA_HANDSHAKE);
+    }
 }
 
 /**
@@ -218,10 +239,10 @@ static inline void pdm_enable_irq(PDM_Type *pdm)
     pdm->PDM_IRQ_ENABLE &= ~(PDM0_IRQ_ENABLE); /* Clear IRQ */
 
     /* get user enabled channel */
-    audio_ch = ((pdm->PDM_CTL0)) & PDM_CHANNEL_ENABLE;
+    audio_ch             = ((pdm->PDM_CTL0)) & PDM_CHANNEL_ENABLE;
 
     /* Enable the Interrupt */
-    pdm->PDM_IRQ_ENABLE |= (( audio_ch  << 8) | (PDM_FIFO_ALMOST_FULL_IRQ | PDM_FIFO_OVERFLOW_IRQ));
+    pdm->PDM_IRQ_ENABLE |= ((audio_ch << 8) | (PDM_FIFO_ALMOST_FULL_IRQ | PDM_FIFO_OVERFLOW_IRQ));
 }
 
 /**
@@ -353,8 +374,7 @@ static inline void pdm_set_ch_gain(PDM_Type *pdm, uint8_t ch_num, uint32_t ch_ga
                                    threshold value
  @return      None
  */
-static inline void pdm_set_peak_detect_th(PDM_Type *pdm, uint8_t ch_num,
-                                          uint32_t ch_peak_detect_th)
+static inline void pdm_set_peak_detect_th(PDM_Type *pdm, uint8_t ch_num, uint32_t ch_peak_detect_th)
 {
     pdm->PDM_CHANNEL_CFG[ch_num].PDM_CH_PKDET_TH = ch_peak_detect_th;
 }
@@ -384,15 +404,15 @@ static inline void pdm_set_peak_detect_itv(PDM_Type *pdm, uint8_t ch_num,
  @param[in]   ch_fir_coef  : Set the pdm channel Fir coefficient values
  @return      None
  */
-static inline void pdm_set_fir_coeff(PDM_Type *pdm, uint8_t ch_num, uint32_t ch_fir_coef[PDM_MAX_FIR_COEFFICIENT])
+static inline void pdm_set_fir_coeff(PDM_Type *pdm, uint8_t ch_num,
+                                     uint32_t ch_fir_coef[PDM_MAX_FIR_COEFFICIENT])
 {
-    uint32_t i;
-    uint32_t *ch_n_fir_coef_0 = (uint32_t *)&(pdm->PDM_CHANNEL_CFG[ch_num].PDM_CH_FIR_COEF_0);
+    uint32_t  i;
+    uint32_t *ch_n_fir_coef_0 = (uint32_t *) &(pdm->PDM_CHANNEL_CFG[ch_num].PDM_CH_FIR_COEF_0);
 
-    for(i = 0; i< PDM_MAX_FIR_COEFFICIENT; i++)
-    {
+    for (i = 0; i < PDM_MAX_FIR_COEFFICIENT; i++) {
         *(ch_n_fir_coef_0) = ch_fir_coef[i];
-         ch_n_fir_coef_0 ++;
+        ch_n_fir_coef_0++;
     }
 }
 
@@ -413,7 +433,7 @@ static inline uint32_t pdm_get_active_channels(PDM_Type *pdm)
  @param[in]   pdm : Pointer to the PDM register map
  @return      return the address
  */
-static inline volatile uint32_t* pdm_get_ch0_1_addr(PDM_Type *pdm)
+static inline volatile uint32_t *pdm_get_ch0_1_addr(PDM_Type *pdm)
 {
     return &(pdm->PDM_CH0_CH1_AUDIO_OUT);
 }
@@ -424,7 +444,7 @@ static inline volatile uint32_t* pdm_get_ch0_1_addr(PDM_Type *pdm)
  @param[in]   pdm : Pointer to the PDM register map
  @return      return the address
  */
-static inline volatile uint32_t* pdm_get_ch2_3_addr(PDM_Type *pdm)
+static inline volatile uint32_t *pdm_get_ch2_3_addr(PDM_Type *pdm)
 {
     return &(pdm->PDM_CH2_CH3_AUDIO_OUT);
 }
@@ -435,7 +455,7 @@ static inline volatile uint32_t* pdm_get_ch2_3_addr(PDM_Type *pdm)
  @param[in]   pdm : Pointer to the PDM register map
  @return      return the address
  */
-static inline volatile uint32_t* pdm_get_ch4_5_addr(PDM_Type *pdm)
+static inline volatile uint32_t *pdm_get_ch4_5_addr(PDM_Type *pdm)
 {
     return &(pdm->PDM_CH4_CH5_AUDIO_OUT);
 }
@@ -446,7 +466,7 @@ static inline volatile uint32_t* pdm_get_ch4_5_addr(PDM_Type *pdm)
  @param[in]   pdm : Pointer to the PDM register map
  @return      return the address
  */
-static inline volatile uint32_t* pdm_get_ch6_7_addr(PDM_Type *pdm)
+static inline volatile uint32_t *pdm_get_ch6_7_addr(PDM_Type *pdm)
 {
     return &(pdm->PDM_CH6_CH7_AUDIO_OUT);
 }
@@ -476,7 +496,7 @@ void pdm_error_detect_irq_handler(PDM_Type *pdm);
   @param[in]   transfer     : The transfer structure of the PDM instance
   @return      none
 */
-void pdm_audio_detect_irq_handler(PDM_Type *pdm, pdm_transfer_t *transfer );
+void pdm_audio_detect_irq_handler(PDM_Type *pdm, pdm_transfer_t *transfer);
 
 /**
   @fn          void pdm_warning_irq_handler(PDM_Type *pdm, pdm_transfer_t *transfer);

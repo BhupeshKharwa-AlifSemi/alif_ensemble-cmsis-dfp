@@ -14,22 +14,21 @@
 #include "soc.h"
 #include "analog_config.h"
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define CMP_CTRL_CMP0_CLKEN  (1U << 0U) /* Enable CMP0 clock */
+#define CMP_CTRL_CMP0_CLKEN (1U << 0U) /* Enable CMP0 clock */
 
-#define VBAT_ANA_REG2_VAL    0x00C00000 /* Enable analog peripheral LDO and precision bandgap */
+#define VBAT_ANA_REG2_VAL   0x00C00000 /* Enable analog peripheral LDO and precision bandgap */
 
-#define DAC6_REF_VAL         (DAC6_VREF_SCALE | DAC6_CONT | DAC6_EN)
+#define DAC6_REF_VAL        (DAC6_VREF_SCALE | DAC6_CONT | DAC6_EN)
 
-#define DAC12_REF_VAL        (DAC12_VREF_CONT | ADC_VREF_BUF_EN | ADC_VREF_BUF_RDIV_EN)
+#define DAC12_REF_VAL       (DAC12_VREF_CONT | ADC_VREF_BUF_EN | ADC_VREF_BUF_RDIV_EN)
 
-#define ADC_REF_VAL          (ADC_VREF_BUF_RDIV_EN | ADC_VREF_BUF_EN | ADC_VREF_CONT)
+#define ADC_REF_VAL         (ADC_VREF_BUF_RDIV_EN | ADC_VREF_BUF_EN | ADC_VREF_CONT)
 
-#define CMP_REG2_BASE        (CMP0_BASE + 0x00000004) /* CMP register2 base address */
+#define CMP_REG2_BASE       (CMP0_BASE + 0x00000004) /* CMP register2 base address */
 
 /**
  * @fn          void enable_analog_peripherals(void)
@@ -57,7 +56,7 @@ static inline void enable_dac6_ref_voltage(void)
 #if SOC_FEAT_HSCMP_REG_ALIASING
     DAC6->DAC6_REG |= DAC6_REF_VAL;
 #else
-    *((volatile uint32_t *)CMP_REG2_BASE) |= DAC6_REF_VAL;
+    *((volatile uint32_t *) CMP_REG2_BASE) |= DAC6_REF_VAL;
 #endif
 }
 
@@ -70,7 +69,7 @@ static inline void enable_dac6_ref_voltage(void)
  */
 static inline void enable_dac12_ref_voltage(void)
 {
-    *((volatile uint32_t *)CMP_REG2_BASE) |= DAC12_REF_VAL;
+    *((volatile uint32_t *) CMP_REG2_BASE) |= DAC12_REF_VAL;
 }
 
 /**
@@ -83,7 +82,7 @@ static inline void enable_dac12_ref_voltage(void)
  */
 static inline void enable_adc_ref_voltage(void)
 {
-    *((volatile uint32_t *)CMP_REG2_BASE) |= ADC_REF_VAL;
+    *((volatile uint32_t *) CMP_REG2_BASE) |= ADC_REF_VAL;
 }
 
 /**
@@ -108,7 +107,7 @@ static inline void disable_analog_periph_clk(void)
     CLKCTL_PER_SLV->CMP_CTRL &= ~CMP_CTRL_CMP0_CLKEN;
 }
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -26,24 +26,20 @@
 #include <stdbool.h>
 #include "soc.h"
 
-
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
-
 
 /**
   @brief PM Return Status
  */
-typedef enum _PM_STATUS
-{
-    PM_STATUS_OK,              /*!<  SUCCESS                 */
-    PM_STATUS_UNSUPPORTED,     /*!<  Unsupported Sleep state */
-    PM_STATUS_ERROR,           /*!<  ERROR                   */
+typedef enum _PM_STATUS {
+    PM_STATUS_OK,          /*!<  SUCCESS                 */
+    PM_STATUS_UNSUPPORTED, /*!<  Unsupported Sleep state */
+    PM_STATUS_ERROR,       /*!<  ERROR                   */
 
     PM_STATUS_MAX = 0x7FFFFFFFUL
-}PM_STATUS;
+} PM_STATUS;
 
 /**
   @brief enum of reset reasons
@@ -53,8 +49,7 @@ typedef enum _PM_STATUS
  * central reset logic - this value is read from the central reset
  * controller.
  */
-typedef enum _PM_RESET_STATUS
-{
+typedef enum _PM_RESET_STATUS {
     PM_RESET_STATUS_POR_OR_SOC_OR_HOST_RESET = (1U << 0), /*!< Indicates that a
                                                          reset of the External
                                                          System was caused by
@@ -72,7 +67,7 @@ typedef enum _PM_RESET_STATUS
                                                          request to reset this
                                                          External System      */
 
-    PM_RESET_STATUS_MAX = 0x7FFFFFFFUL
+    PM_RESET_STATUS_MAX                      = 0x7FFFFFFFUL
 } PM_RESET_STATUS;
 
 /**
@@ -199,13 +194,10 @@ uint32_t pm_get_subsystem_reset_status(void);
 
   @note     Usage:
 
-            if (pm_core_wakeup_is_spurious())
-            {
+            if (pm_core_wakeup_is_spurious()) {
                 pm_core_enable_manual_pd_sequencing();
                 pm_core_request_subsys_off_from_spurious_wakeup();
-            }
-            else
-            {
+            } else {
                 pm_core_enable_automatic_pd_sequencing();
             }
 
@@ -267,7 +259,7 @@ void pm_core_enable_manual_pu_sequencing(void);
 */
 void pm_core_request_subsys_off_from_spurious_wakeup(void);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

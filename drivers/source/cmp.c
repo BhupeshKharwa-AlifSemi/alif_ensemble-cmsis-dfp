@@ -21,14 +21,11 @@ void cmp_irq_handler(CMP_Type *cmp, const uint8_t int_mask)
 {
     uint8_t int_status = (cmp->CMP_INTERRUPT_STATUS & (int_mask));
 
-    if(int_status == CMP_FILTER_EVENT0_CLEAR)
-    {
+    if (int_status == CMP_FILTER_EVENT0_CLEAR) {
         cmp->CMP_INTERRUPT_STATUS = CMP_FILTER_EVENT0_CLEAR;
     }
 
-    if(int_status == CMP_FILTER_EVENT1_CLEAR)
-    {
+    if (int_status == CMP_FILTER_EVENT1_CLEAR) {
         cmp->CMP_INTERRUPT_STATUS = CMP_FILTER_EVENT1_CLEAR;
     }
-
 }

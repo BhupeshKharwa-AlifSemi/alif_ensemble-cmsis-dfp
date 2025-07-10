@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     sys_ctrl_utimer.h
  * @author   Manoj A Murudi
  * @email    manoj.murudi@alifsemi.com
@@ -20,14 +20,13 @@
 #ifndef SYS_CTRL_UTIMER_H_
 #define SYS_CTRL_UTIMER_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include "soc.h"
 
-#define HE_CLK_ENA_LPUTIMER_CKEN     (1U << 17)   /* Enable LP-UITMER clock */
+#define HE_CLK_ENA_LPUTIMER_CKEN (1U << 17) /* Enable LP-UITMER clock */
 
 /**
   \fn          static void inline enable_lputimer_clk (void)
@@ -35,7 +34,7 @@ extern "C"
   \param       none
   \return      none
 */
-static inline void enable_lputimer_clk (void)
+static inline void enable_lputimer_clk(void)
 {
     M55HE_CFG->HE_CLK_ENA |= HE_CLK_ENA_LPUTIMER_CKEN;
 }
@@ -46,7 +45,7 @@ static inline void enable_lputimer_clk (void)
   \param       none
   \return      none
 */
-static inline void disable_lputimer_clk (void)
+static inline void disable_lputimer_clk(void)
 {
     M55HE_CFG->HE_CLK_ENA &= ~HE_CLK_ENA_LPUTIMER_CKEN;
 }

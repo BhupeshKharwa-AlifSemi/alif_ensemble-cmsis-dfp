@@ -7,7 +7,7 @@
  * contact@alifsemi.com, or visit: https://alifsemi.com/license
  *
  */
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_sd.c
  * @author   : Deepak Kumar
  * @email    : deepak@alifsemi.com
@@ -34,18 +34,20 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #include "Driver_Common.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 #include "Driver_IO.h"
 #include "board_config.h"
 
 // Set to 0: Use application-defined SDC A revision pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
-#define BAREMETAL_SD_TEST_RAW_SECTOR 0x2000     //start reading and writing raw data from partition sector
-volatile unsigned char sdbuffer[512*4] __attribute__((section("sd_dma_buf"))) __attribute__((aligned(32)));
+#define BAREMETAL_SD_TEST_RAW_SECTOR                                                               \
+    0x2000  // start reading and writing raw data from partition sector
+volatile unsigned char sdbuffer[512 * 4] __attribute__((section("sd_dma_buf")))
+__attribute__((aligned(32)));
 
-const diskio_t  *p_SD_Driver = &SD_Driver;
+const diskio_t   *p_SD_Driver  = &SD_Driver;
 volatile uint32_t dma_done_irq = 0;
 
 /**
@@ -55,27 +57,30 @@ volatile uint32_t dma_done_irq = 0;
   \param[in]    uint16_t xfer_status
   \return       none
 */
-void sd_cb(uint16_t cmd_status, uint16_t xfer_status) {
+void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
+{
 
     ARG_UNUSED(cmd_status);
 
-    if(xfer_status)
+    if (xfer_status) {
         dma_done_irq = 1;
+    }
 }
 
 #ifdef BOARD_SD_RESET_GPIO_PORT
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
 /**
   \fn           sd_reset(void)
   \brief        Perform SD reset sequence
   \return       none
   */
-int sd_reset(void) {
-    int status;
+int sd_reset(void)
+{
+    int              status;
     ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
-    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0); //SD reset
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0);  // SD reset
 
     status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
     if (status != ARM_DRIVER_OK) {
@@ -122,19 +127,19 @@ int sd_reset(void) {
   \param[in]    EndSector - Test Read/Write End sector number
   \return       none
 */
-void BareMetalSDTest(uint32_t startSec, uint32_t EndSector){
+void BareMetalSDTest(uint32_t startSec, uint32_t EndSector)
+{
 
-    int j;
-    uint32_t *p = (uint32_t *)sdbuffer;
+    int        j;
+    uint32_t  *p = (uint32_t *) sdbuffer;
     sd_param_t sd_param;
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     int32_t ret;
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -149,107 +154,151 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector){
         return;
     }
 #endif
-    pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT), BOARD_SD_CMD_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //cmd
-    pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT), BOARD_SD_CLK_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //clk
-    pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT), BOARD_SD_D0_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d0
+    pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT),
+                BOARD_SD_CMD_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_6,
+                PADCTRL_READ_ENABLE);  // cmd
+    pinconf_set(PORT_(BOARD_SD_CLK_A_GPIO_PORT),
+                BOARD_SD_CLK_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_6,
+                PADCTRL_READ_ENABLE);  // clk
+    pinconf_set(PORT_(BOARD_SD_D0_A_GPIO_PORT),
+                BOARD_SD_D0_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_7,
+                PADCTRL_READ_ENABLE);  // d0
 
 #if (RTE_SDC_BUS_WIDTH == SDMMC_4_BIT_MODE) || (RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE)
-    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT), BOARD_SD_D1_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d1
-    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT), BOARD_SD_D2_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE); //d2
-    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT), BOARD_SD_D3_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d3
+    pinconf_set(PORT_(BOARD_SD_D1_A_GPIO_PORT),
+                BOARD_SD_D1_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_7,
+                PADCTRL_READ_ENABLE);  // d1
+    pinconf_set(PORT_(BOARD_SD_D2_A_GPIO_PORT),
+                BOARD_SD_D2_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_7,
+                PADCTRL_READ_ENABLE);  // d2
+    pinconf_set(PORT_(BOARD_SD_D3_A_GPIO_PORT),
+                BOARD_SD_D3_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_6,
+                PADCTRL_READ_ENABLE);  // d3
 #endif
 
 #if RTE_SDC_BUS_WIDTH == SDMMC_8_BIT_MODE
-    pinconf_set(PORT_(BOARD_SD_D4_A_GPIO_PORT), BOARD_SD_D4_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE); //d4
-    pinconf_set(PORT_(BOARD_SD_D5_A_GPIO_PORT), BOARD_SD_D5_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d5
-    pinconf_set(PORT_(BOARD_SD_D6_A_GPIO_PORT), BOARD_SD_D6_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d6
-    pinconf_set(PORT_(BOARD_SD_D7_A_GPIO_PORT), BOARD_SD_D7_A_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE); //d7
+    pinconf_set(PORT_(BOARD_SD_D4_A_GPIO_PORT),
+                BOARD_SD_D4_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_6,
+                PADCTRL_READ_ENABLE);  // d4
+    pinconf_set(PORT_(BOARD_SD_D5_A_GPIO_PORT),
+                BOARD_SD_D5_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_5,
+                PADCTRL_READ_ENABLE);  // d5
+    pinconf_set(PORT_(BOARD_SD_D6_A_GPIO_PORT),
+                BOARD_SD_D6_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_5,
+                PADCTRL_READ_ENABLE);  // d6
+    pinconf_set(PORT_(BOARD_SD_D7_A_GPIO_PORT),
+                BOARD_SD_D7_A_GPIO_PIN,
+                PINMUX_ALTERNATE_FUNCTION_5,
+                PADCTRL_READ_ENABLE);  // d7
 #endif
 #endif
 
-    sd_param.dev_id         = SDMMC_DEV_ID;
-    sd_param.clock_id       = RTE_SDC_CLOCK_SELECT;
-    sd_param.bus_width      = RTE_SDC_BUS_WIDTH;
-    sd_param.dma_mode       = RTE_SDC_DMA_SELECT;
-    sd_param.app_callback   = sd_cb;
+    sd_param.dev_id       = SDMMC_DEV_ID;
+    sd_param.clock_id     = RTE_SDC_CLOCK_SELECT;
+    sd_param.bus_width    = RTE_SDC_BUS_WIDTH;
+    sd_param.dma_mode     = RTE_SDC_DMA_SELECT;
+    sd_param.app_callback = sd_cb;
 
-    if( p_SD_Driver->disk_initialize(&sd_param) ) {
+    if (p_SD_Driver->disk_initialize(&sd_param)) {
         printf("SD initialization failed...\n");
         return;
     }
 
     /* read and print sector data from start to end */
-    while(startSec < EndSector){
+    while (startSec < EndSector) {
 
-        dma_done_irq = 0; // clear dma done callback status
+        dma_done_irq = 0;  // clear dma done callback status
 
-        if(p_SD_Driver->disk_read(startSec, 1, sdbuffer) != SD_DRV_STATUS_OK)
+        if (p_SD_Driver->disk_read(startSec, 1, sdbuffer) != SD_DRV_STATUS_OK) {
             continue;
+        }
 
-        while(!dma_done_irq); //wait for dma completion interrupt callback
+        while (!dma_done_irq) {  // wait for dma completion interrupt callback
+        }
 
-        printf("Sector %"PRIu32"\n",startSec);
+        printf("Sector %" PRIu32 "\n", startSec);
         j = 0;
 
-        while(j<128){
-            printf("%08"PRIx32" %08"PRIx32" %08"PRIx32" %08"PRIx32"\n",
-                    p[j+0], p[j+1], p[j+2], p[j+3]);
+        while (j < 128) {
+            printf("%08" PRIx32 " %08" PRIx32 " %08" PRIx32 " %08" PRIx32 "\n",
+                   p[j + 0],
+                   p[j + 1],
+                   p[j + 2],
+                   p[j + 3]);
             j += 4;
         }
 
-        if(p_SD_Driver->disk_write(startSec, 1, sdbuffer) != SD_DRV_STATUS_OK)
-            printf("Unable to write Back sector: %"PRIu32"\n",startSec);
+        if (p_SD_Driver->disk_write(startSec, 1, sdbuffer) != SD_DRV_STATUS_OK) {
+            printf("Unable to write Back sector: %" PRIu32 "\n", startSec);
+        }
         startSec++;
     }
 
     return;
-
 }
 
 int main()
 {
-    uint32_t  service_error_code;
-    uint32_t  error_code = SERVICES_REQ_SUCCESS;
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+    uint32_t service_error_code;
+    uint32_t error_code = SERVICES_REQ_SUCCESS;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     /* Initialize the SE services */
     se_services_port_init();
 
     /* Enable SDMMC Clocks */
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, true, &service_error_code);
-    if(error_code){
-        printf("SE: SDMMC 100MHz clock enable = %"PRIu32"\n", error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_100M,
+                                              true,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 100MHz clock enable = %" PRIu32 "\n", error_code);
         return 0;
     }
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_20M, true, &service_error_code);
-    if(error_code){
-        printf("SE: SDMMC 20MHz clock enable = %"PRIu32"\n", error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_20M,
+                                              true,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 20MHz clock enable = %" PRIu32 "\n", error_code);
         return 0;
     }
 
     /* Enter the Baremetal demo Application.  */
-    BareMetalSDTest(BAREMETAL_SD_TEST_RAW_SECTOR, BAREMETAL_SD_TEST_RAW_SECTOR+0x200);
+    BareMetalSDTest(BAREMETAL_SD_TEST_RAW_SECTOR, BAREMETAL_SD_TEST_RAW_SECTOR + 0x200);
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_100M, false, &service_error_code);
-    if(error_code){
-        printf("SE: SDMMC 100MHz clock disable = %"PRIu32"\n", error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_100M,
+                                              false,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 100MHz clock disable = %" PRIu32 "\n", error_code);
         return 0;
     }
 
-    error_code = SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_CLK_20M, false, &service_error_code);
-    if(error_code){
-        printf("SE: SDMMC 20MHz clock disable = %"PRIu32"\n", error_code);
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                                              CLKEN_CLK_20M,
+                                              false,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: SDMMC 20MHz clock disable = %" PRIu32 "\n", error_code);
         return 0;
     }
 

@@ -11,54 +11,52 @@
 #ifndef SYS_CTRL_CMP_H_
 #define SYS_CTRL_CMP_H_
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include "soc.h"
 #include "sys_utils.h"
 
 #if SOC_FEAT_HSCMP_REG_ALIASING
-#define CMP0_ENABLE                 (1U << 28)    /* To enable the CMP0  */
-#define CMP1_ENABLE                 (1U << 28)    /* To enable the CMP1  */
-#define CMP2_ENABLE                 (1U << 28)    /* To enable the CMP2  */
-#define CMP3_ENABLE                 (1U << 28)    /* To enable the CMP3  */
-#define LPCMP_ENABLE                (1U << 24)    /* To enable the LPCMP */
+#define CMP0_ENABLE  (1U << 28) /* To enable the CMP0  */
+#define CMP1_ENABLE  (1U << 28) /* To enable the CMP1  */
+#define CMP2_ENABLE  (1U << 28) /* To enable the CMP2  */
+#define CMP3_ENABLE  (1U << 28) /* To enable the CMP3  */
+#define LPCMP_ENABLE (1U << 24) /* To enable the LPCMP */
 #else
-#define CMP0_ENABLE                 (1U << 28)    /* To enable the CMP0  */
-#define CMP1_ENABLE                 (1U << 29)    /* To enable the CMP1  */
-#define CMP2_ENABLE                 (1U << 30)    /* To enable the CMP2  */
-#define CMP3_ENABLE                 (1U << 31)    /* To enable the CMP3  */
-#define LPCMP_ENABLE                (1U << 24)    /* To enable the LPCMP */
+#define CMP0_ENABLE  (1U << 28) /* To enable the CMP0  */
+#define CMP1_ENABLE  (1U << 29) /* To enable the CMP1  */
+#define CMP2_ENABLE  (1U << 30) /* To enable the CMP2  */
+#define CMP3_ENABLE  (1U << 31) /* To enable the CMP3  */
+#define LPCMP_ENABLE (1U << 24) /* To enable the LPCMP */
 #endif
 
 /* CLKCTL_PER_SLV CMP field definitions */
 #if SOC_FEAT_HSCMP_REG_ALIASING
-#define CMP_CTRL_CMP0_CLKEN         (1U << 0U)  /* Enable CMP0 clock */
-#define CMP_CTRL_CMP1_CLKEN         (1U << 4U)  /* Enable CMP1 clock */
-#define CMP_CTRL_CMP2_CLKEN         (1U << 8U)  /* Enable CMP2 clock */
-#define CMP_CTRL_CMP3_CLKEN         (1U << 12U) /* Enable CMP3 clock */
-#define LPCMP_CTRL_CLKEN            (1U << 0U)  /* Enable 32-kHz clock to LPCMP comparator */
+#define CMP_CTRL_CMP0_CLKEN (1U << 0U)  /* Enable CMP0 clock */
+#define CMP_CTRL_CMP1_CLKEN (1U << 4U)  /* Enable CMP1 clock */
+#define CMP_CTRL_CMP2_CLKEN (1U << 8U)  /* Enable CMP2 clock */
+#define CMP_CTRL_CMP3_CLKEN (1U << 12U) /* Enable CMP3 clock */
+#define LPCMP_CTRL_CLKEN    (1U << 0U)  /* Enable 32-kHz clock to LPCMP comparator */
 #else
-#define CMP_CTRL_CMP0_CLKEN         (1U << 0U)  /* Enable CMP0 clock */
-#define CMP_CTRL_CMP1_CLKEN         ((1U << 4U) | CMP_CTRL_CMP0_CLKEN)  /* Enable CMP1 clock */
-#define CMP_CTRL_CMP2_CLKEN         ((1U << 8U) | CMP_CTRL_CMP0_CLKEN)  /* Enable CMP2 clock */
-#define CMP_CTRL_CMP3_CLKEN         ((1U << 12U) | CMP_CTRL_CMP0_CLKEN) /* Enable CMP3 clock */
-#define LPCMP_CTRL_CLKEN            (1 << 14)  /* Enable 32-kHz clock to LPCMP comparator */
+#define CMP_CTRL_CMP0_CLKEN (1U << 0U)                          /* Enable CMP0 clock */
+#define CMP_CTRL_CMP1_CLKEN ((1U << 4U) | CMP_CTRL_CMP0_CLKEN)  /* Enable CMP1 clock */
+#define CMP_CTRL_CMP2_CLKEN ((1U << 8U) | CMP_CTRL_CMP0_CLKEN)  /* Enable CMP2 clock */
+#define CMP_CTRL_CMP3_CLKEN ((1U << 12U) | CMP_CTRL_CMP0_CLKEN) /* Enable CMP3 clock */
+#define LPCMP_CTRL_CLKEN    (1 << 14) /* Enable 32-kHz clock to LPCMP comparator */
 #endif
 
 /**
  * enum CMP_INSTANCE.
  * CMP instances.
  */
-typedef enum _CMP_INSTANCE
-{
-    CMP_INSTANCE_0,                  /**< CMP instance - 0  */
-    CMP_INSTANCE_1,                  /**< CMP instance - 1  */
-    CMP_INSTANCE_2,                  /**< CMP instance - 2  */
-    CMP_INSTANCE_3,                  /**< CMP instance - 3  */
-    CMP_INSTANCE_LP                  /**< CMP instance - LP */
+typedef enum _CMP_INSTANCE {
+    CMP_INSTANCE_0, /**< CMP instance - 0  */
+    CMP_INSTANCE_1, /**< CMP instance - 1  */
+    CMP_INSTANCE_2, /**< CMP instance - 2  */
+    CMP_INSTANCE_3, /**< CMP instance - 3  */
+    CMP_INSTANCE_LP /**< CMP instance - LP */
 } CMP_INSTANCE;
 
 /**
@@ -66,11 +64,10 @@ typedef enum _CMP_INSTANCE
  * @brief       Enable CMP input clock
  * @param[in]   instance : Comparator instances
  * @return      none
-*/
+ */
 static inline void enable_cmp_clk(uint8_t instance)
 {
-    switch(instance)
-    {
+    switch (instance) {
     case CMP_INSTANCE_0:
         CLKCTL_PER_SLV->CMP_CTRL |= CMP_CTRL_CMP0_CLKEN;
         break;
@@ -102,11 +99,10 @@ static inline void enable_cmp_clk(uint8_t instance)
  * @brief       Disable CMP input clock
  * @param[in]   instance : Comparator instances
  * @return      none
-*/
+ */
 static inline void disable_cmp_clk(uint8_t instance)
 {
-    switch(instance)
-    {
+    switch (instance) {
     case CMP_INSTANCE_0:
         CLKCTL_PER_SLV->CMP_CTRL &= ~CMP_CTRL_CMP0_CLKEN;
         break;
@@ -144,18 +140,23 @@ static inline uint32_t *get_cmp_base(uint8_t instance)
 {
 #if SOC_FEAT_HSCMP_REG_ALIASING
     switch (instance) {
-    case CMP_INSTANCE_0: return (uint32_t *)CMP0_BASE;
-    case CMP_INSTANCE_1: return (uint32_t *)CMP1_BASE;
-    case CMP_INSTANCE_2: return (uint32_t *)CMP2_BASE;
-    case CMP_INSTANCE_3: return (uint32_t *)CMP3_BASE;
-    default: return NULL;
+    case CMP_INSTANCE_0:
+        return (uint32_t *) CMP0_BASE;
+    case CMP_INSTANCE_1:
+        return (uint32_t *) CMP1_BASE;
+    case CMP_INSTANCE_2:
+        return (uint32_t *) CMP2_BASE;
+    case CMP_INSTANCE_3:
+        return (uint32_t *) CMP3_BASE;
+    default:
+        return NULL;
     }
 #else
 
     ARG_UNUSED(instance);
 
     /* Comparator configuration register is provided at CMP0 base address */
-    return (uint32_t *)CMP0_BASE;
+    return (uint32_t *) CMP0_BASE;
 #endif
 }
 
@@ -171,8 +172,7 @@ static inline void enable_cmp(uint8_t instance)
      * assign it to cmp_reg */
     volatile uint32_t *cmp_reg = get_cmp_base(instance);
 
-    switch(instance)
-    {
+    switch (instance) {
     case CMP_INSTANCE_0:
         /* Enable the CMP0 module */
         *cmp_reg |= CMP0_ENABLE;
@@ -216,8 +216,7 @@ static inline void disable_cmp(uint8_t instance)
      * assign it to cmp_reg */
     volatile uint32_t *cmp_reg = get_cmp_base(instance);
 
-    switch(instance)
-    {
+    switch (instance) {
     case CMP_INSTANCE_0:
         /* Disable the CMP0 module */
         *cmp_reg &= ~CMP0_ENABLE;
@@ -259,23 +258,20 @@ static inline void disable_cmp(uint8_t instance)
  */
 static void cmp_set_config(uint8_t instance, uint32_t config_value)
 {
-    if(instance == CMP_INSTANCE_LP)
-    {
+    if (instance == CMP_INSTANCE_LP) {
 #if SOC_FEAT_HSCMP_REG_ALIASING
         LPCMP->LPCOMP_CTRL |= config_value;
 #else
         /* Set LPCMP configuration value in the VBAT ANA register 2 */
         ANA->VBAT_ANA_REG2 |= config_value;
 #endif
-    }
-    else
-    {
+    } else {
         /* Get the base address of the specified comparator instance and
          * assign it to cmp_reg */
-        volatile uint32_t *cmp_reg = get_cmp_base(instance);
+        volatile uint32_t *cmp_reg  = get_cmp_base(instance);
 
         /* Set the configuration value in reg1 of the CMP instance */
-        *cmp_reg |= config_value;
+        *cmp_reg                   |= config_value;
     }
 }
 
@@ -288,10 +284,10 @@ static void cmp_set_config(uint8_t instance, uint32_t config_value)
 static void lpcmp_clear_config(void)
 {
 #if SOC_FEAT_HSCMP_REG_ALIASING
-        LPCMP->LPCOMP_CTRL &= ~LPCMP_MSK_CTRL_VAL;
+    LPCMP->LPCOMP_CTRL &= ~LPCMP_MSK_CTRL_VAL;
 #else
-        /* Clear LPCMP configuration values in Vbat reg2 */
-        ANA->VBAT_ANA_REG2 &= ~LPCMP_MSK_CTRL_VAL;
+    /* Clear LPCMP configuration values in Vbat reg2 */
+    ANA->VBAT_ANA_REG2 &= ~LPCMP_MSK_CTRL_VAL;
 #endif
 }
 

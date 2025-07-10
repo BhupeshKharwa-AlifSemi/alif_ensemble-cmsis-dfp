@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     Driver_I2S_Private.h
  * @author   Sudhir Sreedharan
  * @email    sudhir@alifsemi.com
@@ -28,43 +28,42 @@
 #include "sys_ctrl_i2s.h"
 #include "i2s.h"
 
-#if (RTE_I2S0_DMA_ENABLE || RTE_I2S1_DMA_ENABLE || RTE_I2S2_DMA_ENABLE || \
-     RTE_I2S3_DMA_ENABLE || RTE_LPI2S_DMA_ENABLE)
-#define I2S_DMA_ENABLE  1
+#if (RTE_I2S0_DMA_ENABLE || RTE_I2S1_DMA_ENABLE || RTE_I2S2_DMA_ENABLE || RTE_I2S3_DMA_ENABLE ||   \
+     RTE_LPI2S_DMA_ENABLE)
+#define I2S_DMA_ENABLE 1
 #else
-#define I2S_DMA_ENABLE  0
+#define I2S_DMA_ENABLE 0
 #endif
 
 #if I2S_DMA_ENABLE
 #include <DMA_Common.h>
 #endif
 
-#if ( RTE_I2S0_BLOCKING_MODE_ENABLE || RTE_I2S1_BLOCKING_MODE_ENABLE || \
-      RTE_I2S2_BLOCKING_MODE_ENABLE || RTE_I2S3_BLOCKING_MODE_ENABLE || \
-      RTE_LPI2S_BLOCKING_MODE_ENABLE )
-#define I2S_BLOCKING_MODE_ENABLE  1
+#if (RTE_I2S0_BLOCKING_MODE_ENABLE || RTE_I2S1_BLOCKING_MODE_ENABLE ||                             \
+     RTE_I2S2_BLOCKING_MODE_ENABLE || RTE_I2S3_BLOCKING_MODE_ENABLE ||                             \
+     RTE_LPI2S_BLOCKING_MODE_ENABLE)
+#define I2S_BLOCKING_MODE_ENABLE 1
 #else
-#define I2S_BLOCKING_MODE_ENABLE  0
+#define I2S_BLOCKING_MODE_ENABLE 0
 #endif
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /** \brief I2S Driver states. */
 typedef struct _I2S_DRIVER_STATE {
-    uint32_t initialized : 1; /* Driver Initialized*/
-    uint32_t powered     : 1; /* Device powered */
-    uint32_t reserved    : 30;/* Reserved */
+    uint32_t initialized: 1;  /* Driver Initialized*/
+    uint32_t powered    : 1;  /* Device powered */
+    uint32_t reserved   : 30; /* Reserved */
 } I2S_DRIVER_STATE;
 
 typedef enum _I2S_FLAG {
-    I2S_FLAG_DRV_MONO_MODE    = (1U << 0), /*!< I2S Driver in Mono Mode */
+    I2S_FLAG_DRV_MONO_MODE = (1U << 0), /*!< I2S Driver in Mono Mode */
 } I2S_FLAG;
 
 typedef union _I2S_DRV_STATUS {
-    uint32_t status;
+    uint32_t                status;
     volatile ARM_SAI_STATUS status_b;
 } I2S_DRV_STATUS;
 
@@ -94,7 +93,6 @@ typedef struct _I2S_CONFIG_INFO {
     /*!< I2S instance blocking mode transfer enable */
     const bool blocking_mode;
 #endif
-
 
 #if I2S_DMA_ENABLE
     /*!< I2S dma enable */
@@ -162,8 +160,8 @@ typedef struct _I2S_RESOURCES {
 
 } I2S_RESOURCES;
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif // DRIVER_I2S_PRIVATE_H
+#endif  // DRIVER_I2S_PRIVATE_H

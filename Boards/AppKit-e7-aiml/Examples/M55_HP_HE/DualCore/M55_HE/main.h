@@ -22,5 +22,5 @@
 #include <stdint.h>
 
 /* Prototypes */
-extern int app_main (void);
+extern int app_main(void);
 #endif

@@ -18,8 +18,8 @@
  * from the linker scripts.
  */
 static const struct mem_region ns_regions[] = {
-    {(uint32_t)&ns_region_0_start, (uint32_t)&ns_region_0_end - 1, DTCM},
-    };
+    {(uint32_t) &ns_region_0_start, ((uint32_t) &ns_region_0_end) - 1, DTCM},
+};
 
 /*----------------------------------------------------------------------------
   TGU setup function. Marks single memory region starting at NS_REGION_1_BASE
@@ -35,31 +35,31 @@ void TGU_Setup(void)
     uint32_t i;
 
     /* Find out the TGU block size for ITCM */
-    blksize = *((volatile unsigned int *) ITGU_CFG) & ITGU_CFG_BLKSZ;
+    blksize      = *((volatile unsigned int *) ITGU_CFG) & ITGU_CFG_BLKSZ;
     /* ITCM blksize is 2^(blksize + 5)*/
     itcm_blksize = 1 << (blksize + 5);
 
     /* Find out the TGU block size for DTCM */
-    blksize = *((volatile unsigned int *) DTGU_CFG) & DTGU_CFG_BLKSZ;
+    blksize      = *((volatile unsigned int *) DTGU_CFG) & DTGU_CFG_BLKSZ;
     /* DTCM block size is 2^(blksize + 5) */
     dtcm_blksize = 1 << (blksize + 5);
 
     for (i = 0; i < (sizeof(ns_regions) / sizeof(ns_regions[0])); i++) {
         if (ns_regions[i].type == DTCM) {
-            start_block =  (ns_regions[i].start - DTCM_BASE) / dtcm_blksize;
-            end_block = (ns_regions[i].end - DTCM_BASE) / dtcm_blksize;
-            base = DTGU_BASE;
+            start_block = (ns_regions[i].start - DTCM_BASE) / dtcm_blksize;
+            end_block   = (ns_regions[i].end - DTCM_BASE) / dtcm_blksize;
+            base        = DTGU_BASE;
         } else {
-            start_block =  (ns_regions[i].start - ITCM_BASE) / itcm_blksize;
-            end_block = (ns_regions[i].end - ITCM_BASE) / itcm_blksize;
-            base = ITGU_BASE;
+            start_block = (ns_regions[i].start - ITCM_BASE) / itcm_blksize;
+            end_block   = (ns_regions[i].end - ITCM_BASE) / itcm_blksize;
+            base        = ITGU_BASE;
         }
 
-        start_lut = start_block / 32;
-        end_lut = end_block / 32;
+        start_lut    = start_block / 32;
+        end_lut      = end_block / 32;
 
         start_offset = start_block % 32;
-        end_offset = end_block % 32;
+        end_offset   = end_block % 32;
 
         if (start_lut == end_lut) {
             /* same LUT register */
@@ -67,8 +67,8 @@ void TGU_Setup(void)
             *((volatile uint32_t *) TGU_LUT(base, start_lut)) |= lut_val_l;
         } else {
             /* the range spans multiple LUT registers */
-            lut_val_l = SET_BIT_RANGE(start_offset, 31);
-            lut_val_h = SET_BIT_RANGE(0, end_offset);
+            lut_val_l                                         = SET_BIT_RANGE(start_offset, 31);
+            lut_val_h                                         = SET_BIT_RANGE(0, end_offset);
 
             /* Write into the first LUT register */
             *((volatile uint32_t *) TGU_LUT(base, start_lut)) = lut_val_l;

@@ -21,9 +21,8 @@
 
 #include "soc.h"
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /**
@@ -34,7 +33,6 @@ typedef enum _OSPI_INSTANCE {
     OSPI_INSTANCE_0,
     OSPI_INSTANCE_1,
 } OSPI_INSTANCE;
-
 
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
 

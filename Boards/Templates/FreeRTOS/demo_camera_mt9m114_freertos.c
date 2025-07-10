@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_camera_mt9m114_freertos.c
  * @author   : Chandra Bhushan Singh
  * @email    : chandrabhushan.singh@alifsemi.com
@@ -30,7 +30,7 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 /* PINMUX Driver */
 #include "pinconf.h"
@@ -40,34 +40,35 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+#include "sys_utils.h"
 
-#define INSTANCE_CPI                    1
-#define INSTANCE_LPCPI                  0
+#define INSTANCE_CPI                   1
+#define INSTANCE_LPCPI                 0
 
 // Set to 0: Use application-defined mt9m114 camera pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 #if INSTANCE_LPCPI
 /* Camera  Driver instance 0 */
-extern ARM_DRIVER_CPI Driver_LPCPI;
+extern ARM_DRIVER_CPI  Driver_LPCPI;
 static ARM_DRIVER_CPI *CAMERAdrv = &Driver_LPCPI;
 #endif
 
 #if INSTANCE_CPI
 /* Camera  Driver instance 0 */
-extern ARM_DRIVER_CPI Driver_CPI;
+extern ARM_DRIVER_CPI  Driver_CPI;
 static ARM_DRIVER_CPI *CAMERAdrv = &Driver_CPI;
 #endif
 
 /*Define for FreeRTOS*/
-#define STACK_SIZE                      1024
-#define TIMER_SERVICE_TASK_STACK_SIZE   configTIMER_TASK_STACK_DEPTH
-#define IDLE_TASK_STACK_SIZE            configMINIMAL_STACK_SIZE
+#define STACK_SIZE                    1024
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 /* Thread id of thread */
@@ -76,33 +77,33 @@ TaskHandle_t camera_xHandle;
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-                                   StackType_t **ppxIdleTaskStackBuffer,
-                                   uint32_t *pulIdleTaskStackSize)
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
 {
-    *ppxIdleTaskTCBBuffer = &IdleTcb;
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
     *ppxIdleTaskStackBuffer = IdleStack;
-    *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-                                    StackType_t **ppxTimerTaskStackBuffer,
-                                    uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-    *ppxTimerTaskTCBBuffer = &TimerTcb;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
     *ppxTimerTaskStackBuffer = TimerStack;
-    *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-    for (;;);
+    ASSERT_HANG
 }
 
 /*****************Only for FreeRTOS use *************************/
@@ -120,10 +121,10 @@ void vApplicationIdleHook(void)
 /* Supported MT9M114 Camera Sensor Output Format.
  *  (Currently supports only RAW BAYER10 Format.)
  */
-#define MT9M114_CAMERA_OUTPUT_FORMAT_RAW_BAYER10          0
+#define MT9M114_CAMERA_OUTPUT_FORMAT_RAW_BAYER10 0
 
 /* User can select from supported MT9M114 Camera Sensor Output Format. */
-#define MT9M114_USER_SELECT_CAMERA_OUTPUT_FORMAT          MT9M114_CAMERA_OUTPUT_FORMAT_RAW_BAYER10
+#define MT9M114_USER_SELECT_CAMERA_OUTPUT_FORMAT MT9M114_CAMERA_OUTPUT_FORMAT_RAW_BAYER10
 
 /* For MT9M114 Camera Sensor RAW BAYER Output Format:
  * As per data-sheet "AND9534/D"
@@ -139,13 +140,13 @@ void vApplicationIdleHook(void)
 #define MT9M114_ADDITIONAL_WIDTH                          MT9M114_RAW_BAYER_FORMAT_ADDITIONAL_BORDER_WIDTH
 #define MT9M114_ADDITIONAL_HEIGHT                         MT9M114_RAW_BAYER_FORMAT_ADDITIONAL_BORDER_HEIGHT
 #else
-#define MT9M114_ADDITIONAL_WIDTH                          0
-#define MT9M114_ADDITIONAL_HEIGHT                         0
+#define MT9M114_ADDITIONAL_WIDTH  0
+#define MT9M114_ADDITIONAL_HEIGHT 0
 #endif
 
 #if (MT9M114_CAMERA_RESOLUTION == MT9M114_CAMERA_RESOLUTION_VGA_640x480)
-#define FRAME_WIDTH                                       (640 + MT9M114_ADDITIONAL_WIDTH)
-#define FRAME_HEIGHT                                      (480 + MT9M114_ADDITIONAL_HEIGHT)
+#define FRAME_WIDTH  (640 + MT9M114_ADDITIONAL_WIDTH)
+#define FRAME_HEIGHT (480 + MT9M114_ADDITIONAL_HEIGHT)
 #endif
 
 /* Allocate Camera frame buffer memory using memory pool section in
@@ -155,13 +156,12 @@ void vApplicationIdleHook(void)
 /* pool size for Camera frame buffer:
  *  which will be frame width x frame height
  */
-#define FRAMEBUFFER_POOL_SIZE                             ((FRAME_WIDTH) * (FRAME_HEIGHT))
+#define FRAMEBUFFER_POOL_SIZE ((FRAME_WIDTH) * (FRAME_HEIGHT))
 
 /* pool area for Camera frame buffer.
  *  Allocated in the "camera_frame_buf" section.
  */
-uint8_t framebuffer_pool[FRAMEBUFFER_POOL_SIZE] \
-                 __attribute__((section(".bss.camera_frame_buf")));
+uint8_t framebuffer_pool[FRAMEBUFFER_POOL_SIZE] __attribute__((section(".bss.camera_frame_buf")));
 
 /* (optional)
  * if required convert captured image data format to any other image format.
@@ -175,7 +175,7 @@ uint8_t framebuffer_pool[FRAMEBUFFER_POOL_SIZE] \
  *        which uses DC1394 library.
  */
 /* Enable image conversion Bayer to RGB. */
-#define IMAGE_CONVERSION_BAYER_TO_RGB_EN                  0
+#define IMAGE_CONVERSION_BAYER_TO_RGB_EN 0
 
 /* Check if image conversion Bayer to RGB is Enabled? */
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
@@ -187,35 +187,35 @@ uint8_t framebuffer_pool[FRAMEBUFFER_POOL_SIZE] \
  *   - converted image format : tiff
  *   - bpp bit per pixel      : 8-bit
  */
-#define TIFF_HDR_NUM_ENTRY                               8
-#define TIFF_HDR_SIZE                                    10 + TIFF_HDR_NUM_ENTRY * 12
+#define TIFF_HDR_NUM_ENTRY   8
+#define TIFF_HDR_SIZE        10 + TIFF_HDR_NUM_ENTRY * 12
 
 /* bpp bit per pixel
  *  Valid parameters are:
  *   -  8-bit
  *   - 16-bit
  */
-#define BITS_PER_PIXEL_8_BIT                             8
-#define BITS_PER_PIXEL                                   BITS_PER_PIXEL_8_BIT
+#define BITS_PER_PIXEL_8_BIT 8
+#define BITS_PER_PIXEL       BITS_PER_PIXEL_8_BIT
 
 /* pool size for Camera frame buffer for Bayer to RGB conversion:
  *   which will be frame width x frame height x (bpp / 8) * 3 + tiff header(106 Bytes).
  */
-#define BAYER_TO_RGB_BUFFER_POOL_SIZE \
-                ( (FRAME_WIDTH) * (FRAME_HEIGHT) * (BITS_PER_PIXEL / 8) * 3 + TIFF_HDR_SIZE )
+#define BAYER_TO_RGB_BUFFER_POOL_SIZE                                                              \
+    ((FRAME_WIDTH) * (FRAME_HEIGHT) * (BITS_PER_PIXEL / 8) * 3 + TIFF_HDR_SIZE)
 
 /* pool area for Camera frame buffer for Bayer to RGB conversion.
  *  Allocated in the "camera_frame_bayer_to_rgb_buf" section.
  */
-uint8_t bayer_to_rgb_buffer_pool[BAYER_TO_RGB_BUFFER_POOL_SIZE] \
-                __attribute__((section(".bss.camera_frame_bayer_to_rgb_buf")));
+uint8_t bayer_to_rgb_buffer_pool[BAYER_TO_RGB_BUFFER_POOL_SIZE]
+    __attribute__((section(".bss.camera_frame_bayer_to_rgb_buf")));
 
 /* Optional:
  *  Camera Image Conversions
  */
 typedef enum {
-    BAYER_TO_RGB_CONVERSION           = (1 << 0),
-}IMAGE_CONVERSION;
+    BAYER_TO_RGB_CONVERSION = (1 << 0),
+} IMAGE_CONVERSION;
 
 #endif /* end of IMAGE_CONVERSION_BAYER_TO_RGB_EN */
 
@@ -224,8 +224,7 @@ typedef enum {
     CAM_CB_EVENT_FRAME_VSYNC_DETECTED = (1 << 0),
     CAM_CB_EVENT_CAPTURE_STOPPED      = (1 << 1),
     CAM_CB_EVENT_ERROR                = (1 << 2)
-}CAMERA_CB_EVENTS;
-
+} CAMERA_CB_EVENTS;
 
 /**
   \fn          void camera_callback(uint32_t event)
@@ -237,58 +236,58 @@ void camera_callback(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if(event & ARM_CPI_EVENT_CAMERA_FRAME_VSYNC_DETECTED)
-    {
+    if (event & ARM_CPI_EVENT_CAMERA_FRAME_VSYNC_DETECTED) {
         /* Transfer Success: Frame VSYNC detected, Wake-up Thread. */
-        xResult = xTaskNotifyFromISR(camera_xHandle,CAM_CB_EVENT_FRAME_VSYNC_DETECTED,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult = xTaskNotifyFromISR(camera_xHandle,
+                                     CAM_CB_EVENT_FRAME_VSYNC_DETECTED,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 
-    if(event & ARM_CPI_EVENT_CAMERA_CAPTURE_STOPPED)
-    {
+    if (event & ARM_CPI_EVENT_CAMERA_CAPTURE_STOPPED) {
         /* Transfer Success: Capture Stop detected, Wake-up Thread. */
-        xResult = xTaskNotifyFromISR(camera_xHandle,CAM_CB_EVENT_CAPTURE_STOPPED,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult = xTaskNotifyFromISR(camera_xHandle,
+                                     CAM_CB_EVENT_CAPTURE_STOPPED,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 
-    if(event & ARM_CPI_EVENT_ERR_CAMERA_INPUT_FIFO_OVERRUN)
-    {
+    if (event & ARM_CPI_EVENT_ERR_CAMERA_INPUT_FIFO_OVERRUN) {
         /* Transfer Error: Received Input FIFO over-run, Wake-up Thread. */
-        xResult = xTaskNotifyFromISR(camera_xHandle,CAM_CB_EVENT_ERROR,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult = xTaskNotifyFromISR(camera_xHandle,
+                                     CAM_CB_EVENT_ERROR,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 
-    if(event & ARM_CPI_EVENT_ERR_CAMERA_OUTPUT_FIFO_OVERRUN)
-    {
+    if (event & ARM_CPI_EVENT_ERR_CAMERA_OUTPUT_FIFO_OVERRUN) {
         /* Transfer Error: Received Output FIFO over-run, Wake-up Thread. */
-        xResult = xTaskNotifyFromISR(camera_xHandle,CAM_CB_EVENT_ERROR,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult = xTaskNotifyFromISR(camera_xHandle,
+                                     CAM_CB_EVENT_ERROR,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 
-    if(event & ARM_CPI_EVENT_ERR_HARDWARE)
-    {
+    if (event & ARM_CPI_EVENT_ERR_HARDWARE) {
         /* Transfer Error: Received Hardware error, Wake-up Thread. */
-        xResult = xTaskNotifyFromISR(camera_xHandle,CAM_CB_EVENT_ERROR,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult = xTaskNotifyFromISR(camera_xHandle,
+                                     CAM_CB_EVENT_ERROR,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 }
@@ -306,14 +305,15 @@ int32_t i2c_pinmux(void)
 {
     int32_t ret;
 
-   /* Configure GPIO Pin : P7_2 as i2c1_sda_c
-    * Pad function: PADCTRL_READ_ENABLE |
-    *               PADCTRL_DRIVER_DISABLED_PULL_UP
-    */
-    ret = pinconf_set(PORT_(BOARD_I2C1_SDA_C_GPIO_PORT), BOARD_I2C1_SDA_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+    /* Configure GPIO Pin : P7_2 as i2c1_sda_c
+     * Pad function: PADCTRL_READ_ENABLE |
+     *               PADCTRL_DRIVER_DISABLED_PULL_UP
+     */
+    ret = pinconf_set(PORT_(BOARD_I2C1_SDA_C_GPIO_PORT),
+                      BOARD_I2C1_SDA_C_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_5,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
@@ -321,10 +321,11 @@ int32_t i2c_pinmux(void)
      * Pad function: PADCTRL_READ_ENABLE |
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_(BOARD_I2C1_SCL_C_GPIO_PORT), BOARD_I2C1_SCL_C_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5,
+    ret = pinconf_set(PORT_(BOARD_I2C1_SCL_C_GPIO_PORT),
+                      BOARD_I2C1_SCL_C_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_5,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
@@ -343,97 +344,119 @@ static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
-  /* @Note: Below GPIO pins are configured for Camera.
-   *           - P0_0 as cam_hsync_a
-   *           - P0_1 as cam_vsync_a
-   *           - P0_2 as cam_pclk_a
-   *
-   *         - Data Lines D0-D7
-   *           - P8_0 as cam_d0_b
-   *           - P8_1 as cam_d1_b
-   *           - P8_2 as cam_d2_b
-   *           - P8_3 as cam_d3_b
-   *           - P8_4 as cam_d4_b
-   *           - P8_5 as cam_d5_b
-   *           - P8_6 as cam_d6_b
-   *           - P8_7 as cam_d7_b
-   */
+    /* @Note: Below GPIO pins are configured for Camera.
+     *           - P0_0 as cam_hsync_a
+     *           - P0_1 as cam_vsync_a
+     *           - P0_2 as cam_pclk_a
+     *
+     *         - Data Lines D0-D7
+     *           - P8_0 as cam_d0_b
+     *           - P8_1 as cam_d1_b
+     *           - P8_2 as cam_d2_b
+     *           - P8_3 as cam_d3_b
+     *           - P8_4 as cam_d4_b
+     *           - P8_5 as cam_d5_b
+     *           - P8_6 as cam_d6_b
+     *           - P8_7 as cam_d7_b
+     */
 
     /* Configure GPIO Pin : P0_0 as cam_hsync_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT), BOARD_CAMERA_HSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT),
+                      BOARD_CAMERA_HSYNC_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_6,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P0_1 as cam_vsync_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT), BOARD_CAMERA_VSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT),
+                      BOARD_CAMERA_VSYNC_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_6,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P0_2 as cam_pclk_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT), BOARD_CAMERA_PCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT),
+                      BOARD_CAMERA_PCLK_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_6,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Data Lines: D0-D7 */
     /* Configure GPIO Pin : P8_0 as cam_d0_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT), BOARD_CAMERA_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT),
+                      BOARD_CAMERA_D0_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_1 as cam_d1_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT), BOARD_CAMERA_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_6, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT),
+                      BOARD_CAMERA_D1_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_6,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_2 as cam_d2_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT), BOARD_CAMERA_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT),
+                      BOARD_CAMERA_D2_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_3 as cam_d3_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT), BOARD_CAMERA_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT),
+                      BOARD_CAMERA_D3_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_4 as cam_d4_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT), BOARD_CAMERA_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT),
+                      BOARD_CAMERA_D4_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_5 as cam_d5_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT), BOARD_CAMERA_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT),
+                      BOARD_CAMERA_D5_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_6 as cam_d6_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT), BOARD_CAMERA_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT),
+                      BOARD_CAMERA_D6_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_7 as cam_d7_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT), BOARD_CAMERA_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT),
+                      BOARD_CAMERA_D7_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_7,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
@@ -453,97 +476,119 @@ static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
-   /* @Note: Below GPIO pins are configured for Camera.
-    *           - P0_0 as lpcam_hsync_b
-    *           - P0_1 as lpcam_vsync_b
-    *           - P0_2 as lpcam_pclk_b
-    *
-    *         - Data Lines D0-D7
-    *           - P8_0 as lpcam_d0_a
-    *           - P8_1 as lpcam_d1_a
-    *           - P8_2 as lpcam_d2_a
-    *           - P8_3 as lpcam_d3_a
-    *           - P8_4 as lpcam_d4_a
-    *           - P8_5 as lpcam_d5_a
-    *           - P8_6 as lpcam_d6_a
-    *           - P8_7 as lpcam_d7_a
-    */
+    /* @Note: Below GPIO pins are configured for Camera.
+     *           - P0_0 as lpcam_hsync_b
+     *           - P0_1 as lpcam_vsync_b
+     *           - P0_2 as lpcam_pclk_b
+     *
+     *         - Data Lines D0-D7
+     *           - P8_0 as lpcam_d0_a
+     *           - P8_1 as lpcam_d1_a
+     *           - P8_2 as lpcam_d2_a
+     *           - P8_3 as lpcam_d3_a
+     *           - P8_4 as lpcam_d4_a
+     *           - P8_5 as lpcam_d5_a
+     *           - P8_6 as lpcam_d6_a
+     *           - P8_7 as lpcam_d7_a
+     */
 
     /* Configure GPIO Pin : P0_0 as lpcam_hsync_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT), BOARD_CAMERA_HSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT),
+                      BOARD_CAMERA_HSYNC_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_5,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P0_1 as lpcam_vsync_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT), BOARD_CAMERA_VSYNC_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT),
+                      BOARD_CAMERA_VSYNC_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_5,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P0_2 as lpcam_pclk_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT), BOARD_CAMERA_PCLK_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_5, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT),
+                      BOARD_CAMERA_PCLK_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_5,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Data Lines: D0-D7 */
     /* Configure GPIO Pin : P8_0 as lpcam_d0_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT), BOARD_CAMERA_D0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT),
+                      BOARD_CAMERA_D0_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_1 as lpcam_d1_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT), BOARD_CAMERA_D1_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_3, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT),
+                      BOARD_CAMERA_D1_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_3,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-     /* Configure GPIO Pin : P8_2 as lpcam_d2_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT), BOARD_CAMERA_D2_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    /* Configure GPIO Pin : P8_2 as lpcam_d2_a */
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT),
+                      BOARD_CAMERA_D2_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_3 as lpcam_d3_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT), BOARD_CAMERA_D3_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT),
+                      BOARD_CAMERA_D3_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_4 as lpcam_d4_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT), BOARD_CAMERA_D4_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT),
+                      BOARD_CAMERA_D4_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_5 as lpcam_d5_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT), BOARD_CAMERA_D5_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT),
+                      BOARD_CAMERA_D5_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_6 as lpcam_d6_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT), BOARD_CAMERA_D6_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT),
+                      BOARD_CAMERA_D6_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Configure GPIO Pin : P8_7 as lpcam_d7_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT), BOARD_CAMERA_D7_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_4, PADCTRL_READ_ENABLE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT),
+                      BOARD_CAMERA_D7_GPIO_PIN,
+                      PINMUX_ALTERNATE_FUNCTION_4,
+                      PADCTRL_READ_ENABLE);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
@@ -570,16 +615,14 @@ int32_t hardware_init(void)
 
     /* i2c pinmux. */
     ret = i2c_pinmux();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("\r\n Error in i3c pinmux.\r\n");
         return ret;
     }
 
     /* Camera pinmux. */
     ret = board_camera_pins_config();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("\r\n Error in Camera pinmux.\r\n");
         return ret;
     }
@@ -620,33 +663,30 @@ int32_t hardware_init(void)
   \return      success          :  0
   \return      failure          : -1
   */
-int32_t camera_image_conversion(IMAGE_CONVERSION image_conversion,
-                                uint8_t *src, uint8_t *dest,
+int32_t camera_image_conversion(IMAGE_CONVERSION image_conversion, uint8_t *src, uint8_t *dest,
                                 uint32_t frame_width, uint32_t frame_height)
 {
     /* Bayer to RGB Conversion. */
-    extern int32_t bayer_to_RGB(uint8_t *src, uint8_t *dest,
-                                uint32_t width, uint32_t height);
+    extern int32_t bayer_to_RGB(uint8_t *src, uint8_t *dest, uint32_t width, uint32_t height);
 
     int32_t ret = 0;
 
-    switch(image_conversion)
-    {
-        case BAYER_TO_RGB_CONVERSION:
+    switch (image_conversion) {
+    case BAYER_TO_RGB_CONVERSION:
         {
             printf("\r\n Start Bayer to RGB Conversion: \r\n");
-            printf("\t Frame Buffer Addr: 0x%X \r\n \t Bayer_to_RGB Addr: 0x%X\n", \
-                   (uint32_t) src, (uint32_t) dest);
+            printf("\t Frame Buffer Addr: 0x%X \r\n \t Bayer_to_RGB Addr: 0x%X\n",
+                   (uint32_t) src,
+                   (uint32_t) dest);
             ret = bayer_to_RGB(src, dest, frame_width, frame_height);
-            if(ret != 0)
-            {
+            if (ret != 0) {
                 printf("\r\n Error: CAMERA image conversion: Bayer to RGB failed.\r\n");
                 return -1;
             }
             break;
         }
 
-        default:
+    default:
         {
             return -1;
         }
@@ -687,8 +727,8 @@ int32_t camera_image_conversion(IMAGE_CONVERSION image_conversion,
 */
 void camera_demo_thread_entry(void *pvParameters)
 {
-    int32_t ret                = 0;
-    uint32_t actual_events     = 0;
+    int32_t  ret           = 0;
+    uint32_t actual_events = 0;
 
     ARM_DRIVER_VERSION version;
 
@@ -698,19 +738,20 @@ void camera_demo_thread_entry(void *pvParameters)
      *   - Camera frame buffer and
      *   - (Optional) Camera frame buffer for Bayer to RGB Conversion.
      */
-    printf("\n \t frame buffer        pool size: 0x%0X  pool addr: 0x%0X \r\n ", \
-             FRAMEBUFFER_POOL_SIZE, (uint32_t) framebuffer_pool);
+    printf("\n \t frame buffer        pool size: 0x%0X  pool addr: 0x%0X \r\n ",
+           FRAMEBUFFER_POOL_SIZE,
+           (uint32_t) framebuffer_pool);
 
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
-    printf("\n \t bayer_to_rgb buffer pool size: 0x%0X  pool addr: 0x%0X \r\n ", \
-             BAYER_TO_RGB_BUFFER_POOL_SIZE, (uint32_t) bayer_to_rgb_buffer_pool);
+    printf("\n \t bayer_to_rgb buffer pool size: 0x%0X  pool addr: 0x%0X \r\n ",
+           BAYER_TO_RGB_BUFFER_POOL_SIZE,
+           (uint32_t) bayer_to_rgb_buffer_pool);
 #endif
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h */
     ret = board_pins_config();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("Error in pin-mux configuration: %d\n", ret);
         return;
     }
@@ -720,27 +761,24 @@ void camera_demo_thread_entry(void *pvParameters)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = hardware_init();
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("Error: CAMERA Hardware Initialize failed: %d\n", ret);
         return;
     }
 #endif
 
     version = CAMERAdrv->GetVersion();
-    printf("\r\n Camera driver version api:0x%X driver:0x%X \r\n",version.api, version.drv);
+    printf("\r\n Camera driver version api:0x%X driver:0x%X \r\n", version.api, version.drv);
 
     ret = CAMERAdrv->Initialize(camera_callback);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Initialize failed.\r\n");
         return;
     }
 
     /* Power up Camera peripheral */
     ret = CAMERAdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Power Up failed.\r\n");
         goto error_uninitialize;
     }
@@ -759,29 +797,26 @@ void camera_demo_thread_entry(void *pvParameters)
 
     /* Control configuration for CPI */
     ret = CAMERAdrv->Control(CPI_CONFIGURE, 0);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CPI Configuration failed.\r\n");
         goto error_uninitialize;
     }
 
     /* Control configuration for camera sensor */
     ret = CAMERAdrv->Control(CPI_CAMERA_SENSOR_CONFIGURE, 0);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CPI Camera Sensor Configuration failed.\r\n");
         goto error_uninitialize;
     }
 
     /* Control configuration for camera events */
-    ret = CAMERAdrv->Control(CPI_EVENTS_CONFIGURE, \
-                             ARM_CPI_EVENT_CAMERA_CAPTURE_STOPPED | \
-                             ARM_CPI_EVENT_CAMERA_FRAME_VSYNC_DETECTED | \
-                             ARM_CPI_EVENT_ERR_CAMERA_INPUT_FIFO_OVERRUN | \
-                             ARM_CPI_EVENT_ERR_CAMERA_OUTPUT_FIFO_OVERRUN | \
-                             ARM_CPI_EVENT_ERR_HARDWARE);
-    if(ret != ARM_DRIVER_OK)
-    {
+    ret = CAMERAdrv->Control(CPI_EVENTS_CONFIGURE,
+                             ARM_CPI_EVENT_CAMERA_CAPTURE_STOPPED |
+                                 ARM_CPI_EVENT_CAMERA_FRAME_VSYNC_DETECTED |
+                                 ARM_CPI_EVENT_ERR_CAMERA_INPUT_FIFO_OVERRUN |
+                                 ARM_CPI_EVENT_ERR_CAMERA_OUTPUT_FIFO_OVERRUN |
+                                 ARM_CPI_EVENT_ERR_HARDWARE);
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CPI Camera Events Configuration failed.\r\n");
         goto error_uninitialize;
     }
@@ -797,17 +832,18 @@ void camera_demo_thread_entry(void *pvParameters)
      */
     printf("\r\n Let's Start Capturing Camera Frame...\r\n");
     ret = CAMERAdrv->CaptureFrame(framebuffer_pool);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Capture Frame failed.\r\n");
         goto error_poweroff;
     }
 
     /* wait till any event to comes in isr callback */
-    xTaskNotifyWait(NULL, CAM_CB_EVENT_CAPTURE_STOPPED | CAM_CB_EVENT_ERROR, &actual_events, portMAX_DELAY);
+    xTaskNotifyWait(NULL,
+                    CAM_CB_EVENT_CAPTURE_STOPPED | CAM_CB_EVENT_ERROR,
+                    &actual_events,
+                    portMAX_DELAY);
 
-    if(!(actual_events & CAM_CB_EVENT_CAPTURE_STOPPED) && (actual_events & CAM_CB_EVENT_ERROR))
-    {
+    if (!(actual_events & CAM_CB_EVENT_CAPTURE_STOPPED) && (actual_events & CAM_CB_EVENT_ERROR)) {
         /* Error: Camera Capture Frame failed. */
         printf("\r\n \t\t >> Error: CAMERA Capture Frame failed. \r\n");
         goto error_poweroff;
@@ -817,8 +853,7 @@ void camera_demo_thread_entry(void *pvParameters)
      * now stop Camera Capture.
      */
     ret = CAMERAdrv->Stop();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA stop Capture failed.\r\n");
         goto error_poweroff;
     }
@@ -840,8 +875,7 @@ void camera_demo_thread_entry(void *pvParameters)
                                   bayer_to_rgb_buffer_pool,
                                   FRAME_WIDTH,
                                   FRAME_HEIGHT);
-    if(ret != 0)
-    {
+    if (ret != 0) {
         printf("\r\n Error: CAMERA image conversion failed.\r\n");
         return;
     }
@@ -857,7 +891,8 @@ void camera_demo_thread_entry(void *pvParameters)
      *    dump binary memory /home/user/camera_dump/cam_image0_640p.bin 0x8000000 0x804D33F
      *
      *   Bayer to RGB:
-     *    dump binary memory /home/user/camera_dump/cam_image0_Bayer_to_RGB_640p.tif 0x8000000 0x80E7A29
+     *    dump binary memory /home/user/camera_dump/cam_image0_Bayer_to_RGB_640p.tif 0x8000000
+     * 0x80E7A29
      *
      *   This command will dump memory from staring address to ending address
      *   and store it in to given path with filename.
@@ -866,35 +901,37 @@ void camera_demo_thread_entry(void *pvParameters)
     printf("\n  Use below command in Commands tab: update user directory name \r\n");
 
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
-    printf("\n   dump binary memory /home/user/camera_dump/cam_image0_Bayer_to_RGB_640p.tif 0x%X 0x%X \r\n", \
-            (uint32_t) bayer_to_rgb_buffer_pool, (uint32_t) (bayer_to_rgb_buffer_pool + BAYER_TO_RGB_BUFFER_POOL_SIZE - 1));
+    printf("\n   dump binary memory /home/user/camera_dump/cam_image0_Bayer_to_RGB_640p.tif 0x%X "
+           "0x%X \r\n",
+           (uint32_t) bayer_to_rgb_buffer_pool,
+           (uint32_t) (bayer_to_rgb_buffer_pool + BAYER_TO_RGB_BUFFER_POOL_SIZE - 1));
 #else
-    printf("\n   dump binary memory /home/user/camera_dump/cam_image0_640p.bin 0x%X 0x%X \r\n", \
-            (uint32_t) framebuffer_pool, (uint32_t) (framebuffer_pool + FRAMEBUFFER_POOL_SIZE - 1));
+    printf("\n   dump binary memory /home/user/camera_dump/cam_image0_640p.bin 0x%X 0x%X \r\n",
+           (uint32_t) framebuffer_pool,
+           (uint32_t) (framebuffer_pool + FRAMEBUFFER_POOL_SIZE - 1));
 #endif
 
     printf("\n  This command will dump memory from staring address to ending address \r");
     printf("\n  and store it in to given path with filename.\r\n\r\n");
 
     printf("\r\n\r\n XXX Camera demo thread is halting here! XXX...\r\n");
-    printf("\r\n Now User can dump captured/converted image data from memory address using any debugger!!!\r\n");
+    printf("\r\n Now User can dump captured/converted image data from memory address using any "
+           "debugger!!!\r\n");
 
     /* wait forever. */
-    while(1);
+    WAIT_FOREVER
 
 error_poweroff:
     /* Power off CAMERA peripheral */
     ret = CAMERAdrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Power OFF failed.\r\n");
     }
 
 error_uninitialize:
     /* Un-initialize CAMERA driver */
     ret = CAMERAdrv->Uninitialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Uninitialize failed.\r\n");
     }
 
@@ -904,31 +941,31 @@ error_uninitialize:
 /*----------------------------------------------------------------------------
  *      Main: Initialize and start the FreeRTOS Kernel
  *---------------------------------------------------------------------------*/
-int main( void )
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
-   /* System Initialization */
-   SystemCoreClockUpdate();
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(camera_demo_thread_entry, "camera_demo_thread_entry",
-                                      216, NULL,configMAX_PRIORITIES-1, &camera_xHandle);
-   if (xReturned != pdPASS)
-   {
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(camera_demo_thread_entry,
+                                       "camera_demo_thread_entry",
+                                       216,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &camera_xHandle);
+    if (xReturned != pdPASS) {
 
-       vTaskDelete(camera_xHandle);
-       return -1;
+        vTaskDelete(camera_xHandle);
+        return -1;
     }
 
     /* Start thread execution */

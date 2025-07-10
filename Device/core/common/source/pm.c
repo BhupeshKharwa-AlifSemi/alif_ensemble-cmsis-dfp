@@ -23,43 +23,47 @@
 
 #include "pm.h"
 
-#define VERSION(api, driver)        (((api) << 8) | (driver))
-#define PM_DRV_VERSION              VERSION(2, 0) /*!< PM Driver Version */
+#define VERSION(api, driver) (((api) << 8) | (driver))
+#define PM_DRV_VERSION       VERSION(2, 0) /*!< PM Driver Version */
 
 #if !defined(ICB_CPPWR_SU11_Msk)
 /* Coprocessor Power Control Register Definitions */
-#define ICB_CPPWR_SU11_Pos         22U                             /*!< CPPWR: State Unknown 11 Position */
-#define ICB_CPPWR_SU11_Msk        (0x1UL << ICB_CPPWR_SU11_Pos)    /*!< CPPWR: State Unknown 11 Mask */
+/*!< CPPWR: State Unknown 11 Position */
+#define ICB_CPPWR_SU11_Pos         22U
+/*!< CPPWR: State Unknown 11 Mask     */
+#define ICB_CPPWR_SU11_Msk        (0x1UL << ICB_CPPWR_SU11_Pos)
 #endif
 
 #if !defined(ICB_CPPWR_SU10_Msk)
-#define ICB_CPPWR_SU10_Pos         20U                             /*!< CPPWR: State Unknown 10 Position */
-#define ICB_CPPWR_SU10_Msk        (0x1UL << ICB_CPPWR_SU10_Pos)    /*!< CPPWR: State Unknown 10 Mask */
+/*!< CPPWR: State Unknown 10 Position */
+#define ICB_CPPWR_SU10_Pos         20U
+/*!< CPPWR: State Unknown 10 Mask     */
+#define ICB_CPPWR_SU10_Msk        (0x1UL << ICB_CPPWR_SU10_Pos)
 #endif
 
 /* Same address for both RTSS */
 /* Cold_Wakeup bit in external system 0/1 */
 /*!< EXTSYS0/1 : bit 0 (architecture dependent) */
-#define COLD_WAKEUP_Pos                     (0U)
-#define COLD_WAKEUP_Msk                     (1U << COLD_WAKEUP_Pos)
+#define COLD_WAKEUP_Pos      (0U)
+#define COLD_WAKEUP_Msk      (1U << COLD_WAKEUP_Pos)
 
 /* WIC bit positions in WICCONTROL */
 /*!< WICCONTROL: bit 8 (architecture dependent) */
-#define WICCONTROL_WIC_Pos                  (8U)
-#define WICCONTROL_WIC_Msk                  (1U << WICCONTROL_WIC_Pos)
+#define WICCONTROL_WIC_Pos   (8U)
+#define WICCONTROL_WIC_Msk   (1U << WICCONTROL_WIC_Pos)
 
 /* IWIC bit positions in WICCONTROL */
- /*!< WICCONTROL: bit 9 (architecture dependent)*/
-#define WICCONTROL_IWIC_Pos                 (9U)
-#define WICCONTROL_IWIC_Msk                 (1U << WICCONTROL_IWIC_Pos)
+/*!< WICCONTROL: bit 9 (architecture dependent)*/
+#define WICCONTROL_IWIC_Pos  (9U)
+#define WICCONTROL_IWIC_Msk  (1U << WICCONTROL_IWIC_Pos)
 
 /* WICCONTROL register : volatile static uint32_t *const WICCONTROL*/
-#if   defined(RTSS_HP)
-#define WICCONTROL                  (AON->RTSS_HP_CTRL)
-#define RESET_STATUS_REG            (AON->RTSS_HP_RESET)
+#if defined(RTSS_HP)
+#define WICCONTROL       (AON->RTSS_HP_CTRL)
+#define RESET_STATUS_REG (AON->RTSS_HP_RESET)
 #elif defined(RTSS_HE)
-#define WICCONTROL                  (AON->RTSS_HE_CTRL)
-#define RESET_STATUS_REG            (AON->RTSS_HE_RESET)
+#define WICCONTROL       (AON->RTSS_HE_CTRL)
+#define RESET_STATUS_REG (AON->RTSS_HE_RESET)
 #else
 #error "Invalid CPU"
 #endif
@@ -67,56 +71,52 @@
 /**
   @brief WakeUp Interrupt Controller(WIC) Type:-
  */
-typedef enum _PM_WIC
-{
-    PM_WIC_IS_EWIC,                     /*!<  WIC used is EWIC  */
-    PM_WIC_IS_IWIC ,                    /*!<  WIC used is IWIC  */
+typedef enum _PM_WIC {
+    PM_WIC_IS_EWIC, /*!<  WIC used is EWIC  */
+    PM_WIC_IS_IWIC, /*!<  WIC used is IWIC  */
 } PM_WIC;
 
 /**
   @brief enum Low power state:-
  */
-typedef enum _PM_LPSTATE
-{
-    PM_LPSTATE_ON,                      /*!<  ON                */
-    PM_LPSTATE_ON_CLK_OFF ,             /*!<  ON, clock is off  */
-    PM_LPSTATE_RET,                     /*!<  Not supported     */
-    PM_LPSTATE_OFF                      /*!<  OFF               */
+typedef enum _PM_LPSTATE {
+    PM_LPSTATE_ON,         /*!<  ON                */
+    PM_LPSTATE_ON_CLK_OFF, /*!<  ON, clock is off  */
+    PM_LPSTATE_RET,        /*!<  Not supported     */
+    PM_LPSTATE_OFF         /*!<  OFF               */
 } PM_LPSTATE;
 
-#if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
-    (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
+#if (defined(__FPU_USED) && (__FPU_USED == 1U)) ||                                                 \
+    (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
 /* We only need to preserve APCS callee-preserved registers */
 typedef struct fp_state {
-    double      d[8];
-    uint32_t    fpscr;
-#if defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
-    uint32_t    vpr;
+    double   d[8];
+    uint32_t fpscr;
+#if defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
+    uint32_t vpr;
 #endif
 } fp_state_t;
 
 static inline void save_fp_state(fp_state_t *state)
 {
-    __asm (
-        "VSTM    %0, {D8-D15}\n\t"
-        "VSTR    FPSCR, [%0, #64]\n\t"
-#if defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
-        "VSTR    VPR, [%0, #68]\n\t"
+    __asm("VSTM    %0, {D8-D15}\n\t"
+          "VSTR    FPSCR, [%0, #64]\n\t"
+#if defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
+          "VSTR    VPR, [%0, #68]\n\t"
 #endif
-        :: "r"(state) : "memory"
-    );
+          ::"r"(state)
+          : "memory");
 }
 
 static inline void restore_fp_state(const fp_state_t *state)
 {
-    __asm (
-        "VLDM    %0, {D8-D15}\n\t"
-        "VLDR    FPSCR, [%0, #64]\n\t"
-#if defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
-        "VLDR    VPR, [%0, #68]\n\t"
+    __asm("VLDM    %0, {D8-D15}\n\t"
+          "VLDR    FPSCR, [%0, #64]\n\t"
+#if defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U)
+          "VLDR    VPR, [%0, #68]\n\t"
 #endif
-        :: "r"(state) : "memory"
-    );
+          ::"r"(state)
+          : "memory");
 }
 #endif
 
@@ -144,14 +144,12 @@ static uint32_t pm_prepare_lpgpio_nvic_mask(void)
      * Read 0-7 interrupt enables depending on alignment of the interrupt numbers
      */
 
-    uint32_t lpgpio_enables = NVIC->ISER[LPGPIO_IRQ0_IRQn >> 5]
-                                        >> (LPGPIO_IRQ0_IRQn & 0x1F);
+    uint32_t lpgpio_enables = NVIC->ISER[LPGPIO_IRQ0_IRQn >> 5] >> (LPGPIO_IRQ0_IRQn & 0x1F);
 
     /* If split across two registers, combine enables from the second register */
-    if ((LPGPIO_IRQ0_IRQn & 0x1F) > 24)
-    {
+    if ((LPGPIO_IRQ0_IRQn & 0x1F) > 24) {
         lpgpio_enables |= NVIC->ISER[(LPGPIO_IRQ0_IRQn >> 5) + 1]
-                                     << (32 - (LPGPIO_IRQ0_IRQn & 0x1F));
+                          << (32 - (LPGPIO_IRQ0_IRQn & 0x1F));
     }
 
     lpgpio_enables &= 0xFF;
@@ -160,8 +158,7 @@ static uint32_t pm_prepare_lpgpio_nvic_mask(void)
      * If any LPGIO is enabled, and the combined interrupt isn't,
      * activate the combined one, and we'll restore it later
      */
-    if (lpgpio_enables && !NVIC_GetEnableIRQ(LPGPIO_COMB_IRQ_IRQn))
-    {
+    if (lpgpio_enables && !NVIC_GetEnableIRQ(LPGPIO_COMB_IRQ_IRQn)) {
         NVIC_ClearPendingIRQ(LPGPIO_COMB_IRQ_IRQn);
         NVIC_EnableIRQ(LPGPIO_COMB_IRQ_IRQn);
         lpgpio_nvic_mask_state |= 1;
@@ -178,8 +175,7 @@ static uint32_t pm_prepare_lpgpio_nvic_mask(void)
  */
 static void pm_restore_lpgpio_nvic_mask(uint32_t lpgpio_nvic_mask_state)
 {
-    if (lpgpio_nvic_mask_state & 1)
-    {
+    if (lpgpio_nvic_mask_state & 1) {
         NVIC_DisableIRQ(LPGPIO_COMB_IRQ_IRQn);
     }
 }
@@ -191,7 +187,7 @@ static void pm_restore_lpgpio_nvic_mask(uint32_t lpgpio_nvic_mask_state)
 */
 uint16_t pm_get_version(void)
 {
-  return PM_DRV_VERSION;
+    return PM_DRV_VERSION;
 }
 
 /**
@@ -207,13 +203,13 @@ static void pm_core_enter_wic_sleep(PM_WIC wic)
      * See if we have any LPGPIO individual interrupts are enabled.
      * If yes, enable the Combined interrupt.
      */
-    lpgpio_nvic_mask_state = pm_prepare_lpgpio_nvic_mask();
+    lpgpio_nvic_mask_state  = pm_prepare_lpgpio_nvic_mask();
 
     /* Set up WICCONTROL so that deep sleep is the required WIC sleep type */
-    WICCONTROL = _VAL2FLD(WICCONTROL_WIC, 1) | _VAL2FLD(WICCONTROL_IWIC, wic);
+    WICCONTROL              = _VAL2FLD(WICCONTROL_WIC, 1) | _VAL2FLD(WICCONTROL_IWIC, wic);
 
     /* Setting DEEPSLEEP bit */
-    SCB->SCR       |=  SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR               |= SCB_SCR_SLEEPDEEP_Msk;
 
     /*Data Synchronization Barrier completes all instructions before this */
     __DSB();
@@ -227,11 +223,10 @@ static void pm_core_enter_wic_sleep(PM_WIC wic)
     pm_core_enter_normal_sleep();
 
     /* Clearing DEEPSLEEP bit */
-    SCB->SCR       &=  ~SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR   &= ~SCB_SCR_SLEEPDEEP_Msk;
 
     /* Clear WICCONTROL to disable WIC sleep */
-    WICCONTROL = _VAL2FLD(WICCONTROL_WIC, 0);
-
+    WICCONTROL  = _VAL2FLD(WICCONTROL_WIC, 0);
 
     /* Data Synchronization Barrier completes all instructions before this */
     __DSB();
@@ -280,7 +275,7 @@ void pm_core_enter_deep_sleep(void)
     uint32_t old_cpdlpstate = PWRMODCTL->CPDLPSTATE;
 
     if (_FLD2VAL(PWRMODCTL_CPDLPSTATE_CLPSTATE, old_cpdlpstate) > PM_LPSTATE_ON_CLK_OFF) {
-        PWRMODCTL->CPDLPSTATE = (old_cpdlpstate &~ PWRMODCTL_CPDLPSTATE_CLPSTATE_Msk) |
+        PWRMODCTL->CPDLPSTATE = (old_cpdlpstate & ~PWRMODCTL_CPDLPSTATE_CLPSTATE_Msk) |
                                 _VAL2FLD(PWRMODCTL_CPDLPSTATE_CLPSTATE, PM_LPSTATE_ON_CLK_OFF);
     }
 
@@ -343,10 +338,10 @@ void pm_core_enter_deep_sleep(void)
 void pm_core_enter_deep_sleep_request_subsys_off(void)
 {
     uint32_t orig_ccr, orig_mscr, orig_demcr, orig_cppwr;
-#if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
-    (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
+#if (defined(__FPU_USED) && (__FPU_USED == 1U)) ||                                                 \
+    (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
     fp_state_t fp_state;
-    bool fp_saved = false;
+    bool       fp_saved = false;
 #endif
 
     /* We attempt to power off the subsystem by turning off all active
@@ -363,8 +358,8 @@ void pm_core_enter_deep_sleep_request_subsys_off(void)
      * okay to forget the FP/MVE state (S/D/Q registers, FPSR and VPR)
      */
     orig_cppwr = ICB->CPPWR;
-#if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
-    (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
+#if (defined(__FPU_USED) && (__FPU_USED == 1U)) ||                                                 \
+    (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
     if (!(orig_cppwr & ICB_CPPWR_SU10_Msk)) {
         /* As we are going to say it's okay to lose EPU state, we should save it;
          * we can't independently turn EPU off on our silicon, but the CPU
@@ -375,8 +370,7 @@ void pm_core_enter_deep_sleep_request_subsys_off(void)
          * or lazy stack preservation is active, indicating registers hold
          * another context's state.
          */
-        if ((__get_CONTROL() & CONTROL_FPCA_Msk) ||
-                (FPU->FPCCR & FPU_FPCCR_LSPACT_Msk)) {
+        if ((__get_CONTROL() & CONTROL_FPCA_Msk) || (FPU->FPCCR & FPU_FPCCR_LSPACT_Msk)) {
             save_fp_state(&fp_state);
             fp_saved = true;
         }
@@ -399,15 +393,13 @@ void pm_core_enter_deep_sleep_request_subsys_off(void)
 
     /* Check cache status */
     orig_mscr = MEMSYSCTL->MSCR;
-    if (orig_mscr & MEMSYSCTL_MSCR_DCACTIVE_Msk)
-    {
+    if (orig_mscr & MEMSYSCTL_MSCR_DCACTIVE_Msk) {
         /* Make sure nothing gets dirty any more - this should stabilize DCCLEAN */
         MEMSYSCTL->MSCR = orig_mscr | MEMSYSCTL_MSCR_FORCEWT_Msk;
         __DSB();
         __ISB();
 
-        if (!(MEMSYSCTL->MSCR & MEMSYSCTL_MSCR_DCCLEAN_Msk))
-        {
+        if (!(MEMSYSCTL->MSCR & MEMSYSCTL_MSCR_DCCLEAN_Msk)) {
             /* Clean if data cache is active, and not known to be clean. This
              * could be done earlier by pm_shut_down_dcache, before disabling
              * IRQs. But if we're making this call, we're resigned to bad
@@ -432,11 +424,10 @@ void pm_core_enter_deep_sleep_request_subsys_off(void)
      * necessary auto-invalidation on the subsequent reset.) Restore FORCEWT now.
      */
     SCB->CCR = orig_ccr & ~(SCB_CCR_IC_Msk | SCB_CCR_DC_Msk);
-    MEMSYSCTL->MSCR = (MEMSYSCTL->MSCR &~
-                      (MEMSYSCTL_MSCR_ICACTIVE_Msk  |
-                       MEMSYSCTL_MSCR_DCACTIVE_Msk  |
-                       MEMSYSCTL_MSCR_FORCEWT_Msk)) |
-                      (orig_mscr & MEMSYSCTL_MSCR_FORCEWT_Msk);
+    MEMSYSCTL->MSCR =
+        (MEMSYSCTL->MSCR & ~(MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk |
+                             MEMSYSCTL_MSCR_FORCEWT_Msk)) |
+        (orig_mscr & MEMSYSCTL_MSCR_FORCEWT_Msk);
     /* Disable PMU/DWT - we know this is enabled at boot by system code using
      * PMU timers, so we could never permit PDDEBUG OFF otherwise.
      * When/if this is resolved, we should consider removing this, so
@@ -453,18 +444,17 @@ void pm_core_enter_deep_sleep_request_subsys_off(void)
     pm_core_enter_wic_sleep(PM_WIC_IS_EWIC);
 
     /* If we return, restore enables */
-    MEMSYSCTL->MSCR |= orig_mscr &
-                       (MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk);
-    SCB->CCR = orig_ccr;
-    DCB->DEMCR = orig_demcr;
-    ICB->CPPWR = orig_cppwr;
+    MEMSYSCTL->MSCR |= orig_mscr & (MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk);
+    SCB->CCR         = orig_ccr;
+    DCB->DEMCR       = orig_demcr;
+    ICB->CPPWR       = orig_cppwr;
 
     /* Make sure enables are synchronized */
     __DSB();
     __ISB();
 
-#if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
-    (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
+#if (defined(__FPU_USED) && (__FPU_USED == 1U)) ||                                                 \
+    (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
     /* Restore FP/MVE state */
     if (fp_saved) {
         restore_fp_state(&fp_state);
@@ -516,18 +506,17 @@ void pm_core_request_subsys_off_from_spurious_wakeup(void)
     /*
      * Make Caches Inactive. Restore FORCEWT now.
      */
-    MEMSYSCTL->MSCR = (MEMSYSCTL->MSCR &~
-                      (MEMSYSCTL_MSCR_ICACTIVE_Msk  |
-                       MEMSYSCTL_MSCR_DCACTIVE_Msk  |
-                       MEMSYSCTL_MSCR_FORCEWT_Msk)) |
-                      (orig_mscr & MEMSYSCTL_MSCR_FORCEWT_Msk);
+    MEMSYSCTL->MSCR =
+        (MEMSYSCTL->MSCR & ~(MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk |
+                             MEMSYSCTL_MSCR_FORCEWT_Msk)) |
+        (orig_mscr & MEMSYSCTL_MSCR_FORCEWT_Msk);
 
     /* Trigger the EWIC sleep - may or may not return*/
     /* Set up WICCONTROL so that deep sleep is the required WIC sleep type */
-    WICCONTROL = _VAL2FLD(WICCONTROL_WIC, 1) | _VAL2FLD(WICCONTROL_IWIC, PM_WIC_IS_EWIC);
+    WICCONTROL  = _VAL2FLD(WICCONTROL_WIC, 1) | _VAL2FLD(WICCONTROL_IWIC, PM_WIC_IS_EWIC);
 
     /* Setting DEEPSLEEP bit */
-    SCB->SCR       |=  SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR   |= SCB_SCR_SLEEPDEEP_Msk;
 
     /*Data Synchronization Barrier completes all instructions before this */
     __DSB();
@@ -541,16 +530,15 @@ void pm_core_request_subsys_off_from_spurious_wakeup(void)
     pm_core_enter_normal_sleep();
 
     /* Clearing DEEPSLEEP bit */
-    SCB->SCR       &=  ~SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR        &= ~SCB_SCR_SLEEPDEEP_Msk;
 
     /* Clear WICCONTROL to disable WIC sleep */
-    WICCONTROL = _VAL2FLD(WICCONTROL_WIC, 0);
+    WICCONTROL       = _VAL2FLD(WICCONTROL_WIC, 0);
 
     /* If we return, restore enables */
-    MEMSYSCTL->MSCR |= orig_mscr &
-                       (MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk);
+    MEMSYSCTL->MSCR |= orig_mscr & (MEMSYSCTL_MSCR_ICACTIVE_Msk | MEMSYSCTL_MSCR_DCACTIVE_Msk);
 
-    ICB->CPPWR = orig_cppwr;
+    ICB->CPPWR       = orig_cppwr;
 
     /* Make sure enables are synchronized */
     __DSB();
@@ -581,7 +569,7 @@ uint32_t pm_peek_subsystem_reset_status(void)
 uint32_t pm_get_subsystem_reset_status(void)
 {
     /* Read the set bits */
-    uint32_t reason = RESET_STATUS_REG;
+    uint32_t reason  = RESET_STATUS_REG;
 
     /* Write them back to acknowledge what we read */
     RESET_STATUS_REG = reason;
@@ -599,13 +587,10 @@ uint32_t pm_get_subsystem_reset_status(void)
 
   @note     Usage:
 
-            if (pm_core_wakeup_is_spurious())
-            {
+            if (pm_core_wakeup_is_spurious()) {
                 pm_core_enable_manual_pd_sequencing();
                 pm_core_request_subsys_off_from_spurious_wakeup();
-            }
-            else
-            {
+            } else {
                 pm_core_enable_automatic_pd_sequencing();
             }
 
@@ -617,8 +602,7 @@ bool pm_core_wakeup_is_spurious(void)
     uint16_t num_events, count = 0;
 
     /* Read the last reason to confirm that it is not spurious */
-    if (RESET_STATUS_REG != 0)
-    {
+    if (RESET_STATUS_REG != 0) {
         return false;
     }
 
@@ -627,8 +611,7 @@ bool pm_core_wakeup_is_spurious(void)
      * If it is not enabled, then the cause of wakeup must be NVIC_SystemReset
      * or local WDT Reset. Both are not spurious ones. So return false
      */
-    if (!(WICCONTROL & WICCONTROL_WIC_Msk))
-    {
+    if (!(WICCONTROL & WICCONTROL_WIC_Msk)) {
         return false;
     }
 
@@ -637,11 +620,10 @@ bool pm_core_wakeup_is_spurious(void)
      * If any of the interrupt is in pending state, return false.
      */
     num_events = ((EWIC->EWIC_NUMID - 3) + 31) / 32;
-    for (count = 0; count < num_events; count++)
-    {
-        if (EWIC->EWIC_MASKn[count]
-                              && (NVIC->ISPR[count] & EWIC->EWIC_MASKn[count]))
+    for (count = 0; count < num_events; count++) {
+        if (EWIC->EWIC_MASKn[count] && (NVIC->ISPR[count] & EWIC->EWIC_MASKn[count])) {
             return false;
+        }
     }
 
     /*
@@ -649,7 +631,6 @@ bool pm_core_wakeup_is_spurious(void)
      * for unknown reason.
      */
     return true;
-
 }
 
 /**
@@ -677,14 +658,13 @@ void pm_core_enable_manual_pd_sequencing(void)
     uint16_t num_events, count = 0;
 
     EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPD_Msk;
-    EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
+    EWIC->EWIC_CR   |= EWIC_EWIC_CR_EN_Msk;
 
     /*
      * Copy NVIC pending registers to EWIC pending regs
      */
-    num_events = ((EWIC->EWIC_NUMID - 3) + 31) / 32;
-    for (count = 0; count < num_events; count++)
-    {
+    num_events       = ((EWIC->EWIC_NUMID - 3) + 31) / 32;
+    for (count = 0; count < num_events; count++) {
         EWIC->EWIC_PENDn[count] = NVIC->ISPR[count];
     }
 }
@@ -712,7 +692,7 @@ void pm_core_enable_automatic_pu_sequencing(void)
 void pm_core_enable_manual_pu_sequencing(void)
 {
     EWIC->EWIC_ASCR &= ~EWIC_EWIC_ASCR_ASPU_Msk;
-    EWIC->EWIC_CR |= EWIC_EWIC_CR_EN_Msk;
+    EWIC->EWIC_CR   |= EWIC_EWIC_CR_EN_Msk;
 }
 
 #if PM_HANDLE_SPURIOUS_WAKEUP
@@ -725,15 +705,11 @@ void pm_core_enable_manual_pu_sequencing(void)
 */
 void System_HandleSpuriousWakeup(void)
 {
-    if (pm_core_wakeup_is_spurious())
-    {
+    if (pm_core_wakeup_is_spurious()) {
         pm_core_enable_manual_pd_sequencing();
         pm_core_request_subsys_off_from_spurious_wakeup();
-    }
-    else
-    {
+    } else {
         pm_core_enable_automatic_pd_sequencing();
     }
-
 }
 #endif /* PM_HANDLE_SPURIOUS_WAKEUP */

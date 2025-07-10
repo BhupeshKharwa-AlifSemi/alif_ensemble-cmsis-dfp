@@ -6,7 +6,7 @@
  * License Agreement with this file. If not, please write to:
  * contact@alifsemi.com, or visit: https://alifsemi.com/license
  */
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_tsens_freertos.c
  * @author   : Prabhakar kumar
  * @email    : prabhakar.kumar@alifsemi.com
@@ -44,28 +44,28 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#define ADC_CONVERSION    ARM_ADC_SINGLE_SHOT_CH_CONV
+#define ADC_CONVERSION ARM_ADC_SINGLE_SHOT_CH_CONV
 
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC Driver_ADC122;
+extern ARM_DRIVER_ADC  Driver_ADC122;
 static ARM_DRIVER_ADC *pxADCDrv = &Driver_ADC122;
 
-#define TEMPERATURE_SENSOR       ARM_ADC_CHANNEL_6
-#define NUM_CHANNELS             (8)
+#define TEMPERATURE_SENSOR ARM_ADC_CHANNEL_6
+#define NUM_CHANNELS       (8)
 
-static void prvTsensDemoThreadEntry( void *pvParameters );
+static void prvTsensDemoThreadEntry(void *pvParameters);
 
-#define ADC_INT_AVG_SAMPLE_RDY       0x01
+#define ADC_INT_AVG_SAMPLE_RDY        0x01
 
 /*Define for FreeRTOS*/
 #define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
 #define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 TaskHandle_t adc_xHandle;
@@ -73,30 +73,33 @@ TaskHandle_t adc_xHandle;
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
-   *ppxIdleTaskTCBBuffer = &IdleTcb;
-   *ppxIdleTaskStackBuffer = IdleStack;
-   *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
+    *ppxIdleTaskStackBuffer = IdleStack;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-   (void) pxTask;
+    (void) pxTask;
 
-   for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-   *ppxTimerTaskTCBBuffer = &TimerTcb;
-   *ppxTimerTaskStackBuffer = TimerStack;
-   *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
+    *ppxTimerTaskStackBuffer = TimerStack;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-   for (;;);
+    ASSERT_HANG
 }
 
 /* Demo purpose Channel_value*/
@@ -110,24 +113,23 @@ volatile uint32_t ulNumSamples = 0;
  *                                        uint32_t sample_output)
  * @brief  : adc conversion isr callback
  * @return : NONE
-*/
-static void prvAdcConversionCallBack(uint32_t ulEvent, uint8_t ucChannel,
-                                     uint32_t ulSampleOutput)
+ */
+static void prvAdcConversionCallBack(uint32_t ulEvent, uint8_t ucChannel, uint32_t ulSampleOutput)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if (ulEvent & ARM_ADC_EVENT_CONVERSION_COMPLETE)
-    {
-        ulNumSamples += 1;
+    if (ulEvent & ARM_ADC_EVENT_CONVERSION_COMPLETE) {
+        ulNumSamples           += 1;
 
         /* Store the value for the respected channels */
-        ulAdcSample[ucChannel] = ulSampleOutput;
+        ulAdcSample[ucChannel]  = ulSampleOutput;
         /* Conversion Completed */
-        xResult = xTaskNotifyFromISR( adc_xHandle, ADC_INT_AVG_SAMPLE_RDY,
-                                      eSetBits, &xHigherPriorityTaskWoken );
-        if ( xResult == pdTRUE )
-        {
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xResult                 = xTaskNotifyFromISR(adc_xHandle,
+                                     ADC_INT_AVG_SAMPLE_RDY,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
 }
@@ -141,13 +143,13 @@ static void prvAdcConversionCallBack(uint32_t ulEvent, uint8_t ucChannel,
  *               - converted value is the allocated user memory address.
  * @parameter[1] : thread_input : thread input
  * @return       : NONE
-*/
-static void prvTsensDemoThreadEntry( void *pvParameters )
+ */
+static void prvTsensDemoThreadEntry(void *pvParameters)
 {
-    float    fTemp;
-    int32_t  lRet              = 0;
-    uint32_t ulErrorCode        = SERVICES_REQ_SUCCESS;
-    uint32_t ulServiceErrorCode;
+    float              fTemp;
+    int32_t            lRet        = 0;
+    uint32_t           ulErrorCode = SERVICES_REQ_SUCCESS;
+    uint32_t           ulServiceErrorCode;
     ARM_DRIVER_VERSION xVersion;
 
     /* Initialize the SE services */
@@ -155,11 +157,10 @@ static void prvTsensDemoThreadEntry( void *pvParameters )
 
     /* enable the 160 MHz clock */
     ulErrorCode = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_CLK_160M,
-                           /*bool enable   */ true,
-                                              &ulServiceErrorCode);
-    if (ulErrorCode)
-    {
+                                               /*clock_enable_t*/ CLKEN_CLK_160M,
+                                               /*bool enable   */ true,
+                                               &ulServiceErrorCode);
+    if (ulErrorCode) {
         printf("SE Error: 160 MHz clk enable = %d\n", ulErrorCode);
         return;
     }
@@ -167,83 +168,79 @@ static void prvTsensDemoThreadEntry( void *pvParameters )
     printf("\r\n >>> ADC demo FreeRTOS starting up!!! <<< \r\n");
 
     xVersion = pxADCDrv->GetVersion();
-    printf("\r\n ADC version api:%X driver:%X...\r\n",xVersion.api, xVersion.drv);
+    printf("\r\n ADC version api:%X driver:%X...\r\n", xVersion.api, xVersion.drv);
 
     /* Initialize ADC driver */
     lRet = pxADCDrv->Initialize(prvAdcConversionCallBack);
-    if (lRet != ARM_DRIVER_OK){
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC init failed\n");
         return;
     }
 
     /* Power control ADC */
     lRet = pxADCDrv->PowerControl(ARM_POWER_FULL);
-    if (lRet != ARM_DRIVER_OK){
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Power up failed\n");
         goto error_uninitialize;
     }
 
     /* set conversion mode */
     lRet = pxADCDrv->Control(ARM_ADC_CONVERSION_MODE_CTRL, ADC_CONVERSION);
-    if (lRet != ARM_DRIVER_OK){
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC select conversion mode failed\n");
         goto error_poweroff;
     }
 
     /* set initial channel */
     lRet = pxADCDrv->Control(ARM_ADC_CHANNEL_INIT_VAL, TEMPERATURE_SENSOR);
-    if (lRet != ARM_DRIVER_OK){
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC channel init failed\n");
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",(uint32_t)(ulAdcSample + TEMPERATURE_SENSOR));
+    printf(">>> Allocated memory buffer Address is 0x%X <<<\n",
+           (uint32_t) (ulAdcSample + TEMPERATURE_SENSOR));
     /* Start ADC */
     lRet = pxADCDrv->Start();
-    if (lRet != ARM_DRIVER_OK){
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Start failed\n");
         goto error_poweroff;
     }
 
     /* wait for callback */
-    while(ulNumSamples < 1);
+    while (ulNumSamples < 1) {
+    }
 
     /* wait till conversion comes ( isr callback ) */
-    if ( xTaskNotifyWait( NULL, ADC_INT_AVG_SAMPLE_RDY, NULL, portMAX_DELAY ) != pdFALSE )
-    {
-        fTemp = (float)get_temperature(ulAdcSample[TEMPERATURE_SENSOR]);
-        if (fTemp == ARM_DRIVER_ERROR){
+    if (xTaskNotifyWait(NULL, ADC_INT_AVG_SAMPLE_RDY, NULL, portMAX_DELAY) != pdFALSE) {
+        fTemp = (float) get_temperature(ulAdcSample[TEMPERATURE_SENSOR]);
+        if (fTemp == ARM_DRIVER_ERROR) {
             printf("\r\n Error: Temperature is outside range\n");
             goto error_poweroff;
-        }
-        else
-        {
-            printf("\n Current temp %.1f°C\n",fTemp);
+        } else {
+            printf("\n Current temp %.1f°C\n", fTemp);
         }
 
         /* Stop ADC */
         lRet = pxADCDrv->Stop();
-        if (lRet != ARM_DRIVER_OK){
+        if (lRet != ARM_DRIVER_OK) {
             printf("\r\n Error: ADC stop failed\n");
             goto error_poweroff;
         }
         printf("\n >>> ADC conversion completed \n");
         printf(" Converted value are stored in user allocated memory address.\n");
-    }
-    else
-    {
+    } else {
         printf("\n Error: ADC conversion Failed \n");
     }
 
     printf("\n ---END--- \r\n wait forever >>> \n");
-    while(1);
+    WAIT_FOREVER
 
 error_poweroff:
 
     /* Power off ADC peripheral */
     lRet = pxADCDrv->PowerControl(ARM_POWER_OFF);
-    if (lRet != ARM_DRIVER_OK)
-    {
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Power OFF failed.\r\n");
     }
 
@@ -251,17 +248,15 @@ error_uninitialize:
 
     /* Un-initialize ADC driver */
     lRet = pxADCDrv->Uninitialize();
-    if (lRet != ARM_DRIVER_OK)
-    {
+    if (lRet != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Uninitialize failed.\r\n");
     }
     /* disable the 160MHz clock */
     ulErrorCode = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_CLK_160M,
-                           /*bool enable   */ false,
-                                              &ulServiceErrorCode);
-    if (ulErrorCode)
-    {
+                                               /*clock_enable_t*/ CLKEN_CLK_160M,
+                                               /*bool enable   */ false,
+                                               &ulServiceErrorCode);
+    if (ulErrorCode) {
         printf("SE Error: 160 MHz clk disable = %d\n", ulErrorCode);
         return;
     }
@@ -269,7 +264,7 @@ error_uninitialize:
     printf("\r\n ADC demo exiting...\r\n");
 
     /* thread delete */
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 }
 
 /*----------------------------------------------------------------------------
@@ -277,31 +272,30 @@ error_uninitialize:
  *---------------------------------------------------------------------------*/
 int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if (ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate( prvTsensDemoThreadEntry,
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(prvTsensDemoThreadEntry,
                                        "prvTsensDemoThreadEntry",
-                                       256, NULL, configMAX_PRIORITIES-1,
-                                       &adc_xHandle );
-   if ( xReturned != pdPASS )
-   {
-      vTaskDelete( adc_xHandle );
-      return -1;
-   }
+                                       256,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &adc_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(adc_xHandle);
+        return -1;
+    }
 
-   /* Start thread execution */
-   vTaskStartScheduler();
+    /* Start thread execution */
+    vTaskStartScheduler();
 }

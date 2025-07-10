@@ -19,9 +19,8 @@
 #ifndef OSPI_H
 #define OSPI_H
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -29,44 +28,44 @@ extern "C"
 #include <stddef.h>
 #include <soc.h>
 
-#define OSPI_TX_FIFO_DEPTH                               256U
-#define OSPI_RX_FIFO_DEPTH                               256U
+#define OSPI_TX_FIFO_DEPTH                   256U
+#define OSPI_RX_FIFO_DEPTH                   256U
 
-#define OSPI_ENABLE                                      1
-#define OSPI_DISABLE                                     0
+#define OSPI_ENABLE                          1
+#define OSPI_DISABLE                         0
 
 /* SPI Control Register 0 (CTRLR0) bit Definition, Macros, Offsets and Masks
  * these include DFS, FRF, SCPH, SCPOL, TMOD, etc
  */
 /* Data Frame DFS bit[4:0]*/
-#define SPI_CTRLR0_DFS                                  0U
-#define SPI_CTRLR0_DFS_8bit                             0x07U
-#define SPI_CTRLR0_DFS_16bit                            0x0FU
-#define SPI_CTRLR0_DFS_32bit                            0x1FU
-#define SPI_CTRLR0_DFS_MASK                             (0x1FU << SPI_CTRLR0_DFS)
+#define SPI_CTRLR0_DFS                       0U
+#define SPI_CTRLR0_DFS_8bit                  0x07U
+#define SPI_CTRLR0_DFS_16bit                 0x0FU
+#define SPI_CTRLR0_DFS_32bit                 0x1FU
+#define SPI_CTRLR0_DFS_MASK                  (0x1FU << SPI_CTRLR0_DFS)
 
 /* Frame Format FRF bit[7:6] */
-#define SPI_CTRLR0_FRF                                  6U
-#define SPI_CTRLR0_FRF_MASK                             (0x3UL << SPI_CTRLR0_FRF)
-#define SPI_CTRLR0_FRF_MOTOROLA                         0x00U     /* 0x0 Motorola SPI Frame Format */
-#define SPI_CTRLR0_FRF_TI                               0x40U     /* 0x1 Texas Instruments SSP Frame Format */
-#define SPI_CTRLR0_FRF_MICROWIRE                        0x80U     /* 0X2 National Semiconductors Microwire Frame Format */
+#define SPI_CTRLR0_FRF                       6U
+#define SPI_CTRLR0_FRF_MASK                  (0x3UL << SPI_CTRLR0_FRF)
+#define SPI_CTRLR0_FRF_MOTOROLA              0x00U /* 0x0 Motorola SPI Frame Format */
+#define SPI_CTRLR0_FRF_TI                    0x40U /* 0x1 Texas Instruments SSP Frame Format */
+#define SPI_CTRLR0_FRF_MICROWIRE             0x80U /* 0X2 National Semiconductors Microwire Frame Format */
 
 /* Serial Clock Polarity SCPOL | Serial Clock Phase SCPH bit[9:8] */
-#define SPI_CTRLR0_SC                                   8U
-#define SPI_CTRLR0_SC_MASK                              (0x3UL << SPI_CTRLR0_SC)
-#define SPI_CTRLR0_SCPH_HIGH                            0x100U     /* 0x1 SPI SCPH high */
-#define SPI_CTRLR0_SCPH_LOW                             0x000U     /* 0x0 SPI SCPH low */
-#define SPI_CTRLR0_SCPOL_HIGH                           0x200U     /* 0x2 SPI SCPOL high */
-#define SPI_CTRLR0_SCPOL_LOW                            0x000U     /* 0x0 SPI SCPOL low */
+#define SPI_CTRLR0_SC                        8U
+#define SPI_CTRLR0_SC_MASK                   (0x3UL << SPI_CTRLR0_SC)
+#define SPI_CTRLR0_SCPH_HIGH                 0x100U /* 0x1 SPI SCPH high */
+#define SPI_CTRLR0_SCPH_LOW                  0x000U /* 0x0 SPI SCPH low */
+#define SPI_CTRLR0_SCPOL_HIGH                0x200U /* 0x2 SPI SCPOL high */
+#define SPI_CTRLR0_SCPOL_LOW                 0x000U /* 0x0 SPI SCPOL low */
 
 /* Transfer Mode TMOD bit[11:10] */
-#define SPI_CTRLR0_TMOD                                 10U
-#define SPI_CTRLR0_TMOD_MASK                            (0x3UL << SPI_CTRLR0_TMOD)
-#define SPI_CTRLR0_TMOD_TRANSFER                        0x000U     /* 0x0 SPI transfer mode */
-#define SPI_CTRLR0_TMOD_SEND_ONLY                       0x400U     /* 0x1 SPI send only mode */
-#define SPI_CTRLR0_TMOD_RECEIVE_ONLY                    0x800U     /* 0x2 SPI receive only mode */
-#define SPI_CTRLR0_TMOD_EEPROM_READ_ONLY                0xC00U     /* 0x3 SPI EEPROM read only mode */
+#define SPI_CTRLR0_TMOD                      10U
+#define SPI_CTRLR0_TMOD_MASK                 (0x3UL << SPI_CTRLR0_TMOD)
+#define SPI_CTRLR0_TMOD_TRANSFER             0x000U /* 0x0 SPI transfer mode */
+#define SPI_CTRLR0_TMOD_SEND_ONLY            0x400U /* 0x1 SPI send only mode */
+#define SPI_CTRLR0_TMOD_RECEIVE_ONLY         0x800U /* 0x2 SPI receive only mode */
+#define SPI_CTRLR0_TMOD_EEPROM_READ_ONLY     0xC00U /* 0x3 SPI EEPROM read only mode */
 
 /* Slave Select toggle Enable bit[14]
  * While operating in SPI mode with clock phase (SCPH) set to
@@ -74,181 +73,181 @@ extern "C"
  *  between data frames.
  */
 /* Slave Select toggle Enable SSTE bit[14] */
-#define SPI_CTRLR0_SSTE                                 14U
-#define SPI_CTRLR0_SSTE_MASK                            (1U << SPI_CTRLR0_SSTE)
-#define SPI_CTRLR0_SSTE_ENABLE                          0x4000U     /* 0x1 SPI slave select toggle enable */
-#define SPI_CTRLR0_SSTE_DISABLE                         0x0000U     /* 0x0 SPI slave select toggle disable */
+#define SPI_CTRLR0_SSTE                      14U
+#define SPI_CTRLR0_SSTE_MASK                 (1U << SPI_CTRLR0_SSTE)
+#define SPI_CTRLR0_SSTE_ENABLE               0x4000U /* 0x1 SPI slave select toggle enable */
+#define SPI_CTRLR0_SSTE_DISABLE              0x0000U /* 0x0 SPI slave select toggle disable */
 
 /* Control Frame Size for the Microwire frame format CFS bit[19:16]*/
-#define SPI_CTRLR0_CFS                                  16U
-#define SPI_CTRLR0_CFS_MASK                             (0xFU << SPI_CTRLR0_CFS)
+#define SPI_CTRLR0_CFS                       16U
+#define SPI_CTRLR0_CFS_MASK                  (0xFU << SPI_CTRLR0_CFS)
 
-#define SPI_FRF_DUAL                                    0x1
-#define SPI_FRF_QUAD                                    0x2
-#define SPI_FRF_OCTAL                                   0x3
+#define SPI_FRF_DUAL                         0x1
+#define SPI_FRF_QUAD                         0x2
+#define SPI_FRF_OCTAL                        0x3
 
 /* SPI Frame Format SPI_FRF bit[23:22]*/
-#define SPI_CTRLR0_SPI_FRF                              22U
-#define SPI_CTRLR0_SPI_FRF_MASK                         (0x3U << SPI_CTRLR0_SPI_FRF)
-#define SPI_CTRLR0_SPI_FRF_STANDRAD                     0x000000U    /* 0x0 Standard SPI Format */
-#define SPI_CTRLR0_SPI_FRF_DUAL                         0x400000U    /* 0x1 Dual SPI Format */
-#define SPI_CTRLR0_SPI_FRF_QUAD                         0x800000U    /* 0X2 Quad SPI Format */
-#define SPI_CTRLR0_SPI_FRF_OCTAL                        0xC00000U    /* 0X2 Octal SPI Format */
+#define SPI_CTRLR0_SPI_FRF                   22U
+#define SPI_CTRLR0_SPI_FRF_MASK              (0x3U << SPI_CTRLR0_SPI_FRF)
+#define SPI_CTRLR0_SPI_FRF_STANDRAD          0x000000U /* 0x0 Standard SPI Format */
+#define SPI_CTRLR0_SPI_FRF_DUAL              0x400000U /* 0x1 Dual SPI Format */
+#define SPI_CTRLR0_SPI_FRF_QUAD              0x800000U /* 0X2 Quad SPI Format */
+#define SPI_CTRLR0_SPI_FRF_OCTAL             0xC00000U /* 0X2 Octal SPI Format */
 
 /* SPI Hyperbus Frame format enable SPI_HYPERBUS_EN bit[24] */
-#define SPI_CTRLR0_SPI_HYPERBUS_EN                      24
-#define SPI_CTRLR0_SPI_HYPERBUS_EN_MASK                 (1 << SPI_CTRLR0_SPI_HYPERBUS_EN)
-#define SPI_CTRLR0_SPI_HYPERBUS_ENABLE                  0x1000000U   /* 0x1 SPI Hyperbus Frame format enable */
-#define SPI_CTRLR0_SPI_HYPERBUS_DISABLE                 0x0000000U   /* 0x0 SPI Hyperbus Frame format disable */
+#define SPI_CTRLR0_SPI_HYPERBUS_EN           24
+#define SPI_CTRLR0_SPI_HYPERBUS_EN_MASK      (1 << SPI_CTRLR0_SPI_HYPERBUS_EN)
+#define SPI_CTRLR0_SPI_HYPERBUS_ENABLE       0x1000000U /* 0x1 SPI Hyperbus Frame format enable */
+#define SPI_CTRLR0_SPI_HYPERBUS_DISABLE      0x0000000U /* 0x0 SPI Hyperbus Frame format disable */
 
 /* SPI is working in Master or Slave SSI_IS_MST bit[31] */
-#define SPI_CTRLR0_SSI_IS_MST                           31U
-#define SPI_CTRLR0_SSI_IS_MST_MASK                      (0x1UL << SPI_CTRLR0_SSI_IS_MST)
-#define SPI_CTRLR0_SSI_IS_MST_MASTER                    0x80000000U  /* 0x1 SPI master */
-#define SPI_CTRLR0_SSI_IS_MST_SLAVE                     0x00000000U  /* 0x0 SPI slave  */
+#define SPI_CTRLR0_SSI_IS_MST                31U
+#define SPI_CTRLR0_SSI_IS_MST_MASK           (0x1UL << SPI_CTRLR0_SSI_IS_MST)
+#define SPI_CTRLR0_SSI_IS_MST_MASTER         0x80000000U /* 0x1 SPI master */
+#define SPI_CTRLR0_SSI_IS_MST_SLAVE          0x00000000U /* 0x0 SPI slave  */
 
 /* Quad SPI MODE Macros */
-#define SPI_CTRLR0_SPI_QUAD_ENABLE                     (0x2UL << SPI_CTRLR0_SPI_FRF)
-#define SPI_CTRLR0_SPI_QUAD_TX_MODE                     SPI_TMOD_SEND_ONLY
-#define SPI_CTRLR0_SPI_QUAD_RX_MODE                     SPI_TMOD_RECEIVE_ONLY
+#define SPI_CTRLR0_SPI_QUAD_ENABLE           (0x2UL << SPI_CTRLR0_SPI_FRF)
+#define SPI_CTRLR0_SPI_QUAD_TX_MODE          SPI_TMOD_SEND_ONLY
+#define SPI_CTRLR0_SPI_QUAD_RX_MODE          SPI_TMOD_RECEIVE_ONLY
 
 /* Octal SPI MODE Macros */
-#define SPI_CTRLR0_SPI_OCTAL_ENABLE                     (0x3UL << SPI_CTRLR0_SPI_FRF)
-#define SPI_CTRLR0_SPI_OCTAL_TX_RX_MODE                 SPI_TMOD_TRANSFER
-#define SPI_CTRLR0_SPI_OCTAL_TX_MODE                    SPI_TMOD_SEND_ONLY
-#define SPI_CTRLR0_SPI_OCTAL_RX_MODE                    SPI_TMOD_RECEIVE_ONLY
+#define SPI_CTRLR0_SPI_OCTAL_ENABLE          (0x3UL << SPI_CTRLR0_SPI_FRF)
+#define SPI_CTRLR0_SPI_OCTAL_TX_RX_MODE      SPI_TMOD_TRANSFER
+#define SPI_CTRLR0_SPI_OCTAL_TX_MODE         SPI_TMOD_SEND_ONLY
+#define SPI_CTRLR0_SPI_OCTAL_RX_MODE         SPI_TMOD_RECEIVE_ONLY
 
-#define SPI_IMR_TX_FIFO_EMPTY_INTERRUPT_MASK            0x00000001U  /* Transmit fifo empty interrupt mask*/
-#define SPI_IMR_TX_FIFO_OVER_FLOW_INTERRUPT_MASK        0x00000002U /* Transmit fifo overflow interrupt mask*/
-#define SPI_IMR_RX_FIFO_UNDER_FLOW_INTERRUPT_MASK       0x00000004U  /* Receive fifo underflow interrupt mask*/
-#define SPI_IMR_RX_FIFO_OVER_FLOW_INTERRUPT_MASK        0x00000008U  /* Receive fifo Overflow interrupt mask*/
-#define SPI_IMR_RX_FIFO_FULL_INTERRUPT_MASK             0x00000010U  /* Receive fifo full interrupt mask*/
-#define SPI_IMR_MULTI_MASTER_CONTENTION_INTERRUPT_MASK  0x00000020U  /* Multi-Master contention interrupt mask.*/
+#define SPI_IMR_TX_FIFO_EMPTY_INTERRUPT_MASK 0x00000001U /* Transmit fifo empty interrupt mask*/
+#define SPI_IMR_TX_FIFO_OVER_FLOW_INTERRUPT_MASK                                                   \
+    0x00000002U /* Transmit fifo overflow interrupt mask*/
+#define SPI_IMR_RX_FIFO_UNDER_FLOW_INTERRUPT_MASK                                                  \
+    0x00000004U /* Receive fifo underflow interrupt mask*/
+#define SPI_IMR_RX_FIFO_OVER_FLOW_INTERRUPT_MASK                                                   \
+    0x00000008U                                         /* Receive fifo Overflow interrupt mask*/
+#define SPI_IMR_RX_FIFO_FULL_INTERRUPT_MASK 0x00000010U /* Receive fifo full interrupt mask*/
+#define SPI_IMR_MULTI_MASTER_CONTENTION_INTERRUPT_MASK                                             \
+    0x00000020U /* Multi-Master contention interrupt mask.*/
 
-#define SPI_TXFTLR_TFT_SHIFT                            0U
-#define SPI_TXFTLR_TFT_MASK                             (0xFFFFU << SPI_TXFTLR_TFT_SHIFT)
-#define SPI_TXFTLR_TXFTHR_SHIFT                         16U
-#define SPI_TXFTLR_TXFTHR_MASK                          (0xFFFFU << SPI_TXFTLR_TXFTHR_SHIFT)
+#define SPI_TXFTLR_TFT_SHIFT                    0U
+#define SPI_TXFTLR_TFT_MASK                     (0xFFFFU << SPI_TXFTLR_TFT_SHIFT)
+#define SPI_TXFTLR_TXFTHR_SHIFT                 16U
+#define SPI_TXFTLR_TXFTHR_MASK                  (0xFFFFU << SPI_TXFTLR_TXFTHR_SHIFT)
 
 /* Bit fields in SPI_CTRLR0 */
-#define SPI_CTRLR0_CLK_STRETCH_EN_OFFSET                30U
-#define SPI_CTRLR0_XIP_PREFETCH_EN_OFFSET               29U
-#define SPI_CTRLR0_XIP_MBL_OFFSET                       26U
-#define SPI_CTRLR0_SPI_RXDS_SIG_EN_OFFSET               25U
-#define SPI_CTRLR0_SPI_DM_EN_OFFSET                     24U
-#define SPI_CTRLR0_XIP_CONT_EN_OFFSET                   21U
-#define SPI_CTRLR0_XIP_INST_EN_OFFSET                   20U
-#define SPI_CTRLR0_XIP_DFS_HC_OFFSET                    19U
-#define SPI_CTRLR0_SPI_RXDS_EN_OFFSET                   18U
-#define SPI_CTRLR0_INST_DDR_EN_OFFSET                   17U
-#define SPI_CTRLR0_SPI_DDR_EN_OFFSET                    16U
-#define SPI_CTRLR0_WAIT_CYCLES_OFFSET                   11U
-#define SPI_CTRLR0_INST_L_OFFSET                        8U
-#define SPI_CTRLR0_XIP_MD_EN_OFFSET                     7U
-#define SPI_CTRLR0_ADDR_L_OFFSET                        2U
-#define SPI_CTRLR0_TRANS_TYPE_OFFSET                    0U
+#define SPI_CTRLR0_CLK_STRETCH_EN_OFFSET        30U
+#define SPI_CTRLR0_XIP_PREFETCH_EN_OFFSET       29U
+#define SPI_CTRLR0_XIP_MBL_OFFSET               26U
+#define SPI_CTRLR0_SPI_RXDS_SIG_EN_OFFSET       25U
+#define SPI_CTRLR0_SPI_DM_EN_OFFSET             24U
+#define SPI_CTRLR0_XIP_CONT_EN_OFFSET           21U
+#define SPI_CTRLR0_XIP_INST_EN_OFFSET           20U
+#define SPI_CTRLR0_XIP_DFS_HC_OFFSET            19U
+#define SPI_CTRLR0_SPI_RXDS_EN_OFFSET           18U
+#define SPI_CTRLR0_INST_DDR_EN_OFFSET           17U
+#define SPI_CTRLR0_SPI_DDR_EN_OFFSET            16U
+#define SPI_CTRLR0_WAIT_CYCLES_OFFSET           11U
+#define SPI_CTRLR0_INST_L_OFFSET                8U
+#define SPI_CTRLR0_XIP_MD_EN_OFFSET             7U
+#define SPI_CTRLR0_ADDR_L_OFFSET                2U
+#define SPI_CTRLR0_TRANS_TYPE_OFFSET            0U
 
-#define SPI_CTRLR0_TRANS_TYPE_MASK                      3U
-#define SPI_TRANS_TYPE_STANDARD                         0U
-#define SPI_TRANS_TYPE_FRF_DEFINED                      2U  /* CTRLR0.SPI_FRF Defined - Standard/Dual/Quad/Octal */
-#define SPI_TRANS_TYPE_FRF_DUAL_OCTAL                   3U
+#define SPI_CTRLR0_TRANS_TYPE_MASK              3U
+#define SPI_TRANS_TYPE_STANDARD                 0U
+#define SPI_TRANS_TYPE_FRF_DEFINED              2U /* CTRLR0.SPI_FRF Defined - Standard/Dual/Quad/Octal */
+#define SPI_TRANS_TYPE_FRF_DUAL_OCTAL           3U
 
-#define SPI_CTRLR0_SPI_RXDS_ENABLE                      1U
-#define SPI_CTRLR0_SPI_RXDS_DISABLE                     0U
+#define SPI_CTRLR0_SPI_RXDS_ENABLE              1U
+#define SPI_CTRLR0_SPI_RXDS_DISABLE             0U
 
-#define SPI_CTRLR0_INST_L_0bit                          0x0U
-#define SPI_CTRLR0_INST_L_4bit                          0x1U
-#define SPI_CTRLR0_INST_L_8bit                          0x2U
-#define SPI_CTRLR0_INST_L_16bit                         0x3U
+#define SPI_CTRLR0_INST_L_0bit                  0x0U
+#define SPI_CTRLR0_INST_L_4bit                  0x1U
+#define SPI_CTRLR0_INST_L_8bit                  0x2U
+#define SPI_CTRLR0_INST_L_16bit                 0x3U
 
-#define SPI_DMACR_TDMAE                                 2U
-#define SPI_DMACR_RDMAE                                 1U
+#define SPI_DMACR_TDMAE                         2U
+#define SPI_DMACR_RDMAE                         1U
 
-#define XIP_CTRL_RXDS_VL_EN_OFFSET                      30U
-#define XIP_CTRL_XIP_PREFETCH_EN_OFFSET                 29U
-#define XIP_CTRL_XIP_MBL_OFFSET                         26U
-#define XIP_CTRL_RXDS_SIG_EN_OFFSET                     25U
-#define XIP_CTRL_XIP_HYPERBUS_EN_OFFSET                 24U
-#define XIP_CTRL_CONT_XFER_EN_OFFSET                    23U
-#define XIP_CTRL_INST_EN_OFFSET                         22U
-#define XIP_CTRL_RXDS_EN_OFFSET                         21U
-#define XIP_CTRL_INST_DDR_EN_OFFSET                     20U
-#define XIP_CTRL_DDR_EN_OFFSET                          19U
-#define XIP_CTRL_DFS_HC_OFFSET                          18U
-#define XIP_CTRL_WAIT_CYCLES_OFFSET                     13U
-#define XIP_CTRL_MD_BITS_EN_OFFSET                      12U
-#define XIP_CTRL_INST_L_OFFSET                          9U
-#define XIP_CTRL_ADDR_L_OFFSET                          4U
-#define XIP_CTRL_TRANS_TYPE_OFFSET                      2U
-#define XIP_CTRL_FRF_OFFSET                             0U
+#define XIP_CTRL_RXDS_VL_EN_OFFSET              30U
+#define XIP_CTRL_XIP_PREFETCH_EN_OFFSET         29U
+#define XIP_CTRL_XIP_MBL_OFFSET                 26U
+#define XIP_CTRL_RXDS_SIG_EN_OFFSET             25U
+#define XIP_CTRL_XIP_HYPERBUS_EN_OFFSET         24U
+#define XIP_CTRL_CONT_XFER_EN_OFFSET            23U
+#define XIP_CTRL_INST_EN_OFFSET                 22U
+#define XIP_CTRL_RXDS_EN_OFFSET                 21U
+#define XIP_CTRL_INST_DDR_EN_OFFSET             20U
+#define XIP_CTRL_DDR_EN_OFFSET                  19U
+#define XIP_CTRL_DFS_HC_OFFSET                  18U
+#define XIP_CTRL_WAIT_CYCLES_OFFSET             13U
+#define XIP_CTRL_MD_BITS_EN_OFFSET              12U
+#define XIP_CTRL_INST_L_OFFSET                  9U
+#define XIP_CTRL_ADDR_L_OFFSET                  4U
+#define XIP_CTRL_TRANS_TYPE_OFFSET              2U
+#define XIP_CTRL_FRF_OFFSET                     0U
 
-#define XIP_WRITE_CTRL_XIPWR_DFS_HC_OFFSET              21U
-#define XIP_WRITE_CTRL_XIPWR_WAIT_CYCLES                16U
-#define XIP_WRITE_CTRL_XIPWR_DM_EN_OFFSET               14U
-#define XIP_WRITE_CTRL_XIPWR_RXDS_SIG_EN_OFFSET         13U
-#define XIP_WRITE_CTRL_XIPWR_HYPERBUS_EN_OFFSET         12U
-#define XIP_WRITE_CTRL_WR_INST_DDR_EN_OFFSET            11U
-#define XIP_WRITE_CTRL_WR_SPI_DDR_EN_OFFSET             10U
-#define XIP_WRITE_CTRL_WR_INST_L_OFFSET                 8U
-#define XIP_WRITE_CTRL_WR_ADDR_L_OFFSET                 4U
-#define XIP_WRITE_CTRL_WR_TRANS_TYPE_OFFSET             2U
-#define XIP_WRITE_CTRL_WR_FRF_OFFSET                    0U
+#define XIP_WRITE_CTRL_XIPWR_DFS_HC_OFFSET      21U
+#define XIP_WRITE_CTRL_XIPWR_WAIT_CYCLES        16U
+#define XIP_WRITE_CTRL_XIPWR_DM_EN_OFFSET       14U
+#define XIP_WRITE_CTRL_XIPWR_RXDS_SIG_EN_OFFSET 13U
+#define XIP_WRITE_CTRL_XIPWR_HYPERBUS_EN_OFFSET 12U
+#define XIP_WRITE_CTRL_WR_INST_DDR_EN_OFFSET    11U
+#define XIP_WRITE_CTRL_WR_SPI_DDR_EN_OFFSET     10U
+#define XIP_WRITE_CTRL_WR_INST_L_OFFSET         8U
+#define XIP_WRITE_CTRL_WR_ADDR_L_OFFSET         4U
+#define XIP_WRITE_CTRL_WR_TRANS_TYPE_OFFSET     2U
+#define XIP_WRITE_CTRL_WR_FRF_OFFSET            0U
 
-#define SPI_SR_TX_FIFO_EMPTY                            0x4U
-#define SPI_SR_TFNF                                     0x2U
-#define SPI_SR_BUSY                                     0x1U
+#define SPI_SR_TX_FIFO_EMPTY                    0x4U
+#define SPI_SR_TFNF                             0x2U
+#define SPI_SR_BUSY                             0x1U
 
-#define SPI_TX_FIFO_EMPTY_EVENT                         0x01U      /* Transmit fifo empty interrupt mask*/
-#define SPI_TX_FIFO_OVER_FLOW_EVENT                     0x02U      /* Transmit fifo overflow interrupt mask*/
-#define SPI_RX_FIFO_UNDER_FLOW_EVENT                    0x04U      /* Receive fifo underflow interrupt mask*/
-#define SPI_RX_FIFO_OVER_FLOW_EVENT                     0x08U      /* Receive fifo Overflow interrupt mask*/
-#define SPI_RX_FIFO_FULL_EVENT                          0x10U      /* Receive fifo full interrupt mask*/
-#define SPI_MULTI_MASTER_CONTENTION_EVENT               0x20U      /* Multi-Master contention interrupt mask.*/
+#define SPI_TX_FIFO_EMPTY_EVENT                 0x01U /* Transmit fifo empty interrupt mask*/
+#define SPI_TX_FIFO_OVER_FLOW_EVENT             0x02U /* Transmit fifo overflow interrupt mask*/
+#define SPI_RX_FIFO_UNDER_FLOW_EVENT            0x04U /* Receive fifo underflow interrupt mask*/
+#define SPI_RX_FIFO_OVER_FLOW_EVENT             0x08U /* Receive fifo Overflow interrupt mask*/
+#define SPI_RX_FIFO_FULL_EVENT                  0x10U /* Receive fifo full interrupt mask*/
+#define SPI_MULTI_MASTER_CONTENTION_EVENT       0x20U /* Multi-Master contention interrupt mask.*/
 
 /**
  * enum SPI_FRAME_FORMAT.
  * SPI frame formats.
  */
-typedef enum _SPI_FRAME_FORMAT
-{
-    SPI_FRAME_FORMAT_STANDARD,          /* Standard SPI frame format */
-    SPI_FRAME_FORMAT_DUAL,              /* Dual SPI frame format */
-    SPI_FRAME_FORMAT_QUAD,              /* Quad SPI frame format */
-    SPI_FRAME_FORMAT_OCTAL              /* Octal SPI frame format */
+typedef enum _SPI_FRAME_FORMAT {
+    SPI_FRAME_FORMAT_STANDARD, /* Standard SPI frame format */
+    SPI_FRAME_FORMAT_DUAL,     /* Dual SPI frame format */
+    SPI_FRAME_FORMAT_QUAD,     /* Quad SPI frame format */
+    SPI_FRAME_FORMAT_OCTAL     /* Octal SPI frame format */
 } SPI_FRAME_FORMAT;
 
 /**
  * enum SPI_MODE.
  * SPI modes.
  */
-typedef enum _SPI_MODE
-{
-    SPI_MODE_0,                             /* SPI Mode - 0 : CPHA = 0, CPOL = 0 */
-    SPI_MODE_1,                             /* SPI Mode - 1 : CPHA = 1, CPOL = 0 */
-    SPI_MODE_2,                             /* SPI Mode - 2 : CPHA = 0, CPOL = 1 */
-    SPI_MODE_3                              /* SPI Mode - 3 : CPHA = 1, CPOL = 1 */
+typedef enum _SPI_MODE {
+    SPI_MODE_0, /* SPI Mode - 0 : CPHA = 0, CPOL = 0 */
+    SPI_MODE_1, /* SPI Mode - 1 : CPHA = 1, CPOL = 0 */
+    SPI_MODE_2, /* SPI Mode - 2 : CPHA = 0, CPOL = 1 */
+    SPI_MODE_3  /* SPI Mode - 3 : CPHA = 1, CPOL = 1 */
 } SPI_MODE;
 
 /**
  * enum SPI_TMOD.
  * SPI transfer modes.
  */
-typedef enum _SPI_TMOD
-{
-    SPI_TMOD_TX_AND_RX     = 0x00,         /**< Transmit and Receive    */
-    SPI_TMOD_TX            = 0x01,         /**< Transmit only           */
-    SPI_TMOD_RX            = 0x02,         /**< Receive only            */
-    SPI_TMOD_EEPROM_READ   = 0x03          /**< EEPROM read             */
+typedef enum _SPI_TMOD {
+    SPI_TMOD_TX_AND_RX   = 0x00, /**< Transmit and Receive    */
+    SPI_TMOD_TX          = 0x01, /**< Transmit only           */
+    SPI_TMOD_RX          = 0x02, /**< Receive only            */
+    SPI_TMOD_EEPROM_READ = 0x03  /**< EEPROM read             */
 } SPI_TMOD;
 
 /**
  * enum SPI_SS_STATE.
  * SPI Slave Select States.
  */
-typedef enum _SPI_SS_STATE
-{
-    SPI_SS_STATE_DISABLE,                   /**< Slave select disabled  */
-    SPI_SS_STATE_ENABLE,                    /**< Slave select Enabled   */
+typedef enum _SPI_SS_STATE {
+    SPI_SS_STATE_DISABLE, /**< Slave select disabled  */
+    SPI_SS_STATE_ENABLE,  /**< Slave select Enabled   */
 } SPI_SS_STATE;
 
 /**
@@ -256,11 +255,11 @@ typedef enum _SPI_SS_STATE
  * Status of an ongoing SPI transfer.
  */
 typedef enum _SPI_TRANSFER_STATUS {
-    SPI_TRANSFER_STATUS_NONE,               /**< Transfer status none               */
-    SPI_TRANSFER_STATUS_COMPLETE,           /**< Transfer status complete           */
-    SPI_TRANSFER_STATUS_OVERFLOW,           /**< Transfer status Tx/Rx overflow     */
-    SPI_TRANSFER_STATUS_MASTER_CONTENTION,  /**< Transfer status master contention  */
-    SPI_TRANSFER_STATUS_RX_UNDERFLOW,       /**< Transfer status Rx underflow       */
+    SPI_TRANSFER_STATUS_NONE,              /**< Transfer status none               */
+    SPI_TRANSFER_STATUS_COMPLETE,          /**< Transfer status complete           */
+    SPI_TRANSFER_STATUS_OVERFLOW,          /**< Transfer status Tx/Rx overflow     */
+    SPI_TRANSFER_STATUS_MASTER_CONTENTION, /**< Transfer status master contention  */
+    SPI_TRANSFER_STATUS_RX_UNDERFLOW,      /**< Transfer status Rx underflow       */
 } SPI_TRANSFER_STATUS;
 
 /**
@@ -268,21 +267,21 @@ typedef enum _SPI_TRANSFER_STATUS {
  * Information about an ongoing OSPI transfer.
  */
 typedef struct _ospi_transfer_t {
-    volatile uint32_t               tx_current_cnt;     /**< Current Tx Transfer count        */
-    volatile uint32_t               rx_current_cnt;     /**< Current Rx Transfer count        */
-    uint32_t                        tx_total_cnt;       /**< Total count to transmit          */
-    uint32_t                        rx_total_cnt;       /**< Total count to receive           */
-    const uint32_t                  *tx_buff;           /**< Pointer to TX buffer             */
-    void                            *rx_buff;           /**< Pointer to Rx buffer             */
-    uint32_t                        tx_default_val;     /**< Default value to Transfer        */
-    uint32_t                        spi_frf;            /**< SPI frame format - Standard/Dual/Quad/Octal */
-    uint32_t                        addr_len;           /**< Address length for the transfer  */
-    uint32_t                        dummy_cycle;        /**< Dummy cycles for the transfer    */
-    uint32_t                        ddr;                /**< DDR / SDR mode for the transfer  */
-    uint32_t                        inst_len;           /**< Instruction length for the transfer */
-    bool                            tx_default_enable;  /**< Enable Tx default value transfer */
-    SPI_TMOD                        mode;               /**< SPI transfer mode                */
-    volatile SPI_TRANSFER_STATUS    status;             /**< transfer status                  */
+    volatile uint32_t            tx_current_cnt; /**< Current Tx Transfer count        */
+    volatile uint32_t            rx_current_cnt; /**< Current Rx Transfer count        */
+    uint32_t                     tx_total_cnt;   /**< Total count to transmit          */
+    uint32_t                     rx_total_cnt;   /**< Total count to receive           */
+    const uint32_t              *tx_buff;        /**< Pointer to TX buffer             */
+    void                        *rx_buff;        /**< Pointer to Rx buffer             */
+    uint32_t                     tx_default_val; /**< Default value to Transfer        */
+    uint32_t                     spi_frf;        /**< SPI frame format - Standard/Dual/Quad/Octal */
+    uint32_t                     addr_len;       /**< Address length for the transfer  */
+    uint32_t                     dummy_cycle;    /**< Dummy cycles for the transfer    */
+    uint32_t                     ddr;            /**< DDR / SDR mode for the transfer  */
+    uint32_t                     inst_len;       /**< Instruction length for the transfer */
+    bool                         tx_default_enable; /**< Enable Tx default value transfer */
+    SPI_TMOD                     mode;              /**< SPI transfer mode                */
+    volatile SPI_TRANSFER_STATUS status;            /**< transfer status                  */
 } ospi_transfer_t;
 
 /**
@@ -602,7 +601,6 @@ void ospi_transfer(OSPI_Type *ospi, ospi_transfer_t *transfer);
 */
 void ospi_dma_send(OSPI_Type *ospi, ospi_transfer_t *transfer);
 
-
 /**
   \fn          void ospi_dma_transfer(OSPI_Type *spi, ospi_transfer_t *transfer)
   \brief       Prepare the OSPI instance for transfer with DMA support
@@ -640,7 +638,7 @@ void ospi_hyperbus_send(OSPI_Type *ospi, ospi_transfer_t *transfer);
 */
 void ospi_irq_handler(OSPI_Type *ospi, ospi_transfer_t *transfer);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

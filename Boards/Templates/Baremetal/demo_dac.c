@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_dac.c
  * @author   : Nisarga A M
  * @email    : nisarga.am@alifsemi.com
@@ -51,22 +51,21 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined DAC12 pin configuration (via board_dac12_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
-
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* DAC Driver instance */
-extern ARM_DRIVER_DAC ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
+extern ARM_DRIVER_DAC  ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
 static ARM_DRIVER_DAC *DACdrv = &ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
 
 /* DAC maximum resolution is 12-bit */
-#define DAC_MAX_INPUT_VALUE   (0xFFF)
+#define DAC_MAX_INPUT_VALUE (0xFFF)
 
-#define ERROR    -1
-#define SUCCESS   0
+#define ERROR               -1
+#define SUCCESS             0
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
@@ -80,15 +79,23 @@ static int32_t board_dac12_pins_config(void)
     int32_t status;
 
     /* Configure DAC120 output */
-    status = pinconf_set(PORT_(BOARD_DAC120_OUT_GPIO_PORT), BOARD_DAC120_OUT_GPIO_PIN, BOARD_DAC120_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_DAC120_OUT_GPIO_PORT),
+                         BOARD_DAC120_OUT_GPIO_PIN,
+                         BOARD_DAC120_ALTERNATE_FUNCTION,
+                         PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
         return ERROR;
+    }
 
-#if(RTE_DAC1)
+#if (RTE_DAC1)
     /* Configure DAC121 output */
-    status = pinconf_set(PORT_(BOARD_DAC121_OUT_GPIO_PORT), BOARD_DAC121_OUT_GPIO_PIN, BOARD_DAC121_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_DAC121_OUT_GPIO_PORT),
+                         BOARD_DAC121_OUT_GPIO_PIN,
+                         BOARD_DAC121_ALTERNATE_FUNCTION,
+                         PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
         return ERROR;
+    }
 #endif
     return SUCCESS;
 }
@@ -108,8 +115,8 @@ static int32_t board_dac12_pins_config(void)
 */
 static void dac_demo(void)
 {
-    uint32_t input_value = 0;
-    int32_t  ret         = 0;
+    uint32_t           input_value = 0;
+    int32_t            ret         = 0;
     ARM_DRIVER_VERSION version;
 
     printf("\r\n >>> DAC demo starting up!!! <<< \r\n");
@@ -117,9 +124,8 @@ static void dac_demo(void)
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -129,58 +135,56 @@ static void dac_demo(void)
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_dac12_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
 
     version = DACdrv->GetVersion();
-    printf("\r\n DAC version api:%"PRIu16" driver:%"PRIu16"...\r\n",version.api, version.drv);
+    printf("\r\n DAC version api:%" PRIu16 " driver:%" PRIu16 "...\r\n", version.api, version.drv);
 
     /* Initialize DAC driver */
     ret = DACdrv->Initialize();
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC init failed\n");
         return;
     }
 
     /* Enable the power for DAC */
     ret = DACdrv->PowerControl(ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC Power up failed\n");
         goto error_uninitialize;
     }
 
     /* Set DAC IBAIS output current */
     ret = DACdrv->Control(ARM_DAC_SELECT_IBIAS_OUTPUT, ARM_DAC_1100UA_OUT_CUR);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: Setting DAC output current failed failed\n");
         goto error_uninitialize;
     }
 
-        /* Set DAC capacitance  */
+    /* Set DAC capacitance  */
     ret = DACdrv->Control(ARM_DAC_CAPACITANCE_HP_MODE, ARM_DAC_8PF_CAPACITANCE);
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: Setting DAC capacitance failed\n");
         goto error_uninitialize;
     }
 
     /* start dac */
     ret = DACdrv->Start();
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC Start failed\n");
         goto error_poweroff;
     }
 
     input_value = 0;
 
-    while(1)
-    {
+    while (1) {
         /* set dac input */
         ret = DACdrv->SetInput(input_value);
-        if(ret != ARM_DRIVER_OK){
+        if (ret != ARM_DRIVER_OK) {
             printf("\r\n Error: DAC Set Input failed\n");
             goto error_stop;
         }
@@ -190,33 +194,26 @@ static void dac_demo(void)
 
         /* If the input value is equal to maximum dac input value then input
            value will be set to 0 */
-        if(input_value == DAC_MAX_INPUT_VALUE)
-        {
+        if (input_value == DAC_MAX_INPUT_VALUE) {
             input_value = 0;
-        }
-
-        /* If the input value is not greater than the maximum dac input value then input
-           value will be incremented by 1000 */
-        else
-        {
+        } else {
+            /* If the input value is not greater than the maximum dac input value then input
+               value will be incremented by 1000 */
             input_value += 1000;
         }
 
         /* If the input value is maximum than the maximum DAC input value then the input
            value will be set to DAC maximum input value */
-        if(input_value > DAC_MAX_INPUT_VALUE)
-        {
+        if (input_value > DAC_MAX_INPUT_VALUE) {
             input_value = DAC_MAX_INPUT_VALUE;
         }
-
     }
 
-error_stop :
+error_stop:
 
     /* Stop the DAC driver */
     ret = DACdrv->Stop();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC Stop failed.\r\n");
     }
 
@@ -224,8 +221,7 @@ error_poweroff:
 
     /* Power off DAC peripheral */
     ret = DACdrv->PowerControl(ARM_POWER_OFF);
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC Power OFF failed.\r\n");
     }
 
@@ -233,8 +229,7 @@ error_uninitialize:
 
     /* Un-initialize DAC driver */
     ret = DACdrv->Uninitialize();
-    if(ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: DAC Uninitialize failed.\r\n");
     }
 
@@ -244,21 +239,18 @@ error_uninitialize:
 /* Define main entry point.  */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
+#endif
     dac_demo();
 
     return 0;
-
 }
 
 /********************** (c) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

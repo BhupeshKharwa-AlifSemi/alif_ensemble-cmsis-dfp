@@ -17,11 +17,12 @@
  *---------------------------------------------------------------------------*/
 
 #include "RTE_Components.h"
-#include  CMSIS_device_header
+#include CMSIS_device_header
 
 #include "main.h"
 
-int main (void) {
+int main(void)
+{
 
-  return (app_main());
+    return app_main();
 }

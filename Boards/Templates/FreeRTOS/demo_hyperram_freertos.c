@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_hyperram_freertos.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -21,14 +21,15 @@
 
 /*
  * Below are the constraints to make use of HyperRAM memory on Ensemble:
- * 1. Hardcoded DFS for writes is not supported. Writes matching the same data frame size as designated for
- *    hardcoded DFS reads must be used to avoid unexpected results.
- * 2. 8-bit writes and 8-bit DFS are not supported at all for Octal DDR operation, including HyperBus.
+ * 1. Hardcoded DFS for writes is not supported. Writes matching the same data frame size as
+ * designated for hardcoded DFS reads must be used to avoid unexpected results.
+ * 2. 8-bit writes and 8-bit DFS are not supported at all for Octal DDR operation, including
+ * HyperBus.
  * 3. AXI bus sparse writes are not supported.
- * 4. In general, RTSS Cortex-M55 HP, RTSS Cortex-M55 HE cannot use the HyperRAM as a general-purpose
- *    memory due to the above limitations. The Cortex-M55s can write to HyperRAM as long as accesses
- *    are controlled to stay within the above constraints — this would  require writing with the
- *    memory mapped as Device Mode for either Cortex-M55.
+ * 4. In general, RTSS Cortex-M55 HP, RTSS Cortex-M55 HE cannot use the HyperRAM as a
+ * general-purpose memory due to the above limitations. The Cortex-M55s can write to HyperRAM as
+ * long as accesses are controlled to stay within the above constraints — this would  require
+ * writing with the memory mapped as Device Mode for either Cortex-M55.
  */
 
 /* System Includes */
@@ -46,32 +47,33 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 #include "board_config.h"
+#include "sys_utils.h"
 
 /* Project Includes */
 #include "ospi_hyperram_xip.h"
 #include "Driver_IO.h"
 
-#define OSPI_RESET_PIN      BOARD_IS66_HYPERRAM_RESET_GPIO_PIN
-#define OSPI0_XIP_BASE      0xA0000000
+#define OSPI_RESET_PIN BOARD_IS66_HYPERRAM_RESET_GPIO_PIN
+#define OSPI0_XIP_BASE 0xA0000000
 
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_IS66_HYPERRAM_RESET_GPIO_PORT);
-ARM_DRIVER_GPIO *GPIODrv = &ARM_Driver_GPIO_(BOARD_IS66_HYPERRAM_RESET_GPIO_PORT);
+ARM_DRIVER_GPIO       *GPIODrv = &ARM_Driver_GPIO_(BOARD_IS66_HYPERRAM_RESET_GPIO_PORT);
 
 /* OSPI0 region index is 5 in mpu table defined in the same testapp */
-#define MPU_OSPI0_REGION_INDEX  5U
+#define MPU_OSPI0_REGION_INDEX 5U
 
-#define DDR_DRIVE_EDGE      0
-#define RXDS_DELAY          11
-#define OSPI_BUS_SPEED      100000000   /* 100MHz */
-#define ISSI_WAIT_CYCLES    6
-#define OSPI_DFS            16
+#define DDR_DRIVE_EDGE         0
+#define RXDS_DELAY             11
+#define OSPI_BUS_SPEED         100000000 /* 100MHz */
+#define ISSI_WAIT_CYCLES       6
+#define OSPI_DFS               16
 
-#define HRAM_SIZE_BYTES     (32 * 1024 * 1024)  /* 32MB */
+#define HRAM_SIZE_BYTES        (32 * 1024 * 1024) /* 32MB */
 
-#define BUFFER_SIZE      (16 * 1024)
-static uint16_t buff[BUFFER_SIZE/sizeof(uint16_t)]; /* Buffer size of 16KB */
+#define BUFFER_SIZE            (16 * 1024)
+static uint16_t buff[BUFFER_SIZE / sizeof(uint16_t)]; /* Buffer size of 16KB */
 
 static const ospi_hyperram_xip_config issi_config = {
     .instance       = BOARD_ISSI_RAM_OSPI_INSTANCE,
@@ -82,11 +84,10 @@ static const ospi_hyperram_xip_config issi_config = {
     .wait_cycles    = ISSI_WAIT_CYCLES,
     .slave_select   = 0,
     .dfs            = OSPI_DFS,
-    .spi_mode       = OSPI_SPI_MODE_OCTAL
-};
+    .spi_mode       = OSPI_SPI_MODE_OCTAL};
 
 /* Define the FreeRTOS object control blocks...  */
-#define DEMO_STACK_SIZE                 1024
+#define DEMO_STACK_SIZE 1024
 
 /* Thread id of thread */
 TaskHandle_t hyperram_demo_xHandle;
@@ -94,75 +95,70 @@ TaskHandle_t hyperram_demo_xHandle;
 void MPU_Load_Regions(void)
 {
 /* Define the memory attribute index with the below properties */
-#define MEMATTRIDX_NORMAL_WT_RA_TRANSIENT    0
-#define MEMATTRIDX_DEVICE_nGnRE              1
-#define MEMATTRIDX_NORMAL_WB_RA_WA           2
-#define MEMATTRIDX_NORMAL_WT_RA              3
-#define MEMATTRIDX_NORMAL_NON_CACHEABLE      4
+#define MEMATTRIDX_NORMAL_WT_RA_TRANSIENT 0
+#define MEMATTRIDX_DEVICE_nGnRE           1
+#define MEMATTRIDX_NORMAL_WB_RA_WA        2
+#define MEMATTRIDX_NORMAL_WT_RA           3
+#define MEMATTRIDX_NORMAL_NON_CACHEABLE   4
 
-    static const ARM_MPU_Region_t mpu_table[] =
-    {
-        {   /* SRAM0 - 4MB : RO-0, NP-1, XN-0 */
-            .RBAR = ARM_MPU_RBAR(0x02000000, ARM_MPU_SH_NON, 0, 1, 0),
-            .RLAR = ARM_MPU_RLAR(0x023FFFFF, MEMATTRIDX_NORMAL_WT_RA_TRANSIENT)
-        },
-        {   /* SRAM1 - 2.5MB : RO-0, NP-1, XN-0 */
-            .RBAR = ARM_MPU_RBAR(0x08000000, ARM_MPU_SH_NON, 0, 1, 0),
-            .RLAR = ARM_MPU_RLAR(0x0827FFFF, MEMATTRIDX_NORMAL_WB_RA_WA)
-        },
-        {   /* Host Peripherals - 16MB : RO-0, NP-1, XN-1 */
-            .RBAR = ARM_MPU_RBAR(0x1A000000, ARM_MPU_SH_NON, 0, 1, 1),
-            .RLAR = ARM_MPU_RLAR(0x1AFFFFFF, MEMATTRIDX_DEVICE_nGnRE)
-        },
-        {   /* MRAM - 5.5MB : RO-1, NP-1, XN-0  */
-            .RBAR = ARM_MPU_RBAR(0x80000000, ARM_MPU_SH_NON, 1, 1, 0),
-            .RLAR = ARM_MPU_RLAR(0x8057FFFF, MEMATTRIDX_NORMAL_WT_RA)
-        },
-        {   /* OSPI Regs - 16MB : RO-0, NP-1, XN-1  */
-            .RBAR = ARM_MPU_RBAR(0x83000000, ARM_MPU_SH_NON, 0, 1, 1),
-            .RLAR = ARM_MPU_RLAR(0x83FFFFFF, MEMATTRIDX_DEVICE_nGnRE)
-        },
-        {   /* OSPI0 XIP(eg:hyperram) - 512MB : RO-1, NP-1, XN-0  */
-            .RBAR = ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0),
-            .RLAR = ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_WB_RA_WA)
-        },
-        {   /* OSPI1 XIP(eg:flash) - 512MB : RO-1, NP-1, XN-0  */
-            .RBAR = ARM_MPU_RBAR(0xC0000000, ARM_MPU_SH_NON, 1, 1, 0),
-            .RLAR = ARM_MPU_RLAR(0xDFFFFFFF, MEMATTRIDX_NORMAL_WT_RA)
-        },
+    static const ARM_MPU_Region_t mpu_table[] = {
+        {/* SRAM0 - 4MB : RO-0, NP-1, XN-0 */
+         .RBAR = ARM_MPU_RBAR(0x02000000, ARM_MPU_SH_NON, 0, 1, 0),
+         .RLAR = ARM_MPU_RLAR(0x023FFFFF, MEMATTRIDX_NORMAL_WT_RA_TRANSIENT)},
+        {/* SRAM1 - 2.5MB : RO-0, NP-1, XN-0 */
+         .RBAR = ARM_MPU_RBAR(0x08000000, ARM_MPU_SH_NON, 0, 1, 0),
+         .RLAR = ARM_MPU_RLAR(0x0827FFFF, MEMATTRIDX_NORMAL_WB_RA_WA)},
+        {/* Host Peripherals - 16MB : RO-0, NP-1, XN-1 */
+         .RBAR = ARM_MPU_RBAR(0x1A000000, ARM_MPU_SH_NON, 0, 1, 1),
+         .RLAR = ARM_MPU_RLAR(0x1AFFFFFF, MEMATTRIDX_DEVICE_nGnRE)},
+        {/* MRAM - 5.5MB : RO-1, NP-1, XN-0  */
+         .RBAR = ARM_MPU_RBAR(0x80000000, ARM_MPU_SH_NON, 1, 1, 0),
+         .RLAR = ARM_MPU_RLAR(0x8057FFFF, MEMATTRIDX_NORMAL_WT_RA)},
+        {/* OSPI Regs - 16MB : RO-0, NP-1, XN-1  */
+         .RBAR = ARM_MPU_RBAR(0x83000000, ARM_MPU_SH_NON, 0, 1, 1),
+         .RLAR = ARM_MPU_RLAR(0x83FFFFFF, MEMATTRIDX_DEVICE_nGnRE)},
+        {/* OSPI0 XIP(eg:hyperram) - 512MB : RO-1, NP-1, XN-0  */
+         .RBAR = ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0),
+         .RLAR = ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_WB_RA_WA)},
+        {/* OSPI1 XIP(eg:flash) - 512MB : RO-1, NP-1, XN-0  */
+         .RBAR = ARM_MPU_RBAR(0xC0000000, ARM_MPU_SH_NON, 1, 1, 0),
+         .RLAR = ARM_MPU_RLAR(0xDFFFFFFF, MEMATTRIDX_NORMAL_WT_RA)},
     };
 
     /* Mem Attribute for 0th index */
-    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA_TRANSIENT, ARM_MPU_ATTR(
-                                         /* NT=0, WB=0, RA=1, WA=0 */
-                                         ARM_MPU_ATTR_MEMORY_(0,0,1,0),
-                                         ARM_MPU_ATTR_MEMORY_(0,0,1,0)));
+    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA_TRANSIENT,
+                       ARM_MPU_ATTR(
+                           /* NT=0, WB=0, RA=1, WA=0 */
+                           ARM_MPU_ATTR_MEMORY_(0, 0, 1, 0),
+                           ARM_MPU_ATTR_MEMORY_(0, 0, 1, 0)));
 
     /* Mem Attribute for 1st index */
-    ARM_MPU_SetMemAttr(MEMATTRIDX_DEVICE_nGnRE, ARM_MPU_ATTR(
-                                         /* Device Memory */
-                                         ARM_MPU_ATTR_DEVICE,
-                                         ARM_MPU_ATTR_DEVICE_nGnRE));
+    ARM_MPU_SetMemAttr(MEMATTRIDX_DEVICE_nGnRE,
+                       ARM_MPU_ATTR(
+                           /* Device Memory */
+                           ARM_MPU_ATTR_DEVICE,
+                           ARM_MPU_ATTR_DEVICE_nGnRE));
 
     /* Mem Attribute for 2nd index */
-    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WB_RA_WA, ARM_MPU_ATTR(
-                                         /* NT=1, WB=1, RA=1, WA=1 */
-                                         ARM_MPU_ATTR_MEMORY_(1,1,1,1),
-                                         ARM_MPU_ATTR_MEMORY_(1,1,1,1)));
+    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WB_RA_WA,
+                       ARM_MPU_ATTR(
+                           /* NT=1, WB=1, RA=1, WA=1 */
+                           ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1),
+                           ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1)));
 
     /* Mem Attribute for 3th index */
-    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA, ARM_MPU_ATTR(
-                                         /* NT=1, WB=0, RA=1, WA=0 */
-                                         ARM_MPU_ATTR_MEMORY_(1,0,1,0),
-                                         ARM_MPU_ATTR_MEMORY_(1,0,1,0)));
+    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_WT_RA,
+                       ARM_MPU_ATTR(
+                           /* NT=1, WB=0, RA=1, WA=0 */
+                           ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0),
+                           ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0)));
 
     /* Mem Attribute for 4th index */
-    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_NON_CACHEABLE, ARM_MPU_ATTR(
-                                         ARM_MPU_ATTR_NON_CACHEABLE,
-                                         ARM_MPU_ATTR_NON_CACHEABLE));
+    ARM_MPU_SetMemAttr(MEMATTRIDX_NORMAL_NON_CACHEABLE,
+                       ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
 
     /* Load the regions from the table */
-    ARM_MPU_Load(0, mpu_table, sizeof(mpu_table)/sizeof(ARM_MPU_Region_t));
+    ARM_MPU_Load(0, mpu_table, sizeof(mpu_table) / sizeof(ARM_MPU_Region_t));
 }
 
 static void mpu_set_ospi0_xip_device_attr(void)
@@ -170,9 +166,9 @@ static void mpu_set_ospi0_xip_device_attr(void)
     __DSB();
 
     ARM_MPU_SetRegion(MPU_OSPI0_REGION_INDEX,
-        ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 0, 1, 0),  /* Non-shareable, RO-0, NP-1, XN-0 */
-        ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_DEVICE_nGnRE)
-    );
+                      ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 0, 1, 0), /* Non-shareable, RO-0,
+                                                                            NP-1, XN-0 */
+                      ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_DEVICE_nGnRE));
 
     __DSB();
     __ISB();
@@ -183,9 +179,9 @@ static void mpu_set_ospi0_xip_noncacheable_attr(void)
     __DSB();
 
     ARM_MPU_SetRegion(MPU_OSPI0_REGION_INDEX,
-        ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0),  /* Non-shareable, RO-1, NP-1, XN-0 */
-        ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_NON_CACHEABLE)
-    );
+                      ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0), /* Non-shareable, RO-1,
+                                                                            NP-1, XN-0 */
+                      ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_NON_CACHEABLE));
 
     __DSB();
     __ISB();
@@ -196,9 +192,9 @@ static void mpu_set_ospi0_xip_cacheable_attr(void)
     __DSB();
 
     ARM_MPU_SetRegion(MPU_OSPI0_REGION_INDEX,
-        ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0),  /* Non-shareable, RO-1, NP-1, XN-0 */
-        ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_WB_RA_WA)
-        );
+                      ARM_MPU_RBAR(0xA0000000, ARM_MPU_SH_NON, 1, 1, 0), /* Non-shareable, RO-1,
+                                                                            NP-1, XN-0 */
+                      ARM_MPU_RLAR(0xBFFFFFFF, MEMATTRIDX_NORMAL_WB_RA_WA));
 
     __DSB();
     __ISB();
@@ -216,32 +212,27 @@ static int32_t pinmux_setup(void)
     }
 
     ret = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return -1;
     }
 
     ret = GPIODrv->PowerControl(OSPI_RESET_PIN, ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return -1;
     }
 
     ret = GPIODrv->SetDirection(OSPI_RESET_PIN, GPIO_PIN_DIRECTION_OUTPUT);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return -1;
     }
 
     ret = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return -1;
     }
 
     ret = GPIODrv->SetValue(OSPI_RESET_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         return -1;
     }
 
@@ -250,14 +241,12 @@ static int32_t pinmux_setup(void)
 
 void read_8bit(const void *ptr, const void *buff, uint32_t size)
 {
-    uint32_t errors = 0;
-    volatile const uint8_t *ptr8 = ptr;
-    const uint8_t *buff8 = buff;
+    uint32_t                errors = 0;
+    volatile const uint8_t *ptr8   = ptr;
+    const uint8_t          *buff8  = buff;
 
-    for (int i = 0; i < size; i++)
-    {
-        if (ptr8[i] != buff8[i])
-        {
+    for (int i = 0; i < size; i++) {
+        if (ptr8[i] != buff8[i]) {
             printf("Data error at addr %x, got %x, expected %x\n", i, ptr8[i], buff8[i]);
             errors++;
         }
@@ -268,14 +257,12 @@ void read_8bit(const void *ptr, const void *buff, uint32_t size)
 
 void read_16bit(const void *ptr, const void *buff, uint32_t size)
 {
-    uint32_t errors = 0;
-    volatile const uint16_t *ptr16 = ptr;
-    const uint16_t *buff16 = buff;
+    uint32_t                 errors = 0;
+    volatile const uint16_t *ptr16  = ptr;
+    const uint16_t          *buff16 = buff;
 
-    for (int i = 0; i < (size/sizeof(uint16_t)); i++)
-    {
-        if (ptr16[i] != buff16[i])
-        {
+    for (int i = 0; i < (size / sizeof(uint16_t)); i++) {
+        if (ptr16[i] != buff16[i]) {
             printf("Data error at addr %x, got %x, expected %x\n", i, ptr16[i], buff16[i]);
             errors++;
         }
@@ -286,14 +273,12 @@ void read_16bit(const void *ptr, const void *buff, uint32_t size)
 
 void read_32bit(const void *ptr, const void *buff, uint32_t size)
 {
-    uint32_t errors = 0;
-    volatile const uint32_t *ptr32 = ptr;
-    const uint32_t *buff32 = buff;
+    uint32_t                 errors = 0;
+    volatile const uint32_t *ptr32  = ptr;
+    const uint32_t          *buff32 = buff;
 
-    for (int i = 0; i < (size/sizeof(uint32_t)); i++)
-    {
-        if (ptr32[i] != buff32[i])
-        {
+    for (int i = 0; i < (size / sizeof(uint32_t)); i++) {
+        if (ptr32[i] != buff32[i]) {
             printf("Data error at addr %x, got %x, expected %x\n", i, ptr32[i], buff32[i]);
             errors++;
         }
@@ -339,9 +324,9 @@ void read_with_normal_cacheable_attr(const void *ptr, uint32_t size)
 
 void hyperram_test(void)
 {
-    volatile uint16_t *ptr = (uint16_t *) OSPI0_XIP_BASE;
-    uint32_t errors = 0;
-    uint16_t val;
+    volatile uint16_t *ptr    = (uint16_t *) OSPI0_XIP_BASE;
+    uint32_t           errors = 0;
+    uint16_t           val;
 
     /* writing 16KB of random data to HyperRAM using the device memory
      * attribute, followed by multiple readbacks using device, non-cacheable
@@ -349,29 +334,27 @@ void hyperram_test(void)
      * (8-bit, 16-bit, 32-bit). The entire sequence is repeated with a different
      * data pattern to ensure there are no cache-related inconsistencies.
      */
-    for (int k = 1; k < 3; k++)
-    {
+    for (int k = 1; k < 3; k++) {
         srand(k);
         mpu_set_ospi0_xip_device_attr();
 
         SCB_InvalidateDCache_by_Addr(ptr, BUFFER_SIZE);
 
         /* writing 16KB data to hyperram memory in device attr */
-        for (int i = 0; i < (BUFFER_SIZE/sizeof(uint16_t)); i++)
-        {
-            val = (rand() % 0xFFFF);
+        for (int i = 0; i < (BUFFER_SIZE / sizeof(uint16_t)); i++) {
+            val     = (rand() % 0xFFFF);
             buff[i] = val;
-            ptr[i] = val;
+            ptr[i]  = val;
         }
 
         /* read back 16KB data from hyperram memory in device attr */
-        read_with_device_attr((const void *)ptr, BUFFER_SIZE);
+        read_with_device_attr((const void *) ptr, BUFFER_SIZE);
 
         /* read back 16KB data from hyperram memory in normal non-cacheable attr */
-        read_with_normal_non_cacheable_attr((const void *)ptr, BUFFER_SIZE);
+        read_with_normal_non_cacheable_attr((const void *) ptr, BUFFER_SIZE);
 
         /* read back 16KB data from hyperram memory in normal cacheable attr */
-        read_with_normal_cacheable_attr((const void *)ptr, BUFFER_SIZE);
+        read_with_normal_cacheable_attr((const void *) ptr, BUFFER_SIZE);
     }
 
     /* writing to whole HyperRAM memory and reading back in cacheable attr */
@@ -379,20 +362,17 @@ void hyperram_test(void)
     srand(3);
 
     mpu_set_ospi0_xip_device_attr();
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
-    {
+    for (int i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
         ptr[i] = (rand() % 0xFFFF);
     }
 
     mpu_set_ospi0_xip_cacheable_attr();
-    SCB_InvalidateDCache_by_Addr((void *)OSPI0_XIP_BASE, HRAM_SIZE_BYTES);
+    SCB_InvalidateDCache_by_Addr((void *) OSPI0_XIP_BASE, HRAM_SIZE_BYTES);
 
     srand(3);
-    for (int i = 0; i < (HRAM_SIZE_BYTES/sizeof(uint16_t)); i++)
-    {
+    for (int i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
         val = rand() % 0xFFFF;
-        if (ptr[i] != val)
-        {
+        if (ptr[i] != val) {
             printf("Data error at addr %x, got %x, expected %x\n", i, ptr[i], val);
             errors++;
         }
@@ -405,14 +385,12 @@ void hyperram_demo_thread(void *pvParameters)
 {
     printf("OSPI HyperRAM FreeRTOS demo thread started\n");
 
-    if (pinmux_setup() < 0)
-    {
+    if (pinmux_setup() < 0) {
         printf("Pinmux/GPIO setup failed\n");
         goto error_exit;
     }
 
-    if (ospi_hyperram_xip_init(&issi_config) < 0)
-    {
+    if (ospi_hyperram_xip_init(&issi_config) < 0) {
         printf("Hyperram XIP init failed\n");
         goto error_exit;
     }
@@ -430,31 +408,31 @@ error_exit:
 /*----------------------------------------------------------------------------
  *      Main: Initialize and start the FreeRTOS Kernel
  *---------------------------------------------------------------------------*/
-int main( void )
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(hyperram_demo_thread, "Hyperram_Demo_Thread", 256, NULL,configMAX_PRIORITIES-1, &hyperram_demo_xHandle);
-   if (xReturned != pdPASS)
-   {
-      vTaskDelete(hyperram_demo_xHandle);
-      return -1;
-   }
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
+    /* Create application main thread */
+    BaseType_t xReturned = xTaskCreate(hyperram_demo_thread,
+                                       "Hyperram_Demo_Thread",
+                                       256,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &hyperram_demo_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(hyperram_demo_xHandle);
+        return -1;
+    }
 
-   /* Start thread execution */
-   vTaskStartScheduler();
-
+    /* Start thread execution */
+    vTaskStartScheduler();
 }
 /************************ (C) COPYRIGHT ALIF SEMICONDUCTOR *****END OF FILE****/

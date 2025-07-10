@@ -26,9 +26,8 @@
 #include "soc_features.h"
 #include "sys_ctrl_ospi.h"
 
-#ifdef  __cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /**
@@ -84,8 +83,7 @@ typedef struct _ospi_hyperram_xip_config {
   \return      -1 on configuration error, 0 on success
 */
 int ospi_hyperram_xip_init(const ospi_hyperram_xip_config *config);
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* OSPI_HYPERRAM_XIP_H */
-

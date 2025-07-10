@@ -46,7 +46,7 @@ extern "C" {
 /**
   \brief Exception / Interrupt Handler Function Prototype
 */
-typedef void(*VECTOR_TABLE_Type)(void);
+typedef void (*VECTOR_TABLE_Type)(void);
 
 /**
   \brief System Clock Frequency (Core Clock)
@@ -58,61 +58,62 @@ extern uint32_t SystemCoreClock;
 
    Initialize the System and update the SystemCoreClock variable.
  */
-void SystemInit (void);
-
+void SystemInit(void);
 
 /**
   \brief  Update SystemCoreClock variable.
 
    Updates the SystemCoreClock with current core Clock retrieved from cpu registers.
  */
-void SystemCoreClockUpdate (void);
+void SystemCoreClockUpdate(void);
 
 /**
   \brief  Get SystemCoreClock value.
 
    returns the currently configured SystemCoreClock value.
  */
-uint32_t GetSystemCoreClock (void);
+uint32_t GetSystemCoreClock(void);
 
-#if defined ( __clang__ ) && !defined(__ARMCC_VERSION)
+#if defined(__clang__) && !defined(__ARMCC_VERSION)
 
 __STATIC_FORCEINLINE __NO_RETURN void __clang_copy_zero_init(void)
 {
-  extern void _start(void) __NO_RETURN;
+    extern void _start(void) __NO_RETURN;
 
-  typedef struct __copy_table {
-    uint32_t const* src;
-    uint32_t* dest;
-    uint32_t  wlen;
-  } __copy_table_t;
+    typedef struct __copy_table {
+        uint32_t const *src;
+        uint32_t       *dest;
+        uint32_t        wlen;
+    } __copy_table_t;
 
-  typedef struct __zero_table {
-    uint32_t* dest;
-    uint32_t  wlen;
-  } __zero_table_t;
+    typedef struct __zero_table {
+        uint32_t *dest;
+        uint32_t  wlen;
+    } __zero_table_t;
 
-  extern const __copy_table_t __copy_table_start__;
-  extern const __copy_table_t __copy_table_end__;
-  extern const __zero_table_t __zero_table_start__;
-  extern const __zero_table_t __zero_table_end__;
+    extern const __copy_table_t __copy_table_start__;
+    extern const __copy_table_t __copy_table_end__;
+    extern const __zero_table_t __zero_table_start__;
+    extern const __zero_table_t __zero_table_end__;
 
-  for (__copy_table_t const* pTable = &__copy_table_start__; pTable < &__copy_table_end__; ++pTable) {
-    for(uint32_t i=0u; i<pTable->wlen; ++i) {
-      pTable->dest[i] = pTable->src[i];
+    for (__copy_table_t const *pTable = &__copy_table_start__; pTable < &__copy_table_end__;
+         ++pTable) {
+        for (uint32_t i = 0u; i < pTable->wlen; ++i) {
+            pTable->dest[i] = pTable->src[i];
+        }
     }
-  }
 
-  for (__zero_table_t const* pTable = &__zero_table_start__; pTable < &__zero_table_end__; ++pTable) {
-    for(uint32_t i=0u; i<pTable->wlen; ++i) {
-      pTable->dest[i] = 0u;
+    for (__zero_table_t const *pTable = &__zero_table_start__; pTable < &__zero_table_end__;
+         ++pTable) {
+        for (uint32_t i = 0u; i < pTable->wlen; ++i) {
+            pTable->dest[i] = 0u;
+        }
     }
-  }
 
-  _start();
+    _start();
 }
 
-#endif // #if defined ( __clang__ ) && !defined(__ARMCC_VERSION)
+#endif  // #if defined ( __clang__ ) && !defined(__ARMCC_VERSION)
 
 #ifdef __cplusplus
 }

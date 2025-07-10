@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_led_blinky.c
  * @author   : Girish BN, Manoj A Murudi
  * @email    : girish.bn@alifsemi.com, manoj.murudi@alifsemi.com
@@ -27,47 +27,48 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 /* GPIO port used for LEDRGB0_R */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed0R = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed0R = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 
 /* GPIO port used for LEDRGB0_G */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_G_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed0G = &ARM_Driver_GPIO_(BOARD_LEDRGB0_G_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_G_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed0G = &ARM_Driver_GPIO_(BOARD_LEDRGB0_G_GPIO_PORT);
 
 /* GPIO port used for LEDRGB0_B */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed0B = &ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed0B = &ARM_Driver_GPIO_(BOARD_LEDRGB0_B_GPIO_PORT);
 
 #if (BOARD_LEDRGB_COUNT > 1)
 /* GPIO port used for LEDRGB1_R */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed1R = &ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed1R = &ARM_Driver_GPIO_(BOARD_LEDRGB1_R_GPIO_PORT);
 
 /* GPIO port used for LEDRGB1_G */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed1G = &ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed1G = &ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_PORT);
 
 /* GPIO port used for LEDRGB1_B */
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
-ARM_DRIVER_GPIO *gpioDrvLed1B = &ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
+ARM_DRIVER_GPIO       *gpioDrvLed1B = &ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
 #endif
 
 uint32_t volatile ms_ticks = 0;
 
-void SysTick_Handler (void) {
-  ms_ticks++;
+void SysTick_Handler(void)
+{
+    ms_ticks++;
 }
 void delay(uint32_t nticks)
 {
-      uint32_t c_ticks;
+    uint32_t c_ticks;
 
-      c_ticks = ms_ticks;
-      while ((ms_ticks - c_ticks) < nticks) ;
+    c_ticks = ms_ticks;
+    while ((ms_ticks - c_ticks) < nticks) {
+    }
 }
-
 
 /**
   \fn         void led_blink_app(void)
@@ -75,30 +76,28 @@ void delay(uint32_t nticks)
   \param[in]  none
   \return     none
 */
-void led_blink_app (void)
+void led_blink_app(void)
 {
-  /* For E7:
-   * gpio12 pin3 can be used as Red LED of LED0.
-   * gpio7 pin4 can be used as Green LED of LED0.
-   * gpio12 pin0 can be used as Blue LED of LED0.
-   *
-   * gpio6 pin2 can be used as Red LED of LED1.
-   * gpio6 pin4 can be used as Green LED of LED1.
-   * gpio6 pin6 can be used as Blue LED of LED1.
-   *
-   * This demo application is about.
-   *   - Blink LED0_R and LED1_R, then LED0_B and LED1_B, then LED0_G and LED1_G simultaneously in rotation.
-   * For E1C:
-   * gpio4 pin7 can be used as Red LED of LED0.
-   * gpio4 pin5 can be used as Green LED of LED0.
-   * gpio4 pin3 can be used as Blue LED of LED0.
-   *
-   * This demo application is about.
-   *   - Blink LED 0 with RGB color in a sequence.
-   */
+    /* For E7:
+     * gpio12 pin3 can be used as Red LED of LED0.
+     * gpio7 pin4 can be used as Green LED of LED0.
+     * gpio12 pin0 can be used as Blue LED of LED0.
+     *
+     * gpio6 pin2 can be used as Red LED of LED1.
+     * gpio6 pin4 can be used as Green LED of LED1.
+     * gpio6 pin6 can be used as Blue LED of LED1.
+     *
+     * This demo application is about.
+     *   - Blink LED0_R and LED1_R, then LED0_B and LED1_B, then LED0_G and LED1_G simultaneously in
+     * rotation. For E1C: gpio4 pin7 can be used as Red LED of LED0. gpio4 pin5 can be used as Green
+     * LED of LED0. gpio4 pin3 can be used as Blue LED of LED0.
+     *
+     * This demo application is about.
+     *   - Blink LED 0 with RGB color in a sequence.
+     */
 
-    int32_t ret1 = 0;
-    int32_t ret2 = 0;
+    int32_t ret1   = 0;
+    int32_t ret2   = 0;
     uint8_t LED0_R = BOARD_LEDRGB1_R_GPIO_PIN;
     uint8_t LED0_G = BOARD_LEDRGB0_G_GPIO_PIN;
     uint8_t LED0_B = BOARD_LEDRGB0_B_GPIO_PIN;
@@ -111,9 +110,8 @@ void led_blink_app (void)
     printf("led blink demo application started\n\n");
 
     ret1 = board_pins_config();
-    if(ret1 != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret1);
+    if (ret1 != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret1);
         return;
     }
 
@@ -215,8 +213,7 @@ void led_blink_app (void)
     }
 #endif
 
-    while (1)
-    {
+    while (1) {
         /* Toggle Red LED */
         ret1 = gpioDrvLed0R->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_HIGH);
 #if (BOARD_LEDRGB_COUNT > 1)
@@ -242,7 +239,6 @@ void led_blink_app (void)
         /* wait for 1 Sec */
         delay(1000);
 
-
         /* Toggle Green LED */
         ret1 = gpioDrvLed0G->SetValue(LED0_G, GPIO_PIN_OUTPUT_STATE_HIGH);
 #if (BOARD_LEDRGB_COUNT > 1)
@@ -267,7 +263,6 @@ void led_blink_app (void)
 
         /* wait for 1 Sec */
         delay(1000);
-
 
         /* Toggle Blue LED */
         ret1 = gpioDrvLed0B->SetValue(LED0_B, GPIO_PIN_OUTPUT_STATE_HIGH);
@@ -379,21 +374,18 @@ error_uninitialize:
 }
 
 /* Define main entry point.  */
-int main (void)
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
     /* Configure Systick for each millisec */
-    SysTick_Config(SystemCoreClock/1000);
+    SysTick_Config(SystemCoreClock / 1000);
 
     led_blink_app();
     return 0;

@@ -14,7 +14,8 @@
  * @email    silesh@alifsemi.com
  * @version  V1.0.1
  * @date     21-May-2025
- * @brief    Conductor tool (https://conductor.alifsemi.com/) board pin and clock configuration library.
+ * @brief    Conductor tool (https://conductor.alifsemi.com/) board pin and clock configuration
+ *library.
  ******************************************************************************/
 #include "board_config.h"
 #include "pins.h"
@@ -24,8 +25,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define GPIO_CTRL_DB_CKEN                   (1U  << 12U)
-#define GPIO_CTRL_VOLT_1V8                  (1U << 0U)
+#define GPIO_CTRL_DB_CKEN  (1U << 12U)
+#define GPIO_CTRL_VOLT_1V8 (1U << 0U)
 
 /**
   \fn          int32_t board_pins_config(void)
@@ -36,21 +37,19 @@ int32_t board_pins_config(void)
 {
     size_t num_pins = sizeof(board_pinconf) / sizeof(board_pinconf[0]);
 
-    for (size_t i = 0; i < num_pins; i++)
-    {
+    for (size_t i = 0; i < num_pins; i++) {
         int32_t ret = pinconf_set(board_pinconf[i].port,
-                          board_pinconf[i].pin,
-                          board_pinconf[i].alternate_function,
-                          board_pinconf[i].pad_control);
+                                  board_pinconf[i].pin,
+                                  board_pinconf[i].alternate_function,
+                                  board_pinconf[i].pad_control);
 
-        if (ret)
-        {
+        if (ret) {
             return ret;
         }
     }
 
 #if (FLEX_IO_VOLTAGE_1V8 == 1)
-        VBAT->GPIO_CTRL |= GPIO_CTRL_VOLT_1V8;
+    VBAT->GPIO_CTRL |= GPIO_CTRL_VOLT_1V8;
 #endif
 
     return 0;
@@ -58,52 +57,52 @@ int32_t board_pins_config(void)
 
 /**
   \fn          int32_t board_gpios_config(void)
-  \brief       Initializes pseudo-static settings for pins configured as GPIO as per information from gpios.h.
-  \return      0 on success, -1 on failure
+  \brief       Initializes pseudo-static settings for pins configured as GPIO as per information
+  from gpios.h. \return      0 on success, -1 on failure
 */
 int32_t board_gpios_config(void)
 {
 
     uint32_t instance = 0;
-    size_t i;
-    size_t num_ports = sizeof(board_gpioconf) / sizeof(board_gpioconf[0]);
+    size_t   i;
+    size_t   num_ports = sizeof(board_gpioconf) / sizeof(board_gpioconf[0]);
 
     volatile GPIO_Type *regsGPIO;
-    volatile GPIO_Type *regsGPIO15 = (volatile GPIO_Type*) (LPGPIO_BASE);
-    volatile uint32_t *gpio_ctrl = (volatile uint32_t*) (&CLKCTL_PER_SLV->GPIO_CTRL[0]);
+    volatile GPIO_Type *regsGPIO15 = (volatile GPIO_Type *) (LPGPIO_BASE);
+    volatile uint32_t  *gpio_ctrl  = (volatile uint32_t *) (&CLKCTL_PER_SLV->GPIO_CTRL[0]);
 
-    for (i = 0; i < num_ports; i++)
-    {
+    for (i = 0; i < num_ports; i++) {
         instance = board_gpioconf[i].port_num;
         /* LPGPIO registers */
         if (instance == 15) {
-            regsGPIO15->GPIO_SWPORTA_CTL      = board_gpioconf[i].hardware_mode_lptimer_on_lpgpio;
-            regsGPIO15->GPIO_SWPORTA_DR       = board_gpioconf[i].initial_state_high;
-            regsGPIO15->GPIO_SWPORTA_DDR      = board_gpioconf[i].direction_output;
-            regsGPIO15->GPIO_DEBOUNCE         = board_gpioconf[i].debounce_enable;
-            regsGPIO15->GPIO_INTTYPE_LEVEL    = board_gpioconf[i].interrupt_edge;
-            regsGPIO15->GPIO_INT_POLARITY     = board_gpioconf[i].interrupt_polarity_high_edge_rising;
-            regsGPIO15->GPIO_INT_BOTHEDGE     = board_gpioconf[i].interrupt_both_edge;
-            regsGPIO15->GPIO_INTMASK          = board_gpioconf[i].interrupt_enable;
-            regsGPIO15->GPIO_INTEN            = board_gpioconf[i].interrupt_enable;
-            regsGPIO15->GPIO_PORTA_EOI        = 0xFF;
+            regsGPIO15->GPIO_SWPORTA_CTL   = board_gpioconf[i].hardware_mode_lptimer_on_lpgpio;
+            regsGPIO15->GPIO_SWPORTA_DR    = board_gpioconf[i].initial_state_high;
+            regsGPIO15->GPIO_SWPORTA_DDR   = board_gpioconf[i].direction_output;
+            regsGPIO15->GPIO_DEBOUNCE      = board_gpioconf[i].debounce_enable;
+            regsGPIO15->GPIO_INTTYPE_LEVEL = board_gpioconf[i].interrupt_edge;
+            regsGPIO15->GPIO_INT_POLARITY  = board_gpioconf[i].interrupt_polarity_high_edge_rising;
+            regsGPIO15->GPIO_INT_BOTHEDGE  = board_gpioconf[i].interrupt_both_edge;
+            regsGPIO15->GPIO_INTMASK       = board_gpioconf[i].interrupt_enable;
+            regsGPIO15->GPIO_INTEN         = board_gpioconf[i].interrupt_enable;
+            regsGPIO15->GPIO_PORTA_EOI     = 0xFF;
         } else {
-            regsGPIO = (GPIO_Type*)(GPIO0_BASE + (instance * GPIO_REGS_OFFSET));
+            regsGPIO                   = (GPIO_Type *) (GPIO0_BASE + (instance * GPIO_REGS_OFFSET));
             /* GPIO[instance] registers */
-            regsGPIO->GPIO_SWPORTA_DR       = board_gpioconf[i].initial_state_high;
-            regsGPIO->GPIO_SWPORTA_DDR      = board_gpioconf[i].direction_output;
-            regsGPIO->GPIO_DEBOUNCE         = board_gpioconf[i].debounce_enable;
-            regsGPIO->GPIO_INTTYPE_LEVEL    = board_gpioconf[i].interrupt_edge;
-            regsGPIO->GPIO_INT_POLARITY     = board_gpioconf[i].interrupt_polarity_high_edge_rising;
-            regsGPIO->GPIO_INT_BOTHEDGE     = board_gpioconf[i].interrupt_both_edge;
-            regsGPIO->GPIO_INTMASK          = board_gpioconf[i].interrupt_enable;
-            regsGPIO->GPIO_INTEN            = board_gpioconf[i].interrupt_enable;
-            regsGPIO->GPIO_PORTA_EOI        = 0xFF;
+            regsGPIO->GPIO_SWPORTA_DR  = board_gpioconf[i].initial_state_high;
+            regsGPIO->GPIO_SWPORTA_DDR = board_gpioconf[i].direction_output;
+            regsGPIO->GPIO_DEBOUNCE    = board_gpioconf[i].debounce_enable;
+            regsGPIO->GPIO_INTTYPE_LEVEL = board_gpioconf[i].interrupt_edge;
+            regsGPIO->GPIO_INT_POLARITY  = board_gpioconf[i].interrupt_polarity_high_edge_rising;
+            regsGPIO->GPIO_INT_BOTHEDGE  = board_gpioconf[i].interrupt_both_edge;
+            regsGPIO->GPIO_INTMASK       = board_gpioconf[i].interrupt_enable;
+            regsGPIO->GPIO_INTEN         = board_gpioconf[i].interrupt_enable;
+            regsGPIO->GPIO_PORTA_EOI     = 0xFF;
             /* enable GPIO de-bounce clock if required */
-            if (board_gpioconf[i].debounce_enable)
-                *(gpio_ctrl + instance)     |= GPIO_CTRL_DB_CKEN;
+            if (board_gpioconf[i].debounce_enable) {
+                *(gpio_ctrl + instance) |= GPIO_CTRL_DB_CKEN;
             }
         }
+    }
 
     return 0;
 }
@@ -116,8 +115,8 @@ int32_t board_gpios_config(void)
 */
 int32_t board_clocks_config(uint32_t clocks)
 {
-    int32_t ret;
-    uint32_t service_error_code     = 0U;
+    int32_t  ret;
+    uint32_t service_error_code = 0U;
 
     /* Enables the HFOSC clock */
     if (clocks & CLKEN_HFOSC_MASK) {
@@ -125,8 +124,8 @@ int32_t board_clocks_config(uint32_t clocks)
                                            CLKEN_HFOSC,
                                            true,
                                            &service_error_code);
-    if(ret != SERVICES_REQ_SUCCESS){
-        return ret;
+        if (ret != SERVICES_REQ_SUCCESS) {
+            return ret;
         }
     }
 
@@ -136,8 +135,8 @@ int32_t board_clocks_config(uint32_t clocks)
                                            CLKEN_CLK_160M,
                                            true,
                                            &service_error_code);
-    if(ret != SERVICES_REQ_SUCCESS) {
-        return ret;
+        if (ret != SERVICES_REQ_SUCCESS) {
+            return ret;
         }
     }
 
@@ -147,8 +146,8 @@ int32_t board_clocks_config(uint32_t clocks)
                                            CLKEN_CLK_100M,
                                            true,
                                            &service_error_code);
-    if(ret != SERVICES_REQ_SUCCESS) {
-        return ret;
+        if (ret != SERVICES_REQ_SUCCESS) {
+            return ret;
         }
     }
 

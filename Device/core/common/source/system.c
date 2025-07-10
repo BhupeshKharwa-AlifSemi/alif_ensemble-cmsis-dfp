@@ -40,16 +40,15 @@
 #include "soc.h"
 #include "core_config.h"
 
-#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
-  #include "app_tz.h"
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#include "app_tz.h"
 #endif
 
 #include "sau_tcm_ns_setup.h"
 #include "tgu.h"
 
-
-#if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
-  #include <mpu.h>
+#if defined(__MPU_PRESENT) && (__MPU_PRESENT == 1U)
+#include <mpu.h>
 #endif
 
 #include "sys_utils.h"
@@ -59,13 +58,13 @@
   WICCONTROL register
  *----------------------------------------------------------------------------*/
 /* WIC bit positions in WICCONTROL */
-#define WICCONTROL_WIC_Pos          (8U)
-#define WICCONTROL_WIC_Msk          (1U << WICCONTROL_WIC_Pos)
+#define WICCONTROL_WIC_Pos (8U)
+#define WICCONTROL_WIC_Msk (1U << WICCONTROL_WIC_Pos)
 
 #if defined(RTSS_HP)
-#define WICCONTROL                  (AON->RTSS_HP_CTRL)
+#define WICCONTROL (AON->RTSS_HP_CTRL)
 #elif defined(RTSS_HE)
-#define WICCONTROL                  (AON->RTSS_HE_CTRL)
+#define WICCONTROL (AON->RTSS_HE_CTRL)
 #endif
 
 /*----------------------------------------------------------------------------
@@ -73,46 +72,43 @@
  *----------------------------------------------------------------------------*/
 extern const VECTOR_TABLE_Type __VECTOR_TABLE[];
 
-
 /*----------------------------------------------------------------------------
   System Core Clock Variable
  *----------------------------------------------------------------------------*/
 uint32_t SystemCoreClock = CORE_DEFAULT_CLK;
 
-
 /*----------------------------------------------------------------------------
   System Core Clock update function
  *----------------------------------------------------------------------------*/
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
-  /**
-    Instead of this function, user should call system_update_clock_values()
-    function to update the SystemCoreClock.
+    /**
+      Instead of this function, user should call system_update_clock_values()
+      function to update the SystemCoreClock.
 
-    This function will always return the default core clock which may not be
-    true.
-   */
-  SystemCoreClock = CORE_DEFAULT_CLK;
+      This function will always return the default core clock which may not be
+      true.
+     */
+    SystemCoreClock = CORE_DEFAULT_CLK;
 }
 
 /*----------------------------------------------------------------------------
   Get System Core Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemCoreClock (void)
+uint32_t GetSystemCoreClock(void)
 {
-  return SystemCoreClock;
+    return SystemCoreClock;
 }
 
 /*----------------------------------------------------------------------------
   Default Handler for Spurious wakeup
  *----------------------------------------------------------------------------*/
-__attribute__ ((weak))
-void System_HandleSpuriousWakeup (void)
+__attribute__((weak)) void System_HandleSpuriousWakeup(void)
 {
-/*
- * pm.c has the implementation to handle the spurious wakeup.
- * User may override and can have their own implementation.
- */
+    /*
+     * pm.c has the implementation to handle the spurious wakeup.
+     * User may override and can have their own implementation.
+     */
 }
 
 /* This hook is called automatically by the ARM C library after scatter loading */
@@ -120,8 +116,7 @@ void System_HandleSpuriousWakeup (void)
 void _platform_pre_stackheap_init(void)
 {
     /* Synchronise the caches for any copied code */
-    if (!(MEMSYSCTL->MSCR & MEMSYSCTL_MSCR_DCCLEAN_Msk))
-    {
+    if (!(MEMSYSCTL->MSCR & MEMSYSCTL_MSCR_DCCLEAN_Msk)) {
         SCB_CleanDCache();
     }
     SCB_InvalidateICache();
@@ -131,107 +126,108 @@ void _platform_pre_stackheap_init(void)
 }
 
 #if !defined(__ARMCC_VERSION)
-void (*_do_platform_pre_stackheap_init)() __attribute__((section(".preinit_array"))) = _platform_pre_stackheap_init;
+void (*_do_platform_pre_stackheap_init)()
+    __attribute__((section(".preinit_array"))) = _platform_pre_stackheap_init;
 #endif
 
 /*----------------------------------------------------------------------------
   System initialization function
  *----------------------------------------------------------------------------*/
-void SystemInit (void)
+void SystemInit(void)
 {
-  // Avoid DSB as long as possible, as it will block until cache
-  // auto-invalidation has completed. First DSB is currently at the
-  // end of MPU_Setup.
+    // Avoid DSB as long as possible, as it will block until cache
+    // auto-invalidation has completed. First DSB is currently at the
+    // end of MPU_Setup.
 
-#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
-  SCB->VTOR = (uint32_t) __VECTOR_TABLE;
+#if defined(__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+    SCB->VTOR = (uint32_t) __VECTOR_TABLE;
 #endif
 
-  /* Enable UsageFault, BusFault, MemFault and SecurityFault exceptions */
-  /* Otherwise all you see is HardFault, even in the debugger */
-  SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk |
-                SCB_SHCSR_MEMFAULTENA_Msk | SCB_SHCSR_SECUREFAULTENA_Msk;
+    /* Enable UsageFault, BusFault, MemFault and SecurityFault exceptions */
+    /* Otherwise all you see is HardFault, even in the debugger */
+    SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk |
+                  SCB_SHCSR_MEMFAULTENA_Msk | SCB_SHCSR_SECUREFAULTENA_Msk;
 
-  /*
-   * Handle Spurious Wakeup
-   */
-  System_HandleSpuriousWakeup();
+    /*
+     * Handle Spurious Wakeup
+     */
+    System_HandleSpuriousWakeup();
 
-  /* Clear the WIC Sleep */
-  WICCONTROL &= ~WICCONTROL_WIC_Msk;
+    /* Clear the WIC Sleep */
+    WICCONTROL &= ~WICCONTROL_WIC_Msk;
 
-#if (defined (__FPU_USED) && (__FPU_USED == 1U)) || \
-    (defined (__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
-  SCB->CPACR |= ((3U << 10U*2U) |           /* enable CP10 Full Access */
-                 (3U << 11U*2U)  );         /* enable CP11 Full Access */
+#if (defined(__FPU_USED) && (__FPU_USED == 1U)) ||                                                 \
+    (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0U))
+    SCB->CPACR |= ((3U << 10U * 2U) | /* enable CP10 Full Access */
+                   (3U << 11U * 2U)); /* enable CP11 Full Access */
 #endif
 
 #ifdef UNALIGNED_SUPPORT_DISABLE
-  SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
 #endif
 
- /*
-  * Prefetch Control
-  *
-  * By Reset, the Prefetch is enabled with the below values,
-  * MAX_LA = 6
-  * MIN_LA = 2
-  * MAX_OS = 2
-  *
-  * Here we modify only the MAX_OS based on the performance achieved in our
-  * trials.
-  *
-  */
- MEMSYSCTL->PFCR = (MEMSYSCTL_PFCR_MAX_OS_DEFAULT_VALUE << MEMSYSCTL_PFCR_MAX_OS_Pos) |
-                   (MEMSYSCTL_PFCR_MAX_LA_DEFAULT_VALUE << MEMSYSCTL_PFCR_MAX_LA_Pos) |
-                   (MEMSYSCTL_PFCR_MIN_LA_DEFAULT_VALUE << MEMSYSCTL_PFCR_MIN_LA_Pos) |
-                    MEMSYSCTL_PFCR_ENABLE_Msk;
+    /*
+     * Prefetch Control
+     *
+     * By Reset, the Prefetch is enabled with the below values,
+     * MAX_LA = 6
+     * MIN_LA = 2
+     * MAX_OS = 2
+     *
+     * Here we modify only the MAX_OS based on the performance achieved in our
+     * trials.
+     *
+     */
+    MEMSYSCTL->PFCR = (MEMSYSCTL_PFCR_MAX_OS_DEFAULT_VALUE << MEMSYSCTL_PFCR_MAX_OS_Pos) |
+                      (MEMSYSCTL_PFCR_MAX_LA_DEFAULT_VALUE << MEMSYSCTL_PFCR_MAX_LA_Pos) |
+                      (MEMSYSCTL_PFCR_MIN_LA_DEFAULT_VALUE << MEMSYSCTL_PFCR_MIN_LA_Pos) |
+                      MEMSYSCTL_PFCR_ENABLE_Msk;
 
-#if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
+#if defined(__MPU_PRESENT) && (__MPU_PRESENT == 1U)
 /*
  * Do not do MPU_Setup() if running from the OSPI XIP regions as MPU_Setup() temporarily
  * disables the MPU which causes the default Device/XN attributes to take effect for the
  * OSPI XIP regions.
  */
 #if !BOOT_FROM_OSPI_FLASH
-  MPU_Setup();
+    MPU_Setup();
 #endif
 #endif
 
-  // Enable caches now, for speed, but we will have to clean
-  // after scatter-loading, in _platform_pre_stackheap_init
+    // Enable caches now, for speed, but we will have to clean
+    // after scatter-loading, in _platform_pre_stackheap_init
 
-  // We do not use the CMSIS functions, as these manually invalidate the
-  // cache - this is not required on the M55, as it is auto-invalidated
-  // (and we implicitly rely on this already before activating, if booting
-  // from MRAM).
-  // Enable Loop and branch info cache
-  SCB->CCR |= SCB_CCR_IC_Msk | SCB_CCR_DC_Msk | SCB_CCR_LOB_Msk;
+    // We do not use the CMSIS functions, as these manually invalidate the
+    // cache - this is not required on the M55, as it is auto-invalidated
+    // (and we implicitly rely on this already before activating, if booting
+    // from MRAM).
+    // Enable Loop and branch info cache
+    SCB->CCR   |= SCB_CCR_IC_Msk | SCB_CCR_DC_Msk | SCB_CCR_LOB_Msk;
 
-  // Enable limited static branch prediction using low overhead loops
-  ICB->ACTLR &= ~ICB_ACTLR_DISLOBR_Msk;
+    // Enable limited static branch prediction using low overhead loops
+    ICB->ACTLR &= ~ICB_ACTLR_DISLOBR_Msk;
 
-  __DSB();
-  __ISB();
+    __DSB();
+    __ISB();
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-  TZ_SAU_Setup();
-  TGU_Setup();
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    TZ_SAU_Setup();
+    TGU_Setup();
 #else
-  sau_tcm_ns_setup();
+    sau_tcm_ns_setup();
 #endif
 
-  SystemCoreClock = CORE_DEFAULT_CLK;
+    SystemCoreClock = CORE_DEFAULT_CLK;
 
-  /* Add a feature to bypass the clock gating in the EXPMST0.
-   *
-   * Note: This will be removed in the future release
-   */
+    /* Add a feature to bypass the clock gating in the EXPMST0.
+     *
+     * Note: This will be removed in the future release
+     */
 #if SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS
-  /* Bypass clock gating */
-  enable_force_peripheral_functional_clk();
+    /* Bypass clock gating */
+    enable_force_peripheral_functional_clk();
 
-  /* Bypass clock gating */
-  enable_force_apb_interface_clk();
+    /* Bypass clock gating */
+    enable_force_apb_interface_clk();
 #endif
 }

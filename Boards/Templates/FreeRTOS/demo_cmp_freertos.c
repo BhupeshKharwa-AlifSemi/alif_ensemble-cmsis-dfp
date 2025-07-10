@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_cmp_freertos.c
  * @author   : Nisarga A M
  * @email    : nisarga.am@alifsemi.com
@@ -55,14 +55,14 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined CMP pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  1
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 1
 
 /* LED configurations */
-#define LED0_R                     BOARD_LEDRGB0_R_GPIO_PIN  /* LED0_R gpio pin             */
+#define LED0_R                         BOARD_LEDRGB0_R_GPIO_PIN /* LED0_R gpio pin             */
 
 /* For E7: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN, for HSCMP1
  * set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN, for HSCMP2 set CMP_OUTPIN as BOARD_CMP2_OUT_GPIO_PIN,
@@ -70,63 +70,63 @@
  * For E1C: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN and for
  * HSCMP1 set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN
  * */
-#define CMP_OUTPIN                      BOARD_CMP0_OUT_GPIO_PIN
+#define CMP_OUTPIN                     BOARD_CMP0_OUT_GPIO_PIN
 
-#define NUM_TAPS                        3  /* Filter taps: choose between 3 and 8 */
+#define NUM_TAPS                       3 /* Filter taps: choose between 3 and 8 */
 
-#define LPCMP                0
-#define HSCMP                1
+#define LPCMP                          0
+#define HSCMP                          1
 
 /* To configure for HSCMP, use CMP_INSTANCE HSCMP */
 /* To configure for LPCMP, use CMP_INSTANCE LPCMP */
-#define CMP_INSTANCE         HSCMP
+#define CMP_INSTANCE                   HSCMP
 
 /* To enable comparator window control, change the macro value from 0 to 1
  * The glb_events/utimer events define the window where to look at the cmp_input.
  * As GLB_events/Utimer_events are active for few clocks, there is no reason to set
  * prescaler value, so set Prescaler value to 0 when using window control.
  * As Utimer is running continuously, the HSCMP interrupts will occur continuously. */
-#define CMP_WINDOW_CONTROL   0
+#define CMP_WINDOW_CONTROL             0
 
 #if CMP_WINDOW_CONTROL
-#define SAMPLING_RATE        0  /* Set the prescaler values as 0 for windowing function */
+#define SAMPLING_RATE 0 /* Set the prescaler values as 0 for windowing function */
 #else
-#define SAMPLING_RATE        8  /* Set the prescaler values from 0 to 31 */
+#define SAMPLING_RATE 8 /* Set the prescaler values from 0 to 31 */
 #endif
 
-#define ERROR    -1
-#define SUCCESS   0
+#define ERROR   -1
+#define SUCCESS 0
 
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
-ARM_DRIVER_GPIO *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
+ARM_DRIVER_GPIO       *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 
-extern  ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
-ARM_DRIVER_GPIO *CMPout = &ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
+ARM_DRIVER_GPIO       *CMPout = &ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 
-#if(CMP_INSTANCE == LPCMP)
+#if (CMP_INSTANCE == LPCMP)
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
-extern ARM_DRIVER_CMP Driver_LPCMP;
+extern ARM_DRIVER_CMP  Driver_LPCMP;
 static ARM_DRIVER_CMP *CMPdrv = &Driver_LPCMP;
 #else
 /* Instance for CMP */
-extern ARM_DRIVER_CMP ARM_Driver_CMP(BOARD_POTENTIOMETER_CMP_INSTANCE);
+extern ARM_DRIVER_CMP  ARM_Driver_CMP(BOARD_POTENTIOMETER_CMP_INSTANCE);
 static ARM_DRIVER_CMP *CMPdrv = &ARM_Driver_CMP(BOARD_POTENTIOMETER_CMP_INSTANCE);
 #endif
 
-volatile uint32_t call_back_counter = 0;
-uint32_t value =0;
+volatile uint32_t call_back_counter ;
+uint32_t          value             ;
 
-#define CMP_CALLBACK_EVENT_SUCCESS  1
+#define CMP_CALLBACK_EVENT_SUCCESS    1
 
 /*Define for FreeRTOS*/
-#define TIMER_SERVICE_TASK_STACK_SIZE   configTIMER_TASK_STACK_DEPTH
-#define IDLE_TASK_STACK_SIZE            configMINIMAL_STACK_SIZE
+#define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
+#define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE
 
-StackType_t IdleStack[2 * IDLE_TASK_STACK_SIZE];
+StackType_t  IdleStack[2 * IDLE_TASK_STACK_SIZE];
 StaticTask_t IdleTcb;
-StackType_t TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
+StackType_t  TimerStack[2 * TIMER_SERVICE_TASK_STACK_SIZE];
 StaticTask_t TimerTcb;
 
 TaskHandle_t cmp_xHandle;
@@ -134,44 +134,47 @@ TaskHandle_t cmp_xHandle;
 /****************************** FreeRTOS functions **********************/
 
 void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-      StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
-   *ppxIdleTaskTCBBuffer = &IdleTcb;
-   *ppxIdleTaskStackBuffer = IdleStack;
-   *pulIdleTaskStackSize = IDLE_TASK_STACK_SIZE;
+                                   StackType_t  **ppxIdleTaskStackBuffer,
+                                   uint32_t      *pulIdleTaskStackSize)
+{
+    *ppxIdleTaskTCBBuffer   = &IdleTcb;
+    *ppxIdleTaskStackBuffer = IdleStack;
+    *pulIdleTaskStackSize   = IDLE_TASK_STACK_SIZE;
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-   (void) pxTask;
+    (void) pxTask;
 
-   for (;;);
+    ASSERT_HANG
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-      StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
+                                    StackType_t  **ppxTimerTaskStackBuffer,
+                                    uint32_t      *pulTimerTaskStackSize)
 {
-   *ppxTimerTaskTCBBuffer = &TimerTcb;
-   *ppxTimerTaskStackBuffer = TimerStack;
-   *pulTimerTaskStackSize = TIMER_SERVICE_TASK_STACK_SIZE;
+    *ppxTimerTaskTCBBuffer   = &TimerTcb;
+    *ppxTimerTaskStackBuffer = TimerStack;
+    *pulTimerTaskStackSize   = TIMER_SERVICE_TASK_STACK_SIZE;
 }
 
 void vApplicationIdleHook(void)
 {
-   for (;;);
+    ASSERT_HANG
 }
 
 /* Use window control(External trigger using UTIMER or QEC) to trigger the comparator comparison */
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
-ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
+ARM_DRIVER_UTIMER       *ptrUTIMER = &Driver_UTIMER0;
 
-TaskHandle_t  utimer_compare_xHandle;
+TaskHandle_t utimer_compare_xHandle;
 
-#define UTIMER_TASK_START               0X04
-#define UTIMER_COMPARE_A_CB_EVENT      (1U << 2U)
+#define UTIMER_TASK_START         0X04
+#define UTIMER_COMPARE_A_CB_EVENT (1U << 2U)
 
 /**
  * @function    void utimer_compare_mode_cb_func(uint8_t event)
@@ -183,10 +186,12 @@ TaskHandle_t  utimer_compare_xHandle;
 static void utimer_compare_mode_cb_func(uint8_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
-    if(event == ARM_UTIMER_EVENT_COMPARE_A) {
-        xResult = xTaskNotifyFromISR(utimer_compare_xHandle, UTIMER_COMPARE_A_CB_EVENT,
-                                     eSetBits, &xHigherPriorityTaskWoken);
-        if(xResult == pdTRUE) {
+    if (event == ARM_UTIMER_EVENT_COMPARE_A) {
+        xResult = xTaskNotifyFromISR(utimer_compare_xHandle,
+                                     UTIMER_COMPARE_A_CB_EVENT,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
@@ -201,9 +206,9 @@ static void utimer_compare_mode_cb_func(uint8_t event)
  */
 static void utimer_compare_mode_app(void *pvParameters)
 {
-    int32_t slRet;
-    uint8_t ucChannel = BOARD_CMP_EXT_TRIGGER_UTIMER_INSTANCE;
-    uint32_t ulCount_array[3];
+    int32_t    slRet;
+    uint8_t    ucChannel = BOARD_CMP_EXT_TRIGGER_UTIMER_INSTANCE;
+    uint32_t   ulCount_array[3];
     BaseType_t xReturned;
 
     /*
@@ -225,89 +230,84 @@ static void utimer_compare_mode_app(void *pvParameters)
      * DEC = 200000000
      * HEX = 0xBEBC200
      */
-    ulCount_array[0] =  0x000000000;       /*< initial counter value >*/
-    ulCount_array[1] =  0x17D78400;        /*< over flow count value > */
-    ulCount_array[2] =  0xBEBC200;         /*< compare a/b value> */
+    ulCount_array[0] = 0x000000000; /*< initial counter value >*/
+    ulCount_array[1] = 0x17D78400;  /*< over flow count value > */
+    ulCount_array[2] = 0xBEBC200;   /*< compare a/b value> */
 
-    xReturned = xTaskNotifyWait(NULL,UTIMER_TASK_START,
-                                NULL, portMAX_DELAY);
-    if(xReturned != pdTRUE )
-    {
+    xReturned        = xTaskNotifyWait(NULL, UTIMER_TASK_START, NULL, portMAX_DELAY);
+    if (xReturned != pdTRUE) {
         printf("\n\r Task Wait Time out expired \n\r");
-        while(1);
+        WAIT_FOREVER
     }
 
-    slRet = ptrUTIMER->Initialize (ucChannel, utimer_compare_mode_cb_func);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->Initialize(ucChannel, utimer_compare_mode_cb_func);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed initialize \n", ucChannel);
         return;
     }
 
-    slRet = ptrUTIMER->PowerControl (ucChannel, ARM_POWER_FULL);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->PowerControl(ucChannel, ARM_POWER_FULL);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed power up \n", ucChannel);
         goto error_compare_mode_uninstall;
     }
 
-    slRet = ptrUTIMER->ConfigCounter (ucChannel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->ConfigCounter(ucChannel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d mode configuration failed \n", ucChannel);
         goto error_compare_mode_poweroff;
     }
 
-    slRet = ptrUTIMER->SetCount (ucChannel, ARM_UTIMER_CNTR, ulCount_array[0]);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->SetCount(ucChannel, ARM_UTIMER_CNTR, ulCount_array[0]);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d set count failed \n", ucChannel);
         goto error_compare_mode_poweroff;
     }
 
-    slRet = ptrUTIMER->SetCount (ucChannel, ARM_UTIMER_CNTR_PTR, ulCount_array[1]);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->SetCount(ucChannel, ARM_UTIMER_CNTR_PTR, ulCount_array[1]);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d set count failed \n", ucChannel);
         goto error_compare_mode_poweroff;
     }
 
-    slRet = ptrUTIMER->SetCount (ucChannel, ARM_UTIMER_COMPARE_A, ulCount_array[2]);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->SetCount(ucChannel, ARM_UTIMER_COMPARE_A, ulCount_array[2]);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d set count failed \n", ucChannel);
         goto error_compare_mode_poweroff;
     }
 
     slRet = ptrUTIMER->Start(ucChannel);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed to start \n", ucChannel);
         goto error_compare_mode_poweroff;
     }
 
-    while(1)
-    {
+    while (1) {
         /* Waiting for the callback */
-        xReturned = xTaskNotifyWait(NULL,UTIMER_COMPARE_A_CB_EVENT,
-                                    NULL,  portMAX_DELAY);
-        if(xReturned != pdTRUE )
-        {
+        xReturned = xTaskNotifyWait(NULL, UTIMER_COMPARE_A_CB_EVENT, NULL, portMAX_DELAY);
+        if (xReturned != pdTRUE) {
             printf("\n\r Task Wait Time out expired \n\r");
             goto error_compare_mode_poweroff;
         }
     }
     return;
 
-    slRet = ptrUTIMER->Stop (ucChannel, ARM_UTIMER_COUNTER_CLEAR);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->Stop(ucChannel, ARM_UTIMER_COUNTER_CLEAR);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed to stop \n", ucChannel);
     }
 
 error_compare_mode_poweroff:
 
-    slRet = ptrUTIMER->PowerControl (ucChannel, ARM_POWER_OFF);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->PowerControl(ucChannel, ARM_POWER_OFF);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed power off \n", ucChannel);
     }
 
 error_compare_mode_uninstall:
 
-    slRet = ptrUTIMER->Uninitialize (ucChannel);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet = ptrUTIMER->Uninitialize(ucChannel);
+    if (slRet != ARM_DRIVER_OK) {
         printf("utimer channel %d failed to un-initialize \n", ucChannel);
     }
 }
@@ -326,29 +326,49 @@ static int32_t board_cmp_pins_config(void)
     int32_t status;
 
     /* Configure HSCMP0 output */
-    status = pinconf_set(PORT_(BOARD_CMP0_OUT_GPIO_PORT), BOARD_CMP0_OUT_GPIO_PIN, BOARD_CMP0_OUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_CMP0_OUT_GPIO_PORT),
+                         BOARD_CMP0_OUT_GPIO_PIN,
+                         BOARD_CMP0_OUT_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* LPCMP_IN0 input to the positive terminal of LPCMP */
-    status = pinconf_set(PORT_(BOARD_LPCMP_POS_INPUT_GPIO_PORT), BOARD_LPCMP_POS_INPUT_GPIO_PIN, BOARD_LPCMP_POS_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_LPCMP_POS_INPUT_GPIO_PORT),
+                         BOARD_LPCMP_POS_INPUT_GPIO_PIN,
+                         BOARD_LPCMP_POS_INPUT_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* LPCMP_IN0 input to the negative terminal of LPCMP */
-    status = pinconf_set(PORT_(BOARD_LPCMP_NEG_INPUT_GPIO_PORT), BOARD_LPCMP_NEG_INPUT_GPIO_PIN, BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_LPCMP_NEG_INPUT_GPIO_PORT),
+                         BOARD_LPCMP_NEG_INPUT_GPIO_PIN,
+                         BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* CMP0_IN0 input to the positive terminal of HSCMP0 */
-    status = pinconf_set(PORT_(BOARD_CMP0_POS_INPUT_GPIO_PORT), BOARD_CMP0_POS_INPUT_GPIO_PIN, BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_CMP0_POS_INPUT_GPIO_PORT),
+                         BOARD_CMP0_POS_INPUT_GPIO_PIN,
+                         BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     /* VREF_IN0 input to the negative terminal of HSCMP0 and HSCMP1 */
-    status = pinconf_set(PORT_(BOARD_CMP_NEG_INPUT_GPIO_PORT), BOARD_CMP_NEG_INPUT_GPIO_PIN, BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if(status)
+    status = pinconf_set(PORT_(BOARD_CMP_NEG_INPUT_GPIO_PORT),
+                         BOARD_CMP_NEG_INPUT_GPIO_PIN,
+                         BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION,
+                         PADCTRL_READ_ENABLE);
+    if (status) {
         return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -367,46 +387,46 @@ static int32_t led_init(void)
     int32_t slRet = 0;
 
     /* Initialize the LED0_R */
-    slRet = ledDrv->Initialize(LED0_R, NULL);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet         = ledDrv->Initialize(LED0_R, NULL);
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
         return ERROR;
     }
 
     slRet = CMPout->Initialize(CMP_OUTPIN, NULL);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
         return ERROR;
     }
 
     /* Enable the power for LED0_R */
     slRet = ledDrv->PowerControl(LED0_R, ARM_POWER_FULL);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to powered full\n");
         goto error_uninitialize_LED;
     }
 
     /* Enable the power for LED0_R */
     slRet = CMPout->PowerControl(CMP_OUTPIN, ARM_POWER_FULL);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to powered full\n");
         goto error_uninitialize_LED;
     }
 
-   slRet = ledDrv->SetDirection(LED0_R, GPIO_PIN_DIRECTION_OUTPUT);
-   if(slRet != ARM_DRIVER_OK) {
+    slRet = ledDrv->SetDirection(LED0_R, GPIO_PIN_DIRECTION_OUTPUT);
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off_LED;
     }
 
-   slRet = CMPout->SetDirection(CMP_OUTPIN, GPIO_PIN_DIRECTION_OUTPUT);
-   if(slRet != ARM_DRIVER_OK) {
+    slRet = CMPout->SetDirection(CMP_OUTPIN, GPIO_PIN_DIRECTION_OUTPUT);
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off_LED;
     }
 
     slRet = ledDrv->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure\n");
         goto error_power_off_LED;
     }
@@ -416,14 +436,14 @@ static int32_t led_init(void)
 error_power_off_LED:
     /* Power-off the LED0_R */
     slRet = ledDrv->PowerControl(LED0_R, ARM_POWER_OFF);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     }
 
 error_uninitialize_LED:
     /* Uninitialize the LED0_R */
     slRet = ledDrv->Uninitialize(LED0_R);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
     return ERROR;
@@ -439,23 +459,23 @@ static int32_t cmp_get_status(void)
 {
     int32_t slRet = 0;
 
-    slRet = CMPout->GetValue(CMP_OUTPIN, &value);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet         = CMPout->GetValue(CMP_OUTPIN, &value);
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to toggle LEDs\n");
         goto error_power_off_LED;
     }
     return value;
 
-    error_power_off_LED:
+error_power_off_LED:
     /* Power-off the CMP_OUTPIN */
     slRet = CMPout->PowerControl(CMP_OUTPIN, ARM_POWER_OFF);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     }
 
     /* Uninitialize the CMP_OUTPIN */
     slRet = CMPout->Uninitialize(CMP_OUTPIN);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
     return ERROR;
@@ -471,8 +491,8 @@ int32_t led_toggle(void)
 {
     int32_t slRet = 0;
 
-    slRet = ledDrv->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_TOGGLE);
-    if(slRet != ARM_DRIVER_OK) {
+    slRet         = ledDrv->SetValue(LED0_R, GPIO_PIN_OUTPUT_STATE_TOGGLE);
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to toggle LEDs\n");
         goto error_power_off_LED;
     }
@@ -481,13 +501,13 @@ int32_t led_toggle(void)
 error_power_off_LED:
     /* Power-off the LED0_R */
     slRet = ledDrv->PowerControl(LED0_R, ARM_POWER_OFF);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
     }
 
     /* Uninitialize the LED0_R */
     slRet = ledDrv->Uninitialize(LED0_R);
-    if(slRet != ARM_DRIVER_OK)  {
+    if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
     return ERROR;
@@ -508,14 +528,14 @@ static void CMP_filter_callback(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, notificationResult = pdFALSE;
 
-    if(event & ARM_CMP_FILTER_EVENT_OCCURRED)
-    {
+    if (event & ARM_CMP_FILTER_EVENT_OCCURRED) {
         /* Received Comparator filter event */
-        notificationResult = xTaskNotifyFromISR(cmp_xHandle, CMP_CALLBACK_EVENT_SUCCESS,
-                                                eSetBits, &xHigherPriorityTaskWoken);
+        notificationResult = xTaskNotifyFromISR(cmp_xHandle,
+                                                CMP_CALLBACK_EVENT_SUCCESS,
+                                                eSetBits,
+                                                &xHigherPriorityTaskWoken);
 
-        if(notificationResult == pdTRUE)
-        {
+        if (notificationResult == pdTRUE) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
@@ -525,20 +545,19 @@ static void CMP_filter_callback(uint32_t event)
 
 static void CMP_demo_Thread_entry(void *pvParameters)
 {
-    int32_t slRet = 0;
-    uint8_t ucLoop_count = 10;
-    BaseType_t xReturned;
-    uint8_t ucStatus = 0;
+    int32_t            slRet        = 0;
+    uint8_t            ucLoop_count = 10;
+    BaseType_t         xReturned;
+    uint8_t            ucStatus = 0;
     ARM_DRIVER_VERSION version;
-    const TickType_t xDelay = (1000/portTICK_PERIOD_MS);
+    const TickType_t   xDelay = (1000 / portTICK_PERIOD_MS);
 
     printf("\r\n >>> Comparator demo FreeRTOS starting up!!! <<< \r\n");
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     slRet = board_pins_config();
-    if (slRet != 0)
-    {
+    if (slRet != 0) {
         printf("Error in pin-mux configuration: %d\n", slRet);
         return;
     }
@@ -548,8 +567,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
      * in the board support library.Therefore, it is being configured manually here.
      */
     slRet = board_cmp_pins_config();
-    if(slRet != 0)
-    {
+    if (slRet != 0) {
         printf("Error in pin-mux configuration: %d\n", slRet);
         return;
     }
@@ -560,8 +578,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
 #if (CMP_INSTANCE == HSCMP)
     /* Initialize the configurations for LED0_R */
-    if(led_init())
-    {
+    if (led_init()) {
         printf("Error: LED initialization failed\n");
         return;
     }
@@ -569,14 +586,14 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     /* Initialize the Comparator driver */
     slRet = CMPdrv->Initialize(CMP_filter_callback);
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator init failed\n");
         return;
     }
 
     /* Enable the power for Comparator */
     slRet = CMPdrv->PowerControl(ARM_POWER_FULL);
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Power up failed\n");
         goto error_uninitialize;
     }
@@ -586,7 +603,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 #if CMP_WINDOW_CONTROL
     /* Start CMP using window control */
     slRet = CMPdrv->Control(ARM_CMP_WINDOW_CONTROL_ENABLE, ARM_CMP_WINDOW_CONTROL_SRC_0);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: CMP External trigger enable failed\n");
         goto error_poweroff;
     }
@@ -594,14 +611,14 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     /* Filter function for analog comparator*/
     slRet = CMPdrv->Control(ARM_CMP_FILTER_CONTROL, NUM_TAPS);
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Filter control failed\n");
         goto error_poweroff;
     }
 
     /* Prescaler function for the comparator */
     slRet = CMPdrv->Control(ARM_CMP_PRESCALER_CONTROL, SAMPLING_RATE);
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Prescaler control failed\n");
         goto error_poweroff;
     }
@@ -609,7 +626,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     /* To Start the Comparator module */
     slRet = CMPdrv->Start();
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Start failed\n");
         goto error_poweroff;
     }
@@ -617,25 +634,19 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 #if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
     /* Set flag to wake up utimer task */
-    xReturned = xTaskNotify(utimer_compare_xHandle,UTIMER_TASK_START,
-                            eSetBits);
-    if(xReturned == pdTRUE)
-    {
+    xReturned = xTaskNotify(utimer_compare_xHandle, UTIMER_TASK_START, eSetBits);
+    if (xReturned == pdTRUE) {
         portYIELD();
-    }
-    else
-    {
+    } else {
         printf("Error in invoking Utimer Task \r\n");
     }
 #endif
 #endif
 
-    while(ucLoop_count --)
-    {
+    while (ucLoop_count--) {
 #if (CMP_INSTANCE == HSCMP)
         /* Toggle the LED0_R */
-        if(led_toggle())
-        {
+        if (led_toggle()) {
             printf("ERROR: Failed to toggle LEDs\n");
             goto error_poweroff;
         }
@@ -655,17 +666,13 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         ucStatus = cmp_get_status();
 
         /* If user give +ve input voltage more than -ve input voltage, status will be set to 1*/
-        if(ucStatus == 1)
-        {
+        if (ucStatus == 1) {
             printf("\n CMP positive input voltage is greater than negative input voltage\n");
         }
         /* If user give -ve input voltage more than +ve input voltage, status will be set to 0*/
-        else if(ucStatus == 0)
-        {
+        else if (ucStatus == 0) {
             printf("\n CMP negative input voltage is greater than the positive input voltage\n");
-        }
-        else
-        {
+        } else {
             printf("ERROR: Status detection is failed\n");
             goto error_poweroff;
         }
@@ -676,7 +683,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 #if CMP_WINDOW_CONTROL
     /* Disable CMP window control */
     slRet = CMPdrv->Control(ARM_CMP_WINDOW_CONTROL_DISABLE, ARM_CMP_WINDOW_CONTROL_SRC_0);
-    if(slRet != ARM_DRIVER_OK) {
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: CMP External trigger enable failed\n");
         goto error_poweroff;
     }
@@ -685,60 +692,64 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 
     /* To Stop the comparator module */
     slRet = CMPdrv->Stop();
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Stop failed\n");
         goto error_poweroff;
     }
 
-    printf("\n Comparator Filter event completed and the call_back_counter value is %d\n",call_back_counter );
+    printf("\n Comparator Filter event completed and the call_back_counter value is %d\n",
+           call_back_counter);
 
 error_poweroff:
     /* Power off Comparator peripheral */
     slRet = CMPdrv->PowerControl(ARM_POWER_OFF);
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Power OFF failed.\r\n");
     }
 
 error_uninitialize:
     /* UnInitialize Comparator driver */
     slRet = CMPdrv->Uninitialize();
-    if(slRet != ARM_DRIVER_OK){
+    if (slRet != ARM_DRIVER_OK) {
         printf("\r\n Error: Comparator Uninitialize failed.\r\n");
     }
 }
 
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     /* System Initialization */
     SystemCoreClockUpdate();
 
     /* Create application main thread */
-    BaseType_t xReturned = xTaskCreate(CMP_demo_Thread_entry, "CMPFreertos", 256,
-                                       NULL, configMAX_PRIORITIES-1, &cmp_xHandle);
-    if(xReturned != pdPASS)
-    {
-       vTaskDelete(cmp_xHandle);
-       return -1;
+    BaseType_t xReturned = xTaskCreate(CMP_demo_Thread_entry,
+                                       "CMPFreertos",
+                                       256,
+                                       NULL,
+                                       configMAX_PRIORITIES - 1,
+                                       &cmp_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(cmp_xHandle);
+        return -1;
     }
 
-#if(CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == HSCMP)
 #if CMP_WINDOW_CONTROL
-    xReturned = xTaskCreate(utimer_compare_mode_app, "utimer_compare_mode_demo", 256,
-                            NULL, configMAX_PRIORITIES-2, &utimer_compare_xHandle);
-    if(xReturned != pdPASS)
-    {
+    xReturned = xTaskCreate(utimer_compare_mode_app,
+                            "utimer_compare_mode_demo",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 2,
+                            &utimer_compare_xHandle);
+    if (xReturned != pdPASS) {
         vTaskDelete(utimer_compare_xHandle);
         return -1;
     }

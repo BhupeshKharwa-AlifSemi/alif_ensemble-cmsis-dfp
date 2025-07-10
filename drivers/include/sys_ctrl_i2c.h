@@ -25,19 +25,18 @@
 #include <stdint.h>
 #include "sys_clocks.h"
 
-#define HE_CLK_ENA_I2C_CKEN     (1 << 13)  /* Clock enable bit for LPI2C1 */
+#define HE_CLK_ENA_I2C_CKEN (1 << 13) /* Clock enable bit for LPI2C1 */
 
 /**
  * enum I2C_INSTANCE
  * I2C instances
  */
-typedef enum _I2C_INSTANCE
-{
-    I2C_INSTANCE_0,                         /**< I2C instance - 0       */
-    I2C_INSTANCE_1,                         /**< I2C instance - 1       */
-    I2C_INSTANCE_2,                         /**< I2C instance - 2       */
-    I2C_INSTANCE_3,                         /**< I2C instance - 3       */
-    I2C_INSTANCE_LP_1                       /**< I2C instance - LP - 1  */
+typedef enum _I2C_INSTANCE {
+    I2C_INSTANCE_0,   /**< I2C instance - 0       */
+    I2C_INSTANCE_1,   /**< I2C instance - 1       */
+    I2C_INSTANCE_2,   /**< I2C instance - 2       */
+    I2C_INSTANCE_3,   /**< I2C instance - 3       */
+    I2C_INSTANCE_LP_1 /**< I2C instance - LP - 1  */
 } I2C_INSTANCE;
 
 /**

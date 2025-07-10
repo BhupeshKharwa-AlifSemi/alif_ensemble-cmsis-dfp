@@ -17,22 +17,23 @@
  *---------------------------------------------------------------------------*/
 
 #include "RTE_Components.h"
-#include  CMSIS_device_header
+#include CMSIS_device_header
 #include "cmsis_vio.h"
 
 #include "board_config.h"
 #include "main.h"
 
-int main (void) {
+int main(void)
+{
 
-  /* Apply pin configuration */
-  board_pins_config();
+    /* Apply pin configuration */
+    board_pins_config();
 
-  /* Initialize STDOUT */
-  stdout_init();
+    /* Initialize STDOUT */
+    stdout_init();
 
-  /* Initialize Virtual I/O */
-  vioInit();
+    /* Initialize Virtual I/O */
+    vioInit();
 
-  return (app_main());
+    return app_main();
 }

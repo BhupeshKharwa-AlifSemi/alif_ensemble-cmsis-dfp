@@ -21,22 +21,22 @@
 /*----------------------------------------------------------------------------
   System AXI Clock Variable(SYST_ACLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAXIClock = SOC_FEAT_ACLK_MAX_HZ;
+uint32_t SystemAXIClock   = SOC_FEAT_ACLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System AHB Clock Variable(SYST_HCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAHBClock = SOC_FEAT_HCLK_MAX_HZ;
+uint32_t SystemAHBClock   = SOC_FEAT_HCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System APB Clock Variable(SYST_PCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemAPBClock = SOC_FEAT_PCLK_MAX_HZ;
+uint32_t SystemAPBClock   = SOC_FEAT_PCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System REF Clock Variable(SYST_REFCLK)
  *----------------------------------------------------------------------------*/
-uint32_t SystemREFClock = SOC_FEAT_REFCLK_MAX_HZ;
+uint32_t SystemREFClock   = SOC_FEAT_REFCLK_MAX_HZ;
 
 /*----------------------------------------------------------------------------
   System HFOSC Clock Variable(HFOSC_CLK)
@@ -46,39 +46,39 @@ uint32_t SystemHFOSCClock = SOC_FEAT_HFOSC_MAX_HZ;
 /*----------------------------------------------------------------------------
   Get System AXI Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemAXIClock (void)
+uint32_t GetSystemAXIClock(void)
 {
-  return SystemAXIClock;
+    return SystemAXIClock;
 }
 
 /*----------------------------------------------------------------------------
   Get System AHB Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemAHBClock (void)
+uint32_t GetSystemAHBClock(void)
 {
-  return SystemAHBClock;
+    return SystemAHBClock;
 }
 
 /*----------------------------------------------------------------------------
   Get System APB Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemAPBClock (void)
+uint32_t GetSystemAPBClock(void)
 {
-  return SystemAPBClock;
+    return SystemAPBClock;
 }
 
 /*----------------------------------------------------------------------------
   Get System REF Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemREFClock (void)
+uint32_t GetSystemREFClock(void)
 {
-  return SystemREFClock;
+    return SystemREFClock;
 }
 
 /*----------------------------------------------------------------------------
   Get System HFOSC Clock function
  *----------------------------------------------------------------------------*/
-uint32_t GetSystemHFOSClock (void)
+uint32_t GetSystemHFOSClock(void)
 {
-  return SystemHFOSCClock;
+    return SystemHFOSCClock;
 }

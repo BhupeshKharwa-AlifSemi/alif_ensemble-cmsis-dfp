@@ -19,24 +19,21 @@
 #if defined(RTE_Drivers_CMP)
 
 #if !(RTE_HSCMP0 || RTE_HSCMP1 || RTE_HSCMP2 || RTE_HSCMP3 || RTE_LPCMP)
-    #error "Comparator is not configured in RTE_device.h!"
+#error "Comparator is not configured in RTE_device.h!"
 #endif
 
-#define ARM_CMP_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0)  /*  Driver version */
+#define ARM_CMP_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /*  Driver version */
 
 /*Driver version*/
-static const ARM_DRIVER_VERSION DriverVersion = {
-        ARM_CMP_API_VERSION,
-        ARM_CMP_DRV_VERSION
-};
+static const ARM_DRIVER_VERSION DriverVersion = {ARM_CMP_API_VERSION, ARM_CMP_DRV_VERSION};
 
 /*Driver Capabilities   */
 static const ARM_COMPARATOR_CAPABILITIES DriverCapabilities = {
-    1,/* Ability to invert the input signal */
-    1,/* Used to define when to look at the comparator input */
-    1,/* Supports Filter function */
-    1,/* Supports Prescaler function */
-    0 /* Reserved ( must be ZERO) */
+    1, /* Ability to invert the input signal */
+    1, /* Used to define when to look at the comparator input */
+    1, /* Supports Filter function */
+    1, /* Supports Prescaler function */
+    0  /* Reserved ( must be ZERO) */
 };
 
 /**
@@ -69,8 +66,7 @@ static ARM_COMPARATOR_CAPABILITIES CMP_GetCapabilities(void)
  */
 static void AnalogConfig(uint8_t instance)
 {
-    if(instance != CMP_INSTANCE_LP)
-    {
+    if (instance != CMP_INSTANCE_LP) {
         /* Enable DAC6 as a negative input reference for HSCMP */
         enable_dac6_ref_voltage();
     }
@@ -86,15 +82,16 @@ static void AnalogConfig(uint8_t instance)
  * @param[in]  CMP      : Pointer to Comparator resources
  * @return     ARM_DRIVER_OK : if driver initialized successfully
  */
-static int32_t CMP_Initialize(ARM_Comparator_SignalEvent_t cb_event, CMP_RESOURCES *CMP )
+static int32_t CMP_Initialize(ARM_Comparator_SignalEvent_t cb_event, CMP_RESOURCES *CMP)
 {
     int32_t ret = ARM_DRIVER_OK;
 
-    if(!cb_event)
+    if (!cb_event) {
         return ARM_DRIVER_ERROR_PARAMETER;
+    }
 
     /* User call back Event */
-    CMP->cb_event = cb_event;
+    CMP->cb_event          = cb_event;
 
     /* Set state to initialize */
     CMP->state.initialized = 1;
@@ -112,15 +109,17 @@ static int32_t CMP_Uninitialize(CMP_RESOURCES *CMP)
 {
     int32_t ret = ARM_DRIVER_OK;
 
-    if(!CMP)
+    if (!CMP) {
         return ARM_DRIVER_ERROR_PARAMETER;
+    }
 
     /* Check initialized has done or not */
-    if(CMP->state.initialized == 0)
+    if (CMP->state.initialized == 0) {
         return ARM_DRIVER_OK;
+    }
 
     /* set call back to NULL */
-    CMP->cb_event = NULL;
+    CMP->cb_event          = NULL;
 
     /* Reset the state */
     CMP->state.initialized = 0;
@@ -145,18 +144,19 @@ static int32_t CMP_Uninitialize(CMP_RESOURCES *CMP)
  * @return      ARM_DRIVER_OK    : if power done successful
                 ARM_DRIVER_ERROR : if initialize is not done
  */
-static int32_t CMP_PowerControl(ARM_POWER_STATE state,CMP_RESOURCES *CMP )
+static int32_t CMP_PowerControl(ARM_POWER_STATE state, CMP_RESOURCES *CMP)
 {
     int32_t ret = ARM_DRIVER_OK;
 
-    switch (state)
-    {
+    switch (state) {
     case ARM_POWER_FULL:
-        if(CMP->state.initialized == 0)
+        if (CMP->state.initialized == 0) {
             return ARM_DRIVER_ERROR;
+        }
 
-        if(CMP->state.powered == 1)
+        if (CMP->state.powered == 1) {
             return ARM_DRIVER_OK;
+        }
 
         /* Clear Any Pending IRQ */
         NVIC_ClearPendingIRQ(CMP->irq_num);
@@ -175,8 +175,7 @@ static int32_t CMP_PowerControl(ARM_POWER_STATE state,CMP_RESOURCES *CMP )
         /* Initialize the CMP configurations */
         cmp_set_config(CMP->drv_instance, CMP->config);
 
-        if(CMP->drv_instance != CMP_INSTANCE_LP)
-        {
+        if (CMP->drv_instance != CMP_INSTANCE_LP) {
             /* To disable the interrupt */
             cmp_disable_interrupt(CMP->regs);
         }
@@ -196,12 +195,9 @@ static int32_t CMP_PowerControl(ARM_POWER_STATE state,CMP_RESOURCES *CMP )
 
         disable_cmp(CMP->drv_instance);
 
-        if(CMP->drv_instance == CMP_INSTANCE_LP)
-        {
+        if (CMP->drv_instance == CMP_INSTANCE_LP) {
             lpcmp_clear_config();
-        }
-        else
-        {
+        } else {
             /* clear the CMP configuration */
             cmp_clear_config(CMP->regs);
 
@@ -232,25 +228,28 @@ static int32_t CMP_PowerControl(ARM_POWER_STATE state,CMP_RESOURCES *CMP )
  * @param[in]    control : Operation \ref Driver_Comparator.h : comparator control codes
  * @param[in]    arg     : Argument of operation (optional)
  * @return       ARM_DRIVER_ERROR_PARAMETER  : if comparator device is invalid
-                 ARM_DRIVER_OK               : if comparator successfully uninitialized or already not initialized
+                 ARM_DRIVER_OK               : if comparator successfully uninitialized or already
+ not initialized
  */
 static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 {
-    int32_t ret = ARM_DRIVER_OK;
+    int32_t       ret                = ARM_DRIVER_OK;
     const uint8_t window_ctrl_enable = cmp_window_enable_value();
 
-    if(CMP->state.initialized == 0)
+    if (CMP->state.initialized == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
-    if(CMP->state.powered == 0)
+    if (CMP->state.powered == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
-    switch(control)
-    {
+    switch (control) {
     case ARM_CMP_POLARITY_CONTROL:
 
-        if(arg > CMP_POLARITY_MAX_VALUE)
+        if (arg > CMP_POLARITY_MAX_VALUE) {
             return ARM_DRIVER_ERROR_PARAMETER;
+        }
 
         /* If active, invert the value of CMP_OUT (comparison result) */
         cmp_set_polarity_ctrl(CMP->regs, arg);
@@ -259,8 +258,9 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 
     case ARM_CMP_FILTER_CONTROL:
 
-        if(arg < CMP_FILTER_MIN_VALUE || arg > CMP_FILTER_MAX_VALUE)
+        if (arg < CMP_FILTER_MIN_VALUE || arg > CMP_FILTER_MAX_VALUE) {
             return ARM_DRIVER_ERROR_PARAMETER;
+        }
 
         /* To enable the filter function and adding filter values to the filter control register */
         cmp_set_filter_ctrl(CMP->regs, arg);
@@ -269,8 +269,9 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 
     case ARM_CMP_PRESCALER_CONTROL:
 
-        if(arg > CMP_PRESCALER_MAX_VALUE)
+        if (arg > CMP_PRESCALER_MAX_VALUE) {
             return ARM_DRIVER_ERROR_PARAMETER;
+        }
 
         /* Comparator input will be sampled at the given clocks */
         cmp_set_prescaler_ctrl(CMP->regs, arg);
@@ -279,8 +280,9 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 
     case ARM_CMP_WINDOW_CONTROL_ENABLE:
 
-        if(arg > CMP_WINDOW_MAX_VALUE)
+        if (arg > CMP_WINDOW_MAX_VALUE) {
             return ARM_DRIVER_ERROR_PARAMETER;
+        }
 
         /* Set comparator window control */
         cmp_set_window_ctrl(CMP->regs, arg, window_ctrl_enable);
@@ -289,8 +291,9 @@ static int32_t CMP_Control(CMP_RESOURCES *CMP, uint32_t control, uint32_t arg)
 
     case ARM_CMP_WINDOW_CONTROL_DISABLE:
 
-        if(arg > CMP_WINDOW_MAX_VALUE)
+        if (arg > CMP_WINDOW_MAX_VALUE) {
             return ARM_DRIVER_ERROR_PARAMETER;
+        }
 
         /* Clear comparator window control */
         cmp_clear_window_ctrl(CMP->regs, arg, window_ctrl_enable);
@@ -316,17 +319,18 @@ static int32_t CMP_Start(CMP_RESOURCES *CMP)
 {
     int32_t ret = ARM_DRIVER_OK;
 
-    if(CMP->state.initialized == 0)
+    if (CMP->state.initialized == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
-    if(CMP->state.powered == 0)
+    if (CMP->state.powered == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
     /* Enable the Comparator module */
     enable_cmp(CMP->drv_instance);
 
-    if(CMP->drv_instance != CMP_INSTANCE_LP)
-    {
+    if (CMP->drv_instance != CMP_INSTANCE_LP) {
         /* enable the interrupt(unmask the interrupt 0x0)*/
         cmp_enable_interrupt(CMP->regs);
     }
@@ -345,17 +349,18 @@ static int32_t CMP_Start(CMP_RESOURCES *CMP)
 static int32_t CMP_Stop(CMP_RESOURCES *CMP)
 {
     int32_t ret = ARM_DRIVER_OK;
-    if(CMP->state.initialized == 0)
+    if (CMP->state.initialized == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
-    if(CMP->state.powered == 0)
+    if (CMP->state.powered == 0) {
         return ARM_DRIVER_ERROR;
+    }
 
     /* Disable the Comparator module */
     disable_cmp(CMP->drv_instance);
 
-    if(CMP->drv_instance != CMP_INSTANCE_LP)
-    {
+    if (CMP->drv_instance != CMP_INSTANCE_LP) {
         /* Disable the interrupt */
         cmp_disable_interrupt(CMP->regs);
     }
@@ -372,8 +377,7 @@ static void CMP_IRQ_handler(CMP_RESOURCES *CMP)
 {
     const uint8_t int_mask = cmp_int_mask();
 
-    if(CMP->drv_instance != CMP_INSTANCE_LP)
-    {
+    if (CMP->drv_instance != CMP_INSTANCE_LP) {
         cmp_irq_handler(CMP->regs, int_mask);
     }
 
@@ -385,19 +389,18 @@ static void CMP_IRQ_handler(CMP_RESOURCES *CMP)
 }
 
 /* HSCMP0 driver instance */
-#if(RTE_HSCMP0)
+#if (RTE_HSCMP0)
 
 /* Comparator Configurations */
 static CMP_RESOURCES HSCMP0 = {
-    .cb_event           = NULL,
-    .regs               = (CMP_Type *)CMP0_BASE,
-    .drv_instance       = CMP_INSTANCE_0,
-    .state              = {0},
-    .irq_num            = (IRQn_Type)CMP0_IRQ_IRQn,
-    .config             = (RTE_CMP0_SEL_POSITIVE << 0 )     |
-                          (RTE_CMP0_SEL_NEGATIVE << 2)      |
-                          (RTE_CMP0_SEL_HYSTERISIS << 4 ),
-    .irq_priority       = RTE_CMP0_IRQ_PRIORITY
+    .cb_event     = NULL,
+    .regs         = (CMP_Type *) CMP0_BASE,
+    .drv_instance = CMP_INSTANCE_0,
+    .state        = {0},
+    .irq_num      = (IRQn_Type) CMP0_IRQ_IRQn,
+    .config       = (RTE_CMP0_SEL_POSITIVE << 0) | (RTE_CMP0_SEL_NEGATIVE << 2) |
+                    (RTE_CMP0_SEL_HYSTERISIS << 4),
+    .irq_priority = RTE_CMP0_IRQ_PRIORITY
 };
 
 /**
@@ -474,8 +477,7 @@ void CMP0_IRQHandler(void)
 }
 
 extern ARM_DRIVER_CMP Driver_CMP0;
-ARM_DRIVER_CMP Driver_CMP0 =
-{
+ARM_DRIVER_CMP        Driver_CMP0 = {
     CMP_GetVersion,
     CMP_GetCapabilities,
     CMP0_Initialize,
@@ -489,19 +491,18 @@ ARM_DRIVER_CMP Driver_CMP0 =
 #endif
 
 /* HSCMP1 driver instance */
-#if(RTE_HSCMP1)
+#if (RTE_HSCMP1)
 
 /* Comparator Configurations */
 static CMP_RESOURCES HSCMP1 = {
-    .cb_event           = NULL,
-    .regs               = (CMP_Type *)CMP1_BASE,
-    .drv_instance       = CMP_INSTANCE_1,
-    .state              = {0},
-    .irq_num            = (IRQn_Type)CMP1_IRQ_IRQn,
-    .config             = (RTE_CMP1_SEL_POSITIVE << 7)      |
-                          (RTE_CMP1_SEL_NEGATIVE << 9)      |
-                          (RTE_CMP1_SEL_HYSTERISIS << 11),
-    .irq_priority       = RTE_CMP1_IRQ_PRIORITY
+    .cb_event     = NULL,
+    .regs         = (CMP_Type *) CMP1_BASE,
+    .drv_instance = CMP_INSTANCE_1,
+    .state        = {0},
+    .irq_num      = (IRQn_Type) CMP1_IRQ_IRQn,
+    .config       = (RTE_CMP1_SEL_POSITIVE << 7) | (RTE_CMP1_SEL_NEGATIVE << 9) |
+                    (RTE_CMP1_SEL_HYSTERISIS << 11),
+    .irq_priority = RTE_CMP1_IRQ_PRIORITY
 };
 
 /**
@@ -572,14 +573,13 @@ static int32_t CMP1_Stop(void)
  * @fn         CMP1_IRQHandler(void)
  * @brief      Run the IRQ Handler for CMP1
  */
-void CMP1_IRQHandler (void)
+void CMP1_IRQHandler(void)
 {
     CMP_IRQ_handler(&HSCMP1);
 }
 
 extern ARM_DRIVER_CMP Driver_CMP1;
-ARM_DRIVER_CMP Driver_CMP1 =
-{
+ARM_DRIVER_CMP        Driver_CMP1 = {
     CMP_GetVersion,
     CMP_GetCapabilities,
     CMP1_Initialize,
@@ -593,20 +593,18 @@ ARM_DRIVER_CMP Driver_CMP1 =
 #endif
 
 /* HSCMP2 driver instance */
-#if(RTE_HSCMP2)
+#if (RTE_HSCMP2)
 
 /* Comparator Configurations */
-static CMP_RESOURCES HSCMP2 = {
-    .cb_event           = NULL,
-    .regs               = (CMP_Type *)CMP2_BASE,
-    .drv_instance       = CMP_INSTANCE_2,
-    .state              = {0},
-    .irq_num            = (IRQn_Type)CMP2_IRQ_IRQn,
-    .config             = (RTE_CMP2_SEL_POSITIVE << 14)      |
-                          (RTE_CMP2_SEL_NEGATIVE << 16)      |
-                          (RTE_CMP2_SEL_HYSTERISIS << 18),
-    .irq_priority       = RTE_CMP2_IRQ_PRIORITY
-};
+static CMP_RESOURCES HSCMP2 = {.cb_event     = NULL,
+                               .regs         = (CMP_Type *) CMP2_BASE,
+                               .drv_instance = CMP_INSTANCE_2,
+                               .state        = {0},
+                               .irq_num      = (IRQn_Type) CMP2_IRQ_IRQn,
+                               .config       = (RTE_CMP2_SEL_POSITIVE << 14) |
+                                         (RTE_CMP2_SEL_NEGATIVE << 16) |
+                                         (RTE_CMP2_SEL_HYSTERISIS << 18),
+                               .irq_priority = RTE_CMP2_IRQ_PRIORITY};
 
 /**
  * @fn         int32_t CMP2_Initialize(ARM_Comparator_SignalEvent_t cb_event)
@@ -659,7 +657,7 @@ static int32_t CMP2_Control(uint32_t control, uint32_t arg)
  */
 static int32_t CMP2_Start(void)
 {
-    return (CMP_Start(&HSCMP2));
+    return CMP_Start(&HSCMP2);
 }
 
 /**
@@ -682,8 +680,7 @@ void CMP2_IRQHandler(void)
 }
 
 extern ARM_DRIVER_CMP Driver_CMP2;
-ARM_DRIVER_CMP Driver_CMP2 =
-{
+ARM_DRIVER_CMP        Driver_CMP2 = {
     CMP_GetVersion,
     CMP_GetCapabilities,
     CMP2_Initialize,
@@ -697,20 +694,18 @@ ARM_DRIVER_CMP Driver_CMP2 =
 #endif
 
 /* HSCMP3 driver instance */
-#if(RTE_HSCMP3)
+#if (RTE_HSCMP3)
 
 /* Comparator Configurations */
-static CMP_RESOURCES HSCMP3 = {
-    .cb_event           = NULL,
-    .regs               = (CMP_Type *)CMP3_BASE,
-    .drv_instance       = CMP_INSTANCE_3,
-    .state              = {0},
-    .irq_num            = (IRQn_Type)CMP3_IRQ_IRQn,
-    .config             = (RTE_CMP3_SEL_POSITIVE << 21)      |
-                          (RTE_CMP3_SEL_NEGATIVE << 23)      |
-                          (RTE_CMP3_SEL_HYSTERISIS << 25),
-    .irq_priority       = RTE_CMP3_IRQ_PRIORITY
-};
+static CMP_RESOURCES HSCMP3 = {.cb_event     = NULL,
+                               .regs         = (CMP_Type *) CMP3_BASE,
+                               .drv_instance = CMP_INSTANCE_3,
+                               .state        = {0},
+                               .irq_num      = (IRQn_Type) CMP3_IRQ_IRQn,
+                               .config       = (RTE_CMP3_SEL_POSITIVE << 21) |
+                                         (RTE_CMP3_SEL_NEGATIVE << 23) |
+                                         (RTE_CMP3_SEL_HYSTERISIS << 25),
+                               .irq_priority = RTE_CMP3_IRQ_PRIORITY};
 
 /**
  * @fn         int32_t CMP3_Initialize(ARM_Comparator_SignalEvent_t cb_event)
@@ -741,7 +736,7 @@ static int32_t CMP3_Uninitialize(void)
  */
 static int32_t CMP3_PowerControl(ARM_POWER_STATE state)
 {
-    return (CMP_PowerControl(state, &HSCMP3));
+    return CMP_PowerControl(state, &HSCMP3);
 }
 
 /**
@@ -786,8 +781,7 @@ void CMP3_IRQHandler(void)
 }
 
 extern ARM_DRIVER_CMP Driver_CMP3;
-ARM_DRIVER_CMP Driver_CMP3 =
-{
+ARM_DRIVER_CMP        Driver_CMP3 = {
     CMP_GetVersion,
     CMP_GetCapabilities,
     CMP3_Initialize,
@@ -801,19 +795,17 @@ ARM_DRIVER_CMP Driver_CMP3 =
 #endif
 
 /* LPCMP driver instance */
-#if(RTE_LPCMP)
+#if (RTE_LPCMP)
 
 /* Comparator Configurations */
-static CMP_RESOURCES LPCMP_RES = {
-    .cb_event           = NULL,
-    .drv_instance       = CMP_INSTANCE_LP,
-    .state              = {0},
-    .irq_num            = (IRQn_Type)LPCMP_IRQ_IRQn,
-    .config             = (RTE_LPCMP_SEL_POSITIVE << 25)      |
-                          (RTE_LPCMP_SEL_NEGATIVE << 27)      |
-                          (RTE_LPCMP_SEL_HYSTERISIS << 29),
-    .irq_priority       = RTE_LPCMP_IRQ_PRIORITY
-};
+static CMP_RESOURCES LPCMP_RES = {.cb_event     = NULL,
+                                  .drv_instance = CMP_INSTANCE_LP,
+                                  .state        = {0},
+                                  .irq_num      = (IRQn_Type) LPCMP_IRQ_IRQn,
+                                  .config       = (RTE_LPCMP_SEL_POSITIVE << 25) |
+                                            (RTE_LPCMP_SEL_NEGATIVE << 27) |
+                                            (RTE_LPCMP_SEL_HYSTERISIS << 29),
+                                  .irq_priority = RTE_LPCMP_IRQ_PRIORITY};
 
 /**
  * @fn         int32_t LPCMP_Initialize(ARM_Comparator_SignalEvent_t cb_event)
@@ -823,7 +815,7 @@ static CMP_RESOURCES LPCMP_RES = {
  */
 static int32_t LPCMP_Initialize(ARM_Comparator_SignalEvent_t cb_event)
 {
-	return CMP_Initialize(cb_event, &LPCMP_RES);
+    return CMP_Initialize(cb_event, &LPCMP_RES);
 }
 
 /**
@@ -833,7 +825,7 @@ static int32_t LPCMP_Initialize(ARM_Comparator_SignalEvent_t cb_event)
  */
 static int32_t LPCMP_Uninitialize(void)
 {
-	return CMP_Uninitialize(&LPCMP_RES);
+    return CMP_Uninitialize(&LPCMP_RES);
 }
 
 /**
@@ -844,7 +836,7 @@ static int32_t LPCMP_Uninitialize(void)
  */
 static int32_t LPCMP_PowerControl(ARM_POWER_STATE state)
 {
-	return CMP_PowerControl(state, &LPCMP_RES);
+    return CMP_PowerControl(state, &LPCMP_RES);
 }
 
 /**
@@ -868,7 +860,7 @@ static int32_t LPCMP_Control(uint32_t control, uint32_t arg)
  */
 static int32_t LPCMP_Start(void)
 {
-	return CMP_Start(&LPCMP_RES);
+    return CMP_Start(&LPCMP_RES);
 }
 
 /**
@@ -878,7 +870,7 @@ static int32_t LPCMP_Start(void)
  */
 static int32_t LPCMP_Stop(void)
 {
-	return CMP_Stop(&LPCMP_RES);
+    return CMP_Stop(&LPCMP_RES);
 }
 
 /**
@@ -887,12 +879,11 @@ static int32_t LPCMP_Stop(void)
  */
 void LPCMP_IRQHandler(void)
 {
-	CMP_IRQ_handler(&LPCMP_RES);
+    CMP_IRQ_handler(&LPCMP_RES);
 }
 
 extern ARM_DRIVER_CMP Driver_LPCMP;
-ARM_DRIVER_CMP Driver_LPCMP =
-{
+ARM_DRIVER_CMP        Driver_LPCMP = {
     CMP_GetVersion,
     CMP_GetCapabilities,
     LPCMP_Initialize,

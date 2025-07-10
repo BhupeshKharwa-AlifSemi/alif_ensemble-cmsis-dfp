@@ -23,27 +23,27 @@
 #if RTE_AR0246_CAMERA_SENSOR_CSI_ENABLE
 
 /* I2C Instance */
-#if(RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE == 4)
-#define CAMERA_SENSOR_I2C_INSTANCE                           I3C
+#if (RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE == 4)
+#define CAMERA_SENSOR_I2C_INSTANCE I3C
 #else
-#define CAMERA_SENSOR_I2C_INSTANCE                           RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE
+#define CAMERA_SENSOR_I2C_INSTANCE RTE_AR0246_CAMERA_SENSOR_I2C_INSTANCE
 #endif
 
 /* AR0246 Camera Sensor Slave Address. */
-#define AR0246_CAMERA_SENSOR_SLAVE_ADDR                      0x10
+#define AR0246_CAMERA_SENSOR_SLAVE_ADDR 0x10
 
 /* AR0246 Camera Sensor CHIP-ID registers */
-#define AR0246_CHIP_ID_REGISTER                              0x3000
-#define AR0246_CHIP_ID_REGISTER_VALUE                        0x1F56
+#define AR0246_CHIP_ID_REGISTER         0x3000
+#define AR0246_CHIP_ID_REGISTER_VALUE   0x1F56
 
 /* AR0246 Camera Sensor registers index */
-#define AR0246_RESET_REGISTER                                0x301A
+#define AR0246_RESET_REGISTER           0x301A
 
 /* Wrapper function for Delay
  * Delay for microsecond:
  * Provide delay using PMU(Performance Monitoring Unit).
  */
-#define AR0246_DELAY_uSEC(usec)       sys_busy_loop_us(usec)
+#define AR0246_DELAY_uSEC(usec)         sys_busy_loop_us(usec)
 
 /* Wrapper function for i2c read
  *  read register value from AR0246 Camera Sensor registers
@@ -52,11 +52,11 @@
  *  for AR0246 Camera Sensor specific i2c configurations
  *   see \ref AR0246_camera_sensor_i2c_cnfg
  */
-#define AR0246_READ_REG(reg_addr, reg_value, reg_size) \
-    camera_sensor_i2c_read(&AR0246_camera_sensor_i2c_cnfg, \
-            reg_addr,  \
-            reg_value, \
-            (CAMERA_SENSOR_I2C_REG_SIZE)reg_size)
+#define AR0246_READ_REG(reg_addr, reg_value, reg_size)                                             \
+    camera_sensor_i2c_read(&AR0246_camera_sensor_i2c_cnfg,                                         \
+                           reg_addr,                                                               \
+                           reg_value,                                                              \
+                           (CAMERA_SENSOR_I2C_REG_SIZE) reg_size)
 
 /* Wrapper function for i2c write
  *  write register value to AR0246 Camera Sensor registers
@@ -65,19 +65,21 @@
  *  for AR0246 Camera Sensor specific i2c configurations
  *   see \ref AR0246_camera_sensor_i2c_cnfg
  */
-#define AR0246_WRITE_REG(reg_addr, reg_value, reg_size) \
-    camera_sensor_i2c_write(&AR0246_camera_sensor_i2c_cnfg, \
-            reg_addr,  \
-            reg_value, \
-            (CAMERA_SENSOR_I2C_REG_SIZE)reg_size)
+#define AR0246_WRITE_REG(reg_addr, reg_value, reg_size)                                            \
+    camera_sensor_i2c_write(&AR0246_camera_sensor_i2c_cnfg,                                        \
+                            reg_addr,                                                              \
+                            reg_value,                                                             \
+                            (CAMERA_SENSOR_I2C_REG_SIZE) reg_size)
 
 /* AR0246 Camera reset GPIO port */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_RESET_GPIO_PORT);
-static ARM_DRIVER_GPIO *GPIO_Driver_CAM_RST = &ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_RESET_GPIO_PORT);
+extern ARM_DRIVER_GPIO  ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_RESET_GPIO_PORT);
+static ARM_DRIVER_GPIO *GPIO_Driver_CAM_RST =
+    &ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_RESET_GPIO_PORT);
 
 /* AR0246 Camera power GPIO port */
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_POWER_GPIO_PORT);
-static ARM_DRIVER_GPIO *GPIO_Driver_CAM_PWR = &ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_POWER_GPIO_PORT);
+extern ARM_DRIVER_GPIO  ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_POWER_GPIO_PORT);
+static ARM_DRIVER_GPIO *GPIO_Driver_CAM_PWR =
+    &ARM_Driver_GPIO_(RTE_AR0246_CAMERA_SENSOR_POWER_GPIO_PORT);
 
 /* I2C Driver Instance */
 extern ARM_DRIVER_I2C ARM_Driver_I2C_(CAMERA_SENSOR_I2C_INSTANCE);
@@ -87,41 +89,39 @@ extern ARM_DRIVER_I2C ARM_Driver_I2C_(CAMERA_SENSOR_I2C_INSTANCE);
   used for Camera Resolution Configuration.
   */
 typedef struct _AR0246_REG {
-    uint16_t reg_addr;             /* AR0246 Camera Sensor Register Address*/
-    uint16_t reg_value;            /* AR0246 Camera Sensor Register Value*/
+    uint16_t reg_addr;  /* AR0246 Camera Sensor Register Address*/
+    uint16_t reg_value; /* AR0246 Camera Sensor Register Value*/
 } AR0246_REG;
 
 /**
   \brief AR0246 Camera Sensor slave i2c Configuration
   \ref CAMERA_SENSOR_SLAVE_I2C_CONFIG
   */
-static CAMERA_SENSOR_SLAVE_I2C_CONFIG AR0246_camera_sensor_i2c_cnfg =
-{
+static CAMERA_SENSOR_SLAVE_I2C_CONFIG AR0246_camera_sensor_i2c_cnfg = {
     .drv_i2c                        = &ARM_Driver_I2C_(CAMERA_SENSOR_I2C_INSTANCE),
     .bus_speed                      = ARM_I2C_BUS_SPEED_STANDARD,
     .cam_sensor_slave_addr          = AR0246_CAMERA_SENSOR_SLAVE_ADDR,
     .cam_sensor_slave_reg_addr_type = CAMERA_SENSOR_I2C_REG_ADDR_TYPE_16BIT,
 };
 
-static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
-{
+static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] = {
     /* PLL_27MHz_891Mbps_148p5MHz_12bit(device, clock_multiplier) */
-    {0x3030, 0x84},    //PLL_MULTIPLIER
-    {0x302E, 0x2},     //PRE_PLL_DIVIDER
-    {0x302C, 0x2},     //P1_DIVIDER
-    {0x302A, 0x6},     //P2_DIVIDER
-    {0x3038, 0x4},     //P3_DIVIDER
-    {0x3036, 0x6},     //P4_DIVIDER
+    {0x3030, 0x84},  // PLL_MULTIPLIER
+    {0x302E, 0x2},   // PRE_PLL_DIVIDER
+    {0x302C, 0x2},   // P1_DIVIDER
+    {0x302A, 0x6},   // P2_DIVIDER
+    {0x3038, 0x4},   // P3_DIVIDER
+    {0x3036, 0x6},   // P4_DIVIDER
 
     /* MIPI_TIMING_891Mbps_148p5MHz_12bit(device) */
-    {0x31B0, 0x4A},    //Frame preamble
-    {0x31B2, 0x24},    //Line preamble
-    {0x31B4, 0x51C7},  //MIPI timing0
-    {0x31B6, 0x4247},  //MIPI timing1
-    {0x31B8, 0x60C9},  //MIPI timing2
-    {0x31BA, 0x28A},   //MIPI timing3
-    {0x31BC, 0x8B88},  //MIPI timing4
-    {0x3342, 0x122C},  //MIPI F1 PDT EDT
+    {0x31B0, 0x4A},    // Frame preamble
+    {0x31B2, 0x24},    // Line preamble
+    {0x31B4, 0x51C7},  // MIPI timing0
+    {0x31B6, 0x4247},  // MIPI timing1
+    {0x31B8, 0x60C9},  // MIPI timing2
+    {0x31BA, 0x28A},   // MIPI timing3
+    {0x31BC, 0x8B88},  // MIPI timing4
+    {0x3342, 0x122C},  // MIPI F1 PDT EDT
 
     /* Design_Linear_Analog_Recommended_Settings(device) */
     /* Design_Eclipse_Recommended_Settings(device) */
@@ -162,19 +162,19 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     /* Design_eHDR_Recommended_Settings(device) */
     /* HDR_MEC_Enable(device) */
     {0x3D02, 0x3833},
-    {0x3D64, 0xED8},  //CLIP_1_0
-    {0x3D66, 0xED8},  //CLIP_1_1
-    {0x3D68, 0xED8},  //CLIP_1_2
-    {0x3D6A, 0xED8},  //CLIP_1_3
-    {0x3D6C, 0xED8},  //CLIP_2_0
-    {0x3D6E, 0xED8},  //CLIP_2_1
-    {0x3D70, 0xED8},  //CLIP_2_2
-    {0x3D72, 0xED8},  //CLIP_2_3
-    {0x3D74, 0xED8},  //CLIP_3_0
-    {0x3D76, 0xED8},  //CLIP_3_1
-    {0x3D78, 0xED8},  //CLIP_3_2
-    {0x3D7A, 0xED8},  //CLIP_3_3
-    {0x3D28, 0xACD},  //T1_STR_DEC_TH
+    {0x3D64, 0xED8},  // CLIP_1_0
+    {0x3D66, 0xED8},  // CLIP_1_1
+    {0x3D68, 0xED8},  // CLIP_1_2
+    {0x3D6A, 0xED8},  // CLIP_1_3
+    {0x3D6C, 0xED8},  // CLIP_2_0
+    {0x3D6E, 0xED8},  // CLIP_2_1
+    {0x3D70, 0xED8},  // CLIP_2_2
+    {0x3D72, 0xED8},  // CLIP_2_3
+    {0x3D74, 0xED8},  // CLIP_3_0
+    {0x3D76, 0xED8},  // CLIP_3_1
+    {0x3D78, 0xED8},  // CLIP_3_2
+    {0x3D7A, 0xED8},  // CLIP_3_3
+    {0x3D28, 0xACD},  // T1_STR_DEC_TH
     {0x30B0, 0x820},
 
     /* HDR_MEC_SC_Enable(device) */
@@ -188,18 +188,18 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     {0x3D40, 0xFFFE},
     {0x3D42, 0xFFFF},
     {0x3D60, 0xF0F},
-    {0x3D64, 0xED8},  //CLIP_1_0
-    {0x3D66, 0xED8},  //CLIP_1_1
-    {0x3D68, 0xED8},  //CLIP_1_2
-    {0x3D6A, 0xED8},  //CLIP_1_3
-    {0x3D6C, 0xED8},  //CLIP_2_0
-    {0x3D6E, 0xED8},  //CLIP_2_1
-    {0x3D70, 0xED8},  //CLIP_2_2
-    {0x3D72, 0xED8},  //CLIP_2_3
-    {0x3D74, 0xED8},  //CLIP_3_0
-    {0x3D76, 0xED8},  //CLIP_3_1
-    {0x3D78, 0xED8},  //CLIP_3_2
-    {0x3D7A, 0xED8},  //CLIP_3_3
+    {0x3D64, 0xED8},  // CLIP_1_0
+    {0x3D66, 0xED8},  // CLIP_1_1
+    {0x3D68, 0xED8},  // CLIP_1_2
+    {0x3D6A, 0xED8},  // CLIP_1_3
+    {0x3D6C, 0xED8},  // CLIP_2_0
+    {0x3D6E, 0xED8},  // CLIP_2_1
+    {0x3D70, 0xED8},  // CLIP_2_2
+    {0x3D72, 0xED8},  // CLIP_2_3
+    {0x3D74, 0xED8},  // CLIP_3_0
+    {0x3D76, 0xED8},  // CLIP_3_1
+    {0x3D78, 0xED8},  // CLIP_3_2
+    {0x3D7A, 0xED8},  // CLIP_3_3
     {0x30B0, 0x820},
 
     /* DR_MEC_MC_settings(device) */
@@ -841,115 +841,115 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     {0x3512, 0x9999},
 
     /* Gain_Table_select(device) */
-    {0x5914, 0x4001}, //SENSOR_GAIN_TABLE_SEL
-    {0x5910, 0x6080}, //SENSOR_GAIN_REG1
-    {0x5910, 0x5882}, //SENSOR_GAIN_REG1
-    {0x5910, 0x688D}, //SENSOR_GAIN_REG1
-    {0x5910, 0x7897}, //SENSOR_GAIN_REG1
-    {0x5910, 0x989D}, //SENSOR_GAIN_REG1
-    {0x5910, 0xA89A}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC886}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC8BD}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC90B}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC97A}, //SENSOR_GAIN_REG1
-    {0x5910, 0xCA16}, //SENSOR_GAIN_REG1
-    {0x5910, 0xCAF2}, //SENSOR_GAIN_REG1
-    {0x5910, 0xCC29}, //SENSOR_GAIN_REG1
-    {0x5910, 0xCDE0}, //SENSOR_GAIN_REG1
-    {0x5910, 0x6080}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC8F0}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC953}, //SENSOR_GAIN_REG1
-    {0x5910, 0xC9DF}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0006}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0001}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0002}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0003}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0005}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0004}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0001}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0003}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0004}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0004}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0007}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0006}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0000}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0003}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0002}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0006}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0005}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0001}, //SENSOR_GAIN_REG1
-    {0x5910, 0x5940}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0000}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0001}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0002}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0003}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0004}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0005}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0006}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0007}, //SENSOR_GAIN_REG1
-    {0x5910, 0x9941}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0010}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0011}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0012}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0013}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0014}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0015}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0016}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0017}, //SENSOR_GAIN_REG1
-    {0x5910, 0x5942}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0020}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0021}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0022}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0023}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0024}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0025}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0026}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0027}, //SENSOR_GAIN_REG1
-    {0x5910, 0xD943}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0030}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0031}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0032}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0033}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0034}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0035}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0036}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0037}, //SENSOR_GAIN_REG1
-    {0x5910, 0x5944}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0040}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0041}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0042}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0043}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0044}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0045}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0046}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0047}, //SENSOR_GAIN_REG1
-    {0x5910, 0xD945}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0050}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0051}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0052}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0053}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0054}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0055}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0056}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0057}, //SENSOR_GAIN_REG1
-    {0x5910, 0xD946}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0060}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0061}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0062}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0063}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0064}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0065}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0066}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0067}, //SENSOR_GAIN_REG1
-    {0x5910, 0x9947}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0070}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0071}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0072}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0073}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0074}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0075}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0076}, //SENSOR_GAIN_REG1
-    {0x5910, 0x0077}, //SENSOR_GAIN_REG1
+    {0x5914, 0x4001},  // SENSOR_GAIN_TABLE_SEL
+    {0x5910, 0x6080},  // SENSOR_GAIN_REG1
+    {0x5910, 0x5882},  // SENSOR_GAIN_REG1
+    {0x5910, 0x688D},  // SENSOR_GAIN_REG1
+    {0x5910, 0x7897},  // SENSOR_GAIN_REG1
+    {0x5910, 0x989D},  // SENSOR_GAIN_REG1
+    {0x5910, 0xA89A},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC886},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC8BD},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC90B},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC97A},  // SENSOR_GAIN_REG1
+    {0x5910, 0xCA16},  // SENSOR_GAIN_REG1
+    {0x5910, 0xCAF2},  // SENSOR_GAIN_REG1
+    {0x5910, 0xCC29},  // SENSOR_GAIN_REG1
+    {0x5910, 0xCDE0},  // SENSOR_GAIN_REG1
+    {0x5910, 0x6080},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC8F0},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC953},  // SENSOR_GAIN_REG1
+    {0x5910, 0xC9DF},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0006},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0001},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0002},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0003},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0005},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0004},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0001},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0003},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0004},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0004},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0007},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0006},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0000},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0003},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0002},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0006},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0005},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0001},  // SENSOR_GAIN_REG1
+    {0x5910, 0x5940},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0000},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0001},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0002},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0003},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0004},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0005},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0006},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0007},  // SENSOR_GAIN_REG1
+    {0x5910, 0x9941},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0010},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0011},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0012},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0013},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0014},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0015},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0016},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0017},  // SENSOR_GAIN_REG1
+    {0x5910, 0x5942},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0020},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0021},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0022},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0023},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0024},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0025},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0026},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0027},  // SENSOR_GAIN_REG1
+    {0x5910, 0xD943},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0030},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0031},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0032},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0033},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0034},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0035},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0036},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0037},  // SENSOR_GAIN_REG1
+    {0x5910, 0x5944},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0040},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0041},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0042},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0043},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0044},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0045},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0046},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0047},  // SENSOR_GAIN_REG1
+    {0x5910, 0xD945},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0050},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0051},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0052},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0053},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0054},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0055},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0056},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0057},  // SENSOR_GAIN_REG1
+    {0x5910, 0xD946},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0060},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0061},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0062},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0063},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0064},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0065},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0066},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0067},  // SENSOR_GAIN_REG1
+    {0x5910, 0x9947},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0070},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0071},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0072},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0073},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0074},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0075},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0076},  // SENSOR_GAIN_REG1
+    {0x5910, 0x0077},  // SENSOR_GAIN_REG1
 
     /* DDC_HDR(device) */
     /* DDC_Noise_Model(device) */
@@ -970,21 +970,21 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     {0x51F2, 0x18},
     {0x51F4, 0x20},
     {0x5402, 0x0DC3},
-    {0x5560, 0x149},  //T4_NOISE_GAIN_THRESHOLD0
-    {0x556C, 0x44D},  //T4_NOISE_GAIN_THRESHOLD1
-    {0x5562, 0x700},  //T4_NOISE_GAIN_THRESHOLD2
-    {0x5564, 0x8},    //T4_NOISE_FLOOR0
-    {0x5566, 0x10},   //T4_NOISE_FLOOR1
-    {0x5568, 0x18},   //T4_NOISE_FLOOR2
-    {0x556A, 0x20},   //T4_NOISE_FLOOR3
+    {0x5560, 0x149},  // T4_NOISE_GAIN_THRESHOLD0
+    {0x556C, 0x44D},  // T4_NOISE_GAIN_THRESHOLD1
+    {0x5562, 0x700},  // T4_NOISE_GAIN_THRESHOLD2
+    {0x5564, 0x8},    // T4_NOISE_FLOOR0
+    {0x5566, 0x10},   // T4_NOISE_FLOOR1
+    {0x5568, 0x18},   // T4_NOISE_FLOOR2
+    {0x556A, 0x20},   // T4_NOISE_FLOOR3
 
     /* DDC_FUSE_and_SINGLE(device) */
     {0x31E0, 0x0001},
     {0x5000, 0x1181},
     {0x5200, 0x1181},
     {0x5400, 0x1181},
-    {0x50A2, 0x2},    //BMT0
-    {0x50A4, 0xC},    //BMT1
+    {0x50A2, 0x2},  // BMT0
+    {0x50A4, 0xC},  // BMT1
     {0x50A6, 0x0F0F},
     {0x50A8, 0x0F0F},
     {0x50AA, 0x050F},
@@ -997,11 +997,12 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     {0x50B8, 0x050F},
 
     /* eHDR_3exp_ALTM_Output_Settings(device) */
-    {0x31AE, 0x202},   //2_Lane Output_Settings
-    {0x31AC, 0x140C},  //Data_Format RAW20:OUTPUT12 Output_Settings
-    {0x31D0, 0x0},     //COMPAND EN Output_Settings
-    {0x3082, 0x8},     //Op_Mode_Control Output_Settings
-    {0x30BA, 0x13E},   //Num_exp_max=2, SET_PARK_ROW = 1, decomp_dither_en=1, dither_en=1, pix_lsb_truncation=1 Output_Settings
+    {0x31AE, 0x202},   // 2_Lane Output_Settings
+    {0x31AC, 0x140C},  // Data_Format RAW20:OUTPUT12 Output_Settings
+    {0x31D0, 0x0},     // COMPAND EN Output_Settings
+    {0x3082, 0x8},     // Op_Mode_Control Output_Settings
+    {0x30BA, 0x13E},   // Num_exp_max=2, SET_PARK_ROW = 1, decomp_dither_en=1, dither_en=1,
+                      // pix_lsb_truncation=1 Output_Settings
     {0x247A, 0x73},
     {0x3110, 0x0011},
 
@@ -1016,14 +1017,14 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
     {0x30A6, 3},
 
     {0x3040, 0x3000},
-    {0x3238, 0x44},   //Exposure Ratios Timing
-    {0x300C, 4044},   //LLPCK Timing
-    {0x300A, 919},    //FLL Timing
-    {0x3012, 830},    //CIT1=1024 Timing
-    {0x3212, 0x4D},   //CIT2=64 Timing
-    {0x3216, 0x5},    //CIT3=4 Timing
-    {0x5900, 0x0},    //Gain t1 2.2xLCG Timing
-    {0x5902, 0x0},    //Gain t2 1.67xLCG Timing
+    {0x3238, 0x44},  // Exposure Ratios Timing
+    {0x300C, 4044},  // LLPCK Timing
+    {0x300A, 919},   // FLL Timing
+    {0x3012, 830},   // CIT1=1024 Timing
+    {0x3212, 0x4D},  // CIT2=64 Timing
+    {0x3216, 0x5},   // CIT3=4 Timing
+    {0x5900, 0x0},   // Gain t1 2.2xLCG Timing
+    {0x5902, 0x0},   // Gain t2 1.67xLCG Timing
     {0x5904, 0x0},
 
     /* ALTM_Recommended_Highlight(device) */
@@ -1085,18 +1086,17 @@ static const AR0246_REG cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings[] =
   \param[in]    total_num   : total number of registers(size of array)
   \return       \ref execution_status
   */
-static int32_t AR0246_Bulk_Write_Reg(const AR0246_REG AR0246_reg[],
-                                     uint32_t total_num, uint32_t reg_size)
+static int32_t AR0246_Bulk_Write_Reg(const AR0246_REG AR0246_reg[], uint32_t total_num,
+                                     uint32_t reg_size)
 {
-    uint32_t i  = 0;
-    int32_t ret = 0;
+    uint32_t i   = 0;
+    int32_t  ret = 0;
 
-    for(i = 0; i < total_num; i++)
-    {
-        ret = AR0246_WRITE_REG(AR0246_reg[i].reg_addr, AR0246_reg[i].reg_value, \
-                reg_size);
-        if(ret != ARM_DRIVER_OK)
+    for (i = 0; i < total_num; i++) {
+        ret = AR0246_WRITE_REG(AR0246_reg[i].reg_addr, AR0246_reg[i].reg_value, reg_size);
+        if (ret != ARM_DRIVER_OK) {
             return ret;
+        }
     }
 
     return ARM_DRIVER_OK;
@@ -1134,45 +1134,59 @@ static int32_t AR0246_Camera_Hard_Reseten(void)
 {
     int32_t ret = 0;
 
-    ret = GPIO_Driver_CAM_RST->Initialize(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, NULL);
-    if(ret != ARM_DRIVER_OK)
+    ret         = GPIO_Driver_CAM_RST->Initialize(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, NULL);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     ret = GPIO_Driver_CAM_RST->PowerControl(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
-    ret = GPIO_Driver_CAM_RST->SetDirection(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, GPIO_PIN_DIRECTION_OUTPUT);
-    if(ret != ARM_DRIVER_OK)
+    ret = GPIO_Driver_CAM_RST->SetDirection(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO,
+                                            GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     ret = GPIO_Driver_CAM_PWR->Initialize(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO, NULL);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     ret = GPIO_Driver_CAM_PWR->PowerControl(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO, ARM_POWER_FULL);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
-    ret = GPIO_Driver_CAM_PWR->SetDirection(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO, GPIO_PIN_DIRECTION_OUTPUT);
-    if(ret != ARM_DRIVER_OK)
+    ret = GPIO_Driver_CAM_PWR->SetDirection(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO,
+                                            GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
-    ret = GPIO_Driver_CAM_RST->SetValue(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, GPIO_PIN_OUTPUT_STATE_LOW);
-    if(ret != ARM_DRIVER_OK)
+    ret = GPIO_Driver_CAM_RST->SetValue(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO,
+                                        GPIO_PIN_OUTPUT_STATE_LOW);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     AR0246_DELAY_uSEC(2000);
 
-    ret = GPIO_Driver_CAM_PWR->SetValue(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if(ret != ARM_DRIVER_OK)
+    ret = GPIO_Driver_CAM_PWR->SetValue(RTE_AR0246_CAMERA_SENSOR_POWER_PIN_NO,
+                                        GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     AR0246_DELAY_uSEC(1000);
 
-    ret = GPIO_Driver_CAM_RST->SetValue(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if(ret != ARM_DRIVER_OK)
+    ret = GPIO_Driver_CAM_RST->SetValue(RTE_AR0246_CAMERA_SENSOR_RESET_PIN_NO,
+                                        GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     AR0246_DELAY_uSEC(100000);
 
@@ -1189,9 +1203,10 @@ static int32_t AR0246_Camera_Soft_Reseten(void)
 {
     int32_t ret = 0;
 
-    ret = AR0246_WRITE_REG(AR0246_RESET_REGISTER, 0x0001, 2);
-    if(ret != ARM_DRIVER_OK)
+    ret         = AR0246_WRITE_REG(AR0246_RESET_REGISTER, 0x0001, 2);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     /* @Observation: more delay is required for Camera Sensor
      *               to setup after Soft Reset.
@@ -1212,7 +1227,7 @@ static int32_t AR0246_Camera_Soft_Reseten(void)
   */
 int32_t AR0246_Init(void)
 {
-    int32_t  ret = 0;
+    int32_t  ret      = 0;
     uint32_t rcv_data = 0;
     uint32_t total_num;
 
@@ -1221,39 +1236,46 @@ int32_t AR0246_Init(void)
 
     /*camera sensor resten*/
     ret = AR0246_Camera_Hard_Reseten();
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     /* Initialize i2c using i3c driver instance depending on
      *  AR0246 Camera Sensor specific i2c configurations
      *   \ref AR0246_camera_sensor_i2c_cnfg
      */
     ret = camera_sensor_i2c_init(&AR0246_camera_sensor_i2c_cnfg);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     /* Soft Reset AR0246 Camera Sensor */
     ret = AR0246_Camera_Soft_Reseten();
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     /* Read AR0246 Camera Sensor CHIP ID */
     ret = AR0246_READ_REG(AR0246_CHIP_ID_REGISTER, &rcv_data, 2);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     /* Proceed only if CHIP ID is correct. */
-    if(rcv_data != AR0246_CHIP_ID_REGISTER_VALUE)
+    if (rcv_data != AR0246_CHIP_ID_REGISTER_VALUE) {
         return ARM_DRIVER_ERROR_UNSUPPORTED;
+    }
 
     /*start streaming*/
     ret = AR0246_READ_REG(AR0246_RESET_REGISTER, &rcv_data, 2);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     ret = AR0246_WRITE_REG(AR0246_RESET_REGISTER, rcv_data | (1U << 2), 2);
-    if(ret != ARM_DRIVER_OK)
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     return ARM_DRIVER_OK;
 }
@@ -1266,13 +1288,14 @@ int32_t AR0246_Init(void)
   */
 int32_t AR0246_Start(void)
 {
-    int32_t  ret = 0;
+    int32_t  ret      = 0;
     uint32_t rcv_data = 0;
 
     /* Start streaming */
-    ret = AR0246_READ_REG(AR0246_RESET_REGISTER, &rcv_data, 2);
-    if(ret != ARM_DRIVER_OK)
+    ret               = AR0246_READ_REG(AR0246_RESET_REGISTER, &rcv_data, 2);
+    if (ret != ARM_DRIVER_OK) {
         return ret;
+    }
 
     return AR0246_WRITE_REG(AR0246_RESET_REGISTER, rcv_data | (1U << 2), 2);
 }
@@ -1298,27 +1321,30 @@ int32_t AR0246_Stop(void)
   */
 int32_t AR0246_Control(uint32_t control, uint32_t arg)
 {
-    switch (control)
-    {
-        case CPI_CAMERA_SENSOR_CONFIGURE:
+    switch (control) {
+    case CPI_CAMERA_SENSOR_CONFIGURE:
         {
             uint32_t rcv_data;
-            int32_t ret = AR0246_READ_REG(AR0246_RESET_REGISTER, &rcv_data, 2);
-            if(ret != ARM_DRIVER_OK)
+            int32_t  ret = AR0246_READ_REG(AR0246_RESET_REGISTER, &rcv_data, 2);
+            if (ret != ARM_DRIVER_OK) {
                 return ret;
+            }
 
             ret = AR0246_WRITE_REG(AR0246_RESET_REGISTER, rcv_data & ~(1U << 2), 2);
-            if(ret != ARM_DRIVER_OK)
+            if (ret != ARM_DRIVER_OK) {
                 return ret;
+            }
 
-            uint32_t total_num = (sizeof(cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings) / sizeof(AR0246_REG));
-            return AR0246_Bulk_Write_Reg(cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings, total_num, 2);
+            uint32_t total_num =
+                (sizeof(cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings) / sizeof(AR0246_REG));
+            return AR0246_Bulk_Write_Reg(cfg_684x472_12bit_40fps_2Lane_sensor_reg_settings,
+                                         total_num,
+                                         2);
         }
-        default:
-            return ARM_DRIVER_ERROR_PARAMETER;
+    default:
+        return ARM_DRIVER_ERROR_PARAMETER;
     }
 }
-
 
 /**
   \fn           int32_t AR0246_Uninit(void)
@@ -1339,8 +1365,7 @@ int32_t AR0246_Uninit(void)
 \brief AR0246 Camera Sensor CSi informations
 \ref CSI_INFO
 */
-static CSI_INFO AR0246_csi_info =
-{
+static CSI_INFO AR0246_csi_info = {
     .frequency                = RTE_AR0246_CAMERA_SENSOR_CSI_FREQ,
     .dt                       = RTE_AR0246_CAMERA_SENSOR_CSI_DATA_TYPE,
     .n_lanes                  = RTE_AR0246_CAMERA_SENSOR_CSI_N_LANES,
@@ -1353,8 +1378,7 @@ static CSI_INFO AR0246_csi_info =
 \brief AR0246 Camera Sensor Operations
 \ref CAMERA_SENSOR_OPERATIONS
 */
-static CAMERA_SENSOR_OPERATIONS AR0246_ops =
-{
+static CAMERA_SENSOR_OPERATIONS AR0246_ops = {
     .Init    = AR0246_Init,
     .Uninit  = AR0246_Uninit,
     .Start   = AR0246_Start,
@@ -1366,13 +1390,12 @@ static CAMERA_SENSOR_OPERATIONS AR0246_ops =
 \brief AR0246 Camera Sensor Device Structure
 \ref CAMERA_SENSOR_DEVICE
 */
-static CAMERA_SENSOR_DEVICE AR0246_camera_sensor =
-{
-    .interface  = CAMERA_SENSOR_INTERFACE_MIPI,
-    .width      = RTE_AR0246_CAMERA_SENSOR_FRAME_WIDTH,
-    .height     = RTE_AR0246_CAMERA_SENSOR_FRAME_HEIGHT,
-    .csi_info   = &AR0246_csi_info,
-    .ops        = &AR0246_ops,
+static CAMERA_SENSOR_DEVICE AR0246_camera_sensor = {
+    .interface = CAMERA_SENSOR_INTERFACE_MIPI,
+    .width     = RTE_AR0246_CAMERA_SENSOR_FRAME_WIDTH,
+    .height    = RTE_AR0246_CAMERA_SENSOR_FRAME_HEIGHT,
+    .csi_info  = &AR0246_csi_info,
+    .ops       = &AR0246_ops,
 };
 
 /* Registering CPI sensor */

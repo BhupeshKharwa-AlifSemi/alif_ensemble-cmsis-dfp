@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_spi_microwire_freertos.c
  * @author   : Manoj A Murudi
  * @email    : manoj.murudi@alifsemi.com
@@ -42,93 +42,108 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 // Set to 0: Use application-defined SPI pin configuration (via board_spi_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG   0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 /* assign 1: To enable master to slave transfer
  *        0: To enable slave to master transfer */
-#define MASTER_TO_SLAVE_TRANSFER   1
+#define MASTER_TO_SLAVE_TRANSFER       1
 
-#define SPI2               2        /* SPI instance 2 configured Master */
-#define SPI3               3        /* SPI instance 3 configured Slave */
+#define SPI2                           2 /* SPI instance 2 configured Master */
+#define SPI3                           3 /* SPI instance 3 configured Slave */
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI2);
+extern ARM_DRIVER_SPI  ARM_Driver_SPI_(SPI2);
 static ARM_DRIVER_SPI *masterDrv = &ARM_Driver_SPI_(SPI2);
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI3);
+extern ARM_DRIVER_SPI  ARM_Driver_SPI_(SPI3);
 static ARM_DRIVER_SPI *slaveDrv = &ARM_Driver_SPI_(SPI3);
 
 /*Define for the FreeRTOS objects*/
-#define SPI2_CALLBACK_EVENT        0x01
-#define SPI3_CALLBACK_EVENT        0x02
+#define SPI2_CALLBACK_EVENT 0x01
+#define SPI3_CALLBACK_EVENT 0x02
 
-#define MW_THREAD_WAIT_TIME        pdMS_TO_TICKS(1000U) /* interrupt wait time:1 second */
+#define MW_THREAD_WAIT_TIME pdMS_TO_TICKS(1000U) /* interrupt wait time:1 second */
 
 /* Thread id of thread */
 static TaskHandle_t mw_xHandle;
 
-#if(!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
-* @fn      static int32_t board_spi_pins_config(void)
-* @brief   Configure additional MW pinmux settings not handled
-*          by the board support library.
-* @retval  execution status.
-*/
+ * @fn      static int32_t board_spi_pins_config(void)
+ * @brief   Configure additional MW pinmux settings not handled
+ *          by the board support library.
+ * @retval  execution status.
+ */
 static int32_t board_spi_pins_config(void)
 {
     int32_t ret = 0;
 
     /* pinmux configurations for SPI Master pins  */
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MISO_GPIO_PORT), BOARD_MW_SPI_MASTER_MISO_GPIO_PIN, BOARD_MW_SPI_MASTER_MISO_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret         = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MISO_GPIO_PORT),
+                      BOARD_MW_SPI_MASTER_MISO_GPIO_PIN,
+                      BOARD_MW_SPI_MASTER_MISO_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI2_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MOSI_GPIO_PORT), BOARD_MW_SPI_MASTER_MOSI_GPIO_PIN, BOARD_MW_SPI_MASTER_MOSI_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_MOSI_GPIO_PORT),
+                      BOARD_MW_SPI_MASTER_MOSI_GPIO_PIN,
+                      BOARD_MW_SPI_MASTER_MOSI_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI2_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SCLK_GPIO_PORT), BOARD_MW_SPI_MASTER_SCLK_GPIO_PIN, BOARD_MW_SPI_MASTER_SCLK_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SCLK_GPIO_PORT),
+                      BOARD_MW_SPI_MASTER_SCLK_GPIO_PIN,
+                      BOARD_MW_SPI_MASTER_SCLK_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI2_CLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SS0_GPIO_PORT), BOARD_MW_SPI_MASTER_SS0_GPIO_PIN, BOARD_MW_SPI_MASTER_SS0_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_MASTER_SS0_GPIO_PORT),
+                      BOARD_MW_SPI_MASTER_SS0_GPIO_PIN,
+                      BOARD_MW_SPI_MASTER_SS0_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI2_SS_PIN\n");
         return ret;
     }
 
-
     /* pinmux configurations for SPI Slave pins  */
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MISO_GPIO_PORT), BOARD_MW_SPI_SLAVE_MISO_GPIO_PIN, BOARD_MW_SPI_SLAVE_MISO_ALTERNATE_FUNCTION, 0);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MISO_GPIO_PORT),
+                      BOARD_MW_SPI_SLAVE_MISO_GPIO_PIN,
+                      BOARD_MW_SPI_SLAVE_MISO_ALTERNATE_FUNCTION,
+                      0);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI3_MISO_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MOSI_GPIO_PORT), BOARD_MW_SPI_SLAVE_MOSI_GPIO_PIN, BOARD_MW_SPI_SLAVE_MOSI_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_MOSI_GPIO_PORT),
+                      BOARD_MW_SPI_SLAVE_MOSI_GPIO_PIN,
+                      BOARD_MW_SPI_SLAVE_MOSI_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI3_MOSI_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SCLK_GPIO_PORT), BOARD_MW_SPI_SLAVE_SCLK_GPIO_PIN, BOARD_MW_SPI_SLAVE_SCLK_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SCLK_GPIO_PORT),
+                      BOARD_MW_SPI_SLAVE_SCLK_GPIO_PIN,
+                      BOARD_MW_SPI_SLAVE_SCLK_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI3_SCLK_PIN\n");
         return ret;
     }
-    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SS0_GPIO_PORT), BOARD_MW_SPI_SLAVE_SS0_GPIO_PIN, BOARD_MW_SPI_SLAVE_SS0_ALTERNATE_FUNCTION, PADCTRL_READ_ENABLE);
-    if (ret)
-    {
+    ret = pinconf_set(PORT_(BOARD_MW_SPI_SLAVE_SS0_GPIO_PORT),
+                      BOARD_MW_SPI_SLAVE_SS0_GPIO_PIN,
+                      BOARD_MW_SPI_SLAVE_SS0_ALTERNATE_FUNCTION,
+                      PADCTRL_READ_ENABLE);
+    if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI3_SS_PIN\n");
         return ret;
     }
@@ -143,15 +158,16 @@ static int32_t board_spi_pins_config(void)
  * @param   event: SPI event.
  * @retval  None
  */
-static void SPI2_Callback_func (uint32_t event)
+static void SPI2_Callback_func(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
-    {
-        xResult = xTaskNotifyFromISR(mw_xHandle, SPI2_CALLBACK_EVENT, eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
+    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE) {
+        xResult = xTaskNotifyFromISR(mw_xHandle,
+                                     SPI2_CALLBACK_EVENT,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
@@ -164,15 +180,16 @@ static void SPI2_Callback_func (uint32_t event)
  * @param   event: SPI event.
  * @retval  None
  */
-static void SPI3_Callback_func (uint32_t event)
+static void SPI3_Callback_func(uint32_t event)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult = pdFALSE;
 
-    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE)
-    {
-        xResult = xTaskNotifyFromISR(mw_xHandle, SPI3_CALLBACK_EVENT, eSetBits, &xHigherPriorityTaskWoken);
-        if (xResult == pdTRUE)
-        {
+    if (event == ARM_SPI_EVENT_TRANSFER_COMPLETE) {
+        xResult = xTaskNotifyFromISR(mw_xHandle,
+                                     SPI3_CALLBACK_EVENT,
+                                     eSetBits,
+                                     &xHigherPriorityTaskWoken);
+        if (xResult == pdTRUE) {
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         }
     }
@@ -187,9 +204,9 @@ static void SPI3_Callback_func (uint32_t event)
  */
 static void MW_Demo_thread(void *pvParameters)
 {
-    uint32_t master_control, slave_control, baudrate = 1000000;
-    int32_t status;
-    BaseType_t xReturned;
+    uint32_t       master_control, slave_control, baudrate = 1000000;
+    int32_t        status;
+    BaseType_t     xReturned;
     ARM_SPI_STATUS spi2_status, spi3_status;
 
     /* Single buffer is used to store both control code and data.
@@ -205,8 +222,7 @@ static void MW_Demo_thread(void *pvParameters)
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     status = board_pins_config();
-    if (status != 0)
-    {
+    if (status != 0) {
         printf("Error in pin-mux configuration: %d\n", status);
         return;
     }
@@ -217,8 +233,7 @@ static void MW_Demo_thread(void *pvParameters)
      * in the board support library.Therefore, it is being configured manually here.
      */
     status = board_spi_pins_config();
-    if(status != 0)
-    {
+    if (status != 0) {
         printf("Error in pin-mux configuration: %d\n", status);
         return;
     }
@@ -226,55 +241,49 @@ static void MW_Demo_thread(void *pvParameters)
 
     /* SPI2 master instance initialization */
     status = masterDrv->Initialize(SPI2_Callback_func);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize SPI2 \n");
         return;
     }
 
     status = masterDrv->PowerControl(ARM_POWER_FULL);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power SPI2 \n");
         goto error_spi2_uninitialize;
     }
 
-    master_control = (ARM_SPI_MODE_MASTER | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_MICROWIRE | ARM_SPI_DATA_BITS(32));
+    master_control = (ARM_SPI_MODE_MASTER | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_MICROWIRE |
+                      ARM_SPI_DATA_BITS(32));
 
-    status = masterDrv->Control(master_control, baudrate);
-    if (status != ARM_DRIVER_OK)
-    {
+    status         = masterDrv->Control(master_control, baudrate);
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI2\n");
         goto error_spi2_power_off;
     }
 
     /* SPI3 slave instance initialization */
     status = slaveDrv->Initialize(SPI3_Callback_func);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize SPI3 \n");
         return;
     }
 
     status = slaveDrv->PowerControl(ARM_POWER_FULL);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power SPI3 \n");
         goto error_spi3_uninitialize;
     }
 
     slave_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_MICROWIRE | ARM_SPI_DATA_BITS(32));
 
-    status = slaveDrv->Control(slave_control, NULL);
-    if (status != ARM_DRIVER_OK)
-    {
+    status        = slaveDrv->Control(slave_control, NULL);
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI3\n");
         goto error_spi3_power_off;
     }
 
     status = masterDrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI2\n");
         goto error_spi2_power_off;
     }
@@ -283,16 +292,15 @@ static void MW_Demo_thread(void *pvParameters)
 
     printf("\nData transfer from master to slave \n");
 
-    master_tx_buff[0] = 0x1111;       /* control word 1 */
-    master_tx_buff[1] = 0x11111111;   /* data 1 */
-    master_tx_buff[2] = 0x2222;       /* control word 2 */
-    master_tx_buff[3] = 0x22222222;   /* data 2 */
+    master_tx_buff[0] = 0x1111;     /* control word 1 */
+    master_tx_buff[1] = 0x11111111; /* data 1 */
+    master_tx_buff[2] = 0x2222;     /* control word 2 */
+    master_tx_buff[3] = 0x22222222; /* data 2 */
 
     /* The second parameter should be the total number of data to be transferred,
      * excluding the control frame number. */
-    status = slaveDrv->Receive(slave_rx_buff, 2);
-    if (status != ARM_DRIVER_OK)
-    {
+    status            = slaveDrv->Receive(slave_rx_buff, 2);
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed SPI3 to configure as rx\n");
         goto error_spi3_power_off;
     }
@@ -300,8 +308,7 @@ static void MW_Demo_thread(void *pvParameters)
     /* The second parameter should be the total number of data to be transferred,
      * excluding the control frame number. */
     status = masterDrv->Send(master_tx_buff, 2);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed SPI2 to configure as tx\n");
         goto error_spi2_power_off;
     }
@@ -309,20 +316,19 @@ static void MW_Demo_thread(void *pvParameters)
 #else
 
     /* assign control codes to master tx buffer */
-    master_tx_buff[0] = 0x1111;       /* control word 1 */
-    master_tx_buff[1] = 0x2222;       /* control word 2 */
+    master_tx_buff[0] = 0x1111; /* control word 1 */
+    master_tx_buff[1] = 0x2222; /* control word 2 */
 
     /* assign slave tx buffer */
-    slave_tx_buff[0] = 0x11111111;   /* data 1 */
-    slave_tx_buff[1] = 0x22222222;   /* data 2 */
+    slave_tx_buff[0]  = 0x11111111; /* data 1 */
+    slave_tx_buff[1]  = 0x22222222; /* data 2 */
 
     printf("\nData transfer from slave to master \n");
 
     /* The third parameter should be the total number of data to be transferred,
      * excluding the control frame number. */
     status = slaveDrv->Transfer(slave_tx_buff, slave_rx_buff, 2);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed SPI3 to configure as tx\n");
         goto error_spi3_power_off;
     }
@@ -330,71 +336,73 @@ static void MW_Demo_thread(void *pvParameters)
     /* The third parameter should be the total number of data to be transferred,
      * excluding the control frame number. */
     status = masterDrv->Transfer(master_tx_buff, master_rx_buff, 2);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed SPI2 to configure as rx\n");
         goto error_spi2_power_off;
     }
 
 #endif
 
-    xReturned = xTaskNotifyWait(NULL, SPI2_CALLBACK_EVENT|SPI3_CALLBACK_EVENT, NULL, MW_THREAD_WAIT_TIME);
-    if (xReturned != pdTRUE )
-    {
+    xReturned =
+        xTaskNotifyWait(NULL, SPI2_CALLBACK_EVENT | SPI3_CALLBACK_EVENT, NULL, MW_THREAD_WAIT_TIME);
+    if (xReturned != pdTRUE) {
         printf("\n\r Task Wait Time out expired \n\r");
         goto error_spi2_power_off;
-    }
-    else
-    {
+    } else {
         printf("Data Transfer completed\n");
     }
 
     spi2_status = masterDrv->GetStatus();
     spi3_status = slaveDrv->GetStatus();
-    while((spi2_status.busy == 1) || (spi3_status.busy == 1))
-    {
+    while ((spi2_status.busy == 1) || (spi3_status.busy == 1)) {
         spi2_status = masterDrv->GetStatus();
         spi3_status = slaveDrv->GetStatus();
     }
 
     masterDrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
-    if (status != ARM_DRIVER_OK)
-    {
+    if (status != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI2\n");
         goto error_spi2_power_off;
     }
 
 #if MASTER_TO_SLAVE_TRANSFER
-    (memcmp(master_tx_buff, slave_rx_buff, 4) == 0) ? printf("Master tx & Slave rx buffers are same\n") : \
-                                                      printf("Master tx & Slave rx rx buffers are different\n");
+    (memcmp(master_tx_buff, slave_rx_buff, 4) == 0)
+        ? printf("Master tx & Slave rx buffers are same\n")
+        : printf("Master tx & Slave rx rx buffers are different\n");
 
 #else
-    (memcmp(master_tx_buff, slave_rx_buff, 2) == 0) ? printf("Master tx & Slave rx buffers are same\n") : \
-                                                       printf("Master tx & Slave rx buffers are different\n");
-    (memcmp(slave_tx_buff, master_rx_buff, 2) == 0) ? printf("Slave tx & Master rx buffers are same\n") : \
-                                                       printf("Slave tx & Master rx buffers are different\n");
+    (memcmp(master_tx_buff, slave_rx_buff, 2) == 0)
+        ? printf("Master tx & Slave rx buffers are same\n")
+        : printf("Master tx & Slave rx buffers are different\n");
+    (memcmp(slave_tx_buff, master_rx_buff, 2) == 0)
+        ? printf("Slave tx & Master rx buffers are same\n")
+        : printf("Slave tx & Master rx buffers are different\n");
 
 #endif
 
-error_spi2_power_off :
+error_spi2_power_off:
     status = masterDrv->PowerControl(ARM_POWER_OFF);
-    if (status != ARM_DRIVER_OK)
+    if (status != ARM_DRIVER_OK) {
         printf("Error in SPI2 Power Off \n");
+    }
 
-error_spi2_uninitialize :
+error_spi2_uninitialize:
     status = masterDrv->Uninitialize();
-    if (status != ARM_DRIVER_OK)
+    if (status != ARM_DRIVER_OK) {
         printf("Error in SPI2 Uninitialize \n");
+    }
 
-error_spi3_power_off :
+error_spi3_power_off:
     status = slaveDrv->PowerControl(ARM_POWER_OFF);
-    if (status != ARM_DRIVER_OK)
+    if (status != ARM_DRIVER_OK) {
         printf("Error in SPI3 Power Off \n");
+    }
 
-error_spi3_uninitialize :
+error_spi3_uninitialize:
     status = slaveDrv->Uninitialize();
-    if (status != ARM_DRIVER_OK)
+    if (status != ARM_DRIVER_OK) {
         printf("Error in SPI3 Uninitialize \n");
+    }
 
     printf("\nEnd of MicroWire demo application \n");
 
@@ -405,31 +413,28 @@ error_spi3_uninitialize :
 /*----------------------------------------------------------------------------
  *      Main: Initialize and start the FreeRTOS Kernel
  *---------------------------------------------------------------------------*/
-int main( void )
+int main(void)
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if(ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
+    if (ret != ARM_DRIVER_OK) {
+        while (1) {
         }
     }
-    #endif
-   /* System Initialization */
-   SystemCoreClockUpdate();
+#endif
+    /* System Initialization */
+    SystemCoreClockUpdate();
 
-   /* Create application main thread */
-   BaseType_t xReturned = xTaskCreate(MW_Demo_thread, "MW_Thread", 216, NULL, configMAX_PRIORITIES-1, &mw_xHandle);
-   if (xReturned != pdPASS)
-   {
-       vTaskDelete(mw_xHandle);
-       return -1;
+    /* Create application main thread */
+    BaseType_t xReturned =
+        xTaskCreate(MW_Demo_thread, "MW_Thread", 216, NULL, configMAX_PRIORITIES - 1, &mw_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(mw_xHandle);
+        return -1;
     }
 
     /* Start thread execution */
     vTaskStartScheduler();
-
 }

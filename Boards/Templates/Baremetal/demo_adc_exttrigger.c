@@ -8,7 +8,7 @@
  *
  */
 
-/**************************************************************************//**
+/*******************************************************************************
  * @file     : demo_adc_exttrigger.c
  * @author   : Prabhakar kumar
  * @email    : prabhakar.kumar@alifsemi.com
@@ -57,46 +57,47 @@
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif  /* RTE_CMSIS_Compiler_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
+#include "sys_utils.h"
 
 // Set to 0: Use application-defined ADC pin configuration (via board_adc_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
-static volatile uint32_t cb_compare_a_status = 0;
+static volatile uint32_t cb_compare_a_status;
 
 /* UTIMER0 Driver instance */
 extern ARM_DRIVER_UTIMER Driver_UTIMER0;
-ARM_DRIVER_UTIMER *ptrUTIMER = &Driver_UTIMER0;
+ARM_DRIVER_UTIMER       *ptrUTIMER = &Driver_UTIMER0;
 
 /* Macro for ADC12 and ADC24 */
-#define ADC12    1
-#define ADC24    0
+#define ADC_12        1
+#define ADC_24        0
 
-/* For ADC12 use ADC_INSTANCE ADC12  */
-/* For ADC24 use ADC_INSTANCE ADC24  */
+/* For ADC_12 use ADC_INSTANCE ADC12  */
+/* For ADC_24 use ADC_INSTANCE ADC24  */
 
-#define ADC_INSTANCE         ADC12
-//#define ADC_INSTANCE         ADC24
+#define ADC_INSTANCE ADC_12
+// #define ADC_INSTANCE         ADC_24
 
-#if (ADC_INSTANCE == ADC12)
+#if (ADC_INSTANCE == ADC_12)
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
+extern ARM_DRIVER_ADC  ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
 static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
 #else
 /* Instance for ADC24 */
-extern ARM_DRIVER_ADC Driver_ADC24;
+extern ARM_DRIVER_ADC  Driver_ADC24;
 static ARM_DRIVER_ADC *ADCdrv = &Driver_ADC24;
 #endif
 
-#define NUM_CHANNELS          8
-#define NUM_TEST_SAMPLES      3
-#define NUM_PULSE_GENERATE    3
+#define NUM_CHANNELS       8
+#define NUM_TEST_SAMPLES   3
+#define NUM_PULSE_GENERATE 3
 
 /* Demo purpose adc_sample*/
 uint32_t adc_sample[NUM_CHANNELS];
 
-volatile uint32_t num_samples = 0;
+volatile uint32_t num_samples;
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
@@ -109,30 +110,34 @@ static int32_t board_adc_pins_config(void)
 {
     int32_t ret = 0U;
 
-    if (ADC_INSTANCE == ADC12)
-    {
+    if (ADC_INSTANCE == ADC_12) {
         /* ADC122 channel 0 */
-        ret = pinconf_set(PORT_(BOARD_ADC12_CH0_GPIO_PORT), BOARD_ADC12_CH0_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-        if(ret)
-        {
+        ret = pinconf_set(PORT_(BOARD_ADC12_CH0_GPIO_PORT),
+                          BOARD_ADC12_CH0_GPIO_PIN,
+                          PINMUX_ALTERNATE_FUNCTION_7,
+                          PADCTRL_READ_ENABLE);
+        if (ret) {
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
     }
 
-    if (ADC_INSTANCE == ADC24)
-    {
+    if (ADC_INSTANCE == ADC_24) {
         /* ADC24 channel 0 */
-        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_POS_GPIO_PORT), BOARD_ADC24_CH0_POS_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-        if(ret)
-        {
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_POS_GPIO_PORT),
+                          BOARD_ADC24_CH0_POS_GPIO_PIN,
+                          PINMUX_ALTERNATE_FUNCTION_7,
+                          PADCTRL_READ_ENABLE);
+        if (ret) {
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
         /* ADC24 channel 0 */
-        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_NEG_GPIO_PORT), BOARD_ADC24_CH0_NEG_GPIO_PIN, PINMUX_ALTERNATE_FUNCTION_7, PADCTRL_READ_ENABLE);
-        if(ret)
-        {
+        ret = pinconf_set(PORT_(BOARD_ADC24_CH0_NEG_GPIO_PORT),
+                          BOARD_ADC24_CH0_NEG_GPIO_PIN,
+                          PINMUX_ALTERNATE_FUNCTION_7,
+                          PADCTRL_READ_ENABLE);
+        if (ret) {
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
@@ -145,15 +150,14 @@ static int32_t board_adc_pins_config(void)
  * @func   : void adc_conversion_callback(uint32_t event, uint8_t channel, uint32_t sample_output)
  * @brief  : adc conversion isr callback
  * @return : NONE
-*/
+ */
 static void adc_conversion_callback(uint32_t event, uint8_t channel, uint32_t sample_output)
 {
-    if (event & ARM_ADC_EVENT_CONVERSION_COMPLETE)
-    {
-        num_samples += 1;
+    if (event & ARM_ADC_EVENT_CONVERSION_COMPLETE) {
+        num_samples         += 1;
 
         /* Store the value for the respected channels */
-        adc_sample[channel] = sample_output;
+        adc_sample[channel]  = sample_output;
     }
 }
 
@@ -180,8 +184,8 @@ static void utimer_compare_mode_cb_func(uint8_t event)
  */
 static void utimer_compare_mode_app(void)
 {
-    int32_t ret;
-    uint8_t channel = 0;
+    int32_t  ret;
+    uint8_t  channel = 0;
     uint32_t count_array[3];
 
     /*
@@ -202,56 +206,54 @@ static void utimer_compare_mode_app(void)
      * DEC = 200000000
      * HEX = 0xBEBC200
      */
-    count_array[0] =  0x000000000;       /*< initial counter value >*/
-    count_array[1] =  0x17D78400;        /*< over flow count value >*/
-    count_array[2] =  0xBEBC200;         /*< compare a/b value>*/
+    count_array[0] = 0x000000000; /*< initial counter value >*/
+    count_array[1] = 0x17D78400;  /*< over flow count value >*/
+    count_array[2] = 0xBEBC200;   /*< compare a/b value>*/
 
-    ret = ptrUTIMER->Initialize (channel, utimer_compare_mode_cb_func);
+    ret            = ptrUTIMER->Initialize(channel, utimer_compare_mode_cb_func);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed initialize \n", channel);
+        printf("utimer channel %" PRId8 " failed initialize \n", channel);
         return;
     }
 
-    ret = ptrUTIMER->PowerControl (channel, ARM_POWER_FULL);
+    ret = ptrUTIMER->PowerControl(channel, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed power up \n", channel);
+        printf("utimer channel %" PRId8 " failed power up \n", channel);
         goto error_compare_mode_uninstall;
     }
 
-    ret = ptrUTIMER->ConfigCounter (channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
+    ret = ptrUTIMER->ConfigCounter(channel, ARM_UTIMER_MODE_COMPARING, ARM_UTIMER_COUNTER_UP);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" mode configuration failed \n", channel);
+        printf("utimer channel %" PRId8 " mode configuration failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
-    ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR, count_array[0]);
+    ret = ptrUTIMER->SetCount(channel, ARM_UTIMER_CNTR, count_array[0]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
-    ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
+    ret = ptrUTIMER->SetCount(channel, ARM_UTIMER_CNTR_PTR, count_array[1]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
-    ret = ptrUTIMER->SetCount (channel, ARM_UTIMER_COMPARE_A, count_array[2]);
+    ret = ptrUTIMER->SetCount(channel, ARM_UTIMER_COMPARE_A, count_array[2]);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" set count failed \n", channel);
+        printf("utimer channel %" PRId8 " set count failed \n", channel);
         goto error_compare_mode_poweroff;
     }
 
     ret = ptrUTIMER->Start(channel);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed to start \n", channel);
+        printf("utimer channel %" PRId8 " failed to start \n", channel);
         goto error_compare_mode_poweroff;
     }
 
-    for (int index = 0; index < NUM_PULSE_GENERATE; index++)
-    {
-        while(1)
-        {
+    for (int index = 0; index < NUM_PULSE_GENERATE; index++) {
+        while (1) {
             if (cb_compare_a_status) {
                 cb_compare_a_status = 0;
                 break;
@@ -259,39 +261,38 @@ static void utimer_compare_mode_app(void)
         }
     }
 
-    ret = ptrUTIMER->Stop (channel, ARM_UTIMER_COUNTER_CLEAR);
+    ret = ptrUTIMER->Stop(channel, ARM_UTIMER_COUNTER_CLEAR);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed to stop \n", channel);
+        printf("utimer channel %" PRId8 " failed to stop \n", channel);
     }
 
 error_compare_mode_poweroff:
 
-    ret = ptrUTIMER->PowerControl (channel, ARM_POWER_OFF);
+    ret = ptrUTIMER->PowerControl(channel, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed power off \n", channel);
+        printf("utimer channel %" PRId8 " failed power off \n", channel);
     }
 
 error_compare_mode_uninstall:
 
-    ret = ptrUTIMER->Uninitialize (channel);
-    if(ret != ARM_DRIVER_OK) {
-        printf("utimer channel %"PRId8" failed to un-initialize \n", channel);
+    ret = ptrUTIMER->Uninitialize(channel);
+    if (ret != ARM_DRIVER_OK) {
+        printf("utimer channel %" PRId8 " failed to un-initialize \n", channel);
     }
 }
 
 void adc_ext_trigger_demo()
 {
-    int32_t ret                = 0;
-    uint32_t error_code        = SERVICES_REQ_SUCCESS;
-    uint32_t service_error_code;
+    int32_t            ret        = 0;
+    uint32_t           error_code = SERVICES_REQ_SUCCESS;
+    uint32_t           service_error_code;
     ARM_DRIVER_VERSION version;
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
-    if (ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -301,9 +302,8 @@ void adc_ext_trigger_demo()
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret = board_adc_pins_config();
-    if(ret != 0)
-    {
-        printf("Error in pin-mux configuration: %"PRId32"\n", ret);
+    if (ret != 0) {
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
@@ -313,19 +313,18 @@ void adc_ext_trigger_demo()
 
     /* enable the 160 MHz clock */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_CLK_160M,
-                           /*bool enable   */ true,
+                                              /*clock_enable_t*/ CLKEN_CLK_160M,
+                                              /*bool enable   */ true,
                                               &service_error_code);
-    if(error_code)
-    {
-        printf("SE Error: 160 MHz clk enable = %"PRId32"\n", error_code);
+    if (error_code) {
+        printf("SE Error: 160 MHz clk enable = %" PRId32 "\n", error_code);
         return;
     }
 
     printf("\r\n >>> ADC demo starting up!!! <<< \r\n");
 
     version = ADCdrv->GetVersion();
-    printf("\r\n ADC version api:%"PRIx16" driver:%"PRIx16"...\r\n",version.api, version.drv);
+    printf("\r\n ADC version api:%" PRIx16 " driver:%" PRIx16 "...\r\n", version.api, version.drv);
 
     /* Initialize ADC driver */
     ret = ADCdrv->Initialize(adc_conversion_callback);
@@ -348,7 +347,7 @@ void adc_ext_trigger_demo()
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%"PRIx32" <<<\n",(uint32_t)adc_sample);
+    printf(">>> Allocated memory buffer Address is 0x%" PRIx32 " <<<\n", (uint32_t) adc_sample);
 
     /* Enable ADC from External trigger pulse */
     ret = ADCdrv->Control(ARM_ADC_EXTERNAL_TRIGGER_ENABLE, ARM_ADC_EXTERNAL_TRIGGER_SRC_0);
@@ -359,7 +358,7 @@ void adc_ext_trigger_demo()
 
     /* Start ADC */
     ret = ADCdrv->Start();
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Start failed\n");
         goto error_poweroff;
     }
@@ -367,7 +366,8 @@ void adc_ext_trigger_demo()
     /* Generating pulse from Utimer */
     utimer_compare_mode_app();
 
-    while (num_samples != NUM_TEST_SAMPLES);
+    while (num_samples != NUM_TEST_SAMPLES) {
+    }
 
     /* Disable ADC external trigger conversion */
     ret = ADCdrv->Control(ARM_ADC_EXTERNAL_TRIGGER_DISABLE, ARM_ADC_EXTERNAL_TRIGGER_SRC_0);
@@ -378,7 +378,7 @@ void adc_ext_trigger_demo()
 
     /* Stop ADC */
     ret = ADCdrv->Stop();
-    if(ret != ARM_DRIVER_OK){
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Stop failed\n");
         goto error_poweroff;
     }
@@ -386,31 +386,28 @@ void adc_ext_trigger_demo()
     printf("\n >>> ADC conversion completed \n");
     printf(" Converted value are stored in user allocated memory address.\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    while(1);
+    WAIT_FOREVER
 
 error_poweroff:
     /* Power off ADC peripheral */
     ret = ADCdrv->PowerControl(ARM_POWER_OFF);
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Power OFF failed.\r\n");
     }
 
 error_uninitialize:
     /* Un-initialize ADC driver */
     ret = ADCdrv->Uninitialize();
-    if (ret != ARM_DRIVER_OK)
-    {
+    if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: ADC Uninitialize failed.\r\n");
     }
     /* disable the 160MHz clock */
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
-                           /*clock_enable_t*/ CLKEN_CLK_160M,
-                           /*bool enable   */ false,
+                                              /*clock_enable_t*/ CLKEN_CLK_160M,
+                                              /*bool enable   */ false,
                                               &service_error_code);
-    if(error_code)
-    {
-        printf("SE Error: 160 MHz clk disable = %"PRId32"\n", error_code);
+    if (error_code) {
+        printf("SE Error: 160 MHz clk disable = %" PRId32 "\n", error_code);
         return;
     }
 
@@ -420,17 +417,14 @@ error_uninitialize:
 /* Define main entry point.  */
 int main()
 {
-    #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-    extern int stdout_init (void);
-    int32_t ret;
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    extern int stdout_init(void);
+    int32_t    ret;
     ret = stdout_init();
-    if (ret != ARM_DRIVER_OK)
-    {
-        while(1)
-        {
-        }
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER
     }
-    #endif
+#endif
 
     /* Enter the demo Application.  */
     adc_ext_trigger_demo();
