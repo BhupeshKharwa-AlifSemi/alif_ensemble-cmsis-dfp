@@ -45,6 +45,8 @@
 #include "pinconf.h"
 #include "Driver_UTIMER.h"
 
+#include "sys_utils.h"
+
 /* include for Comparator Driver */
 #include "Driver_CMP.h"
 
@@ -59,33 +61,34 @@
 
 // Set to 0: Use application-defined CMP pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
-#define USE_CONDUCTOR_TOOL_PINS_CONFIG 1
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
 /* LED configurations */
 #define LED0_R                         BOARD_LEDRGB0_R_GPIO_PIN /* LED0_R gpio pin             */
 
-/* For E7: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN, for HSCMP1
- * set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN, for HSCMP2 set CMP_OUTPIN as BOARD_CMP2_OUT_GPIO_PIN,
- * and for HSCMP3 set CMP_OUTPIN as BOARD_CMP3_OUT_GPIO_PIN.
- * For E1C: To read the HSCMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN and for
- * HSCMP1 set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN
+/* For E7: To read the CMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN, for CMP1
+ * set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN, for CMP2 set CMP_OUTPIN as BOARD_CMP2_OUT_GPIO_PIN,
+ * and for CMP3 set CMP_OUTPIN as BOARD_CMP3_OUT_GPIO_PIN.
+ * For E1C: To read the CMP0 output status set CMP_OUTPIN as BOARD_CMP0_OUT_GPIO_PIN and for
+ * CMP1 set CMP_OUTPIN as BOARD_CMP1_OUT_GPIO_PIN
  * */
 #define CMP_OUTPIN                     BOARD_CMP0_OUT_GPIO_PIN
 
 #define NUM_TAPS                       3 /* Filter taps: choose between 3 and 8 */
 
-#define LPCMP                          0
-#define HSCMP                          1
+#define LP_CMP                         0
+#define CMP                            1
 
-/* To configure for HSCMP, use CMP_INSTANCE HSCMP */
-/* To configure for LPCMP, use CMP_INSTANCE LPCMP */
-#define CMP_INSTANCE                   HSCMP
+/* To configure for CMP, use CMP_INSTANCE CMP */
+/* To configure for LPCMP, use CMP_INSTANCE LP_CMP */
+#define CMP_INSTANCE                   CMP
 
 /* To enable comparator window control, change the macro value from 0 to 1
  * The glb_events/utimer events define the window where to look at the cmp_input.
  * As GLB_events/Utimer_events are active for few clocks, there is no reason to set
  * prescaler value, so set Prescaler value to 0 when using window control.
- * As Utimer is running continuously, the HSCMP interrupts will occur continuously. */
+ * As Utimer is running continuously, the CMP interrupts will occur continuously.
+ */
 #define CMP_WINDOW_CONTROL             0
 
 #if CMP_WINDOW_CONTROL
@@ -103,7 +106,7 @@ ARM_DRIVER_GPIO       *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 ARM_DRIVER_GPIO       *CMPout = &ARM_Driver_GPIO_(BOARD_CMP0_OUT_GPIO_PORT);
 
-#if (CMP_INSTANCE == LPCMP)
+#if (CMP_INSTANCE == LP_CMP)
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
 #endif
@@ -164,7 +167,7 @@ void vApplicationIdleHook(void)
 }
 
 /* Use window control(External trigger using UTIMER or QEC) to trigger the comparator comparison */
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
 #if CMP_WINDOW_CONTROL
 
 /* UTIMER0 Driver instance */
@@ -325,7 +328,7 @@ static int32_t board_cmp_pins_config(void)
 {
     int32_t status;
 
-    /* Configure HSCMP0 output */
+    /* Configure CMP0 output */
     status = pinconf_set(PORT_(BOARD_CMP0_OUT_GPIO_PORT),
                          BOARD_CMP0_OUT_GPIO_PIN,
                          BOARD_CMP0_OUT_ALTERNATE_FUNCTION,
@@ -352,7 +355,7 @@ static int32_t board_cmp_pins_config(void)
         return ERROR;
     }
 
-    /* CMP0_IN0 input to the positive terminal of HSCMP0 */
+    /* CMP0_IN0 input to the positive terminal of CMP0 */
     status = pinconf_set(PORT_(BOARD_CMP0_POS_INPUT_GPIO_PORT),
                          BOARD_CMP0_POS_INPUT_GPIO_PIN,
                          BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION,
@@ -361,7 +364,7 @@ static int32_t board_cmp_pins_config(void)
         return ERROR;
     }
 
-    /* VREF_IN0 input to the negative terminal of HSCMP0 and HSCMP1 */
+    /* VREF_IN0 input to the negative terminal of CMP0 and CMP1 */
     status = pinconf_set(PORT_(BOARD_CMP_NEG_INPUT_GPIO_PORT),
                          BOARD_CMP_NEG_INPUT_GPIO_PIN,
                          BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION,
@@ -576,7 +579,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
     version = CMPdrv->GetVersion();
     printf("\r\n Comparator version api:%X driver:%X...\r\n", version.api, version.drv);
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
     /* Initialize the configurations for LED0_R */
     if (led_init()) {
         printf("Error: LED initialization failed\n");
@@ -598,7 +601,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         goto error_uninitialize;
     }
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
 
 #if CMP_WINDOW_CONTROL
     /* Start CMP using window control */
@@ -631,7 +634,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
         goto error_poweroff;
     }
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
 #if CMP_WINDOW_CONTROL
     /* Set flag to wake up utimer task */
     xReturned = xTaskNotify(utimer_compare_xHandle, UTIMER_TASK_START, eSetBits);
@@ -644,7 +647,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 #endif
 
     while (ucLoop_count--) {
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
         /* Toggle the LED0_R */
         if (led_toggle()) {
             printf("ERROR: Failed to toggle LEDs\n");
@@ -659,7 +662,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
             goto error_poweroff;
         }
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
         vTaskDelay(xDelay);
 
         /* Check the status of the CMP output pin */
@@ -679,7 +682,7 @@ static void CMP_demo_Thread_entry(void *pvParameters)
 #endif
     }
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
 #if CMP_WINDOW_CONTROL
     /* Disable CMP window control */
     slRet = CMPdrv->Control(ARM_CMP_WINDOW_CONTROL_DISABLE, ARM_CMP_WINDOW_CONTROL_SRC_0);
@@ -741,7 +744,7 @@ int main()
         return -1;
     }
 
-#if (CMP_INSTANCE == HSCMP)
+#if (CMP_INSTANCE == CMP)
 #if CMP_WINDOW_CONTROL
     xReturned = xTaskCreate(utimer_compare_mode_app,
                             "utimer_compare_mode_demo",
