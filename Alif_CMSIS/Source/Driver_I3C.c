@@ -24,6 +24,28 @@
 
 #define ARM_I3C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(7, 12) /* driver version */
 
+#if I3C_DMA_ENABLE
+/* DMA helper macros */
+#if defined(I3C_DMA_TX_PERIPH_REQ)
+#define IS_DMA_I3C_TX(p)   ((p) == I3C_DMA_TX_PERIPH_REQ)
+#define IS_DMA_I3C_RX(p)   ((p) == I3C_DMA_RX_PERIPH_REQ)
+#else
+#define IS_DMA_I3C_TX(p)   0
+#define IS_DMA_I3C_RX(p)   0
+#endif
+
+#if defined(LPI3C_DMA_TX_PERIPH_REQ)
+#define IS_DMA_LPI3C_TX(p) ((p) == LPI3C_DMA_TX_PERIPH_REQ)
+#define IS_DMA_LPI3C_RX(p) ((p) == LPI3C_DMA_RX_PERIPH_REQ)
+#else
+#define IS_DMA_LPI3C_TX(p) 0
+#define IS_DMA_LPI3C_RX(p) 0
+#endif
+
+#define IS_I3C_DMA_TX_REQ(p)  (IS_DMA_I3C_TX(p) || IS_DMA_LPI3C_TX(p))
+#define IS_I3C_DMA_RX_REQ(p)  (IS_DMA_I3C_RX(p) || IS_DMA_LPI3C_RX(p))
+#endif
+
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion        = {ARM_I3C_API_VERSION, ARM_I3C_DRV_VERSION};
 
@@ -1900,26 +1922,15 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num, I3C_RESOURCES *i3c
 
     /* Transfer Completed */
     if (event & ARM_DMA_EVENT_COMPLETE) {
-        switch (peri_num) {
-#if RTE_I3C
-        case I3C_DMA_TX_PERIPH_REQ:
-#endif
-#if RTE_LPI3C
-        case LPI3C_DMA_TX_PERIPH_REQ:
-#endif
+        if (IS_I3C_DMA_TX_REQ(peri_num)) {
             /* For DMA TX,
              *  Success/Error decision will be taken by
              *   Interrupt Handler based on status of Response-Queue.
              *   (as this callback will be always called
              *    irrespective of slave gives ACK/NACK.)
              */
-            break;
-#if RTE_I3C
-        case I3C_DMA_RX_PERIPH_REQ:
-#endif
-#if RTE_LPI3C
-        case LPI3C_DMA_RX_PERIPH_REQ:
-#endif
+            ;
+        } else if (IS_I3C_DMA_RX_REQ(peri_num)) {
             /* For DMA RX,
              *  Success decision will be taken here(DMA RX Callback).
              *  Error decision will be taken by Interrupt Handler
@@ -1934,15 +1945,12 @@ static void I3Cx_DMACallback(uint32_t event, int8_t peri_num, I3C_RESOURCES *i3c
 
             /* Mark event as success and call the user callback */
             i3c->cb_event(ARM_I3C_EVENT_TRANSFER_DONE);
-            break;
-
-        default:
-            break;
         }
     }
-
     /* Abort Occurred */
     if (event & ARM_DMA_EVENT_ABORT) {
+        /* does nothing */
+        ;
     }
 }
 #endif /* I3C_DMA_ENABLE */
