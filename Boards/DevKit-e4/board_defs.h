@@ -1053,6 +1053,8 @@
 // <o> "LEDRGB1_R" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB1_R_GPIO_PIN                        2
+// <o> "LEDRGB1_R" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB1_R_ALTERNATE_FUNCTION              0
 
 // <o> "LEDRGB1_G" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1061,6 +1063,8 @@
 // <o> "LEDRGB1_G" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB1_G_GPIO_PIN                        4
+// <o> "LEDRGB1_G" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB1_G_ALTERNATE_FUNCTION              0
 
 // <o> "LEDRGB1_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1069,6 +1073,8 @@
 // <o> "LEDRGB1_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB1_B_GPIO_PIN                        6
+// <o> "LEDRGB1_B" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB1_B_ALTERNATE_FUNCTION              0
 
 // <o> "CAN_RXD" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
@@ -1825,7 +1831,7 @@
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB0_B_GPIO_PIN                        0
 // <o> "LEDRGB0_B" GPIO pin alternate function <0-7>
-#define BOARD_LEDRGB0_B_ALTERNATE_FUNCTION              4
+#define BOARD_LEDRGB0_B_ALTERNATE_FUNCTION              0
 
 // <o> "LEDRGB0_R" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1835,7 +1841,7 @@
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB0_R_GPIO_PIN                        3
 // <o> "LEDRGB0_R" GPIO pin alternate function <0-7>
-#define BOARD_LEDRGB0_R_ALTERNATE_FUNCTION              4
+#define BOARD_LEDRGB0_R_ALTERNATE_FUNCTION              0
 
 // <o> "LEDRGB0_G" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1845,7 +1851,7 @@
 // PIN6 <7=> PIN7
 #define BOARD_LEDRGB0_G_GPIO_PIN                        4
 // <o> "LEDRGB0_G" GPIO pin alternate function <0-7>
-#define BOARD_LEDRGB0_G_ALTERNATE_FUNCTION              6
+#define BOARD_LEDRGB0_G_ALTERNATE_FUNCTION              0
 
 // <o> "JOY_SW_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13

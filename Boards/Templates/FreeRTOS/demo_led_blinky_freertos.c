@@ -23,8 +23,10 @@
 /* Includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <RTE_Components.h>
 #include CMSIS_device_header
+#include "pinconf.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -37,6 +39,10 @@
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
 #include "sys_utils.h"
+
+// Set to 0: Use application-defined LED pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
 
 /*Define for FreeRTOS*/
 #define STACK_SIZE                    1024
@@ -85,6 +91,9 @@ void vApplicationIdleHook(void)
 /* Define the FreeRTOS object control blocks...  */
 #define DEMO_STACK_SIZE 1024
 
+#define ERROR    -1
+#define SUCCESS   0
+
 TaskHandle_t led_xHandle;
 
 /* GPIO port used for LEDRGB0_R */
@@ -111,6 +120,58 @@ ARM_DRIVER_GPIO       *gpioDrvLed1G = &ARM_Driver_GPIO_(BOARD_LEDRGB1_G_GPIO_POR
 /* GPIO port used for LEDRGB1_B */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
 ARM_DRIVER_GPIO       *gpioDrvLed1B = &ARM_Driver_GPIO_(BOARD_LEDRGB1_B_GPIO_PORT);
+#endif
+
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @fn      static int32_t board_led_pins_config(void)
+ * @brief   Configure LED pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_led_pins_config(void)
+{
+    int32_t status;
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN,
+                         BOARD_LEDRGB0_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN,
+                         BOARD_LEDRGB0_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN,
+                         BOARD_LEDRGB0_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+#if (BOARD_LEDRGB_COUNT > 1)
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_R_GPIO_PORT), BOARD_LEDRGB1_R_GPIO_PIN,
+                         BOARD_LEDRGB1_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_B_GPIO_PORT), BOARD_LEDRGB1_B_GPIO_PIN,
+                         BOARD_LEDRGB1_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_G_GPIO_PORT), BOARD_LEDRGB1_G_GPIO_PIN,
+                         BOARD_LEDRGB1_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+#endif
+
+    return SUCCESS;
+}
 #endif
 
 /**
@@ -150,13 +211,26 @@ void led_demo_Thread(void *pvParameters)
     uint8_t LED1_B = BOARD_LEDRGB1_B_GPIO_PIN;
 #endif
     const TickType_t xDelay = (1000 / portTICK_PERIOD_MS);
+
     printf("led blink demo application for FreeRTOS started\n\n");
 
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
     ret1 = board_pins_config();
     if (ret1 != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret1);
+        printf("Error in pin-mux configuration: %"PRId32"\n", ret1);
         return;
     }
+#else
+    /*
+     * NOTE: The LED pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret1 = board_led_pins_config();
+    if (ret1 != 0) {
+        printf("Error in pin-mux configuration %"PRId32"\n", ret1);
+        return;
+    }
+#endif
 
     ret1 = gpioDrvLed0R->Initialize(LED0_R, NULL);
     if (ret1 != ARM_DRIVER_OK) {

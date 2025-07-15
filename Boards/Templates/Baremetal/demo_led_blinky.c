@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include "Driver_IO.h"
+#include "pinconf.h"
 #include "board_config.h"
 #include <RTE_Components.h>
 #include CMSIS_device_header
@@ -28,6 +29,13 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
+
+// Set to 0: Use application-defined LED pin configuration.
+// Set to 1: Use Conductor-generated pin configuration (from pins.h).
+#define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
+
+#define ERROR    -1
+#define SUCCESS   0
 
 /* GPIO port used for LEDRGB0_R */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
@@ -70,6 +78,58 @@ void delay(uint32_t nticks)
     }
 }
 
+#if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
+/**
+ * @fn      static int32_t board_led_pins_config(void)
+ * @brief   Configure LED pinmux which not
+ *          handled by the board support library.
+ * @retval  execution status.
+ */
+static int32_t board_led_pins_config(void)
+{
+    int32_t status;
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN,
+                         BOARD_LEDRGB0_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN,
+                         BOARD_LEDRGB0_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN,
+                         BOARD_LEDRGB0_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+#if (BOARD_LEDRGB_COUNT > 1)
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_R_GPIO_PORT), BOARD_LEDRGB1_R_GPIO_PIN,
+                         BOARD_LEDRGB1_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_B_GPIO_PORT), BOARD_LEDRGB1_B_GPIO_PIN,
+                         BOARD_LEDRGB1_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+
+    status = pinconf_set(PORT_(BOARD_LEDRGB1_G_GPIO_PORT), BOARD_LEDRGB1_G_GPIO_PIN,
+                         BOARD_LEDRGB1_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
+    if (status) {
+        return ERROR;
+    }
+#endif
+
+    return SUCCESS;
+}
+#endif
+
 /**
   \fn         void led_blink_app(void)
   \brief      LED blinky function
@@ -98,7 +158,7 @@ void led_blink_app(void)
 
     int32_t ret1   = 0;
     int32_t ret2   = 0;
-    uint8_t LED0_R = BOARD_LEDRGB1_R_GPIO_PIN;
+    uint8_t LED0_R = BOARD_LEDRGB0_R_GPIO_PIN;
     uint8_t LED0_G = BOARD_LEDRGB0_G_GPIO_PIN;
     uint8_t LED0_B = BOARD_LEDRGB0_B_GPIO_PIN;
 #if (BOARD_LEDRGB_COUNT > 1)
@@ -109,11 +169,23 @@ void led_blink_app(void)
 
     printf("led blink demo application started\n\n");
 
+#if USE_CONDUCTOR_TOOL_PINS_CONFIG
     ret1 = board_pins_config();
     if (ret1 != 0) {
         printf("Error in pin-mux configuration: %" PRId32 "\n", ret1);
         return;
     }
+#else
+    /*
+     * NOTE: The LED pins used in this test application are not configured
+     * in the board support library.Therefore, it is being configured manually here.
+     */
+    ret1 = board_led_pins_config();
+    if (ret1 != 0) {
+        printf("Error in pin-mux configuration %"PRId32"\n", ret1);
+        return;
+    }
+#endif
 
     ret1 = gpioDrvLed0R->Initialize(LED0_R, NULL);
     if (ret1 != ARM_DRIVER_OK) {
