@@ -1892,7 +1892,6 @@
         <file category="source" name="Boards/Templates/Baremetal/demo_i3c_slave.c" attr="template" select="I3C Slave Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_icm42670p.c" attr="template" select="ICM42670P 3-axis accelerometer Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_led_blinky.c" attr="template" select="LED Blinky Baremetal Demo"/>
-        <file category="header" name="libs/conductor/example/pins.h" attr="template" select="LED Blinky Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_led_breathe.c" attr="template" select="LED PWM Baremtal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lptimer.c" attr="template" select="LPTIMER Baremetal Demo"/>
         <file category="source" name="Boards/Templates/Baremetal/demo_lvgl.c" attr="template" select="LVGL Baremetal Demo"/>
@@ -2862,13 +2861,6 @@
       </files>
     </component>
 
-    <component Cclass="BSP" Cgroup="Conductor Tool support" Cversion="2.0.0" condition="Ensemble CMSIS_Driver">
-      <description>Conductor Tool based board configuration for RTSS</description>
-      <files>
-        <file category="source" name="libs/conductor/conductor_board_config.c"/>
-        <file category="header" name="libs/conductor/conductor_board_config.h"/>
-      </files>
-    </component>
 	<component Cclass="Services" Cgroup="Retarget IO" Csub="STDIN" Cversion="2.0.0" condition="Retarget IO STDIN">
       <description>Retarget STDIN to UART</description>
       <files>
