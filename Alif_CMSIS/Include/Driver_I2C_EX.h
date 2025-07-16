@@ -32,6 +32,8 @@ extern "C" {
 
 #define ARM_I2C_MODE_WRITE_READ                                                                    \
     (0x05UL)  ///< Set Write-Read Combined mode; arg:(enable | target reg addr size in bytes)
+#define ARM_I2C_HS_MASTER_ADDR                                                                     \
+    (0x06UL)  ///< Set High speed addr of master; arg:addr (0-7)
 
 /****** I2C Write-Read - Target register address size in bytes *****/
 #define ARM_I2C_TAR_REG_ADDR_SIZE_Pos 0x0U
@@ -41,6 +43,12 @@ extern "C" {
 #define ARM_I2C_WRITE_READ_MODE_Pos 0x7U
 #define ARM_I2C_WRITE_READ_MODE_EN  (1U << ARM_I2C_WRITE_READ_MODE_Pos)
 #define ARM_I2C_WRITE_READ_MODE_DIS (0U << ARM_I2C_WRITE_READ_MODE_Pos)
+
+/****** I2C Extended Event *****/
+#define ARM_I2C_EVENT_HS_ACKDET                                                                    \
+    (1UL << 9)  ///< Received ack for High Speed code
+#define ARM_I2C_EVENT_HS_NO_RESTART                                                                \
+    (1UL << 10) ///< No Restart mode available for High Speed mode
 
 #ifdef __cplusplus
 }

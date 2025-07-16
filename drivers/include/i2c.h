@@ -65,6 +65,8 @@ extern "C" {
 #define I2C_IC_CON_ENABLE_MASTER_MODE        (0x41)
 #define I2C_IC_CON_ENA_SLAVE_MODE            (0)
 
+#define I2C_HS_MADDR_I2C_HS_MAR_MASK                (0x7 << 0)
+
 /* I2C interrupt control */
 #define I2C_IC_INT_DISABLE_ALL               (0x0)
 
@@ -185,15 +187,18 @@ extern "C" {
                                                       */
 #define I2C_IC_SAR_10BIT_ADDR_MASK           (0x3FF) /* 10bit I2C address mask for slave  address register \
                                                       */
-
 #define I2C_FS_SPIKE_LENGTH_NS               (50)
 #define I2C_HS_SPIKE_LENGTH_NS               (10)
 
-#define I2C_MIN_SS_SCL_LCNT(spklen)          ((spklen) + 7)
-#define I2C_MIN_FS_SCL_LCNT(spklen)          ((spklen) + 7)
+/* The below macros calculations are wrt configuration
+ * IC_CLK_FREQ_OPTIMIZATION = 1
+ */
+/* Min SCL High Time is 5 cycles. High Time = HCNT + spike_len + 3 */
+#define I2C_ENSURE_MIN_SCL_HCNT(x, spk_len)                                                        \
+    ((((x) + (spk_len) + 3) < 5) ? (5 - ((spk_len) + 3)) : (x))
 
-#define I2C_MIN_SS_SCL_HCNT(spklen)          ((spklen) + 5)
-#define I2C_MIN_FS_SCL_HCNT(spklen)          ((spklen) + 5)
+/* Min SCL Low Time is 6 cycles */
+#define I2C_ENSURE_MIN_SCL_LCNT(x)           (((x) < 6) ? 6 : (x))
 
 #define I2C_MIN_SS_HIGH_TIME_NS              (4400)
 #define I2C_MIN_SS_LOW_TIME_NS               (5200)
@@ -203,6 +208,9 @@ extern "C" {
 
 #define I2C_MIN_FS_PLUS_HIGH_TIME_NS         (290)
 #define I2C_MIN_FS_PLUS_LOW_TIME_NS          (550)
+
+#define I2C_MIN_HS_HIGH_TIME_NS              (10)
+#define I2C_MIN_HS_LOW_TIME_NS               (120)
 
 /* Macros for write-read mode */
 #define I2C_WRITE_READ_MODE_EN               0x80U
@@ -216,7 +224,8 @@ typedef enum i2c_speed_mode {
     I2C_SPEED_STANDARD =
         1, /* Bidirectional, Standard-mode (Sm), with a bit rate up to 100 kbit/s               */
     I2C_SPEED_FAST = 2,    /* Bidirectional, Fast-mode (Fm), with a bit rate up to 400 kbit/s    */
-    I2C_SPEED_FASTPLUS = 3 /* Bidirectional, Fast-mode Plus (Fm+), with a bit rate up to 1 Mbit/s */
+    I2C_SPEED_FASTPLUS = 3, /* Bidirectional, Fast-mode Plus (Fm+), with a bitrate up to 1Mbit/s */
+    I2C_SPEED_HIGH     = 4 /* Bidirectional, High-Speed-mode (HS), with a bitrate up to 3.4Mbit/s */
 } i2c_speed_mode_t;
 
 /* I2C Error State */
@@ -230,7 +239,9 @@ typedef enum i2c_error_state {
     I2C_ERR_UNDEF      = 6, /* Undefined error cases */
     I2C_ERR_GCALL      = 7, /* General call detected after slave receiver address from master */
     I2C_ERR_10B_RD_NORSTRT =
-        8 /* Master in Receive mode during 10 bit addressing but comm restart is disabled */
+        8, /* Master in Receive mode during 10 bit addressing but comm restart is disabled */
+    I2C_ERR_HS_ACKDET  = 9, /* Ack detected in High speed comm */
+    I2C_ERR_HS_NORSTRT = 10 /* No restart mode available for HigH speed mode */
 } i2c_error_state_t;
 
 /* I2C next Condition */
@@ -269,6 +280,8 @@ typedef enum _I2C_TRANSFER_STATUS {
     I2C_TRANSFER_STATUS_ARBITRATION_LOST = (1 << 6), /**< Transfer status arbitration lost */
     I2C_TRANSFER_STATUS_BUS_ERROR        = (1 << 7), /**< Transfer status bus error        */
     I2C_TRANSFER_STATUS_BUS_CLEAR        = (1 << 8), /**< Transfer status bus clear        */
+    I2C_TRANSFER_STATUS_HS_ACKDET        = (1 << 9), /**< Transfer status Ack detected in HS Code */
+    I2C_TRANSFER_STATUS_HS_NORSTRT       = (1 << 10) /**< Transfer status No restart in HS Mode */
 } I2C_TRANSFER_STATUS;
 
 /* i2c Transfer Information (Run-Time) */
@@ -346,6 +359,21 @@ static inline void i2c_set_bus_speed(I2C_Type *i2c, const uint8_t speed)
 static inline volatile void *i2c_get_data_addr(I2C_Type *i2c)
 {
     return ((volatile void *) &i2c->I2C_DATA_CMD);
+}
+
+/**
+ * @brief   Set High Speed master address
+ * @note    none
+ * @param   i2c  : Pointer to i2c register map
+ * @param   addr : high speed address
+ * @retval  None
+ */
+static inline void i2c_master_set_hs_maddr(I2C_Type *i2c, uint32_t addr)
+{
+    i2c_disable(i2c);
+    /* Set High Speed Master address */
+    i2c->I2C_HS_MADDR = (addr & I2C_HS_MADDR_I2C_HS_MAR_MASK);
+    i2c_enable(i2c);
 }
 
 /**
@@ -661,9 +689,10 @@ void i2c_set_target_addr(I2C_Type *i2c, const uint32_t address, const i2c_addres
  * @param   i2c          : Pointer to i2c register map
  * @param   clk_khz      : Clock
  * @param   speed_mode   : Speed
- *          ARM_I2C_BUS_SPEED_STANDARD /
- *          I2C_IC_CON_SPEED_FAST /
- *          ARM_I2C_BUS_SPEED_FAST_PLUS
+ *          I2C_SPEED_STANDARD /
+ *          I2C_SPEED_FAST /
+ *          I2C_SPEED_FAST_PLUS /
+ *          I2C_SPEED_HIGH
  * @retval  none
  */
 void i2c_master_set_clock(I2C_Type *i2c, const uint32_t clk_khz, uint8_t speed_mode);

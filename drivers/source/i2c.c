@@ -20,117 +20,170 @@
  */
 static void i2c_set_scl_cnt(I2C_Type *i2c, uint32_t clk_khz, uint8_t speed_mode)
 {
-    uint32_t standard_speed_scl_hcnt = 0U; /* value for I2C_SS_SCL_HCNT */
-    uint32_t standard_speed_scl_lcnt = 0U; /* value for ic_ss_scl_lcnt */
-    uint32_t fast_speed_scl_hcnt     = 0U; /* value for ic_fs_scl_hcnt */
-    uint32_t fast_speed_scl_lcnt     = 0U; /* value for I2C_FS_SCL_LCNT */
+    uint32_t          scl_hcnt = 0U;       /* value for SCL_HCNT */
+    uint32_t          scl_lcnt = 0U;       /* value for SCL_LCNT */
+    uint32_t          spk_len  = 0U;
+    volatile uint32_t *scl_hi_ptr;
+    volatile uint32_t *scl_lo_ptr;
 
-    uint32_t clk_ns                  = (1000000U / clk_khz);
+    uint32_t clk_ns   = (1000000U / clk_khz);
 
-    if (clk_khz <= 1000000) {
-        if (speed_mode == I2C_SPEED_STANDARD) {
-            /* Calculate count value for standard speed */
-            standard_speed_scl_hcnt = I2C_MIN_SS_HIGH_TIME_NS / clk_ns;
+    switch (speed_mode) {
+    case I2C_SPEED_STANDARD:
+        if (clk_khz <= 1000000) {
+            /* Perform below calculation if
+             * the input clock is equal to or less than 1GHz
+             */
+            scl_hcnt = I2C_MIN_SS_HIGH_TIME_NS / clk_ns;
             if ((I2C_MIN_SS_HIGH_TIME_NS % clk_ns) != 0) {
-                standard_speed_scl_hcnt += 1;
+                scl_hcnt += 1;
             }
-            standard_speed_scl_lcnt = I2C_MIN_SS_LOW_TIME_NS / clk_ns;
+            scl_lcnt = I2C_MIN_SS_LOW_TIME_NS / clk_ns;
             if ((I2C_MIN_SS_LOW_TIME_NS % clk_ns) != 0) {
-                standard_speed_scl_lcnt += 1;
+                scl_lcnt += 1;
             }
+        } else {
+            scl_hcnt = I2C_MIN_SS_HIGH_TIME_NS * clk_ns;
+            scl_lcnt = I2C_MIN_SS_LOW_TIME_NS * clk_ns;
         }
 
-        if (speed_mode == I2C_SPEED_FAST) {
-            /* Calculate count value for fast speed */
-            fast_speed_scl_hcnt = I2C_MIN_FS_HIGH_TIME_NS / clk_ns;
+        spk_len      = (I2C_FS_SPIKE_LENGTH_NS / clk_ns);
+        scl_hi_ptr   = &i2c->I2C_SS_SCL_HCNT;
+        scl_lo_ptr   = &i2c->I2C_SS_SCL_LCNT;
+        break;
+
+    case I2C_SPEED_FAST:
+        if (clk_khz <= 1000000) {
+            /* Perform below calculation if
+             * the input clock is equal to or less than 1GHz
+             */
+            scl_hcnt = I2C_MIN_FS_HIGH_TIME_NS / clk_ns;
             if ((I2C_MIN_FS_HIGH_TIME_NS % clk_ns) != 0) {
-                fast_speed_scl_hcnt += 1;
+                scl_hcnt += 1;
             }
-            fast_speed_scl_lcnt = I2C_MIN_FS_LOW_TIME_NS / clk_ns;
+            scl_lcnt = I2C_MIN_FS_LOW_TIME_NS / clk_ns;
             if ((I2C_MIN_FS_LOW_TIME_NS % clk_ns) != 0) {
-                fast_speed_scl_lcnt += 1;
+                scl_lcnt += 1;
             }
+        } else {
+            scl_hcnt = I2C_MIN_FS_HIGH_TIME_NS * clk_ns;
+            scl_lcnt = I2C_MIN_FS_LOW_TIME_NS * clk_ns;
         }
 
-        if (speed_mode == I2C_SPEED_FASTPLUS) {
-            /* Calculate count value for fast speed */
-            fast_speed_scl_hcnt = I2C_MIN_FS_PLUS_HIGH_TIME_NS / clk_ns;
-            if ((I2C_MIN_FS_HIGH_TIME_NS % clk_ns) != 0) {
-                fast_speed_scl_hcnt += 1;
+        spk_len      = (I2C_FS_SPIKE_LENGTH_NS / clk_ns);
+        scl_hi_ptr   = &i2c->I2C_FS_SCL_HCNT;
+        scl_lo_ptr   = &i2c->I2C_FS_SCL_LCNT;
+        break;
+
+    case I2C_SPEED_FASTPLUS:
+        if (clk_khz <= 1000000) {
+            /* Perform below calculation if
+             * the input clock is equal to or less than 1GHz
+             */
+            scl_hcnt = I2C_MIN_FS_PLUS_HIGH_TIME_NS / clk_ns;
+            if ((I2C_MIN_FS_PLUS_HIGH_TIME_NS % clk_ns) != 0) {
+                scl_hcnt += 1;
             }
-            fast_speed_scl_lcnt = I2C_MIN_FS_PLUS_LOW_TIME_NS / clk_ns;
-            if ((I2C_MIN_FS_LOW_TIME_NS % clk_ns) != 0) {
-                fast_speed_scl_lcnt += 1;
+            scl_lcnt = I2C_MIN_FS_PLUS_LOW_TIME_NS / clk_ns;
+            if ((I2C_MIN_FS_PLUS_LOW_TIME_NS % clk_ns) != 0) {
+                scl_lcnt += 1;
             }
+        } else {
+            scl_hcnt = I2C_MIN_FS_PLUS_HIGH_TIME_NS * clk_ns;
+            scl_lcnt = I2C_MIN_FS_PLUS_LOW_TIME_NS * clk_ns;
         }
 
-    } else {
-        if (speed_mode == I2C_SPEED_STANDARD) {
-            /* Calculate count value for standard speed */
-            standard_speed_scl_hcnt = I2C_MIN_SS_HIGH_TIME_NS * clk_ns;
-            standard_speed_scl_lcnt = I2C_MIN_SS_LOW_TIME_NS * clk_ns;
-        }
-        /* Calculate count value for fast speed */
-        if (speed_mode == I2C_SPEED_FAST) {
-            fast_speed_scl_hcnt = I2C_MIN_FS_HIGH_TIME_NS * clk_ns;
-            fast_speed_scl_lcnt = I2C_MIN_FS_LOW_TIME_NS * clk_ns;
+        spk_len      = (I2C_FS_SPIKE_LENGTH_NS / clk_ns);
+        scl_hi_ptr   = &i2c->I2C_FS_SCL_HCNT;
+        scl_lo_ptr   = &i2c->I2C_FS_SCL_LCNT;
+        break;
+
+    case I2C_SPEED_HIGH:
+        if (clk_khz <= 1000000) {
+            /* Perform below calculation if
+             * the input clock is equal to or less than 1GHz
+             */
+            scl_hcnt = I2C_MIN_HS_HIGH_TIME_NS / clk_ns;
+            if ((I2C_MIN_HS_HIGH_TIME_NS % clk_ns) != 0) {
+                scl_hcnt += 1;
+            }
+            scl_lcnt = I2C_MIN_HS_LOW_TIME_NS / clk_ns;
+            if ((I2C_MIN_HS_LOW_TIME_NS % clk_ns) != 0) {
+                scl_lcnt += 1;
+            }
+        } else {
+            scl_hcnt = I2C_MIN_HS_HIGH_TIME_NS * clk_ns;
+            scl_lcnt = I2C_MIN_HS_LOW_TIME_NS * clk_ns;
         }
 
-        if (speed_mode == I2C_SPEED_FASTPLUS) {
-            fast_speed_scl_hcnt = I2C_MIN_FS_PLUS_HIGH_TIME_NS * clk_ns;
-            fast_speed_scl_lcnt = I2C_MIN_FS_PLUS_LOW_TIME_NS * clk_ns;
-        }
+        spk_len      = (I2C_HS_SPIKE_LENGTH_NS / clk_ns);
+        scl_hi_ptr   = &i2c->I2C_HS_SCL_HCNT;
+        scl_lo_ptr   = &i2c->I2C_HS_SCL_LCNT;
+        break;
+
+    default:
+        return;
     }
 
-    if (standard_speed_scl_hcnt < I2C_MIN_SS_SCL_HCNT(i2c->I2C_FS_SPKLEN)) {
-        standard_speed_scl_hcnt = I2C_MIN_SS_SCL_HCNT(i2c->I2C_FS_SPKLEN);
-    }
-    if (standard_speed_scl_lcnt < I2C_MIN_SS_SCL_LCNT(i2c->I2C_FS_SPKLEN)) {
-        standard_speed_scl_lcnt = I2C_MIN_SS_SCL_LCNT(i2c->I2C_FS_SPKLEN);
-    }
-    if (fast_speed_scl_hcnt < I2C_MIN_FS_SCL_HCNT(i2c->I2C_FS_SPKLEN)) {
-        fast_speed_scl_hcnt = I2C_MIN_FS_SCL_HCNT(i2c->I2C_FS_SPKLEN);
-    }
-    if (fast_speed_scl_lcnt < I2C_MIN_FS_SCL_LCNT(i2c->I2C_FS_SPKLEN)) {
-        fast_speed_scl_lcnt = I2C_MIN_FS_SCL_LCNT(i2c->I2C_FS_SPKLEN);
-    }
+    scl_hcnt = I2C_ENSURE_MIN_SCL_HCNT(scl_hcnt, spk_len);
+    scl_lcnt = I2C_ENSURE_MIN_SCL_LCNT(scl_lcnt);
 
     i2c_disable(i2c);
-    i2c->I2C_SS_SCL_HCNT = standard_speed_scl_hcnt;
-    i2c->I2C_SS_SCL_LCNT = standard_speed_scl_lcnt;
-    i2c->I2C_FS_SCL_HCNT = fast_speed_scl_hcnt;
-    i2c->I2C_FS_SCL_LCNT = fast_speed_scl_lcnt;
+    *scl_hi_ptr = scl_hcnt;
+    *scl_lo_ptr = scl_lcnt;
+    /* reset High Speed Master address */
+    i2c->I2C_HS_MADDR = 0;
     i2c_enable(i2c);
 }
 
-/**
- * @brief   Set spike length
- * @note    none
- * @param   i2c     : Pointer to i2c register map
- * @param   clk_khz : Clock set SCL
- * @retval  none
- */
-static void i2c_set_spike_len(I2C_Type *i2c, uint32_t clk_khz)
+ /**
+  * @brief   Set spike length
+  * @note    none
+  * @param   i2c          : Pointer to i2c register map
+  * @param   clk_khz      : Clock set SCL
+  * @param   speed_mode   : Speed
+  * @retval  none
+  */
+static void i2c_set_spike_len(I2C_Type *i2c, uint32_t clk_khz, uint8_t speed_mode)
 {
     /* Reference has take from the databook section 2.15 */
-    /* Reference has take from the databook section 2.15 */
     uint32_t clk_ns;
-    uint32_t fs_spike_length = 0;
-
-    if (clk_khz <= 1000000) {
-        clk_ns          = 1000000 / clk_khz;
-        fs_spike_length = I2C_FS_SPIKE_LENGTH_NS / clk_ns;
-        if ((I2C_FS_SPIKE_LENGTH_NS % clk_ns) != 0) {
-            fs_spike_length += 1;
-        }
-
-    } else {
-        clk_ns          = clk_khz / 1000000;
-        fs_spike_length = I2C_FS_SPIKE_LENGTH_NS * clk_ns;
-    }
+    uint32_t spike_length;
 
     i2c_disable(i2c);
-    i2c->I2C_FS_SPKLEN = fs_spike_length;
+
+    switch (speed_mode) {
+    case I2C_SPEED_HIGH:
+        if (clk_khz <= 1000000) {
+            clk_ns = 1000000 / clk_khz;
+            spike_length = I2C_HS_SPIKE_LENGTH_NS / clk_ns;
+
+            if ((I2C_HS_SPIKE_LENGTH_NS % clk_ns) != 0) {
+                spike_length += 1;
+            }
+            i2c->I2C_HS_SPKLEN = spike_length;
+        } else {
+            clk_ns = clk_khz / 1000000;
+            i2c->I2C_HS_SPKLEN = I2C_HS_SPIKE_LENGTH_NS * clk_ns;
+        }
+        break;
+
+    default:
+        if (clk_khz <= 1000000) {
+            clk_ns = 1000000 / clk_khz;
+            spike_length = I2C_FS_SPIKE_LENGTH_NS / clk_ns;
+
+            if ((I2C_FS_SPIKE_LENGTH_NS % clk_ns) != 0) {
+                spike_length += 1;
+            }
+            i2c->I2C_FS_SPKLEN = spike_length;
+        } else {
+            clk_ns = clk_khz / 1000000;
+            i2c->I2C_FS_SPKLEN = I2C_FS_SPIKE_LENGTH_NS * clk_ns;
+        }
+        break;
+    }
+
     i2c_enable(i2c);
 }
 
@@ -185,6 +238,10 @@ static int32_t i2c_master_check_error(I2C_Type *i2c, i2c_transfer_info_t *transf
             ercd = I2C_ERR_DATA_NOACK;
         } else if (status & I2C_IC_TX_ABRT_10B_RD_NORSTRT) {
             ercd = I2C_ERR_10B_RD_NORSTRT;
+        } else if (status & I2C_IC_TX_ABRT_HS_ACKDET) {
+            ercd = I2C_ERR_HS_ACKDET;
+        } else if (status & I2C_IC_TX_ABRT_HS_NORSTRT) {
+            ercd = I2C_ERR_HS_NORSTRT;
         } else {
             ercd = I2C_ERR_UNDEF;
         }
@@ -303,22 +360,20 @@ void i2c_set_target_addr(I2C_Type *i2c, const uint32_t address, const i2c_addres
  * @param   i2c          : Pointer to i2c register map
  * @param   clk_khz      : Clock
  * @param   speed_mode   : Speed
- *          ARM_I2C_BUS_SPEED_STANDARD /
- *          I2C_IC_CON_SPEED_FAST /
- *          ARM_I2C_BUS_SPEED_FAST_PLUS
+ *          I2C_SPEED_STANDARD /
+ *          I2C_SPEED_FAST /
+ *          I2C_SPEED_FAST_PLUS /
+ *          I2C_SPEED_HIGH
  * @retval  none
  */
 void i2c_master_set_clock(I2C_Type *i2c, const uint32_t clk_khz, uint8_t speed_mode)
 {
     /* Clock setting */
-    i2c_set_spike_len(i2c, clk_khz);
+    i2c_set_spike_len(i2c, clk_khz, speed_mode);
 
     /* set high count and low count for bus speed modes */
     i2c_set_scl_cnt(i2c, clk_khz, speed_mode);
 
-    /* Master code settings */
-    /* only in High speed master mode */
-    i2c->I2C_HS_MADDR = 0;
 }
 
 /**
@@ -424,6 +479,12 @@ void i2c_master_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
         else if (transfer->err_state & I2C_MST_ABRT_DATA_NOACK) {
             /* mark event as slave not acknowledge for the data. */
             transfer->status |= I2C_TRANSFER_STATUS_INCOMPLETE;
+        } else if (transfer->err_state & I2C_ERR_HS_ACKDET) {
+            /* mark event as ack detected for HS code. */
+            transfer->status |= I2C_TRANSFER_STATUS_HS_ACKDET;
+        } else if (transfer->err_state & I2C_ERR_HS_NORSTRT) {
+            /* mark event as no restart available for HS mdoe. */
+            transfer->status |= I2C_TRANSFER_STATUS_HS_NORSTRT;
         } else if (transfer->err_state == I2C_ERR_UNDEF) {
             transfer->status |= I2C_TRANSFER_STATUS_BUS_ERROR;
         }
@@ -533,6 +594,12 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
         else if (transfer->err_state & I2C_MST_ABRT_DATA_NOACK) {
             /* mark event as slave not acknowledge for the data. */
             transfer->status |= I2C_TRANSFER_STATUS_INCOMPLETE;
+        } else if (transfer->err_state & I2C_ERR_HS_ACKDET) {
+            /* mark event as ack detected for HS code. */
+            transfer->status |= I2C_TRANSFER_STATUS_HS_ACKDET;
+        } else if (transfer->err_state & I2C_ERR_HS_NORSTRT) {
+            /* mark event as no restart available for HS mdoe. */
+            transfer->status |= I2C_TRANSFER_STATUS_HS_NORSTRT;
         } else if (transfer->err_state == I2C_ERR_UNDEF) {
             transfer->status |= I2C_TRANSFER_STATUS_BUS_ERROR;
         }

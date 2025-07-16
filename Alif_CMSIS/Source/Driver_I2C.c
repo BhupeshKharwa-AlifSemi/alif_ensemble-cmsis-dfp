@@ -17,7 +17,7 @@
 #include "Driver_I2C_Private.h"
 
 /* Driver version */
-#define ARM_I2C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 7)
+#define ARM_I2C_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 8)
 
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion        = {ARM_I2C_API_VERSION, ARM_I2C_DRV_VERSION};
@@ -102,6 +102,12 @@ static int32_t I2C_GetBusSpeed(I2C_RESOURCES *I2C, uint32_t i2c_bus_speed)
         /* Fast+ Speed (1MHz) */
         speed           = I2C_IC_CON_SPEED_FAST;
         I2C->speed_mode = I2C_SPEED_FASTPLUS;
+        break;
+
+    case ARM_I2C_BUS_SPEED_HIGH:
+        /* High Speed (3.4MHz) */
+        speed = I2C_IC_CON_SPEED_HIGH;
+        I2C->speed_mode = I2C_SPEED_HIGH;
         break;
 
     default:
@@ -1119,6 +1125,16 @@ static int32_t ARM_I2C_Control(I2C_RESOURCES *I2C, uint32_t control, uint32_t ar
             I2C->wr_mode_info &= ~I2C_WRITE_READ_MODE_EN;
         }
         break;
+
+    case ARM_I2C_HS_MASTER_ADDR:
+        if (I2C->mode != I2C_MASTER_MODE) {
+            return ARM_DRIVER_ERROR_UNSUPPORTED;
+        }
+
+        /* Sets High speed master address */
+        i2c_master_set_hs_maddr(I2C->regs, arg);
+        break;
+
     default:
         return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
@@ -1190,6 +1206,12 @@ void I2C_HandleIRQStatus(I2C_RESOURCES *I2C_RES)
             i2c_stat->busy = 0U;
         } else if (transfer->status & I2C_TRANSFER_STATUS_INCOMPLETE) {
             I2C_RES->cb_event(ARM_I2C_EVENT_TRANSFER_INCOMPLETE);
+            i2c_stat->busy = 0U;
+        } else if (transfer->status & I2C_TRANSFER_STATUS_HS_ACKDET) {
+            I2C_RES->cb_event(ARM_I2C_EVENT_HS_ACKDET);
+            i2c_stat->busy = 0U;
+        } else if (transfer->status & I2C_TRANSFER_STATUS_HS_NORSTRT) {
+            I2C_RES->cb_event(ARM_I2C_EVENT_HS_NO_RESTART);
             i2c_stat->busy = 0U;
         }
     }
