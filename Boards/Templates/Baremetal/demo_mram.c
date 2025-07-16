@@ -53,6 +53,9 @@ void MRAM_Thread_entry();
 /* Valid MRAM address-offset. */
 #define MRAM_ADDR_OFFSET (0x100000)
 
+#define MRAM_TEST_SIZE            (512*1024)                     /* 512KB size. */
+#define MRAM_TEST_LOOPS           (MRAM_TEST_SIZE / BUFFER_SIZE) /* 512KB/64KB = 8 loops. */
+
 /* Buffer size and value which needs to write to MRAM. */
 #define BUFFER_SIZE      0x10000 /* any random size.(for demo purpose size taken as 64KB) */
 #define BUFFER_VALUE     0xDF    /* any random value. */
@@ -106,8 +109,8 @@ void MRAM_Thread_entry()
         goto error_uninitialize;
     }
 
-    /* write data to MRAM (for demo purpose write 1MB data (64KB x 16) ) */
-    for (int i = 0; i < 16; i++) {
+    /* write data to MRAM (for demo purpose write 512KB data (64KB x 8) ) */
+    for (int i = 0; i < MRAM_TEST_LOOPS; i++) {
         ret = MRAM_drv->ProgramData(addr, buff_TX, BUFFER_SIZE);
         if (ret != BUFFER_SIZE) {
             printf("\r\n Error: MRAM ProgramData failed: addr:0x%" PRIx32 " data:%0" PRIx32 ".\r\n",
@@ -121,7 +124,7 @@ void MRAM_Thread_entry()
     /* read back and compare wrote data from MRAM. */
     addr = MRAM_ADDR_OFFSET;
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < MRAM_TEST_LOOPS; i++) {
         ret = MRAM_drv->ReadData(addr, buff_RX, BUFFER_SIZE);
         if (ret != BUFFER_SIZE) {
             printf("\r\n Error: MRAM ReadData failed: addr:0x%" PRIx32 " data:%0" PRIx32 ".\r\n",
