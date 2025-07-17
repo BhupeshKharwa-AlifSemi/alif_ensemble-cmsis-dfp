@@ -218,20 +218,20 @@
 // <o> LED PWM utimer max counter value
 #define BOARD_LED_PWM_UT_MAX_COUNTER_VALUE              96000
 
-// <o> "LEDRGB0_R_COUNTER_TYPE" UTIMER counter type
+// <o> "RED_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
 //    <0=> UTIMER_COMPARE_A
 //    <1=> UTIMER_COMPARE_B
-#define BOARD_LEDRGB0_R_COUNTER_TYPE                    1
+#define BOARD_RED_LED_UTIMER_COUNTER_TYPE               1
 
-// <o> "LEDRGB0_G_COUNTER_TYPE" UTIMER counter type
+// <o> "GREEN_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
 //    <0=> UTIMER_COMPARE_A
 //    <1=> UTIMER_COMPARE_B
-#define BOARD_LEDRGB0_G_COUNTER_TYPE                    1
+#define BOARD_GREEN_LED_UTIMER_COUNTER_TYPE             1
 
-// <o> "LEDRGB0_B_COUNTER_TYPE" UTIMER counter type
+// <o> "BLUE_LED_UTIMER_COUNTER_TYPE" UTIMER counter type
 //    <0=> UTIMER_COMPARE_A
 //    <1=> UTIMER_COMPARE_B
-#define BOARD_LEDRGB0_B_COUNTER_TYPE                    1
+#define BOARD_BLUE_LED_UTIMER_COUNTER_TYPE              1
 
 // <o> UTIMER channel red LED instance number <3>
 #define BOARD_RED_LED_UTIMER_INSTANCE                   3
