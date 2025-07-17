@@ -73,6 +73,11 @@ extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT);
 ARM_DRIVER_GPIO       *ptrCapt1GPO = &ARM_Driver_GPIO_(BOARD_UT_CAPTURE_MODE_GPO1_GPIO_PORT);
 #endif
 
+/* Delay to wait for UTIMER interrupt */
+#define UTIMER_DELAY_MS(n)      for (uint32_t count = 0; count < (n + 20); count++) {  \
+                                    sys_busy_loop_us(1000); \
+                                }
+
 /**
  * @function    int gpio_init(ARM_UTIMER_MODE mode)
  * @brief       GPIO initialization using gpio driver
@@ -398,9 +403,7 @@ static void utimer_basic_mode_app(void)
         printf("utimer channel '%" PRIu8 "': timer started\n", channel);
     }
 
-    for (uint32_t count = 0; count < 5; count++) {
-        sys_busy_loop_us(100000);
-    }
+    UTIMER_DELAY_MS(500U);
 
     if (cb_basic_status) {
         cb_basic_status = 0;
@@ -563,9 +566,7 @@ static void utimer_buffering_mode_app(void)
     }
 
     for (index = 1; index <= 3; index++) {
-        for (uint32_t count = 0; count < (5 * index); count++) {
-            sys_busy_loop_us(100000);
-        }
+        UTIMER_DELAY_MS(500U * index);
 
         if (cb_buffer_status) {
             cb_buffer_status = 0;
@@ -877,7 +878,7 @@ static void utimer_capture_mode_app(void)
 
     for (int index = 0; index < 3; index++) {
         /* Delay of 100 ms */
-        sys_busy_loop_us(100000);
+        UTIMER_DELAY_MS(100U);
         ptrCapt0GPO->SetValue(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
         if ((ret != ARM_DRIVER_OK)) {
             printf("ERROR: Failed to configure\n");
