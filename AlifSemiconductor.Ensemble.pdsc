@@ -1478,6 +1478,7 @@
       <accept Pname="M55_HE" Dname="AE512F80*"/>
       <accept Pname="M55_HE" Dname="AE302F*"/>
       <accept Pname="M55_HE" Dname="AE101F*"/>
+      <accept Pname="M55_HE" Dname="AE1C1F*"/>
     </condition>
 
     <condition id="E1C">
