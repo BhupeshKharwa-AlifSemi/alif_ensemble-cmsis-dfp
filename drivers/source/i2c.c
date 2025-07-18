@@ -467,22 +467,22 @@ void i2c_master_tx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
     /* Transmission Error state check */
     if (transfer->err_state) {
         tx_abort = true;
-        if (transfer->err_state & I2C_MST_ABRT_LOST_BUS) {
+        if (transfer->err_state == I2C_ERR_LOST_BUS) {
             /* mark event as master lost arbitration. */
             transfer->status |= I2C_TRANSFER_STATUS_ARBITRATION_LOST;
-        } else if (transfer->err_state & I2C_MST_ABRT_ADDR_NOACK) {
+        } else if (transfer->err_state == I2C_ERR_ADDR_NOACK) {
             /* mark event as slave not acknowledge 7bit/10bit addr. */
             transfer->status |= I2C_TRANSFER_STATUS_ADDRESS_NACK;
         }
         /* master got ack from slave for 7/10bit addr then
          * master sends data, no ack for the data */
-        else if (transfer->err_state & I2C_MST_ABRT_DATA_NOACK) {
+        else if (transfer->err_state == I2C_ERR_DATA_NOACK) {
             /* mark event as slave not acknowledge for the data. */
             transfer->status |= I2C_TRANSFER_STATUS_INCOMPLETE;
-        } else if (transfer->err_state & I2C_ERR_HS_ACKDET) {
+        } else if (transfer->err_state == I2C_ERR_HS_ACKDET) {
             /* mark event as ack detected for HS code. */
             transfer->status |= I2C_TRANSFER_STATUS_HS_ACKDET;
-        } else if (transfer->err_state & I2C_ERR_HS_NORSTRT) {
+        } else if (transfer->err_state == I2C_ERR_HS_NORSTRT) {
             /* mark event as no restart available for HS mdoe. */
             transfer->status |= I2C_TRANSFER_STATUS_HS_NORSTRT;
         } else if (transfer->err_state == I2C_ERR_UNDEF) {
@@ -582,22 +582,22 @@ void i2c_master_rx_isr(I2C_Type *i2c, i2c_transfer_info_t *transfer)
     /* Transmission Error state check */
     if (transfer->err_state) {
         tx_abort = true;
-        if (transfer->err_state & I2C_MST_ABRT_LOST_BUS) {
+        if (transfer->err_state == I2C_ERR_LOST_BUS) {
             /* mark event as master lost arbitration. */
             transfer->status |= I2C_TRANSFER_STATUS_ARBITRATION_LOST;
-        } else if (transfer->err_state & I2C_MST_ABRT_ADDR_NOACK) {
+        } else if (transfer->err_state == I2C_ERR_ADDR_NOACK) {
             /* mark event as slave not acknowledge 7bit/10bit addr. */
             transfer->status |= I2C_TRANSFER_STATUS_ADDRESS_NACK;
         }
         /* master got ack from slave for 7/10bit addr then
          * master sends data, no ack for the data */
-        else if (transfer->err_state & I2C_MST_ABRT_DATA_NOACK) {
+        else if (transfer->err_state == I2C_ERR_DATA_NOACK) {
             /* mark event as slave not acknowledge for the data. */
             transfer->status |= I2C_TRANSFER_STATUS_INCOMPLETE;
-        } else if (transfer->err_state & I2C_ERR_HS_ACKDET) {
+        } else if (transfer->err_state == I2C_ERR_HS_ACKDET) {
             /* mark event as ack detected for HS code. */
             transfer->status |= I2C_TRANSFER_STATUS_HS_ACKDET;
-        } else if (transfer->err_state & I2C_ERR_HS_NORSTRT) {
+        } else if (transfer->err_state == I2C_ERR_HS_NORSTRT) {
             /* mark event as no restart available for HS mdoe. */
             transfer->status |= I2C_TRANSFER_STATUS_HS_NORSTRT;
         } else if (transfer->err_state == I2C_ERR_UNDEF) {
