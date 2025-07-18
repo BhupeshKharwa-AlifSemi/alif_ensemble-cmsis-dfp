@@ -1111,7 +1111,7 @@
 // <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_SPI0_SCLK_GPIO_PIN                        3
 // <o> "SPI0_SCLK_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_SCLK_ALTERNATE_FUNCTION              4
+#define BOARD_SPI0_SCLK_ALTERNATE_FUNCTION              3
 
 // <o> "SPI0_SS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
@@ -1120,7 +1120,7 @@
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI0_SS0_GPIO_PIN                         2
 // <o> "SPI0_SS0_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_SS0_ALTERNATE_FUNCTION               3
+#define BOARD_SPI0_SS0_ALTERNATE_FUNCTION               4
 
 // <o> "SPI1_MISO_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
