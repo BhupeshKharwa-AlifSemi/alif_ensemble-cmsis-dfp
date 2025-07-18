@@ -37,6 +37,10 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#if BOARD_WM8904_CODEC_PRESENT
+#include "WM8904_driver.h"
+#endif
+
 /*RTOS Includes */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -44,29 +48,32 @@
 #include "queue.h"
 #include "event_groups.h"
 
+/* Enable this macro to play the predefined sample */
+//#define DAC_PREDEFINED_SAMPLES
+
+#ifdef DAC_PREDEFINED_SAMPLES
 /*Audio samples */
 #include "i2s_samples.h"
+#endif
+
+#if (BOARD_WM8904_CODEC_PRESENT) && !defined(RTE_Drivers_WM8904_CODEC)
+#error "WM8904 codec driver not configured in RTE_Components.h"
+#endif
 
 // Set to 0: Use application-defined I2S pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
+
+#if BOARD_WM8904_CODEC_PRESENT
+extern ARM_DRIVER_WM8904 WM8904;
+static ARM_DRIVER_WM8904 *wm8904 = &WM8904;
+#endif
 
 /* 1 to send the data stream continuously , 0 to send data only once */
 #define REPEAT_TX                      1
 
 #define ERROR                          -1
 #define SUCCESS                        0
-
-#if defined(RTSS_HE)
-#define I2S_DAC LP /* DAC LPI2S Controller */
-#else
-/* Enable this to feed the predefined hello sample in the
- * Send function. Receive will be disabled.
- */
-// #define DAC_PREDEFINED_SAMPLES
-#define I2S_DAC 1 /* DAC I2S Controller 1 */
-#endif
-#define I2S_ADC                    3 /* ADC I2S Controller 3 */
 
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)
@@ -93,7 +100,7 @@ static EventGroupHandle_t xEventGroupHandleDac;
 
 #define DAC_TASK_PRIORITY 3
 
-#ifndef DAC_PREDEFINED_SAMPLES
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
 static TaskHandle_t       xAdcHandle;
 static EventGroupHandle_t xEventGroupHandleAdc;
 
@@ -145,62 +152,64 @@ static int32_t board_i2s_dac_pins_config(void)
 {
     int32_t status;
 
-#if (I2S_DAC == LP)
-    /* Configure LPI2S_C SDO */
-    status = pinconf_set(PORT_(BOARD_LPI2S_SDO_C_GPIO_PORT),
-                         BOARD_LPI2S_SDO_C_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
+    /* Configure DAC I2S SDO */
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SDO_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_SDO_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION,
                          0);
     if (status) {
         return ERROR;
     }
 
-    /* Configure LPI2S_C WS */
-    status = pinconf_set(PORT_(BOARD_LPI2S_WS_C_GPIO_PORT),
-                         BOARD_LPI2S_WS_C_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
+    /* Configure DAC I2S WS */
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_WS_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_WS_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
         return ERROR;
     }
 
-    /* Configure LPI2S_C SCLK */
-    status = pinconf_set(PORT_(BOARD_LPI2S_SCLK_C_GPIO_PORT),
-                         BOARD_LPI2S_SCLK_C_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
-                         0);
-    if (status) {
-        return ERROR;
-    }
-#else
-    /* Configure I2S1_A SDO */
-    status = pinconf_set(PORT_(BOARD_I2S1_SDO_GPIO_PORT),
-                         BOARD_I2S1_SDO_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_3,
+    /* Configure DAC I2S SCLK */
+    status = pinconf_set(PORT_(BOARD_DAC_OUTPUT_SCLK_GPIO_PORT),
+                         BOARD_DAC_OUTPUT_SCLK_GPIO_PIN,
+                         BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
         return ERROR;
     }
 
-    /* Configure I2S1_A WS */
-    status = pinconf_set(PORT_(BOARD_I2S1_WS_GPIO_PORT),
-                         BOARD_I2S1_WS_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_3,
-                         0);
-    if (status) {
-        return ERROR;
-    }
-
-    /* Configure I2S1_A SCLK */
-    status = pinconf_set(PORT_(BOARD_I2S1_SCLK_GPIO_PORT),
-                         BOARD_I2S1_SCLK_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_4,
-                         0);
-    if (status) {
-        return ERROR;
-    }
-
+    return SUCCESS;
+}
 #endif
+
+#if BOARD_WM8904_CODEC_PRESENT
+/**
+ * @fn      void board_wm8904_i2c_pins_config(void)
+ * @brief   Initialize the pinmux for I2C
+ * @retval  status
+ */
+static int32_t board_wm8904_i2c_pins_config(void)
+{
+    int32_t status;
+
+    /* I2C_SDA */
+    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SDA_GPIO_PORT),
+                         BOARD_WM8904_CODEC_I2C_SDA_GPIO_PIN,
+                         BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION,
+                         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (status) {
+        return ERROR;
+    }
+
+    /* I2C_SCL */
+    status = pinconf_set(PORT_(BOARD_WM8904_CODEC_I2C_SCL_GPIO_PORT),
+                         BOARD_WM8904_CODEC_I2C_SCL_GPIO_PIN,
+                         BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION,
+                         (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
+    if (status) {
+        return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -220,7 +229,24 @@ static void prvDacTask(void *pvParameters)
     SamplesMsgq_t        xSamplesMsg;
     EventBits_t          xEvents;
 
-    extern ARM_DRIVER_SAI ARM_Driver_SAI_(I2S_DAC);
+#if SOC_FEAT_CLK76P8M_CLK_ENABLE
+    uint32_t error_code        = SERVICES_REQ_SUCCESS;
+    uint32_t service_error_code;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+/* enable the HFOSCx2 clock */
+    error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
+                           /*clock_enable_t*/ CLKEN_HFOSCx2,
+                           /*bool enable   */ true,
+                                              &service_error_code);
+    if (error_code) {
+        printf("SE: clk enable = %d\n", error_code);
+    }
+#endif
+
+    extern ARM_DRIVER_SAI ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 
     (void) pvParameters;
 
@@ -242,10 +268,34 @@ static void prvDacTask(void *pvParameters)
         printf("Error in pin-mux configuration: %d\n", lStatus);
         return;
     }
+
+#if BOARD_WM8904_CODEC_PRESENT
+    /* Configure the i2c pins to program WM8904 codec */
+    lStatus = board_wm8904_i2c_pins_config();
+    if (lStatus != 0) {
+        printf("I2C pinmux failed\n");
+        return;
+    }
+#endif
+#endif
+
+#if BOARD_WM8904_CODEC_PRESENT
+    /* WM8904 codec init */
+    lStatus = wm8904->Initialize();
+    if (lStatus) {
+        printf("WM8904 codec Init failed status = %d\n", lStatus);
+        goto error_codec_initialize;
+    }
+
+    lStatus = wm8904->PowerControl(ARM_POWER_FULL);
+    if (lStatus) {
+        printf("WM8904 codec Power up failed status = %d\n", lStatus);
+        goto error_codec_power;
+    }
 #endif
 
     /* Use the I2S as Trasmitter */
-    xI2SDrv  = &ARM_Driver_SAI_(I2S_DAC);
+    xI2SDrv  = &ARM_Driver_SAI_(BOARD_DAC_OUTPUT_I2S_INSTANCE);
 
     /* Verify the I2S API version for compatibility*/
     xVersion = xI2SDrv->GetVersion();
@@ -360,10 +410,18 @@ error_control:
 error_power:
     xI2SDrv->Uninitialize();
 error_initialize:
+#if BOARD_WM8904_CODEC_PRESENT
+error_codec_power:
+    wm8904->PowerControl(ARM_POWER_OFF);
+    wm8904->Uninitialize();
+#endif
+#if BOARD_WM8904_CODEC_PRESENT
+error_codec_initialize:
+#endif
     vTaskSuspend(xDacHandle);
 }
 
-#if !defined(DAC_PREDEFINED_SAMPLES)
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
 /**
   \fn          void prvAdcCallback(uint32_t ulEvent)
   \brief       Callback routine from the i2s driver
@@ -409,28 +467,28 @@ static int32_t board_i2s_adc_pins_config(void)
 {
     int32_t status;
 
-    /* Configure I2S3_B WS */
-    status = pinconf_set(PORT_(BOARD_I2S3_WS_B_GPIO_PORT),
-                         BOARD_I2S3_WS_B_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
+    /* Configure ADC I2S WS */
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_WS_GPIO_PORT),
+                         BOARD_MIC_INPUT_WS_GPIO_PIN,
+                         BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
         return ERROR;
     }
 
-    /* Configure I2S3_B SCLK */
-    status = pinconf_set(PORT_(BOARD_I2S3_SCLK_B_GPIO_PORT),
-                         BOARD_I2S3_SCLK_B_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
+    /* Configure ADC I2S SCLK */
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SCLK_GPIO_PORT),
+                         BOARD_MIC_INPUT_SCLK_GPIO_PIN,
+                         BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
         return ERROR;
     }
 
-    /* Configure I2S3_B SDI */
-    status = pinconf_set(PORT_(BOARD_I2S3_SDI_B_GPIO_PORT),
-                         BOARD_I2S3_SDI_B_GPIO_PIN,
-                         PINMUX_ALTERNATE_FUNCTION_2,
+    /* Configure ADC I2S SDI */
+    status = pinconf_set(PORT_(BOARD_MIC_INPUT_SDI_GPIO_PORT),
+                         BOARD_MIC_INPUT_SDI_GPIO_PIN,
+                         BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
         return ERROR;
@@ -615,7 +673,7 @@ int main(void)
     /* Assigns a human readable name to queue and adds queue to queue registry */
     vQueueAddToRegistry(xQueueRx, "RX QUEUE");
 
-#if !defined(DAC_PREDEFINED_SAMPLES)
+#if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
     {
         /* Initialize the ADC event flags group */
         xEventGroupHandleAdc = xEventGroupCreate();
