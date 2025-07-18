@@ -92,8 +92,8 @@
 // <o> "Master" I2C instance number <0-3>
 #define BOARD_MASTER_I2C_INSTANCE                       1
 
-// <o> LPI2C module enabled flag
-#define BOARD_LPI2C_ENABLED                             1
+// <o> LPI2C0 module enabled flag
+#define BOARD_LPI2C0_ENABLED                            1
 
 // <o> LPSPI module enabled flag
 #define BOARD_LPSPI_ENABLED                             1
@@ -1005,23 +1005,23 @@
 // PIN6 <7=> PIN7
 #define BOARD_CAMERA_D7_GPIO_PIN                        7
 
-// <o> "LPI2C_SDA_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "LPI2C0_SDA_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_LPI2C_SDA_GPIO_PORT                       0
-// <o> "LPI2C_SDA_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+#define BOARD_LPI2C0_SDA_GPIO_PORT                      0
+// <o> "LPI2C0_SDA_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
-#define BOARD_LPI2C_SDA_GPIO_PIN                        0
-// <o> "LPI2C_SDA_A" GPIO pin alternate function <0-7>
-#define BOARD_LPI2C_SDA_ALTERNATE_FUNCTION              5
+#define BOARD_LPI2C0_SDA_GPIO_PIN                       0
+// <o> "LPI2C0_SDA_A" GPIO pin alternate function <0-7>
+#define BOARD_LPI2C0_SDA_ALTERNATE_FUNCTION             5
 
-// <o> "LPI2C_SCL_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "LPI2C0_SCL_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_LPI2C_SCL_GPIO_PORT                       0
-// <o> "LPI2C_SCL_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+#define BOARD_LPI2C0_SCL_GPIO_PORT                      0
+// <o> "LPI2C0_SCL_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
-#define BOARD_LPI2C_SCL_GPIO_PIN                        1
-// <o> "LPI2C_SCL_A" GPIO pin alternate function <0-7>
-#define BOARD_LPI2C_SCL_ALTERNATE_FUNCTION              5
+#define BOARD_LPI2C0_SCL_GPIO_PIN                       1
+// <o> "LPI2C0_SCL_A" GPIO pin alternate function <0-7>
+#define BOARD_LPI2C0_SCL_ALTERNATE_FUNCTION             5
 
 // <o> "I2C0_SDA_C" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO

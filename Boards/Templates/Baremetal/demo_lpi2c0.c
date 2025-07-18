@@ -9,18 +9,18 @@
  */
 
 /******************************************************************************
- * @file     : demo_lpi2c.c
- * @brief    : TestApp to verify I2C Master and LPI2C Slave functionality
+ * @file     : demo_lpi2c0.c
+ * @brief    : TestApp to verify I2C Master and LPI2C0 Slave functionality
  *           : using Baremetal without any operating system.
  * @note     : Code will verify:
  *              1.)Master transmit and Slave receive
  *              2.)Master receive  and Slave transmit
  *                  I2C0 instance is taken as Master and
- *                  LPI2C(Slave-only) instance is taken as Slave.
+ *                  LPI2C0(Slave-only) instance is taken as Slave.
  *
  *              Hardware Connection:
- *              I2C0 SDA(P3_5) -> LPI2C SDA(P5_3)
- *              I2C0 SCL(P3_4) -> LPI2C SCL(P5_2)
+ *              I2C0 SDA(P3_5) -> LPI2C0 SDA(P5_3)
+ *              I2C0 SCL(P3_4) -> LPI2C0 SCL(P5_2)
  ******************************************************************************/
 
 /* Include */
@@ -45,7 +45,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-// Set to 0: Use application-defined LPI2C pin configuration (via board_lpi2c_pins_config()).
+// Set to 0: Use application-defined LPI2C0 pin configuration (via board_lpi2c_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
@@ -129,25 +129,25 @@ static void i2c_slv_transfer_callback(uint32_t event)
 static int32_t board_lpi2c_pins_config(void)
 {
     int32_t ret;
-    /* LPI2C_SDA */
-    ret = pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT),
-                      BOARD_LPI2C_SDA_GPIO_PIN,
-                      BOARD_LPI2C_SDA_ALTERNATE_FUNCTION,
+    /* LPI2C0_SDA */
+    ret = pinconf_set(PORT_(BOARD_LPI2C0_SDA_GPIO_PORT),
+                      BOARD_LPI2C0_SDA_GPIO_PIN,
+                      BOARD_LPI2C0_SDA_ALTERNATE_FUNCTION,
                       (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                        PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for LPI2C_SDA_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for LPI2C0_SDA_PIN\n");
         return ret;
     }
 
-    /* LPI2C_SCL */
-    ret = pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT),
-                      BOARD_LPI2C_SCL_GPIO_PIN,
-                      BOARD_LPI2C_SCL_ALTERNATE_FUNCTION,
+    /* LPI2C0_SCL */
+    ret = pinconf_set(PORT_(BOARD_LPI2C0_SCL_GPIO_PORT),
+                      BOARD_LPI2C0_SCL_GPIO_PIN,
+                      BOARD_LPI2C0_SCL_ALTERNATE_FUNCTION,
                       (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                        PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for LPI2C_SCL_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for LPI2C0_SCL_PIN\n");
         return ret;
     }
 
@@ -178,19 +178,19 @@ static int32_t board_lpi2c_pins_config(void)
 #endif
 
 /**
- * @fn      static void LPI2C_demo(void)
- * @brief   Performs LPI2C Demo
+ * @fn      static void LPI2C0_demo(void)
+ * @brief   Performs LPI2C0 Demo
  * @note    none
  * @param   none
  * @retval  none
  */
-static void LPI2C_demo(void)
+static void LPI2C0_demo(void)
 {
     int32_t            ret  = 0;
     uint8_t            iter = 0;
     ARM_DRIVER_VERSION version;
 
-    printf("\r\n >>> LPI2C demo starting up !!! <<< \r\n");
+    printf("\r\n >>> LPI2C0 demo starting up !!! <<< \r\n");
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
@@ -218,7 +218,7 @@ static void LPI2C_demo(void)
            version.drv);
 
     version = LPI2C_slvdrv->GetVersion();
-    printf("\r\n LPI2C version api:0x%" PRIx16 " driver:0x%" PRIx16 "...\r\n",
+    printf("\r\n LPI2C0 version api:0x%" PRIx16 " driver:0x%" PRIx16 "...\r\n",
            version.api,
            version.drv);
 
@@ -316,7 +316,7 @@ static void LPI2C_demo(void)
         goto error_uninitialize;
     }
 
-    printf("\n >>> LPI2C transfer completed without any error\n");
+    printf("\n >>> LPI2C0 transfer completed without any error\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
     WAIT_FOREVER_LOOP
 
@@ -328,7 +328,7 @@ error_poweroff:
     }
     ret = LPI2C_slvdrv->PowerControl(ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error: LPI2C Power OFF failed.\r\n");
+        printf("\r\n Error: LPI2C0 Power OFF failed.\r\n");
     }
 
 error_uninitialize:
@@ -338,12 +338,12 @@ error_uninitialize:
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: I2C Uninitialize failed.\r\n");
     }
-    printf("\r\n  LPI2C demo exiting...\r\n");
+    printf("\r\n  LPI2C0 demo exiting...\r\n");
 }
 
 /**
  * @fn      int main(void)
- * @brief   Entry function of LPI2C
+ * @brief   Entry function of LPI2C0
  * @note    none
  * @param   none
  * @retval  none

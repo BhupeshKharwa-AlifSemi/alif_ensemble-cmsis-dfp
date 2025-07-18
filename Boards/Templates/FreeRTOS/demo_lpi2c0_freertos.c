@@ -8,23 +8,23 @@
  *
  */
 /******************************************************************************
- * @file     : demo_lpi2c_freertos.c
+ * @file     : demo_lpi2c0_freertos.c
  * @author   : Shreehari H K
  * @email    : shreehari.hk@alifsemi.com
  * @version  : V1.0.0
  * @date     : 05-Sept-2024
- * @brief    : TestApp to verify I2C Master and LPI2C Slave functionality
+ * @brief    : TestApp to verify I2C Master and LPI2C0 Slave functionality
  *             using FreeRTOS without any operating system.
  * @bug      : None
  * @note     : Code will verify:
  *              1.)Master transmit and Slave receive
  *              2.)Master receive  and Slave transmit
  *                  I2C0 instance is taken as Master and
- *                  LPI2C(Slave-only) instance is taken as Slave.
+ *                  LPI2C0(Slave-only) instance is taken as Slave.
  *
  *             Hardware Connection:
- *             I2C0 SDA(P3_5) -> LPI2C SDA(P5_3)
- *             I2C0 SCL(P3_4) -> LPI2C SCL(P5_2)
+ *             I2C0 SDA(P3_5) -> LPI2C0 SDA(P5_3)
+ *             I2C0 SCL(P3_4) -> LPI2C0 SCL(P5_2)
  ******************************************************************************/
 /* Include */
 #include <stdio.h>
@@ -46,7 +46,7 @@
 #error "This Demo application works only on RTSS_HE"
 #endif
 
-// Set to 0: Use application-defined lpi2c pin configuration.
+// Set to 0: Use application-defined lpi2c0 pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
@@ -71,7 +71,7 @@ static ARM_DRIVER_I2C *LPI2C_slvdrv = &Driver_LPI2C0;
 #define MASTER_TASK_PRIORITY          2U
 #define SLAVE_TASK_PRIORITY           (MASTER_TASK_PRIORITY - 1U)
 
-/* LPI2C callback events */
+/* LPI2C0 callback events */
 typedef enum _LPI2C_CB_EVENT {
     LPI2C_CB_EVENT_SUCCESS = (1 << 0),
     LPI2C_CB_EVENT_ERROR   = (1 << 1)
@@ -223,25 +223,25 @@ static void i2c_slv_transfer_callback(uint32_t event)
 static int32_t board_lpi2c_pins_config(void)
 {
     int32_t ret;
-    /* LPI2C_SDA */
-    ret = pinconf_set(PORT_(BOARD_LPI2C_SDA_GPIO_PORT),
-                      BOARD_LPI2C_SDA_GPIO_PIN,
-                      BOARD_LPI2C_SDA_ALTERNATE_FUNCTION,
+    /* LPI2C0_SDA */
+    ret = pinconf_set(PORT_(BOARD_LPI2C0_SDA_GPIO_PORT),
+                      BOARD_LPI2C0_SDA_GPIO_PIN,
+                      BOARD_LPI2C0_SDA_ALTERNATE_FUNCTION,
                       (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                        PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for LPI2C_SDA_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for LPI2C0_SDA_PIN\n");
         return ret;
     }
 
-    /* LPI2C_SCL */
-    ret = pinconf_set(PORT_(BOARD_LPI2C_SCL_GPIO_PORT),
-                      BOARD_LPI2C_SCL_GPIO_PIN,
-                      BOARD_LPI2C_SCL_ALTERNATE_FUNCTION,
+    /* LPI2C0_SCL */
+    ret = pinconf_set(PORT_(BOARD_LPI2C0_SCL_GPIO_PORT),
+                      BOARD_LPI2C0_SCL_GPIO_PIN,
+                      BOARD_LPI2C0_SCL_ALTERNATE_FUNCTION,
                       (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP |
                        PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA));
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for LPI2C_SCL_PIN\n");
+        printf("ERROR: Failed to configure PINMUX for LPI2C0_SCL_PIN\n");
         return ret;
     }
 
@@ -353,7 +353,7 @@ static void i2c_master_task(void *pvParameters)
         goto master_error_poweroff;
     }
 
-    printf("\n >>> LPI2C transfer completed without any error\n");
+    printf("\n >>> LPI2C0 transfer completed without any error\n");
 
 master_error_poweroff:
     /* Power off peripheral */
@@ -374,7 +374,7 @@ master_error_uninitialize:
 
 /**
  * @fn      static void i2c_slave_task(void *pvParameters)
- * @brief   Performs Slave data comm through LPI2C
+ * @brief   Performs Slave data comm through LPI2C0
  * @note    none
  * @param   pvParameters : Task parameter
  * @retval  none
@@ -386,23 +386,23 @@ static void i2c_slave_task(void *pvParameters)
     uint32_t           slv_event = 0;
 
     version                      = LPI2C_slvdrv->GetVersion();
-    printf("\r\n LPI2C version api:0x%X driver:0x%X...\r\n", version.api, version.drv);
+    printf("\r\n LPI2C0 version api:0x%X driver:0x%X...\r\n", version.api, version.drv);
 
-    /* Initialize LPI2C driver */
+    /* Initialize LPI2C0 driver */
     ret = LPI2C_slvdrv->Initialize(i2c_slv_transfer_callback);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: Slave init failed\n");
         goto slave_error_uninitialize;
     }
 
-    /* Power control LPI2C */
+    /* Power control LPI2C0 */
     ret = LPI2C_slvdrv->PowerControl(ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: Slave Power up failed\n");
         goto slave_error_uninitialize;
     }
 
-    /* Perform LPI2C reception */
+    /* Perform LPI2C0 reception */
     LPI2C_slvdrv->SlaveReceive(SLV_RX_BUF, MST_BYTE_TO_TRANSMIT);
 
     /* Waiting for Slave callback */
@@ -450,18 +450,18 @@ slave_error_uninitialize:
     vTaskDelete(NULL);
 }
 /**
- * @fn      static void LPI2C_demo(void)
- * @brief   Performs LPI2C demo
+ * @fn      static void LPI2C0_demo(void)
+ * @brief   Performs LPI2C0 demo
  * @note    none
  * @param   none
  * @retval  none
  */
-static void LPI2C_demo(void)
+static void LPI2C0_demo(void)
 {
     BaseType_t xReturned = 0;
     int32_t    ret_val   = 0;
 
-    printf("\r\n >>> LPI2C FreeRTOS demo starting up !!! <<< \r\n");
+    printf("\r\n >>> LPI2C0 FreeRTOS demo starting up !!! <<< \r\n");
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
@@ -473,7 +473,7 @@ static void LPI2C_demo(void)
 
 #else
     /*
-     * NOTE: The lpi2c pins used in this test application are not configured
+     * NOTE: The lpi2c0 pins used in this test application are not configured
      * in the board support library.Therefore, it is being configured manually here.
      */
     ret_val = board_lpi2c_pins_config();
@@ -513,7 +513,7 @@ static void LPI2C_demo(void)
 
 /**
  * @fn      int main(void)
- * @brief   Entry function of LPI2C
+ * @brief   Entry function of LPI2C0
  * @note    none
  * @param   none
  * @retval  none
@@ -528,6 +528,6 @@ int main(void)
     }
 #endif
 
-    /* Invokes LPI2C demo */
-    LPI2C_demo();
+    /* Invokes LPI2C0 demo */
+    LPI2C0_demo();
 }
