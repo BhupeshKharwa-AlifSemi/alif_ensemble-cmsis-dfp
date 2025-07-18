@@ -377,6 +377,9 @@
 // <o> "LPCMP_NEG_INPUT" GPIO pin alternate function <0-7>
 #define BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION        6
 
+// <o> ADC12 instance <0=>0 <0=>1
+#define BOARD_ADC12_INSTANCE                            0
+
 // <o> "ADC12_CH0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
 #define BOARD_ADC12_CH0_GPIO_PORT                       1
@@ -1780,55 +1783,25 @@
 // P1_3 CMP input number (Do Not Modify!)
 #define BOARD_P1_3_CMP_INPUT                            3
 
-// P1_4 ADC12 instance number (Do Not Modify!)
-#define BOARD_P1_4_ADC12_INSTANCE                       2
-// P1_4 ADC12 input number (Do Not Modify!)
-#define BOARD_P1_4_ADC12_INPUT                          0
-
 // P1_4 CMP instance number (Do Not Modify!)
 #define BOARD_P1_4_CMP_INSTANCE                         0
 // P1_4 CMP input number (Do Not Modify!)
 #define BOARD_P1_4_CMP_INPUT                            2
-
-// P1_5 ADC12 instance number (Do Not Modify!)
-#define BOARD_P1_5_ADC12_INSTANCE                       2
-// P1_5 ADC12 input number (Do Not Modify!)
-#define BOARD_P1_5_ADC12_INPUT                          1
 
 // P1_5 CMP instance number (Do Not Modify!)
 #define BOARD_P1_5_CMP_INSTANCE                         1
 // P1_5 CMP input number (Do Not Modify!)
 #define BOARD_P1_5_CMP_INPUT                            2
 
-// P1_6 ADC12 instance number (Do Not Modify!)
-#define BOARD_P1_6_ADC12_INSTANCE                       2
-// P1_6 ADC12 input number (Do Not Modify!)
-#define BOARD_P1_6_ADC12_INPUT                          2
-
 // P1_6 CMP instance number (Do Not Modify!)
 #define BOARD_P1_6_CMP_INSTANCE                         2
 // P1_6 CMP input number (Do Not Modify!)
 #define BOARD_P1_6_CMP_INPUT                            2
 
-// P1_7 ADC12 instance number (Do Not Modify!)
-#define BOARD_P1_7_ADC12_INSTANCE                       2
-// P1_7 ADC12 input number (Do Not Modify!)
-#define BOARD_P1_7_ADC12_INPUT                          3
-
 // P1_7 CMP instance number (Do Not Modify!)
 #define BOARD_P1_7_CMP_INSTANCE                         3
 // P1_7 CMP input number (Do Not Modify!)
 #define BOARD_P1_7_CMP_INPUT                            2
-
-// P2_0 ADC12 instance number (Do Not Modify!)
-#define BOARD_P2_0_ADC12_INSTANCE                       2
-// P2_0 ADC12 input number (Do Not Modify!)
-#define BOARD_P2_0_ADC12_INPUT                          4
-
-// P2_1 ADC12 instance number (Do Not Modify!)
-#define BOARD_P2_1_ADC12_INSTANCE                       2
-// P2_1 ADC12 input number (Do Not Modify!)
-#define BOARD_P2_1_ADC12_INPUT                          1
 
 // P2_3 DAC12 instance number (Do Not Modify!)
 #define BOARD_P2_3_DAC12_INSTANCE                       0

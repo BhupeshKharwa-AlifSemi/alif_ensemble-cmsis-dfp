@@ -419,6 +419,9 @@
 // <o> "LPCMP_NEG_INPUT" GPIO pin alternate function <0-7>
 #define BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION        7
 
+// <o> ADC12 instance <0=>0 <0=>1 <0=>2
+#define BOARD_ADC12_INSTANCE                            2
+
 // <o> "ADC12_CH0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
