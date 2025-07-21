@@ -32,6 +32,8 @@
 #include "board_config.h"
 #include "RTE_Components.h"
 
+#include "sys_utils.h"
+
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
@@ -71,9 +73,6 @@ static ARM_DRIVER_WM8904 *wm8904 = &WM8904;
 
 /* 1 to send the data stream continuously , 0 to send data only once */
 #define REPEAT_TX                      1
-
-#define ERROR                          -1
-#define SUCCESS                        0
 
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)

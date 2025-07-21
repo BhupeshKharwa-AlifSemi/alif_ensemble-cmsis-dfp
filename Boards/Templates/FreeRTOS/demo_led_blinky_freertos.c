@@ -28,6 +28,8 @@
 #include CMSIS_device_header
 #include "pinconf.h"
 
+#include "sys_utils.h"
+
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
@@ -90,9 +92,6 @@ void vApplicationIdleHook(void)
 
 /* Define the FreeRTOS object control blocks...  */
 #define DEMO_STACK_SIZE 1024
-
-#define ERROR    -1
-#define SUCCESS   0
 
 TaskHandle_t led_xHandle;
 

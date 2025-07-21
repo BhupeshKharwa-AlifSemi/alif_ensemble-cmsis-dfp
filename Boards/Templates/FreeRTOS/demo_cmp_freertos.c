@@ -97,9 +97,6 @@
 #define SAMPLING_RATE 8 /* Set the prescaler values from 0 to 31 */
 #endif
 
-#define ERROR   -1
-#define SUCCESS 0
-
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 ARM_DRIVER_GPIO       *ledDrv = &ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);
 

@@ -85,9 +85,6 @@
 #define CHANNEL_0                      0
 #define CHANNEL_1                      1
 
-#define ERROR                          -1
-#define SUCCESS                        0
-
 /* PDM Channel 0 configurations */
 #define CH0_PHASE                      0x00000003
 #define CH0_GAIN                       0x00000013

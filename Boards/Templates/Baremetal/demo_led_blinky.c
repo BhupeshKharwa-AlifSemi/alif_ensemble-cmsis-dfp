@@ -30,12 +30,11 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
+
 // Set to 0: Use application-defined LED pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG  0
-
-#define ERROR    -1
-#define SUCCESS   0
 
 /* GPIO port used for LEDRGB0_R */
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_LEDRGB0_R_GPIO_PORT);

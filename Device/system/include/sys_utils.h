@@ -88,6 +88,9 @@ extern "C" {
 #define ASSERT_HANG                      for (;;) {\
                                          }
 
+#define ERROR                           -1
+#define SUCCESS                          0
+
 // Function documentation
 
 /**

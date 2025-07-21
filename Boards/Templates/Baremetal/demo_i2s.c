@@ -40,6 +40,8 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "sys_utils.h"
+
 #if BOARD_WM8904_CODEC_PRESENT
 #include "WM8904_driver.h"
 #endif
@@ -73,9 +75,6 @@ static uint32_t sample_buf[NUM_SAMPLES];
 
 /* 1 to send the data stream continuously , 0 to send data only once */
 #define REPEAT_TX                  1
-
-#define ERROR                      -1
-#define SUCCESS                    0
 
 #define DAC_SEND_COMPLETE_EVENT    (1U << 0)
 #define ADC_RECEIVE_COMPLETE_EVENT (1U << 1)

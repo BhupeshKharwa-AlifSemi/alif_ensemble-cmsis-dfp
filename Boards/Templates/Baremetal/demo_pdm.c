@@ -60,9 +60,6 @@
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
-#define ERROR                          -1
-#define SUCCESS                        0
-
 /* Store the number of samples */
 /* For 40000 samples user can hear maximum up to 4 sec of audio
  * to store maximum samples then change the scatter file and increase the memory */

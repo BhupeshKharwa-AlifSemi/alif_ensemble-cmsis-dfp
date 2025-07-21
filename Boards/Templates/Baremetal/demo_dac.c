@@ -64,9 +64,6 @@ static ARM_DRIVER_DAC *DACdrv = &ARM_Driver_DAC_(BOARD_DAC12_INSTANCE);
 /* DAC maximum resolution is 12-bit */
 #define DAC_MAX_INPUT_VALUE (0xFFF)
 
-#define ERROR               -1
-#define SUCCESS             0
-
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
  * @fn      static int32_t board_dac12_pins_config(void)

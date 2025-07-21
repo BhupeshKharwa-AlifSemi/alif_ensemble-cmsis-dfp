@@ -86,9 +86,6 @@ StaticTask_t TimerTcb;
 #define CHANNEL_4           4
 #define CHANNEL_5           5
 
-#define ERROR               -1
-#define SUCCESS             0
-
 /* PDM Channel 4 configurations */
 #define CH4_PHASE           0x0000001F
 #define CH4_GAIN            0x0000000D

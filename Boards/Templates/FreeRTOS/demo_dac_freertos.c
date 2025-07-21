@@ -49,6 +49,8 @@
 #include "pinconf.h"
 #include "board_config.h"
 
+#include "sys_utils.h"
+
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
@@ -111,9 +113,6 @@ TaskHandle_t dac_xHandle = NULL;
 
 /* DAC maximum resolution is 12-bit */
 #define DAC_MAX_INPUT_VALUE (0xFFF)
-
-#define ERROR               -1
-#define SUCCESS             0
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
 /**
