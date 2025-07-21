@@ -8,7 +8,12 @@
   <license>License.txt</license>
 
   <releases>
-     <release version="2.0.0-rc3"  tag="v2.0.0-rc3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc3/AlifSemiconductor.Ensemble.2.0.0-rc3.pack" date="2025-07-09">
+     <release version="2.0.0-rc4"  tag="v2.0.0-rc4" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc4/AlifSemiconductor.Ensemble.2.0.0-rc4.pack" date="2025-07-21">
+      - Add Cropping Support for CPI
+      - Update E4 SOC part Numbers
+      - Add High Speed mode in I2C
+      - Fix Code Styling and Clang formatting
+      - Fix compilation error with CMSIS v6.2.0
       - Add Example projects for different boards
       - Fix fix the fpscr and vpr offset for PM
       - Use SE service call for gpio flexio config
