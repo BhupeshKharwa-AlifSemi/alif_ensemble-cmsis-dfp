@@ -19,8 +19,8 @@
  *              UART2 will be used by the HE core(RX - P1_0, TX - P1_1)
  *              UART4 will be used by the HP core(RX - P12_1, TX - P12_2)
  *              Wakeup Sources:
- *                 HP - RTC     : Default set to 10sec
- *                 HE - LPTIMER : Default set to 10sec
+ *                 HP - RTC     : Default set to 20sec
+ *                 HE - LPTIMER : Default set to 20sec
  *                 HP & HE - LPGPIO P15_4 : Press the JOYSWITCH(SW1) to wakeup
  *
  ******************************************************************************/
@@ -50,6 +50,16 @@
 #include "pinconf.h"
 
 #define DEBUG_PM 0
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+#if defined(BALLETTO_DEVICE) || defined(ENSEMBLE_SOC_E1C)
+#define APP_MEM_RET_BLOCKS  (SRAM4_1_MASK | SRAM4_2_MASK | SRAM4_3_MASK | SRAM4_4_MASK | \
+                             SRAM5_1_MASK | SRAM5_2_MASK | SRAM5_3_MASK | SRAM5_4_MASK | \
+                             SRAM5_5_MASK)
+#else
+#define APP_MEM_RET_BLOCKS  (SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK)
+#endif
 
 #if defined(RTSS_HE)
 /*******************************   RTC       **********************************/
@@ -327,53 +337,56 @@ static uint32_t volatile gpioevent;
 static void gpio_cb(uint32_t event)
 {
     gpioevent = event;
+    printf("\r\n GPIO CB\r\n");
 }
 
-static void lpgio_init(void)
+static void lpgpio_init(void)
 {
-    /*
-     * P15_4 is connected to JOY SWITCH 5
-     */
-
     extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(LP);
     ARM_DRIVER_GPIO       *gpio15Drv = &ARM_Driver_GPIO_(LP);
     int32_t                ret;
-    uint8_t                pin_no = PIN_4;
+    const uint8_t          pin_no[] = { PIN_0,
+                                        PIN_1,
+#if (LPGPIO_MAX_PIN >= 2)
+                                        PIN_4
+#endif
+                                      };
 
     uint32_t control_code = ARM_GPIO_IRQ_SENSITIVE_EDGE | ARM_GPIO_IRQ_EDGE_SENSITIVE_SINGLE |
                             ARM_GPIO_IRQ_POLARITY_LOW;
 
-    /* P15_4 set to PULL UP */
-    ret = pinconf_set(PORT_15,
-                      PIN_4,
-                      PINMUX_ALTERNATE_FUNCTION_0,
-                      PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
-    if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER_LOOP
-    }
+    for (uint8_t i = 0; i < ARRAY_SIZE(pin_no); i++) {
+        ret = pinconf_set(PORT_15,
+                          pin_no[i],
+                          PINMUX_ALTERNATE_FUNCTION_0,
+                          PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
+        if (ret) {
+            WAIT_FOREVER_LOOP
+        }
 
-    ret = gpio15Drv->Initialize(pin_no, gpio_cb);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error: LPGIO init failed\r\n");
-        WAIT_FOREVER_LOOP
-    }
+        ret = gpio15Drv->Initialize(pin_no[i], gpio_cb);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: LPGPIO init failed\r\n");
+            WAIT_FOREVER_LOOP
+        }
 
-    ret = gpio15Drv->PowerControl(pin_no, ARM_POWER_FULL);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error: LPGPIO Power Control failed\r\n");
-        WAIT_FOREVER_LOOP
-    }
+        ret = gpio15Drv->PowerControl(pin_no[i], ARM_POWER_FULL);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: LPGPIO Power Control failed\r\n");
+            WAIT_FOREVER_LOOP
+        }
 
-    ret = gpio15Drv->SetDirection(pin_no, GPIO_PIN_DIRECTION_INPUT);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error: LPGPIO Direction Set failed\r\n");
-        WAIT_FOREVER_LOOP
-    }
+        ret = gpio15Drv->SetDirection(pin_no[i], GPIO_PIN_DIRECTION_INPUT);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: LPGPIO Direction Set failed\r\n");
+            WAIT_FOREVER_LOOP
+        }
 
-    ret = gpio15Drv->Control(pin_no, ARM_GPIO_ENABLE_INTERRUPT, &control_code);
-    if (ret != ARM_DRIVER_OK) {
-        printf("\r\n Error: LPGPIO Interrupt Set failed\r\n");
-        WAIT_FOREVER_LOOP
+        ret = gpio15Drv->Control(pin_no[i], ARM_GPIO_ENABLE_INTERRUPT, &control_code);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: LPGPIO Interrupt Set failed\r\n");
+            WAIT_FOREVER_LOOP
+        }
     }
 }
 
@@ -435,19 +448,61 @@ static void pm_usage_menu(void)
 */
 static void pm_display_wakeup_reason(void)
 {
+    bool pending = false;
+    struct {
+        IRQn_Type irq;
+        const char *reason;
+    } wakeup_irqs[] = {
 #if defined(RTSS_HP)
-    if (NVIC_GetPendingIRQ(LPTIMER0_IRQ_IRQn)) {
-        printf("\r\nWakeup Interrupt Reason : LPTIMER0\n");
-    }
+        { LPTIMER0_IRQ_IRQn, "LPTIMER0" },
 #else
-    if (NVIC_GetPendingIRQ(LPRTC0_IRQ_IRQn)) {
-        printf("\r\nWakeup Interrupt Reason : RTC\n");
-    }
+        { LPRTC0_IRQ_IRQn,   "RTC" },
 #endif
+        { LPGPIO_IRQ0_IRQn,  "LPGPIO0" },
+        { LPGPIO_IRQ1_IRQn,  "LPGPIO1" },
+#if (LPGPIO_MAX_PIN >= 2)
+        { LPGPIO_IRQ4_IRQn,  "LPGPIO4" },
+#endif
+    };
 
-    if (NVIC_GetPendingIRQ(LPGPIO_IRQ4_IRQn)) {
-        printf("\r\nWakeup Interrupt Reason : LPGPIO 4\n");
+    printf("\r\nWakeup Interrupt Reasons: ");
+    for (size_t i = 0; i < ARRAY_SIZE(wakeup_irqs); ++i) {
+        if (NVIC_GetPendingIRQ(wakeup_irqs[i].irq)) {
+            printf("%s ", wakeup_irqs[i].reason);
+            pending = true;
+        }
     }
+    if (!pending) {
+        printf("None");
+    }
+    printf("\n");
+}
+
+static bool pm_is_any_wakeup_irq_pending(void)
+{
+#if defined(RTSS_HP)
+    IRQn_Type wakeup_irqs[] = { LPTIMER0_IRQ_IRQn,
+                                LPGPIO_IRQ0_IRQn,
+                                LPGPIO_IRQ1_IRQn,
+#if (LPGPIO_MAX_PIN >= 2)
+                                LPGPIO_IRQ4_IRQn
+#endif
+                            };
+#else
+    IRQn_Type wakeup_irqs[] = { LPRTC0_IRQ_IRQn,
+                                LPGPIO_IRQ0_IRQn,
+                                LPGPIO_IRQ1_IRQn,
+#if (LPGPIO_MAX_PIN >= 2)
+                                LPGPIO_IRQ4_IRQn
+#endif
+                            };
+#endif
+    for (size_t i = 0; i < ARRAY_SIZE(wakeup_irqs); ++i) {
+        if (NVIC_GetPendingIRQ(wakeup_irqs[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -460,11 +515,11 @@ int main(void)
     PM_SLEEP_TYPE   selectedSleepType = PM_SLEEP_TYPE_NORMAL_SLEEP;
     PM_RESET_STATUS last_reset_reason;
     int32_t         ret           = -1;
-    uint32_t        sleepDuration = 10; /*  Making Default sleep duration as 10s */
+    uint32_t        sleepDuration = 20; /*  Making Default sleep duration as 20s */
     uint32_t        service_error_code;
     uint32_t        error_code = SERVICES_REQ_SUCCESS;
-    off_profile_t   offp       = {0};
-    run_profile_t   runp       = {0};
+    off_profile_t   offp       = {0 };
+    run_profile_t   runp       = {0 };
     uint8_t         tempstr[4]; /* max length of the string */
     uint32_t        delay_count = 0;
 
@@ -538,14 +593,8 @@ int main(void)
 #endif
 
     /* If it is POR, UART will take some time to show up */
-    if ((PM_RESET_STATUS_POR_OR_SOC_OR_HOST_RESET == last_reset_reason) &&
-        (!
-#if defined(RTSS_HP)
-        (NVIC_GetPendingIRQ(LPTIMER0_IRQ_IRQn)
-#else
-        (NVIC_GetPendingIRQ(LPRTC0_IRQ_IRQn)
-#endif
-        || NVIC_GetPendingIRQ(LPGPIO_IRQ4_IRQn)))) {
+    if (PM_RESET_STATUS_POR_OR_SOC_OR_HOST_RESET == last_reset_reason &&
+        !pm_is_any_wakeup_irq_pending()) {
 #if defined(RTSS_HP)
         /* Add Delay of 1sec so that uart can show up */
         delay_count = 1;
@@ -587,8 +636,8 @@ int main(void)
     /* Display the wakeup reason */
     pm_display_wakeup_reason();
 
-    /* Enable GPIO15, PIN4 as a wakeup source */
-    lpgio_init();
+    /* Enable GPIO15, as wakeup source */
+    lpgpio_init();
 
 #if defined(RTSS_HE)
     /* RTC Initialization */
@@ -699,10 +748,10 @@ int main(void)
             offp.stby_clk_src = CLK_SRC_HFXO;
 #if defined(RTSS_HP)
             offp.ewic_cfg      = EWIC_VBAT_TIMER | EWIC_VBAT_GPIO;
-            offp.wakeup_events = WE_LPTIMER0 | WE_LPGPIO4;
+            offp.wakeup_events = WE_LPTIMER0 | WE_LPGPIO4 | WE_LPGPIO0 | WE_LPGPIO1;
 #else
             offp.ewic_cfg      = EWIC_RTC_A | EWIC_VBAT_GPIO;
-            offp.wakeup_events = WE_LPRTC | WE_LPGPIO4;
+            offp.wakeup_events = WE_LPRTC | WE_LPGPIO4 | WE_LPGPIO0 | WE_LPGPIO1;
 #endif
             offp.vtor_address  = SCB->VTOR;
             offp.memory_blocks = MRAM_MASK;
@@ -713,8 +762,7 @@ int main(void)
              * This is just for this test application.
              */
             if (RTSS_Is_TCM_Addr((const volatile void *) SCB->VTOR)) {
-                offp.memory_blocks =
-                    SRAM4_1_MASK | SRAM4_2_MASK | SRAM5_1_MASK | SRAM5_2_MASK | SERAM_MASK;
+                offp.memory_blocks = APP_MEM_RET_BLOCKS | SERAM_MASK;
             } else {
                 /* Enable SERAM if HE VTOR is in MRAM */
                 offp.memory_blocks |= SERAM_MASK;
@@ -751,9 +799,9 @@ int main(void)
 #endif
             printf("\r\nCore : Enter Subsystem off, ...\r\n");
 #if defined(RTSS_HP)
-            printf("\r\nWakeup Source Set : LPTIMER0 & GPIO P15_4 \r\n");
+            printf("\r\nWakeup Source Set : LPTIMER0 & GPIO P15_0, P15_1, P15_4 \r\n");
 #else
-            printf("\r\nWakeup Source Set : RTC & GPIO P15_4 \r\n");
+            printf("\r\nWakeup Source Set : RTC & GPIO P15_0, P15_1, P15_4 \r\n");
 #endif
             printf("\r\nVTOR = %" PRIx32 "\n", offp.vtor_address);
 
