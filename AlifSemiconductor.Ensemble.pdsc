@@ -393,7 +393,7 @@
         <!--Operation Range-->
         <feature type="VCC" n="1.75" m="4.8"/>
         <feature type="Temp" n="-40" m="85"/>
-        <device Dname="AE402FA0E5597BS0">
+        <device Dname="AE402FA0E5597BE0">
           <compile Pname="M55_HP" header="Device/core/common/include/alif.h" define="RTSS_HP"/>
           <compile Pname="M55_HE" header="Device/core/common/include/alif.h" define="RTSS_HE"/>
           <debug svd="Debug/SVD/AE822FA0E5597BS0_CM55_HP_View.svd" Pname="M55_HP" __apid="0"/>
@@ -1327,7 +1327,7 @@
       <compatibleDevice deviceIndex="0" Dvendor="Alif Semiconductor:165" Dname="AE822FA0E5597BS0"/>
       <compatibleDevice deviceIndex="1" Dvendor="Alif Semiconductor:165" Dname="AE612FA0E5597BS0"/>
       <compatibleDevice deviceIndex="2" Dvendor="Alif Semiconductor:165" Dname="AE612FA0E5597LS0"/>
-      <compatibleDevice deviceIndex="3" Dvendor="Alif Semiconductor:165" Dname="AE402FA0E5597BS0"/>
+      <compatibleDevice deviceIndex="3" Dvendor="Alif Semiconductor:165" Dname="AE402FA0E5597BE0"/>
       <compatibleDevice deviceIndex="4" Dvendor="Alif Semiconductor:165" Dname="AE402FA0E5597LE0"/>
       <debugInterface adapter="JTAG/SW" connector="20-pin Arm Coresight JTAG Connector (1.27 mm)"/>
       <debugInterface adapter="JTAG/SW" connector="10-pin Arm Coresight JTAG Connector (1.27 mm)"/>
