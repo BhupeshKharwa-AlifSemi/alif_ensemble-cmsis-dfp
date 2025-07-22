@@ -113,15 +113,29 @@ set (BOARD_CMAKE_FILE       "${USER_CMAKE_SCRIPT_DIR}/board_cmake/board.cmake")
 string(REGEX REPLACE    "^[^-]*-"   ""      BOARD_ABERRATION    "${BOARD_NAME}")
 string(TOUPPER  "${BOARD_ABERRATION}"   BOARD_ABERRATION_IN_UPPER)
 string(FIND     "${DEVICE}"    "A${BOARD_ABERRATION_IN_UPPER}"      found_subStr)
-string(SUBSTRING ${DEVICE}  0   3   BOARD_ABERRATION_ID)
+
+# Determine if DEVICE starts with "AE1C"
+string(SUBSTRING "${DEVICE}" 0 4 BOARD_ABERRATION_ID_4)
+string(SUBSTRING "${DEVICE}" 0 3 BOARD_ABERRATION_ID_3)
+
+if(BOARD_ABERRATION_ID_4 STREQUAL "AE1C")
+    set(BOARD_ABERRATION_ID "${BOARD_ABERRATION_ID_4}")
+else()
+    set(BOARD_ABERRATION_ID "${BOARD_ABERRATION_ID_3}")
+endif()
 
 if(found_subStr EQUAL -1)
     message(STATUS     "${Red} ⚠️ [WARNING] BOARD NAME (${BOARD_NAME}) AND DEVICE (${DEVICE}) IS NOT IN SYNC !!!${ColourReset}")
 endif()
 
-if( ("${BOARD_ABERRATION_ID}" STREQUAL "AE4") OR ("${BOARD_ABERRATION_ID}" STREQUAL "AE8"))
-    add_definitions (-DENSEMBLE_SOC_GEN2)
+if(BOARD_ABERRATION_ID STREQUAL "AE1C")
+    add_definitions(-DENSEMBLE_SOC_E1C)
+elseif(BOARD_ABERRATION_ID STREQUAL "AE4" OR BOARD_ABERRATION_ID STREQUAL "AE8")
+    add_definitions(-DENSEMBLE_SOC_GEN2)
+elseif(BOARD_ABERRATION_ID STREQUAL "AB1")
+    add_definitions(-DBALLETTO_DEVICE)
 endif()
+
 
 #Include Retarget Include path
 set(RETARGET_IO_INC     "${CMSIS_COMPILER_PATH}/include;${RETARGET_SRC_DIR}/retarget_io/include")

@@ -81,12 +81,9 @@
 /* AlifSemiconductor::CMSIS Driver.MCI                */
 #define RTE_Drivers_MCI                     1 /* Driver MCI                               */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
-/*#define RTE_CMSIS_Compiler_STDIN                                  // Enable/Disable Re targetting
- * for STDIN */
+//#define RTE_CMSIS_Compiler_STDIN            /* Enable/Disable Re targetting for STDIN   */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */
-/*#define RTE_CMSIS_Compiler_STDOUT                                 // Enable/Disable Re targetting
- * for STDOUT*/
+//#define RTE_CMSIS_Compiler_STDOUT           /* Enable/Disable Re targetting for STDOUT  */
 /* AlifSemiconductor::Device.SOC STDERR Retargetting */
-/*#define RTE_CMSIS_Compiler_STDERR                                 // Enable/Disable Re targetting
- * for STDERR*/
+//#define RTE_CMSIS_Compiler_STDERR           /* Enable/Disable Re targetting for STDERR  */
 #endif /* RTE_COMPONENTS_H */

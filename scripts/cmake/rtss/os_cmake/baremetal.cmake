@@ -136,7 +136,7 @@ COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_dma_memcpy.c          ENABLE_DMA       
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_i2c.c                 ENABLE_I2C         TEST_APP_SRCS   "test-apps")
 COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_i3c_i2cbusproxy.c     ENABLE_I2C         TEST_APP_SRCS   "test-apps")
 
-eval_flags(TMP_FLAG     AND     ENABLE_RTC          ENABLE_LPTIMER  ENABLE_E7_DEVKIT)
+eval_flags(TMP_FLAG     OR     ENABLE_RTC          ENABLE_LPTIMER)
 if(${TMP_FLAG})
     COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_pm.c              ${TMP_FLAG}        TEST_APP_SRCS   "test-apps")
 else()

@@ -161,7 +161,7 @@ typedef enum {
     SCALED_FREQ_NONE                              /**< SCALED_FREQ_NONE */
 } scaled_clk_freq_t;
 
-#ifdef BALLETTO_DEVICE
+#if defined(BALLETTO_DEVICE) || defined(ENSEMBLE_SOC_E1C)
 /**
  * @enum memory_block_t
  * @brief Memory Blocks
@@ -351,7 +351,7 @@ typedef enum {
 #define WE_LPGPIO   0XFF0000  // bit23:16
 
 // EWIC
-#if defined(BALLETTO_DEVICE)
+#if defined(BALLETTO_DEVICE) || defined(ENSEMBLE_SOC_E1C)
 #define EWIC_RTC_SE          (1)        // bit0
 #define EWIC_ES0_WAKEUP      (1 << 1)   // bit1
 #define EWIC_ES0_OSC_EN      (1 << 2)   // bit2
