@@ -27,7 +27,6 @@
 /* System Includes */
 #include <stdio.h>
 #include <inttypes.h>
-#include "sys_utils.h"
 
 /* include for ADC Driver */
 #include "Driver_ADC.h"
@@ -40,6 +39,8 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "app_utils.h"
 
 /* single shot conversion scan use ARM_ADC_SINGLE_SHOT_CH_CONV*/
 
@@ -164,7 +165,7 @@ void adc_click_board_demo()
     }
 
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
 

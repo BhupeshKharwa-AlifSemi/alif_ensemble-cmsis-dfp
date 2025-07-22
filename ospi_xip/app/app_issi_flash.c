@@ -30,8 +30,12 @@
 #include "services_lib_api.h"
 #include "ospi_xip_aes_key.h"
 #endif
+#if defined(RTE_CMSIS_Compiler_STDOUT)
+#include "retarget_init.h"
+#include "retarget_stdout.h"
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #define OSPI_RESET_PORT 15
 #define OSPI_RESET_PIN  7
@@ -252,13 +256,21 @@ static int32_t setup_pinmux(void)
  */
 int main(void)
 {
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    int32_t    ret;
+
+    ret = stdout_init();
+    if (ret != ARM_DRIVER_OK) {
+        WAIT_FOREVER_LOOP
+    }
+#endif
 #if OSPI_XIP_SKIP_INITIALIZATION == 0
     int32_t ret;
 
     ret = setup_pinmux();
 
     if (ret) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
 #if OSPI_XIP_ENABLE_AES_DECRYPTION
@@ -282,14 +294,14 @@ int main(void)
     se_ret = SERVICES_application_ospi_write_key(se_services_s_handle, command, key, &error_code);
 
     if (se_ret != SERVICES_REQ_SUCCESS || error_code != 0) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
     ret = setup_flash_xip();
 
     if (ret) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #else
     /*

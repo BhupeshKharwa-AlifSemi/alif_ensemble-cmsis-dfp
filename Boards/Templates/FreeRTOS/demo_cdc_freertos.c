@@ -46,7 +46,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 extern ARM_DRIVER_CDC200  Driver_CDC200;
 static ARM_DRIVER_CDC200 *CDCdrv = &Driver_CDC200;
@@ -79,7 +79,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -93,7 +93,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /*****************Only for FreeRTOS use *************************/
@@ -129,7 +129,7 @@ static void display_callback(uint32_t event)
 {
     if (event & ARM_CDC_DSI_ERROR_EVENT) {
         /* Transfer Error: Received Hardware error */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 }
 
@@ -293,7 +293,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

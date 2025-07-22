@@ -37,7 +37,7 @@
 /* PINMUX Driver */
 #include "pinconf.h"
 #include "board_config.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* SE Services */
 #include "se_services_port.h"

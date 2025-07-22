@@ -39,7 +39,7 @@
 
 #include "board_config.h"
 #include "RTE_Device.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 /*
  * UART4 CLK SOURCE: Defines UART4 clock source.
  *    <0=> CLK_38.4MHz (CLKEN_HFOSC)

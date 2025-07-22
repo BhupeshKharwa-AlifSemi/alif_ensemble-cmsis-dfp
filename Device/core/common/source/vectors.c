@@ -33,12 +33,14 @@
 
 static void Fault_Handler(void)
 {
-    ASSERT_HANG
+    for (;;) {
+    }
 }
 
 static void Default_Handler(void)
 {
-    ASSERT_HANG
+    for (;;) {
+    }
 }
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)

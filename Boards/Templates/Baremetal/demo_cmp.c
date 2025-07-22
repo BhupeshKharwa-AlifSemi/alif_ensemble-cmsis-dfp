@@ -39,7 +39,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <inttypes.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 #include "pinconf.h"
 #include "Driver_IO.h"
@@ -265,7 +265,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP0_OUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* LPCMP_IN0 input to the positive terminal of LPCMP */
@@ -274,7 +274,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_LPCMP_POS_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* LPCMP_IN0 input to the negative terminal of LPCMP */
@@ -283,7 +283,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* CMP0_IN0 input to the positive terminal of CMP0 */
@@ -292,7 +292,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* VREF_IN0 input to the negative terminal of CMP0 and CMP1 */
@@ -301,10 +301,10 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 
 /**
@@ -324,13 +324,13 @@ static int32_t led_init(void)
     ret1         = ledDrv->Initialize(LED0_R, NULL);
     if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
-        return ERROR;
+        return ret1;
     }
 
     ret1 = CMPout->Initialize(CMP_OUTPIN, NULL);
     if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
-        return ERROR;
+        return ret1;
     }
 
     /* Enable the power for LED0_R */
@@ -365,13 +365,14 @@ static int32_t led_init(void)
         goto error_power_off_LED;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 
 error_power_off_LED:
     /* Power-off the LED0_R */
     ret1 = ledDrv->PowerControl(LED0_R, ARM_POWER_OFF);
     if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
+        return ret1;
     }
 
 error_uninitialize_LED:
@@ -379,8 +380,9 @@ error_uninitialize_LED:
     ret1 = ledDrv->Uninitialize(LED0_R);
     if (ret1 != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
+        return ret1;
     }
-    return ERROR;
+    return APP_ERROR;
 }
 
 /**
@@ -404,14 +406,16 @@ error_power_off_LED:
     ret = CMPout->PowerControl(CMP_OUTPIN, ARM_POWER_OFF);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
+        return ret;
     }
 
     /* Uninitialize the CMP_OUTPIN */
     ret = CMPout->Uninitialize(CMP_OUTPIN);
     if (ret != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
+        return ret;
     }
-    return ERROR;
+    return APP_ERROR;
 }
 /**
  * @fn         led_toggle(void)
@@ -428,21 +432,23 @@ static int32_t led_toggle(void)
         printf("ERROR: Failed to toggle LEDs\n");
         goto error_power_off_LED;
     }
-    return SUCCESS;
+    return APP_SUCCESS;
 
 error_power_off_LED:
     /* Power-off the LED0_R */
     ret1 = ledDrv->PowerControl(LED0_R, ARM_POWER_OFF);
     if (ret1 != ARM_DRIVER_OK) {
         printf("ERROR: Failed to power off \n");
+        return ret1;
     }
 
     /* Uninitialize the LED0_R */
     ret1 = ledDrv->Uninitialize(LED0_R);
     if (ret1 != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
+        return ret1;
     }
-    return ERROR;
+    return APP_ERROR;
 }
 
 /**
@@ -641,8 +647,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 

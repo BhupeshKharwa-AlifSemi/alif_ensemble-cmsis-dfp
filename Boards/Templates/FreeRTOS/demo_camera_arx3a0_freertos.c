@@ -42,7 +42,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined arx3A0 pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -80,7 +80,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -94,7 +94,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /*****************Only for FreeRTOS use *************************/
@@ -722,7 +722,7 @@ error_disable_100mhz_clk:
     printf("\r\n XXX Camera demo thread is exiting XXX...\r\n");
 
     /* wait forever */
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 /*----------------------------------------------------------------------------
@@ -735,8 +735,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 

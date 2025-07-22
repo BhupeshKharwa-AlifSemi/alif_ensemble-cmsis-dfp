@@ -36,7 +36,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined SPI pin configuration (via board_spi_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).

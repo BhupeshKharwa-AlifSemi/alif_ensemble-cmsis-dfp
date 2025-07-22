@@ -40,7 +40,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #define INSTANCE_CPI                   1
 #define INSTANCE_LPCPI                 0
@@ -89,7 +89,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -103,7 +103,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /*****************Only for FreeRTOS use *************************/
@@ -919,7 +919,7 @@ void camera_demo_thread_entry(void *pvParameters)
            "debugger!!!\r\n");
 
     /* wait forever. */
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Power off CAMERA peripheral */
@@ -948,7 +948,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

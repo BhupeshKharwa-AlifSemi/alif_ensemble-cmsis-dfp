@@ -25,7 +25,7 @@
 #include CMSIS_device_header
 #include "pinconf.h"
 #include "Driver_CAN.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 
 #include "FreeRTOS.h"
@@ -121,7 +121,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
     ARG_UNUSED(pxTask);
     ARG_UNUSED(pcTaskName);
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -135,7 +135,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /* CANFD instance object */

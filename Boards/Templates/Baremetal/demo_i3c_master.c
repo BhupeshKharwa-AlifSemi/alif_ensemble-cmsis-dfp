@@ -44,7 +44,7 @@
 /* Project Includes */
 /* I3C Driver */
 #include "Driver_I3C.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* PINMUX Driver */
 #include "board_config.h"
@@ -120,7 +120,7 @@ int32_t hardware_init(void)
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Get Current run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
@@ -128,7 +128,7 @@ int32_t hardware_init(void)
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Set new run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* pin mux and configuration for all device IOs requested from pins.h*/
@@ -330,7 +330,7 @@ void i3c_master_loopback_demo(void)
 
         if (cb_event == I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C MasterAssignDA failed\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 #endif
     }
@@ -379,7 +379,7 @@ void i3c_master_loopback_demo(void)
 
         if (cb_event == I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C Master transmit Failed\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 #endif
         tx_cnt += 1;
@@ -410,7 +410,7 @@ void i3c_master_loopback_demo(void)
 
         if (cb_event == I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C Master Receive failed.\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 #endif
         rx_cnt += 1;
@@ -419,7 +419,7 @@ void i3c_master_loopback_demo(void)
         cmp     = memcmp(tx_data, rx_data, len);
         if (cmp != 0) {
             printf("\nError: TX and RX data mismatch.\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
     }
 error_poweroff:
@@ -449,8 +449,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Enter the ThreadX kernel.  */

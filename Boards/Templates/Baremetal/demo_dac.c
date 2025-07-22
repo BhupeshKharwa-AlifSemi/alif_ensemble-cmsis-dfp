@@ -43,7 +43,7 @@
 #include CMSIS_device_header
 #include "pinconf.h"
 #include "board_config.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* Project Includes */
 /* include for DAC Driver */
@@ -81,7 +81,7 @@ static int32_t board_dac12_pins_config(void)
                          BOARD_DAC120_ALTERNATE_FUNCTION,
                          PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
 #if (RTE_DAC1)
@@ -91,10 +91,10 @@ static int32_t board_dac12_pins_config(void)
                          BOARD_DAC121_ALTERNATE_FUNCTION,
                          PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 #endif
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -241,8 +241,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     dac_demo();

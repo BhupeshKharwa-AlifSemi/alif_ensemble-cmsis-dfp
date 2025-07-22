@@ -33,7 +33,7 @@
 #include CMSIS_device_header
 #include "se_services_port.h"
 #include "clock_runtime.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT) || defined(RTE_CMSIS_Compiler_STDIN)
 #include "retarget_init.h"
@@ -349,31 +349,31 @@ static void lpgio_init(void)
                       PINMUX_ALTERNATE_FUNCTION_0,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = gpio15Drv->Initialize(pin_no, gpio_cb);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: LPGIO init failed\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = gpio15Drv->PowerControl(pin_no, ARM_POWER_FULL);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: LPGPIO Power Control failed\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = gpio15Drv->SetDirection(pin_no, GPIO_PIN_DIRECTION_INPUT);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: LPGPIO Direction Set failed\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = gpio15Drv->Control(pin_no, ARM_GPIO_ENABLE_INTERRUPT, &control_code);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: LPGPIO Interrupt Set failed\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 }
 
@@ -477,7 +477,7 @@ int main(void)
     /* Get the current run configuration from SE */
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /*
@@ -505,7 +505,7 @@ int main(void)
     /* Set the new run configuration */
     error_code = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* enable the HFOSC clock */
@@ -514,7 +514,7 @@ int main(void)
                                               /*bool enable   */ true,
                                               &service_error_code);
     if (error_code) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Update the system clock information */
@@ -525,7 +525,7 @@ int main(void)
 #if defined(RTE_CMSIS_Compiler_STDIN_Custom)
     ret = stdin_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -533,7 +533,7 @@ int main(void)
     extern int stdout_init(void);
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -684,7 +684,7 @@ int main(void)
             error_code = SERVICES_get_off_cfg(se_services_s_handle, &offp, &service_error_code);
             if (error_code) {
                 printf("\r\nSE: get_off_cfg error = %" PRIu32 "\n", error_code);
-                WAIT_FOREVER
+                WAIT_FOREVER_LOOP
             }
 
             if (selectedSleepType == PM_SLEEP_TYPE_SUBSYS_OFF_STANDBY) {
@@ -734,7 +734,7 @@ int main(void)
             error_code = SERVICES_set_off_cfg(se_services_s_handle, &offp, &service_error_code);
             if (error_code) {
                 printf("\r\nSE: set_off_cfg error = %" PRIu32 "\n", error_code);
-                WAIT_FOREVER
+                WAIT_FOREVER_LOOP
             }
 
 #if defined(RTSS_HE)
@@ -794,7 +794,7 @@ int main(void)
                                               /*bool enable   */ false,
                                               &service_error_code);
     if (error_code) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

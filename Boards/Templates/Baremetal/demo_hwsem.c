@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include "RTE_Device.h"
 #include "Driver_USART.h"
@@ -291,7 +291,7 @@ error_uninitialize:
     /* Uninitialize the HWSEM Driver */
     HWSEMdrv->Uninitialize();
 error_exit:
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 int main()
@@ -303,7 +303,7 @@ int main()
     extern int stdout_init(void);
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -374,5 +374,5 @@ error_unlock:
 error_uninitialize:
     HWSEMdrv->Uninitialize();
 error_exit:
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }

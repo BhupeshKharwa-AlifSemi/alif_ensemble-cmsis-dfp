@@ -82,16 +82,7 @@ extern "C" {
 
 #define CONVERT_US_TO_NS(n)              (n * 1000U)
 
-#define WAIT_FOREVER                     while (1) {\
-                                         }
-
-#define ASSERT_HANG                      for (;;) {\
-                                         }
-
-#define ERROR                           -1
-#define SUCCESS                          0
-
-// Function documentation
+/* Function documentation */
 
 /**
   \fn          void sys_busy_loop_init_ns(void)

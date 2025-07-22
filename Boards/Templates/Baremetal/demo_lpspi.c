@@ -31,7 +31,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined lpspi and spi pin configuration (via
 // board_lpspi_pins_config()). Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -227,7 +227,7 @@ void lpspi_spi0_transfer(void)
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Get Current run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
@@ -235,7 +235,7 @@ void lpspi_spi0_transfer(void)
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Set new run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* LPSPI Configuration as master */
@@ -371,7 +371,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     lpspi_spi0_transfer();

@@ -40,12 +40,10 @@
 /* System Includes */
 #include "Driver_IO.h"
 #include <stdio.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 #include "pinconf.h"
 #include "Driver_UTIMER.h"
-
-#include "sys_utils.h"
 
 /* include for Comparator Driver */
 #include "Driver_CMP.h"
@@ -146,7 +144,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -160,7 +158,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /* Use window control(External trigger using UTIMER or QEC) to trigger the comparator comparison */
@@ -237,7 +235,7 @@ static void utimer_compare_mode_app(void *pvParameters)
     xReturned        = xTaskNotifyWait(NULL, UTIMER_TASK_START, NULL, portMAX_DELAY);
     if (xReturned != pdTRUE) {
         printf("\n\r Task Wait Time out expired \n\r");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     slRet = ptrUTIMER->Initialize(ucChannel, utimer_compare_mode_cb_func);
@@ -331,7 +329,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP0_OUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* LPCMP_IN0 input to the positive terminal of LPCMP */
@@ -340,7 +338,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_LPCMP_POS_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* LPCMP_IN0 input to the negative terminal of LPCMP */
@@ -349,7 +347,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_LPCMP_NEG_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* CMP0_IN0 input to the positive terminal of CMP0 */
@@ -358,7 +356,7 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP0_POS_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* VREF_IN0 input to the negative terminal of CMP0 and CMP1 */
@@ -367,10 +365,10 @@ static int32_t board_cmp_pins_config(void)
                          BOARD_CMP_NEG_INPUT_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 
 /**
@@ -390,13 +388,13 @@ static int32_t led_init(void)
     slRet         = ledDrv->Initialize(LED0_R, NULL);
     if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
-        return ERROR;
+        return slRet;
     }
 
     slRet = CMPout->Initialize(CMP_OUTPIN, NULL);
     if (slRet != ARM_DRIVER_OK) {
         printf("ERROR: Failed to initialize\n");
-        return ERROR;
+        return slRet;
     }
 
     /* Enable the power for LED0_R */
@@ -431,7 +429,7 @@ static int32_t led_init(void)
         goto error_power_off_LED;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 
 error_power_off_LED:
     /* Power-off the LED0_R */
@@ -446,7 +444,7 @@ error_uninitialize_LED:
     if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
-    return ERROR;
+    return APP_ERROR;
 }
 
 /**
@@ -478,7 +476,7 @@ error_power_off_LED:
     if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
-    return ERROR;
+    return APP_ERROR;
 }
 
 /**
@@ -496,7 +494,7 @@ int32_t led_toggle(void)
         printf("ERROR: Failed to toggle LEDs\n");
         goto error_power_off_LED;
     }
-    return SUCCESS;
+    return APP_SUCCESS;
 
 error_power_off_LED:
     /* Power-off the LED0_R */
@@ -510,7 +508,7 @@ error_power_off_LED:
     if (slRet != ARM_DRIVER_OK) {
         printf("Failed to Un-initialize \n");
     }
-    return ERROR;
+    return APP_ERROR;
 }
 
 /**
@@ -720,9 +718,10 @@ int main()
 #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init(void);
     int32_t    ret;
+
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

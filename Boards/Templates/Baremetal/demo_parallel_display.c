@@ -32,7 +32,7 @@
 
 /* PINMUX Driver */
 #include "pinconf.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
@@ -87,7 +87,7 @@ static void display_callback(uint32_t event)
 {
     if (event & ARM_CDC_DSI_ERROR_EVENT) {
         /* Transfer Error: Received Hardware error */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 }
 
@@ -499,8 +499,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Enter the demo Application.  */

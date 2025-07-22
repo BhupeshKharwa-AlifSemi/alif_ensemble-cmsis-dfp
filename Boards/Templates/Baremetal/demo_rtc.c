@@ -29,7 +29,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* RTC Driver instance 0 */
 extern ARM_DRIVER_RTC  Driver_RTC0;

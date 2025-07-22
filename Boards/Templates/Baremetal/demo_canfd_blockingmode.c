@@ -30,7 +30,7 @@
 #include "board_config.h"
 
 #include "Driver_CAN.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined CANFD pin configuration (via board_canfd_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).

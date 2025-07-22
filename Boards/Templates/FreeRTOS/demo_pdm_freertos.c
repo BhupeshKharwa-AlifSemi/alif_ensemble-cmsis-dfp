@@ -53,7 +53,7 @@
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "RTE_Components.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
@@ -115,7 +115,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -129,7 +129,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 typedef enum {
@@ -241,7 +241,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 2_3 data line */
@@ -250,7 +250,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_4,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 4_5 data line */
@@ -259,7 +259,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 6_7 data line */
@@ -268,7 +268,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 0_1 clock line */
@@ -277,7 +277,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 2_3 clock line */
@@ -286,7 +286,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_4,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 4_5 clock line */
@@ -295,7 +295,7 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 6_7 clock line */
@@ -304,10 +304,10 @@ static int32_t board_pdm_pins_config(void)
                          PINMUX_ALTERNATE_FUNCTION_3,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -536,7 +536,7 @@ void pdm_demo_thread_entry(void *pvParameters)
            sample_buf,
            sizeof(sample_buf));
     printf("\n ---END--- \r\n <<< wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_capture:
 error_poweroff:
@@ -575,7 +575,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

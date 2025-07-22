@@ -64,7 +64,7 @@
 #error "This Demo application works only on RTSS_HE"
 #endif
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined LPPDM pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -190,7 +190,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_D0_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 2_3 data line */
@@ -199,7 +199,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_D1_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 4_5 data line */
@@ -208,7 +208,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_D2_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* channel 6_7 data line */
@@ -217,7 +217,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_D3_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 0_1 clock line */
@@ -226,7 +226,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_C0_ALTERNATE_FUNCTION,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 2_3 clock line */
@@ -235,7 +235,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_C1_ALTERNATE_FUNCTION,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 4_5 clock line */
@@ -244,7 +244,7 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_C2_ALTERNATE_FUNCTION,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Channel 6_7 clock line */
@@ -253,10 +253,10 @@ static int32_t board_lppdm_pins_config(void)
                          BOARD_LPPDM_C3_ALTERNATE_FUNCTION,
                          PADCTRL_DRIVER_DISABLED_HIGH_Z);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -491,7 +491,7 @@ void pdm_demo()
            (uintptr_t) sample_buf,
            sizeof(sample_buf));
     printf("\n ---END--- \r\n <<< wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_capture:
 error_poweroff:
@@ -526,9 +526,10 @@ int main()
 #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init(void);
     int32_t    ret;
+
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Enter the demo Application.  */

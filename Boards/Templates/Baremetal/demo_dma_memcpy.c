@@ -31,7 +31,7 @@
 #include "retarget_stdout.h"
 #endif
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* Enable the DMA controller to test */
 // #define TEST_DMA0
@@ -173,21 +173,21 @@ static void dma_memcpy_task(void)
     status = dma_drv->Initialize();
     if (status) {
         printf("DMA Init FAILED = %" PRId32 "\n", status);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Power control for DMA */
     status = dma_drv->PowerControl(ARM_POWER_FULL);
     if (status) {
         printf("DMA Power FAILED = %" PRId32 "\n", status);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Allocate handle for DMA */
     status = dma_drv->Allocate(&handle);
     if (status) {
         printf("DMA Channel Allocation FAILED = %" PRId32 "\n", status);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     params.peri_reqno = -1;
@@ -210,7 +210,7 @@ static void dma_memcpy_task(void)
     status = dma_drv->Start(&handle, &params);
     if (status || (handle < 0)) {
         printf("DMA Start FAILED = %" PRId32 "\n", status);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* wait for the dma callback */
@@ -220,7 +220,7 @@ static void dma_memcpy_task(void)
 
     if (dma_cb_event == DMA_ABORT_EVENT) {
         printf("DMA ABORT OCCURRED \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     dma_cb_event = 0;
@@ -263,7 +263,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

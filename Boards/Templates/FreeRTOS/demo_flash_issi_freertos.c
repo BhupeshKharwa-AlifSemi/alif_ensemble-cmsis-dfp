@@ -35,7 +35,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #define DEMO_THREAD_STACK_SIZE (512)
 
@@ -259,7 +259,7 @@ void vFlashThread(void *pvParameters)
 
     printf("Total errors after erasing a sector = %d\n", ulCount);
 
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff :
     lStatus = ptrFLASH->PowerControl(ARM_POWER_OFF);
@@ -287,7 +287,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

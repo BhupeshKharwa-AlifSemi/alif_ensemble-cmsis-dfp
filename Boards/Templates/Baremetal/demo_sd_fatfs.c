@@ -38,7 +38,7 @@
 #include "pinconf.h"
 #include "Driver_IO.h"
 #include "board_config.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined SDC A revision pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -194,7 +194,7 @@ void SD_Baremetal_fatfs_test()
     /* Check the media open status.  */
     if (fr) {
         printf("media open fail status = %" PRId16 "...\n", fr);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
     printf("SD Mounted Successfully...\n");
 
@@ -206,7 +206,7 @@ void SD_Baremetal_fatfs_test()
     if (fr) {
         printf("File open status: %" PRId32 "\n", fr);
         /* Error opening file, break the loop.  */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
 #elif defined(FILE_READ_TEST)
@@ -218,7 +218,7 @@ void SD_Baremetal_fatfs_test()
     if (fr) {
         printf("File open status: %" PRId16 "\n", fr);
         /* Error opening file, break the loop.  */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("Reading Data from File...%s\n", FILE_READ_TEST);
@@ -252,7 +252,7 @@ void SD_Baremetal_fatfs_test()
     if (fr) {
         printf("File open status: %" PRId32 "\n", fr);
         /* Error opening file, break the loop.  */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("Writing Data in File...%s\n", FILE_WRITE_TEST);
@@ -285,7 +285,7 @@ void SD_Baremetal_fatfs_test()
     if (fr) {
         printf("File close status: %" PRId16 "\n", fr);
         /* Error closing the file, break the loop.  */
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("File R/W Test Completed!!!\n");
@@ -300,8 +300,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 

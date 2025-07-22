@@ -37,7 +37,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* for Unused Arguments. */
 #ifndef ARG_UNUSED
@@ -147,12 +147,12 @@ void MRAM_Thread_entry()
     /* check for error. */
     if (err_cnt) {
         printf("\r\n waiting in Error. \r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\r\n MRAM Write-Read test completed!!! \r\n");
     printf("\r\n waiting here forever...\r\n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Received error, Power off MRAM peripheral */
@@ -179,7 +179,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     MRAM_Thread_entry();

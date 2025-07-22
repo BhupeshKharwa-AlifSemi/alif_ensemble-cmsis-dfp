@@ -32,7 +32,7 @@
 
 #include "DPHY_CSI2.h"
 #include "DPHY_DSI.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /*DPHY DSI/CSI Read and Write functions*/
 uint8_t DPHY_DSI_Read_Mask(uint16_t address, uint8_t pos, uint8_t width);

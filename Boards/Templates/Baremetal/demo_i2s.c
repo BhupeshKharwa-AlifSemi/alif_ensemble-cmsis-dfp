@@ -40,7 +40,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #if BOARD_WM8904_CODEC_PRESENT
 #include "WM8904_driver.h"
@@ -128,7 +128,7 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure DAC I2S WS */
@@ -137,7 +137,7 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure DAC I2S SCLK */
@@ -146,10 +146,10 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -169,7 +169,7 @@ static int32_t board_wm8904_i2c_pins_config(void)
                          BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION,
                          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* I2C_SCL */
@@ -178,10 +178,10 @@ static int32_t board_wm8904_i2c_pins_config(void)
                          BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION,
                          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -393,8 +393,7 @@ error_codec_initialize:
         printf("SE Error: HFOSCx2 clk disable = %" PRIu32 "\n", error_code);
     }
 #endif
-    while (1) {
-    }
+    WAIT_FOREVER_LOOP
 }
 
 #if !defined(DAC_PREDEFINED_SAMPLES) && defined(BOARD_MIC_INPUT_I2S_INSTANCE)
@@ -433,7 +432,7 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure ADC I2S SCLK */
@@ -442,7 +441,7 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure ADC I2S SDI */
@@ -451,10 +450,10 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -478,7 +477,7 @@ int32_t ADC_Init(void)
     status = board_i2s_adc_pins_config();
     if (status != 0) {
         printf("Error in pin-mux configuration: %" PRId32 "\n", status);
-        return -1;
+        return status;
     }
 #endif
 
@@ -490,21 +489,21 @@ int32_t ADC_Init(void)
     cap = i2s_adc->GetCapabilities();
     if (!cap.protocol_i2s) {
         printf("I2S is not supported\n");
-        return -1;
+        return APP_ERROR;
     }
 
     /* Initializes I2S interface */
     status = i2s_adc->Initialize(adc_callback);
     if (status) {
         printf("ADC Init failed status = %" PRId32 "\n", status);
-        return -1;
+        return status;
     }
 
     /* Enable the power for I2S */
     status = i2s_adc->PowerControl(ARM_POWER_FULL);
     if (status) {
         printf("ADC Power failed status = %" PRId32 "\n", status);
-        return -1;
+        return status;
     }
 
     /* configure I2S Receiver to Asynchronous Master */
@@ -514,10 +513,10 @@ int32_t ADC_Init(void)
                               sampling_rate);
     if (status) {
         printf("ADC Control status = %" PRId32 "\n", status);
-        return -1;
+        return status;
     }
 
-    return 0;
+    return APP_SUCCESS;
 }
 
 /**
@@ -534,7 +533,7 @@ int32_t Receiver(void)
     status = i2s_adc->Receive((uint32_t *) sample_buf, NUM_SAMPLES);
     if (status) {
         printf("ADC Receive status = %" PRId32 "\n", status);
-        return -1;
+        return status;
     }
 
     /* Wait for the completion event */
@@ -549,7 +548,7 @@ int32_t Receiver(void)
         }
     }
 
-    return 0;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -565,8 +564,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 

@@ -39,7 +39,7 @@
 #include CMSIS_device_header
 
 #include "Driver_I2C.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -183,7 +183,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     ARG_UNUSED(pxTask);
     ARG_UNUSED(pcTaskName);
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -197,7 +197,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /**
@@ -358,7 +358,7 @@ static void I2C_Thread(void *pvParameters)
     {
         printf("\n Error: Master transmit/slave receive failed \n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\n---------Master receive/slave transmit---------\n");
@@ -403,7 +403,7 @@ static void I2C_Thread(void *pvParameters)
     {
         printf("\n Error: Master receive/slave transmit failed\n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
     printf("\n >>> I2C Communication completed without any error <<< \n");
 
@@ -433,7 +433,7 @@ error_uninitialize:
 
     printf("\r\n >>> I2C demo thread exiting <<<\r\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 /**
@@ -450,7 +450,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

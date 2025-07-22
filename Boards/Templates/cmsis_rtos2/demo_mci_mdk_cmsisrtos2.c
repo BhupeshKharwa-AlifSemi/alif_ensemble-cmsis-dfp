@@ -18,6 +18,7 @@
 
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_Compiler_IO_STDOUT */
 #include <stdio.h>
@@ -30,7 +31,7 @@
 #include "pinconf.h"
 #include "Driver_IO.h"
 #include "board_config.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "sd.h"
 
 /* Use current drive if drive is not specified */
@@ -800,7 +801,7 @@ __NO_RETURN void app_main_thread(void *argument)
 #ifdef BOARD_SD_RESET_GPIO_PORT
     if (sd_reset()) {
         printf("Error reseting SD interface..\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -899,7 +900,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

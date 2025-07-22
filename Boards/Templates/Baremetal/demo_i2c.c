@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include "RTE_Device.h"
 #include "RTE_Components.h"
@@ -307,7 +307,7 @@ static void I2C_demo(void)
     {
         printf("\n Error: Master transmit/slave receive failed \n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\n-------Master receive/slave transmit-------\n");
@@ -364,12 +364,12 @@ static void I2C_demo(void)
     {
         printf("\n Error: Master receive/slave transmit failed\n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\n >>> I2C conversion completed without any error <<< \n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Power off I2C peripheral */
@@ -394,7 +394,7 @@ error_uninitialize:
     }
     printf("\r\n I2C demo thread exiting...\r\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 /**
@@ -411,10 +411,10 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
     I2C_demo();
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }

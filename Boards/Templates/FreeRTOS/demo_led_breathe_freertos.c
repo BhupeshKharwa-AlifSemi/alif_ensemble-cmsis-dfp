@@ -34,7 +34,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined UTIMER pin configuration (from board_utimer_pins_config).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -312,20 +312,20 @@ static void led_breathe_thread(void *pvParameters)
     ret = led_init(channel);
     if (ret) {
         printf("\r\n Error in UT init.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = led_start(channel);
     if (ret) {
         printf("\r\n Error in UT LED start.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     while (1) {
         ret = led_set_brightness(channel, counter_type, UT_33_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -334,7 +334,7 @@ static void led_breathe_thread(void *pvParameters)
         ret = led_set_brightness(channel, counter_type, UT_66_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -343,7 +343,7 @@ static void led_breathe_thread(void *pvParameters)
         ret = led_set_brightness(channel, counter_type, UT_100_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -353,7 +353,7 @@ static void led_breathe_thread(void *pvParameters)
     ret = led_stop(channel);
     if (ret) {
         printf("\r\n Error in UT LED stop.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("*** LED brightness control FreeRTOS demo application completed *** \r\n\n");
@@ -369,7 +369,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

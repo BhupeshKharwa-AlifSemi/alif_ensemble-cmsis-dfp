@@ -58,7 +58,8 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
-#include "sys_utils.h"
+
+#include "app_utils.h"
 
 // Set to 0: Use application-defined ADC pin configuration (via board_adc_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -386,7 +387,7 @@ void adc_ext_trigger_demo()
     printf("\n >>> ADC conversion completed \n");
     printf(" Converted value are stored in user allocated memory address.\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Power off ADC peripheral */
@@ -422,7 +423,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

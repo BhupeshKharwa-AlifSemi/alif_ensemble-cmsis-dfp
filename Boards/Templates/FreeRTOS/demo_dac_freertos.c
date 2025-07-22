@@ -49,8 +49,6 @@
 #include "pinconf.h"
 #include "board_config.h"
 
-#include "sys_utils.h"
-
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
@@ -58,6 +56,8 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "app_utils.h"
 
 // Set to 0: Use application-defined DAC12 pin configuration (via board_dac12_pins_config()).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -92,7 +92,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -106,7 +106,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 TaskHandle_t dac_xHandle = NULL;
@@ -131,7 +131,7 @@ static int32_t board_dac12_pins_config(void)
                          BOARD_DAC120_ALTERNATE_FUNCTION,
                          PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
 #if (RTE_DAC1)
@@ -141,10 +141,10 @@ static int32_t board_dac12_pins_config(void)
                          BOARD_DAC121_ALTERNATE_FUNCTION,
                          PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 #endif
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -292,7 +292,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

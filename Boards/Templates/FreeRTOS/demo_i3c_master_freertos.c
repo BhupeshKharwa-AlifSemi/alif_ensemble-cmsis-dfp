@@ -39,7 +39,7 @@
 /* System Includes */
 #include <stdio.h>
 #include "string.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* Project Includes */
 #include "Driver_I3C.h"
@@ -89,7 +89,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -103,7 +103,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /* I3C slave target address */
@@ -163,7 +163,7 @@ int32_t hardware_init(void)
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Get Current run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
@@ -171,7 +171,7 @@ int32_t hardware_init(void)
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Set new run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* pin mux and configuration for all device IOs requested from pins.h*/
@@ -410,7 +410,7 @@ void i3c_master_loopback_thread(void *pvParameters)
 
         if (actual_events & I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C Master transmit Failed\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         tx_cnt += 1;
@@ -439,7 +439,7 @@ void i3c_master_loopback_thread(void *pvParameters)
 
         if (actual_events & I3C_CB_EVENT_ERROR) {
             printf("\nError: I3C Master Receive failed.\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         rx_cnt += 1;
@@ -448,7 +448,7 @@ void i3c_master_loopback_thread(void *pvParameters)
         cmp     = memcmp(tx_data, rx_data, len);
         if (cmp != 0) {
             printf("\nError: TX and RX data mismatch.\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
     }
 error_poweroff:
@@ -483,7 +483,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include "Driver_WDT.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include <RTE_Components.h>
 #include CMSIS_device_header
@@ -41,7 +41,7 @@ void watchdog_demo_entry();
 void NMI_Handler(void)
 {
     printf("\r\n NMI_Handler: Received Interrupt from Watchdog! \r\n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 /**
@@ -124,7 +124,7 @@ void watchdog_demo_entry()
     }
 
     printf("\r\n now stop feeding to the watchdog, system will RESET on timeout. \r\n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_stop:
     /* First Unlock and then Stop watchdog peripheral. */
@@ -163,8 +163,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 

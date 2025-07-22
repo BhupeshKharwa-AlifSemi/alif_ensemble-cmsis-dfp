@@ -40,7 +40,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* Define for FreeRTOS */
 #define STACK_SIZE                    1024
@@ -66,7 +66,7 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -80,7 +80,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 TaskHandle_t MRAM_xHandle;
@@ -188,12 +188,12 @@ void MRAM_Thread_entry(void *pvParameters)
     /* check for error. */
     if (err_cnt) {
         printf("\r\n waiting in Error. \r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\r\n MRAM Write-Read test completed!!! \r\n");
     printf("\r\n waiting here forever...\r\n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Received error, Power off MRAM peripheral */
@@ -225,7 +225,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

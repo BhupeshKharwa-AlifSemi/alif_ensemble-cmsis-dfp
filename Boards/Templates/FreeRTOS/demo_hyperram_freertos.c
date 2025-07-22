@@ -48,8 +48,9 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "app_utils.h"
 #include "board_config.h"
-#include "sys_utils.h"
 
 /* Project Includes */
 #include "ospi_hyperram_xip.h"
@@ -415,7 +416,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

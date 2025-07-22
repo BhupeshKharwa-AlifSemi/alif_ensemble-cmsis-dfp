@@ -30,7 +30,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined LED pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -91,41 +91,41 @@ static int32_t board_led_pins_config(void)
     status = pinconf_set(PORT_(BOARD_LEDRGB0_R_GPIO_PORT), BOARD_LEDRGB0_R_GPIO_PIN,
                          BOARD_LEDRGB0_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     status = pinconf_set(PORT_(BOARD_LEDRGB0_B_GPIO_PORT), BOARD_LEDRGB0_B_GPIO_PIN,
                          BOARD_LEDRGB0_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     status = pinconf_set(PORT_(BOARD_LEDRGB0_G_GPIO_PORT), BOARD_LEDRGB0_G_GPIO_PIN,
                          BOARD_LEDRGB0_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
 #if (BOARD_LEDRGB_COUNT > 1)
     status = pinconf_set(PORT_(BOARD_LEDRGB1_R_GPIO_PORT), BOARD_LEDRGB1_R_GPIO_PIN,
                          BOARD_LEDRGB1_R_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
     status = pinconf_set(PORT_(BOARD_LEDRGB1_B_GPIO_PORT), BOARD_LEDRGB1_B_GPIO_PIN,
                          BOARD_LEDRGB1_B_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     status = pinconf_set(PORT_(BOARD_LEDRGB1_G_GPIO_PORT), BOARD_LEDRGB1_G_GPIO_PIN,
                          BOARD_LEDRGB1_G_ALTERNATE_FUNCTION, PADCTRL_OUTPUT_DRIVE_STRENGTH_2MA);
     if (status) {
-        return ERROR;
+        return status;
     }
 #endif
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -450,9 +450,10 @@ int main(void)
 #if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     extern int stdout_init(void);
     int32_t    ret;
+
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Configure Systick for each millisec */

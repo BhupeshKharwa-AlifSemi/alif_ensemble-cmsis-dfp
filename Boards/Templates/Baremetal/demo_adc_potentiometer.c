@@ -28,7 +28,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <inttypes.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* include for ADC Driver */
 #include "Driver_ADC.h"
@@ -162,7 +162,7 @@ void adc_potentiometer_demo()
     }
 
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
 
@@ -200,8 +200,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Enter the demo Application.  */

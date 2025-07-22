@@ -36,10 +36,13 @@
 #endif
 
 #include "alif.h"
-#include "sys_utils.h"
+
 #if defined(RTE_CMSIS_Compiler_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
+
+#include "app_utils.h"
 
 /**
  * Test parameters
@@ -209,8 +212,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != 0) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -243,7 +245,5 @@ int main(void)
 
     SERVICES_print("[SE SERVICES] Test harness ENDS\n");
 
-    WAIT_FOREVER
-
-    return 0;
+    WAIT_FOREVER_LOOP
 }

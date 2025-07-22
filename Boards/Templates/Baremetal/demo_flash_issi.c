@@ -31,7 +31,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #define FLASH_NUM 1
 
@@ -115,8 +115,7 @@ int main(void)
     extern int stdout_init(void);
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -263,7 +262,7 @@ int main(void)
 
     printf("Total errors after erasing a sector = %" PRIu32 "\n", count);
 
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff :
     status = ptrFLASH->PowerControl(ARM_POWER_OFF);

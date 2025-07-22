@@ -32,7 +32,7 @@
 #include "board_config.h"
 #include "RTE_Components.h"
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
@@ -157,7 +157,7 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_SDO_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure DAC I2S WS */
@@ -166,7 +166,7 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure DAC I2S SCLK */
@@ -175,10 +175,10 @@ static int32_t board_i2s_dac_pins_config(void)
                          BOARD_DAC_OUTPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -198,7 +198,7 @@ static int32_t board_wm8904_i2c_pins_config(void)
                          BOARD_WM8904_CODEC_I2C_SDA_ALTERNATE_FUNCTION,
                          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* I2C_SCL */
@@ -207,10 +207,10 @@ static int32_t board_wm8904_i2c_pins_config(void)
                          BOARD_WM8904_CODEC_I2C_SCL_ALTERNATE_FUNCTION,
                          (PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP));
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 
@@ -472,7 +472,7 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_WS_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure ADC I2S SCLK */
@@ -481,7 +481,7 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_SCLK_ALTERNATE_FUNCTION,
                          0);
     if (status) {
-        return ERROR;
+        return status;
     }
 
     /* Configure ADC I2S SDI */
@@ -490,10 +490,10 @@ static int32_t board_i2s_adc_pins_config(void)
                          BOARD_MIC_INPUT_SDI_ALTERNATE_FUNCTION,
                          PADCTRL_READ_ENABLE);
     if (status) {
-        return ERROR;
+        return status;
     }
 
-    return SUCCESS;
+    return APP_SUCCESS;
 }
 #endif
 

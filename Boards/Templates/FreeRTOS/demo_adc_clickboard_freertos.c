@@ -26,7 +26,7 @@
 
 /* System Includes */
 #include <stdio.h>
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* include Driver */
 #include "Driver_ADC.h"
@@ -83,7 +83,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -97,7 +97,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 #define ADC_INT_AVG_SAMPLE_RDY 0x01
@@ -232,7 +232,7 @@ static void prvAdcPotentiometerDemo(void *pvParameters)
     }
 
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
 
@@ -275,8 +275,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

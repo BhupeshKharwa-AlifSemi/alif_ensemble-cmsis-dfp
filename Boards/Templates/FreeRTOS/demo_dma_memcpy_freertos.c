@@ -32,11 +32,12 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
+#include "app_utils.h"
+
 /*RTOS Includes */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "sys_utils.h"
 
 /* Enable the DMA controller to test */
 // #define TEST_DMA0
@@ -205,21 +206,21 @@ static void prvDmaMemcpyTask(void *pvParameters)
     lStatus = pxDMADrv->Initialize();
     if (lStatus) {
         printf("DMA Init FAILED = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Power control for DMA */
     lStatus = pxDMADrv->PowerControl(ARM_POWER_FULL);
     if (lStatus) {
         printf("DMA Power FAILED = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Allocate handle for DMA */
     lStatus = pxDMADrv->Allocate(&xDMAHandle);
     if (lStatus) {
         printf("DMA Channel Allocation FAILED = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     xDMAParams.peri_reqno = -1;
@@ -241,7 +242,7 @@ static void prvDmaMemcpyTask(void *pvParameters)
     lStatus = pxDMADrv->Start(&xDMAHandle, &xDMAParams);
     if (lStatus || (xDMAHandle < 0)) {
         printf("DMA Start FAILED = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* wait for the dma callback */
@@ -251,7 +252,7 @@ static void prvDmaMemcpyTask(void *pvParameters)
                         portMAX_DELAY) == pdPASS) {
         if (ulNotificationValue & DMA_ABORT_EVENT) {
             printf("DMA ABORT OCCURRED \n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
     }
 
@@ -266,14 +267,14 @@ static void prvDmaMemcpyTask(void *pvParameters)
     lStatus = pxDMADrv->DeAllocate(&xDMAHandle);
     if (lStatus) {
         printf("DMA DeAllocate Failed = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* Power control for DMA */
     lStatus = pxDMADrv->PowerControl(ARM_POWER_OFF);
     if (lStatus) {
         printf("DMA PowerOff failed = %d\n", lStatus);
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("DMA TEST COMPLETED \n");
@@ -296,7 +297,7 @@ int main(void)
         int32_t    lRet;
         lRet = stdout_init();
         if (lRet != ARM_DRIVER_OK) {
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
     }
 #endif

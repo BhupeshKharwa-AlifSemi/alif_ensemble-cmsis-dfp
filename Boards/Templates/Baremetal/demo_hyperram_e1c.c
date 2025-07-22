@@ -37,7 +37,7 @@
 #include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include <stdio.h>
 #include <stddef.h>
@@ -388,8 +388,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        while (1) {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -411,7 +410,7 @@ int main(void)
 
 error_exit:
 
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
     return 0;
 }

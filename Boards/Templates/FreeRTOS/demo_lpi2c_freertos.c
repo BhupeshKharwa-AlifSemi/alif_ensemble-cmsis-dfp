@@ -55,7 +55,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_Compiler_IO_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 /* I2C Driver instance */
 extern ARM_DRIVER_I2C  Driver_I2C0;
@@ -100,7 +100,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -114,7 +114,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 #define TAR_ADDRS            (0x40) /* Target(Slave) Address, use by Master */
@@ -524,7 +524,7 @@ int main(void)
     int32_t ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

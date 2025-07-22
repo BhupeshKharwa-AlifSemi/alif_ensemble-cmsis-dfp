@@ -53,7 +53,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 static void net_init(void);
 static void net_periodic(uint32_t tick);
@@ -167,7 +167,7 @@ void app_main(void *argument)
         net_periodic(tick);
     }
 error:
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 }
 
 int main(void)

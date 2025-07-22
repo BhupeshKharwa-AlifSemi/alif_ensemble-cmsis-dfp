@@ -37,7 +37,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #if !defined(RTSS_HE)
 #error "This Demo application works only on RTSS_HE"
@@ -94,7 +94,7 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void) pxTask;
 
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
@@ -108,7 +108,7 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
 
 void vApplicationIdleHook(void)
 {
-    ASSERT_HANG
+    ASSERT_HANG_LOOP
 }
 
 /*****************Only for FreeRTOS use *************************/
@@ -294,7 +294,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Get Current run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
@@ -302,7 +302,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
         printf("Set new run config failed\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     /* LPSPI Configuration as master */
@@ -443,7 +443,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* System Initialization */

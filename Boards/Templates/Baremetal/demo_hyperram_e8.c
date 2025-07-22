@@ -34,6 +34,8 @@
 #include "retarget_stdout.h"
 #endif /*RTE_CMSIS_Compiler_STDOUT */
 
+#include "app_utils.h"
+
 // Set to 0: Use application-defined HyperRAM pin configuration (from s80k_pinmux_setup).
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
@@ -427,7 +429,7 @@ int main(void)
     extern int stdout_init(void);
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 
@@ -501,8 +503,5 @@ int main(void)
 
 error_exit:
 
-    while (1) {
-    }
-
-    return 0;
+    WAIT_FOREVER_LOOP
 }

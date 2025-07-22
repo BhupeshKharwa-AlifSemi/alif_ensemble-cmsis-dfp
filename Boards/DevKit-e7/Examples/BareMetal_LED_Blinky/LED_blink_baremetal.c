@@ -25,8 +25,11 @@
 #include <RTE_Components.h>
 #include CMSIS_device_header
 #if defined(RTE_Compiler_IO_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_Compiler_IO_STDOUT */
+
+#include "app_utils.h"
 
 /* Uncomment to use the pin configuration provided by the conductor tool */
 // #define USE_CONDUCTOR_PIN_CONFIG
@@ -303,7 +306,7 @@ int main(void)
     int32_t ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Configure Systick for each millisec */

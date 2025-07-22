@@ -23,12 +23,11 @@
 #include <inttypes.h>
 #include "Driver_UTIMER.h"
 #include "pinconf.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-#include "sys_utils.h"
 #include "board_config.h"
 
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -322,20 +321,20 @@ static void led_breathe_app(void)
     ret = led_init(channel);
     if (ret) {
         printf("\r\n Error in UT init.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = led_start(channel);
     if (ret) {
         printf("\r\n Error in UT LED start.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     while (1) {
         ret = led_set_brightness(channel, counter_type, UT_33_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -346,7 +345,7 @@ static void led_breathe_app(void)
         ret = led_set_brightness(channel, counter_type, UT_66_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -357,7 +356,7 @@ static void led_breathe_app(void)
         ret = led_set_brightness(channel, counter_type, UT_100_PERC_DT_COUNTER_VALUE);
         if (ret) {
             printf("\r\n Error in UT LED brightness setup.\r\n");
-            WAIT_FOREVER
+            WAIT_FOREVER_LOOP
         }
 
         /* delay for 1s */
@@ -369,7 +368,7 @@ static void led_breathe_app(void)
     ret = led_stop(channel);
     if (ret) {
         printf("\r\n Error in UT LED stop.\r\n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("*** LED brightness control demo application completed *** \r\n\n");
@@ -382,7 +381,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

@@ -33,7 +33,7 @@
 
 #include "Driver_I2C.h"
 #include "pinconf.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 
 #if !defined(RTSS_HE)
@@ -278,7 +278,7 @@ static void LPI2C_demo(void)
     if (memcmp(&SLV_RX_BUF, &MST_TX_BUF, MST_BYTE_TO_TRANSMIT)) {
         printf("\n Error: Master transmit/slave receive failed \n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     printf("\n----------------Master receive/slave transmit--------------\n");
@@ -302,7 +302,7 @@ static void LPI2C_demo(void)
     if (memcmp(&SLV_TX_BUF, &MST_RX_BUF, SLV_BYTE_TO_TRANSMIT)) {
         printf("\n Error: Master receive/slave transmit failed\n");
         printf("\n ---Stop--- \r\n wait forever >>> \n");
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 
     ret = I2C_mstdrv->Uninitialize();
@@ -318,7 +318,7 @@ static void LPI2C_demo(void)
 
     printf("\n >>> LPI2C transfer completed without any error\n");
     printf("\n ---END--- \r\n wait forever >>> \n");
-    WAIT_FOREVER
+    WAIT_FOREVER_LOOP
 
 error_poweroff:
     /* Power off peripheral */
@@ -355,8 +355,7 @@ int main(void)
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER {
-        }
+        WAIT_FOREVER_LOOP
     }
 #endif
     /* Enter the demo Application.  */

@@ -27,7 +27,7 @@
 #include "sd.h"
 #include "pinconf.h"
 #include "board_config.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -255,7 +255,7 @@ int main()
     int32_t    ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
 

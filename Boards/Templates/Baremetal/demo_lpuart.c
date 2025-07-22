@@ -36,7 +36,7 @@
 #include "retarget_stdout.h"
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 
-#include "sys_utils.h"
+#include "app_utils.h"
 
 #if !defined(RTSS_HE)
     #error "This Demo application works only on RTSS_HE"

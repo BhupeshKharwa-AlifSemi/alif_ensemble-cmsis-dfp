@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include "Driver_I3C.h"
-#include "sys_utils.h"
+#include "app_utils.h"
 #include "board_config.h"
 
 #include "RTE_Device.h"

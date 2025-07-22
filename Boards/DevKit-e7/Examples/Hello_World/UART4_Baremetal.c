@@ -35,8 +35,11 @@
 
 #include "RTE_Components.h"
 #if defined(RTE_Compiler_IO_STDOUT)
+#include "retarget_init.h"
 #include "retarget_stdout.h"
 #endif /* RTE_Compiler_IO_STDOUT */
+
+#include "app_utils.h"
 
 #include "RTE_Device.h"
 /*
@@ -269,7 +272,7 @@ int main()
     int32_t ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
-        WAIT_FOREVER
+        WAIT_FOREVER_LOOP
     }
 #endif
     hardware_init();
