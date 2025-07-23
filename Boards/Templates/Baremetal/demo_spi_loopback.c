@@ -77,7 +77,7 @@ static int32_t board_spi_pins_config(void)
     ret = pinconf_set(PORT_(BOARD_SPI0_MOSI_GPIO_PORT),
                       BOARD_SPI0_MOSI_GPIO_PIN,
                       BOARD_SPI0_MOSI_ALTERNATE_FUNCTION,
-                      0);
+                      PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_MOSI_PIN\n");
         return ret;
@@ -85,7 +85,7 @@ static int32_t board_spi_pins_config(void)
     ret = pinconf_set(PORT_(BOARD_SPI0_SCLK_GPIO_PORT),
                       BOARD_SPI0_SCLK_GPIO_PIN,
                       BOARD_SPI0_SCLK_ALTERNATE_FUNCTION,
-                      0);
+                      PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_CLK_PIN\n");
         return ret;
@@ -93,7 +93,7 @@ static int32_t board_spi_pins_config(void)
     ret = pinconf_set(PORT_(BOARD_SPI0_SS0_GPIO_PORT),
                       BOARD_SPI0_SS0_GPIO_PIN,
                       BOARD_SPI0_SS0_ALTERNATE_FUNCTION,
-                      0);
+                      PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI0_SS_PIN\n");
         return ret;
@@ -103,7 +103,7 @@ static int32_t board_spi_pins_config(void)
     ret = pinconf_set(PORT_(BOARD_SPI1_MISO_GPIO_PORT),
                       BOARD_SPI1_MISO_GPIO_PIN,
                       BOARD_SPI1_MISO_ALTERNATE_FUNCTION,
-                      0);
+                      PADCTRL_SLEW_RATE_FAST | PADCTRL_OUTPUT_DRIVE_STRENGTH_12MA);
     if (ret) {
         printf("ERROR: Failed to configure PINMUX for SPI1_MISO_PIN\n");
         return ret;
