@@ -345,6 +345,8 @@ static int32_t OV5647_Stop(void)
   */
 static int32_t OV5647_Control(uint32_t control, uint32_t arg)
 {
+    ARG_UNUSED(arg);
+
     switch (control) {
     case CPI_CAMERA_SENSOR_CONFIGURE:
         return OV5647_Bulk_Write_Reg(ov5647_640x480_10bpp, ARRAY_SIZE(ov5647_640x480_10bpp), 1);

@@ -316,7 +316,7 @@ int main(void)
 #endif
 
     /* Read the Reset_Handler address from the vector table of the image in OSPI */
-    EntryPoint = (pfun) (*(__IO uint32_t *) (OSPI_XIP_IMAGE_ADDRESS 4));
+    EntryPoint = (pfun) (*(__IO uint32_t *) (OSPI_XIP_IMAGE_ADDRESS + 4));
 
     /* Jump to the Reset_Handler */
     EntryPoint();

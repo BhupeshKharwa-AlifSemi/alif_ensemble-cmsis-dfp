@@ -21,6 +21,7 @@
 #include "ospi_drv.h"
 #include "ospi_xip_user.h"
 #include "sys_clocks.h"
+#include "sys_utils.h"
 
 /**
   \fn        static void ospi_xip_disable(ospi_flash_cfg_t *ospi_cfg)
@@ -299,6 +300,8 @@ void ospi_xip_exit(ospi_flash_cfg_t *ospi_cfg, uint16_t incr_command, uint16_t w
 */
 void ospi_init(ospi_flash_cfg_t *ospi_cfg, OSPI_INSTANCE drv_instance)
 {
+    ARG_UNUSED(drv_instance);
+
 #if SOC_FEAT_OSPI_HAS_CLK_ENABLE
     enable_ospi_clk(drv_instance);
 #endif

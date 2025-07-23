@@ -1229,7 +1229,6 @@ int32_t AR0246_Init(void)
 {
     int32_t  ret      = 0;
     uint32_t rcv_data = 0;
-    uint32_t total_num;
 
     /*Enable camera sensor clock source config*/
     AR0246_Sensor_Enable_Clk_Src();
@@ -1321,6 +1320,8 @@ int32_t AR0246_Stop(void)
   */
 int32_t AR0246_Control(uint32_t control, uint32_t arg)
 {
+    ARG_UNUSED(arg);
+
     switch (control) {
     case CPI_CAMERA_SENSOR_CONFIGURE:
         {
