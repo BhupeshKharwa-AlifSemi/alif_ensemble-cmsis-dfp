@@ -88,7 +88,7 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
     case UTIMER_MODE_BASIC:
         {
             /* enabling drive output */
-            utimer_driver_output_enable(utimer, channel, ch_config);
+            utimer_glb_driver_output_enable(utimer, channel, ch_config);
 
             if (ch_config->driver_A) {
                 utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_A |=
@@ -108,7 +108,7 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
     case UTIMER_MODE_BUFFERING:
         {
             /* enabling drive output */
-            utimer_driver_output_enable(utimer, channel, ch_config);
+            utimer_glb_driver_output_enable(utimer, channel, ch_config);
 
             utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_BUF_OP_CTRL |= BUF_OP_CTRL_CNTR_BUF_EN;
 
@@ -138,13 +138,13 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
     case UTIMER_MODE_TRIGGERING:
         {
             /* disabling drive output */
-            utimer_driver_output_disable(utimer, channel);
+            utimer_glb_driver_output_disable(utimer, channel);
             break;
         }
     case UTIMER_MODE_CAPTURING:
         {
             /* disabling drive output */
-            utimer_driver_output_disable(utimer, channel);
+            utimer_glb_driver_output_disable(utimer, channel);
 
             if (ch_config->buffer_operation) {
                 utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_BUF_OP_CTRL |=
@@ -157,7 +157,7 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
     case UTIMER_MODE_COMPARING:
         {
             /* enabling drive output */
-            utimer_driver_output_enable(utimer, channel, ch_config);
+            utimer_glb_driver_output_enable(utimer, channel, ch_config);
 
             if (ch_config->driver_A) {
                 utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_A |=
@@ -215,7 +215,7 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
     case UTIMER_MODE_DEAD_TIME:
         {
             /* enabling drive output */
-            utimer_driver_output_enable(utimer, channel, ch_config);
+            utimer_glb_driver_output_enable(utimer, channel, ch_config);
 
             utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_DEAD_TIME_CTRL |= DEAD_TIME_CTRL_DT_EN;
             if (ch_config->buffer_operation) {
@@ -253,6 +253,8 @@ void utimer_config_mode(UTIMER_Type *utimer, uint8_t channel, UTIMER_MODE mode,
 void utimer_set_count(UTIMER_Type *utimer, uint8_t channel, UTIMER_COUNTER counter_type,
                       uint32_t value)
 {
+    static uint32_t comp_a_cnt_backup, comp_b_cnt_backup;
+
     switch (counter_type) {
     case UTIMER_CNTR:
         {
@@ -296,12 +298,30 @@ void utimer_set_count(UTIMER_Type *utimer, uint8_t channel, UTIMER_COUNTER count
         }
     case UTIMER_COMPARE_A:
         {
+            if (value == 0) {
+                utimer_driver_output_disable(utimer, channel, UTIMER_DRIVER_A);
+            } else {
+                if (comp_a_cnt_backup == 0) {
+                    utimer_driver_output_enable(utimer, channel, UTIMER_DRIVER_A);
+                }
+            }
+
             utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_A = value;
+            comp_a_cnt_backup = value;
             break;
         }
     case UTIMER_COMPARE_B:
         {
+            if (value == 0) {
+                utimer_driver_output_disable(utimer, channel, UTIMER_DRIVER_B);
+            } else {
+                if (comp_b_cnt_backup == 0) {
+                    utimer_driver_output_enable(utimer, channel, UTIMER_DRIVER_B);
+                }
+            }
+
             utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_B = value;
+            comp_b_cnt_backup = value;
             break;
         }
     case UTIMER_COMPARE_A_BUF1:

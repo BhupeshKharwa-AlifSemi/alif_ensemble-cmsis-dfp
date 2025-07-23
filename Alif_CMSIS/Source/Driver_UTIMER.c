@@ -426,7 +426,7 @@ static int32_t ARM_UTIMER_PowerControl(UTIMER_RESOURCES *UTIMER_RES, uint8_t cha
         {
             utimer_control_disable(UTIMER_RES->regs, channel);
 
-            utimer_driver_output_disable(UTIMER_RES->regs, channel);
+            utimer_glb_driver_output_disable(UTIMER_RES->regs, channel);
 
             if ((UTIMER_RES->ch_info[channel].ch_config.utimer_mode == 0 &&
                  UTIMER_RES->ch_info[channel].channel_mode_backup == ARM_UTIMER_MODE_CAPTURING) &&

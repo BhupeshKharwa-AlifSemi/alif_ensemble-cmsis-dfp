@@ -296,6 +296,16 @@ typedef enum _UTIMER_COUNTER_DIR {
     UTIMER_COUNTER_TRIANGLE /**< UTIMER Channel counter direction triangle >*/
 } UTIMER_COUNTER_DIR;
 
+/**
+ * enum UTIMER_DRIVER_TYPE.
+ * UTIMER driver type.
+ */
+typedef enum _UTIMER_DRIVER_TYPE {
+    UTIMER_DRIVER_A = 1,   /**< UTIMER Channel Driver A >*/
+    UTIMER_DRIVER_B = 2,   /**< UTIMER Channel Driver B >*/
+} UTIMER_DRIVER_TYPE;
+
+
 /** \brief UTIMER trigger configuration. */
 typedef struct _UTIMER_TRIGGER_CONFIG {
     UTIMER_TRIGGER_TARGET trigger_target; /**< UTIMER trigger target >*/
@@ -394,14 +404,14 @@ static inline void utimer_control_disable(UTIMER_Type *utimer, uint8_t channel)
 }
 
 /**
-  \fn           static inline void utimer_driver_output_enable (UTIMER_Type *utimer, uint8_t
+  \fn           static inline void utimer_glb_driver_output_enable (UTIMER_Type *utimer, uint8_t
   channel, utimer_channel_config *ch_config) \brief        Enable utimer channel driver output
   \param[in]    utimer    : Pointer to utimer register block
   \param[in]    channel   : utimer channel number
   \param[in]    ch_config : pointer for utimer channel configuration structure
   \return       none
 */
-static inline void utimer_driver_output_enable(UTIMER_Type *utimer, uint8_t channel,
+static inline void utimer_glb_driver_output_enable(UTIMER_Type *utimer, uint8_t channel,
                                                utimer_channel_config *ch_config)
 {
     if (ch_config->driver_A) {
@@ -413,11 +423,11 @@ static inline void utimer_driver_output_enable(UTIMER_Type *utimer, uint8_t chan
 }
 
 /**
-  \fn           static inline void utimer_driver_output_disable (UTIMER_Type *utimer, uint8_t
+  \fn           static inline void utimer_glb_driver_output_disable (UTIMER_Type *utimer, uint8_t
   channel) \brief        Disable utimer channel driver output \param[in]    utimer    : Pointer to
   utimer register block \param[in]    channel   : utimer channel number \return       none
 */
-static inline void utimer_driver_output_disable(UTIMER_Type *utimer, uint8_t channel)
+static inline void utimer_glb_driver_output_disable(UTIMER_Type *utimer, uint8_t channel)
 {
     utimer->UTIMER_GLB_DRIVER_OEN |=
         ((GLB_DRIVER_CHAN_A_OEN | GLB_DRIVER_CHAN_B_OEN) << (channel << 1));
@@ -527,6 +537,46 @@ static inline void utimer_enable_duty_cycle(UTIMER_Type *utimer, uint8_t channel
         utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_DUTY_CYCLE_CTRL |=
             (DUTY_CYCLE_CTRL_DC_ENABLE_B | DUTY_CYCLE_CTRL_DC_FORCE_B |
              DUTY_CYCLE_CTRL_DC_UNDERFLOW_B | (ch_config->dc_value) << 10);
+    }
+}
+
+/*
+ * \fn           static inline void utimer_driver_output_disable (UTIMER_Type *utimer,
+ *                                      uint8_t channel, UTIMER_DRIVER_TYPE drv)
+ * \brief        Disable utimer channel driver output
+ * \param[in]    utimer    : Pointer to utimer register block
+ * \param[in]    channel   : utimer channel number
+ * \param[in]    drv       : driver type
+ * \return       none
+ */
+static inline void utimer_driver_output_disable(UTIMER_Type *utimer, uint8_t channel,
+                                             UTIMER_DRIVER_TYPE drv)
+{
+    if (drv & UTIMER_DRIVER_A) {
+        utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_A &= ~COMPARE_CTRL_DRV_DRIVER_EN;
+    }
+    if (drv & UTIMER_DRIVER_B) {
+        utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_B &= ~COMPARE_CTRL_DRV_DRIVER_EN;
+    }
+}
+
+/*
+ * \fn           static inline void utimer_driver_output_enable (UTIMER_Type *utimer,
+ *                                      uint8_t channel, UTIMER_DRIVER_TYPE drv)
+ * \brief        Enable utimer channel driver output
+ * \param[in]    utimer    : Pointer to utimer register block
+ * \param[in]    channel   : utimer channel number
+ * \param[in]    drv       : driver type
+ * \return       none
+ */
+static inline void utimer_driver_output_enable(UTIMER_Type *utimer, uint8_t channel,
+                                             UTIMER_DRIVER_TYPE drv)
+{
+    if (drv & UTIMER_DRIVER_A) {
+        utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_A |= COMPARE_CTRL_DRV_DRIVER_EN;
+    }
+    if (drv & UTIMER_DRIVER_B) {
+        utimer->UTIMER_CHANNEL_CFG[channel].UTIMER_COMPARE_CTRL_B |= COMPARE_CTRL_DRV_DRIVER_EN;
     }
 }
 
