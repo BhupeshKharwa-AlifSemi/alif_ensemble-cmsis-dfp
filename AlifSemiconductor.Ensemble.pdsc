@@ -1089,6 +1089,7 @@
           </sequence>
         </sequences>
         <compile Pname="M55_HE" Pdefine="RTSS_HE"/>
+        <compile Pname="M55_HE" Pdefine="ENSEMBLE_SOC_E1C"/>
         <!-- Cortex-M55 Access Ports -->
         <accessportV2 __apid="0" address="0x00300000"/>
         <!-- Documents -->
