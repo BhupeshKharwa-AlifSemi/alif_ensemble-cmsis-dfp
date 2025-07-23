@@ -274,6 +274,7 @@ typedef enum {
 #define BACKUP4K_MASK (1 << MB_BACKUP4K)  // bit24
 
 #define SERAM_MASK    (SERAM_1_MASK | SERAM_2_MASK)
+#define SRAM0_MASK    (SRAM0_1_MASK | SRAM0_2_MASK | SRAM0_3_MASK | SRAM0_4_MASK)
 
 #else
 /**
