@@ -98,6 +98,9 @@
 // <o> LPI2C0 module enabled flag
 #define BOARD_LPI2C0_ENABLED                 1
 
+// <e> "FLEXIO" on LPI2C0 presence flag
+#define BOARD_LPI2C0_USE_FLEXIO_PINS         1
+
 #if defined(RTSS_HE)
 // <o> "MIC Input" I2S instance number <0-3>
 #define BOARD_MIC_INPUT_I2S_INSTANCE LP

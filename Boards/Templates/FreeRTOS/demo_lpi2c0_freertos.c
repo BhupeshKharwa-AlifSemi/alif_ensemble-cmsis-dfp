@@ -223,6 +223,35 @@ static void i2c_slv_transfer_callback(uint32_t event)
 static int32_t board_lpi2c_pins_config(void)
 {
     int32_t ret;
+
+#if BOARD_LPI2C0_USE_FLEXIO_PINS
+    /* for LPI2C0 Rev-A GPIO voltage level(flex)
+     * has to be changed to 1.8-V power supply.
+     * configure flexio pins to 1.8V
+     */
+    uint32_t      error_code = SERVICES_REQ_SUCCESS;
+    uint32_t      service_error_code;
+    run_profile_t runp;
+
+    /* Initialize the SE services */
+    se_services_port_init();
+
+    /* Get the current run configuration from SE */
+    error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
+        printf("Get Current run config failed\n");
+        WAIT_FOREVER_LOOP
+    }
+
+    runp.vdd_ioflex_3V3 = IOFLEX_LEVEL_1V8;
+    /* Set the new run configuration */
+    error_code = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
+    if (error_code) {
+        printf("Set new run config failed\n");
+        WAIT_FOREVER_LOOP
+    }
+#endif
+
     /* LPI2C0_SDA */
     ret = pinconf_set(PORT_(BOARD_LPI2C0_SDA_GPIO_PORT),
                       BOARD_LPI2C0_SDA_GPIO_PIN,
