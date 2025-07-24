@@ -1525,15 +1525,15 @@
 // <o> "CDC_VSYNC_A" GPIO pin alternate function <0-7>
 #define BOARD_CDC_VSYNC_ALTERNATE_FUNCTION              6
 
-// <o> "CDC_D0_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
+// <o> "CDC_D0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
 // <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D0_GPIO_PORT                          8
-// <o> "CDC_D0_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D0_GPIO_PORT                          11
+// <o> "CDC_D0_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D0_GPIO_PIN                           0
-// <o> "CDC_D0_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D0_ALTERNATE_FUNCTION                 6
+// <o> "CDC_D0_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D0_ALTERNATE_FUNCTION                 7
 
 // <o> "CDC_D1_A"GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
@@ -1575,35 +1575,35 @@
 // <o> "CDC_D4_A" GPIO pin alternate function <0-7>
 #define BOARD_CDC_D4_ALTERNATE_FUNCTION                 6
 
-// <o> "CDC_D5_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
+// <o> "CDC_D5_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
 // <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D5_GPIO_PORT                          8
-// <o> "CDC_D5_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D5_GPIO_PORT                          11
+// <o> "CDC_D5_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D5_GPIO_PIN                           5
-// <o> "CDC_D5_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D5_ALTERNATE_FUNCTION                 6
+// <o> "CDC_D5_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D5_ALTERNATE_FUNCTION                 7
 
-// <o> "CDC_D6_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
+// <o> "CDC_D6_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
 // <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D6_GPIO_PORT                          8
-// <o> "CDC_D6_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D6_GPIO_PORT                          11
+// <o> "CDC_D6_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D6_GPIO_PIN                           6
-// <o> "CDC_D6_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D6_ALTERNATE_FUNCTION                 6
+// <o> "CDC_D6_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D6_ALTERNATE_FUNCTION                 7
 
-// <o> "CDC_D7_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
+// <o> "CDC_D7_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
 // <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D7_GPIO_PORT                          8
-// <o> "CDC_D7_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D7_GPIO_PORT                          11
+// <o> "CDC_D7_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D7_GPIO_PIN                           7
-// <o> "CDC_D7_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D7_ALTERNATE_FUNCTION                 6
+// <o> "CDC_D7_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D7_ALTERNATE_FUNCTION                 7
 
 // <o> "CDC_D8_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
@@ -1655,35 +1655,35 @@
 // <o> "CDC_D12_A" GPIO pin alternate function <0-7>
 #define BOARD_CDC_D12_ALTERNATE_FUNCTION                6
 
-// <o> "CDC_D13_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "CDC_D13_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D13_GPIO_PORT                         9
-// <o> "CDC_D13_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D13_GPIO_PORT                         12
+// <o> "CDC_D13_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D13_GPIO_PIN                          5
-// <o> "CDC_D13_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D13_ALTERNATE_FUNCTION                6
+// <o> "CDC_D13_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D13_ALTERNATE_FUNCTION                5
 
-// <o> "CDC_D14_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "CDC_D14_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D14_GPIO_PORT                         9
-// <o> "CDC_D14_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D14_GPIO_PORT                         12
+// <o> "CDC_D14_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D14_GPIO_PIN                          6
-// <o> "CDC_D14_A" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D14_ALTERNATE_FUNCTION                6
+// <o> "CDC_D14_B" GPIO pin alternate function <0-7>
+#define BOARD_CDC_D14_ALTERNATE_FUNCTION                5
 
-// <o> "CDC_D15_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "CDC_D15_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_CDC_D15_GPIO_PORT                         9
-// <o> "CDC_D15_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
+#define BOARD_CDC_D15_GPIO_PORT                         12
+// <o> "CDC_D15_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
 #define BOARD_CDC_D15_GPIO_PIN                          7
 // <o> "CDC_D15_B" GPIO pin alternate function <0-7>
-#define BOARD_CDC_D15_ALTERNATE_FUNCTION                6
+#define BOARD_CDC_D15_ALTERNATE_FUNCTION                5
 
 // <o> "CDC_D16_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
