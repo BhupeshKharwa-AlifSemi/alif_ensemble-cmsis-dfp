@@ -364,7 +364,7 @@ static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data,
     int32_t  ret     = 0U;
     uint8_t  iter    = 0U;
     uint32_t counter = 0U;
-    uint8_t  tx_buf[4];
+    __ALIGNED(4) uint8_t tx_buf[4];
 
     /* Store register's address in 0th index */
     tx_buf[0] = reg_addr;
@@ -452,7 +452,7 @@ static int32_t IMU_Read(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data, 
 */
 static int32_t IMU_AccelConfig(void)
 {
-    uint16_t data[BMI323_CONFIG_REG_SIZE];
+    __ALIGNED(4) uint16_t data[BMI323_CONFIG_REG_SIZE];
 
     /* Configure Accelerometer */
     data[0] = BMI323_ACCEL_CONFIG_VAL;
@@ -483,7 +483,7 @@ static int32_t IMU_AccelConfig(void)
 */
 static int32_t IMU_GyroConfig(void)
 {
-    uint16_t data[BMI323_CONFIG_REG_SIZE];
+    __ALIGNED(4) uint16_t data[BMI323_CONFIG_REG_SIZE];
 
     /* Configure Gyroscope */
     data[0] = BMI323_GYRO_CONFIG_VAL;
@@ -513,7 +513,7 @@ static int32_t IMU_GyroConfig(void)
 */
 static int32_t IMU_INTConfig(void)
 {
-    uint16_t data[BMI323_CONFIG_REG_SIZE];
+    __ALIGNED(4) uint16_t data[BMI323_CONFIG_REG_SIZE];
 
     /* Below code is for for configuring Interrupt */
     data[0] = BMI323_INT_MAP2_VAL;
@@ -586,7 +586,7 @@ static int32_t IMU_Config(void)
 static int32_t IMU_Setup(void)
 {
     int32_t ret;
-    uint8_t data[BMI323_CHIP_ID_SIZE];
+    __ALIGNED(4) uint8_t data[BMI323_CHIP_ID_SIZE];
 
     /* Initializes I3C master */
     ret = I3C_Driver->Control(I3C_MASTER_INIT, 0);
@@ -670,7 +670,7 @@ static int32_t IMU_Setup(void)
 */
 static uint8_t IMU_GetDataStatus(void)
 {
-    uint16_t buf[2];
+    __ALIGNED(4) uint16_t buf[2];
     uint16_t status = 0;
 
     /* Reads data ready status */
@@ -704,7 +704,7 @@ static uint8_t IMU_GetDataStatus(void)
 static int32_t IMU_GetAccelData(ARM_IMU_COORDINATES *accel_data)
 {
     ARM_IMU_COORDINATES data;
-    uint8_t             buf[BMI323_ACCEL_DATA_SIZE];
+    __ALIGNED(4) uint8_t buf[BMI323_ACCEL_DATA_SIZE];
 
     /* Reads Acceleromter data */
     IMU_Read(bmi323_drv_info.target_addr, BMI323_ACCEL_DATA_REG, buf, BMI323_ACCEL_DATA_SIZE);
@@ -730,10 +730,11 @@ static int32_t IMU_GetAccelData(ARM_IMU_COORDINATES *accel_data)
 static int32_t IMU_GetGyroData(ARM_IMU_COORDINATES *gyro_data)
 {
     ARM_IMU_COORDINATES data;
-    uint8_t             buf[BMI323_GYRO_DATA_SIZE];
+    __ALIGNED(4) uint8_t buf[BMI323_GYRO_DATA_SIZE];
 
     /* Reads Gyroscope data */
-    IMU_Read(bmi323_drv_info.target_addr, BMI323_GYRO_DATA_REG, buf, BMI323_GYRO_DATA_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_GYRO_DATA_REG,
+             buf, BMI323_GYRO_DATA_SIZE);
 
     /* Processes Gyroscope data */
     data.x       = buf[BMI323_GYRO_DATA_X_OFFSET];
@@ -756,10 +757,11 @@ static int32_t IMU_GetGyroData(ARM_IMU_COORDINATES *gyro_data)
 static int32_t IMU_GetTempData(float *temp_data)
 {
     int16_t ltemp;
-    uint8_t buf[BMI323_TEMP_DATA_SIZE];
+    __ALIGNED(4) uint8_t buf[BMI323_TEMP_DATA_SIZE];
 
     /* Reads Temperature Sensor data */
-    IMU_Read(bmi323_drv_info.target_addr, BMI323_TEMP_DATA_REG, buf, BMI323_TEMP_DATA_SIZE);
+    IMU_Read(bmi323_drv_info.target_addr, BMI323_TEMP_DATA_REG,
+             buf, BMI323_TEMP_DATA_SIZE);
 
     /* Processes Temp data */
     ltemp      = buf[BMI323_TEMP_DATA_OFFSET];
@@ -916,9 +918,6 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_ACCELEROMETER_DATA_READY);
         bmi323_drv_info.status.data_rcvd = false;
-
-        /* Enable IMU interrupt */
-        (void) ARM_IMU_IntEnable(true);
         break;
 
     case IMU_GET_GYROSCOPE_DATA:
@@ -933,9 +932,6 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_GYRO_DATA_READY);
         bmi323_drv_info.status.data_rcvd = false;
-
-        /* Enable IMU interrupt */
-        (void) ARM_IMU_IntEnable(true);
         break;
 
     case IMU_GET_TEMPERATURE_DATA:
@@ -950,9 +946,16 @@ static int32_t ARM_IMU_Control(uint32_t control, uint32_t arg)
         /* Resets data status */
         CLEAR_BIT(bmi323_drv_info.status.drdy_status, IMU_TEMPERATURE_DATA_READY);
         bmi323_drv_info.status.data_rcvd = false;
+        break;
 
-        /* Enable IMU interrupt */
-        (void) ARM_IMU_IntEnable(true);
+    case IMU_SET_INTERRUPT:
+        if (arg) {
+            /* Enable IMU interrupt */
+            (void) ARM_IMU_IntEnable(true);
+        } else {
+            /* Disable IMU interrupt */
+            (void) ARM_IMU_IntEnable(false);
+        }
         break;
 
     case IMU_GET_MAGNETOMETER_DATA:

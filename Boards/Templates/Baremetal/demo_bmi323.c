@@ -142,50 +142,67 @@ static void imu_bmi323_demo(void)
     }
 
     while (1) {
+        /* Enable interrupt */
+        ret = Drv_IMU->Control(IMU_SET_INTERRUPT, true);
+        if (ret != ARM_DRIVER_OK) {
+            printf("\r\n Error: Enabling interrupt \r\n");
+            goto error_poweroff;
+        }
+
         /* Gets IMU status */
         status = Drv_IMU->GetStatus();
 
-        if (status.drdy_status & IMU_ACCELEROMETER_DATA_READY) {
-            /* Read Accelerometer data */
-            ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA, (uint32_t) &data);
+        if (status.data_rcvd) {
+            /* Disable interrupt */
+            ret = Drv_IMU->Control(IMU_SET_INTERRUPT, false);
             if (ret != ARM_DRIVER_OK) {
-                printf("\r\n Error: IMU Accelerometer data \r\n");
+                printf("\r\n Error: Disabling interrupt \r\n");
                 goto error_poweroff;
             }
 
-            printf("\t\tAccel Data--> x:%" PRId16 "mg, y:%" PRId16 "mg, z:%" PRId16 "mg\r\n",
-                   data.x,
-                   data.y,
-                   data.z);
-        }
+            if (status.drdy_status & IMU_ACCELEROMETER_DATA_READY) {
+                /* Read Accelerometer data */
+                ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA, (uint32_t) &data);
+                if (ret != ARM_DRIVER_OK) {
+                    printf("\r\n Error: IMU Accelerometer data \r\n");
+                    goto error_poweroff;
+                }
 
-        if (status.drdy_status & IMU_GYRO_DATA_READY) {
-            /* Read Gyroscope data */
-            ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA, (uint32_t) &data);
-            if (ret != ARM_DRIVER_OK) {
-                printf("\r\n Error: IMU Gyroscope data \r\n");
-                goto error_poweroff;
+                printf("\t\tAccel Data--> x:%" PRId16 "mg, y:%" PRId16 "mg, z:%" PRId16 "mg\r\n",
+                       data.x,
+                       data.y,
+                       data.z);
             }
 
-            printf("\t\tGyro Data-->  x:%" PRId16 "mdps, y:%" PRId16 "mdps, z:%" PRId16 "mdps\r\n",
-                   data.x,
-                   data.y,
-                   data.z);
-        }
+            if (status.drdy_status & IMU_GYRO_DATA_READY) {
+                /* Read Gyroscope data */
+                ret = Drv_IMU->Control(IMU_GET_GYROSCOPE_DATA, (uint32_t) &data);
+                if (ret != ARM_DRIVER_OK) {
+                    printf("\r\n Error: IMU Gyroscope data \r\n");
+                    goto error_poweroff;
+                }
 
-        if (status.drdy_status & IMU_TEMPERATURE_DATA_READY) {
-            /* Read Temperature data */
-            ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA, (uint32_t) &temperature);
-            if (ret != ARM_DRIVER_OK) {
-                printf("\r\n Error: IMU Temperature data \r\n");
-                goto error_poweroff;
+                printf("\t\tGyro Data-->  x:%" PRId16 "mdps, y:%" PRId16 "mdps, z:%" PRId16
+                       "mdps\r\n",
+                       data.x,
+                       data.y,
+                       data.z);
             }
 
-            printf("\t\tTemp Data-->  %fC\r\n\r\n", temperature);
-        }
-        /* wait for 1 sec */
-        for (iter = 0; iter < 10; iter++) {
-            sys_busy_loop_us(100000);
+            if (status.drdy_status & IMU_TEMPERATURE_DATA_READY) {
+                /* Read Temperature data */
+                ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA, (uint32_t) &temperature);
+                if (ret != ARM_DRIVER_OK) {
+                    printf("\r\n Error: IMU Temperature data \r\n");
+                    goto error_poweroff;
+                }
+
+                printf("\t\tTemp Data-->  %fC\r\n\r\n", temperature);
+            }
+            /* wait for 1 sec */
+            for (iter = 0; iter < 10; iter++) {
+                sys_busy_loop_us(100000);
+            }
         }
     }
 
