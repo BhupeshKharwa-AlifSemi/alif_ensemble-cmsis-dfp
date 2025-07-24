@@ -147,6 +147,7 @@ SECTIONS
     * (eth_buf)
     * (usb_dma_buf)
     * (sd_dma_buf)
+    * (.driver.usbd0)
     . = ALIGN(TGU_BLOCK_SIZE);
     __ns_region_0_end = .;
   } > DTCM
