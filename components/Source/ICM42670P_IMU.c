@@ -29,7 +29,7 @@
 
 #if defined(RTE_Drivers_ICM42670P)
 
-#define ARM_IMU_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 4)
+#define ARM_IMU_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 5)
 
 #if !RTE_ICM42670_IBI_ENABLE
 /* IO Driver */
@@ -434,7 +434,7 @@ static int32_t IMU_Write(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data,
     int32_t  ret     = 0U;
     uint8_t  iter    = 0U;
     uint32_t counter = 0U;
-    uint8_t  tx_buf[4];
+    __ALIGNED(4) uint8_t tx_buf[4];
 
     /* Store register's address in 0th index */
     tx_buf[0] = reg_addr;
@@ -524,7 +524,7 @@ static int32_t IMU_Read(uint8_t tar_addr, uint16_t reg_addr, uint8_t *reg_data, 
 */
 static int32_t IMU_AccelConfig(void)
 {
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Configure Accelerometer */
     data[0] = ICM42670P_ACCEL_CONFIG0_VAL;
@@ -561,7 +561,7 @@ static int32_t IMU_AccelConfig(void)
 */
 static int32_t IMU_GyroConfig(void)
 {
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Configure Gyroscope */
     data[0] = ICM42670P_GYRO_CONFIG0_VAL;
@@ -598,7 +598,7 @@ static int32_t IMU_GyroConfig(void)
 */
 static int32_t IMU_TempConfig(void)
 {
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Configure Temperature sensor */
     data[0] = ICM42670P_TEMP_CONFIG0_VAL;
@@ -625,7 +625,7 @@ static int32_t IMU_TempConfig(void)
 static int32_t IMU_IBIConfig(void)
 {
     int32_t ret;
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Below code is for IBI for data availability */
     data[0] = ICM42670P_BLK_SEL_W_VAL;
@@ -702,11 +702,13 @@ static int32_t IMU_IBIConfig(void)
 */
 static int32_t IMU_INTConfig(void)
 {
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
+
     /* Below code is for for configuring Interrupt */
     data[0] = ICM42670P_INT_SOURCE0_VAL;
     IMU_Write(icm42670p_drv_info.target_addr, ICM42670P_INT_SOURCE0_REG, data, 1U);
     sys_busy_loop_us(ICM42670P_CFG_DELAY_US);
+
     /* Read back the Interrupt configuration  */
     data[0] = 0;
     IMU_Read(icm42670p_drv_info.target_addr, ICM42670P_INT_SOURCE0_REG, data, 1U);
@@ -724,7 +726,7 @@ static int32_t IMU_INTConfig(void)
 static int32_t IMU_Config(void)
 {
     int32_t ret;
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Powers up ICM42670 */
     data[0] = ICM42670P_PWR_MGMT0_VAL;
@@ -784,7 +786,7 @@ static int32_t IMU_Config(void)
 static int32_t IMU_Setup(void)
 {
     int32_t ret;
-    uint8_t data[4];
+    __ALIGNED(4) uint8_t data[4];
 
     /* Initializes I3C master */
     ret = I3C_Driver->Control(I3C_MASTER_INIT, 0);
@@ -871,7 +873,7 @@ static int32_t IMU_Setup(void)
 static int32_t IMU_GetAccelData(ARM_IMU_COORDINATES *accel_data)
 {
     ARM_IMU_COORDINATES data;
-    uint8_t             buf[6];
+    __ALIGNED(4) uint8_t buf[6];
 
     /* Reads Acceleromter data */
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -906,7 +908,7 @@ static int32_t IMU_GetAccelData(ARM_IMU_COORDINATES *accel_data)
 static int32_t IMU_GetGyroData(ARM_IMU_COORDINATES *gyro_data)
 {
     ARM_IMU_COORDINATES data;
-    uint8_t             buf[6];
+    __ALIGNED(4) uint8_t buf[6];
 
     /* Reads Gyroscope data */
     IMU_Read(icm42670p_drv_info.target_addr,
@@ -941,7 +943,7 @@ static int32_t IMU_GetGyroData(ARM_IMU_COORDINATES *gyro_data)
 static int32_t IMU_GetTempData(float *temp_data)
 {
     int16_t ltemp;
-    uint8_t buf[2];
+    __ALIGNED(4) uint8_t buf[2];
 
     /* Reads Temperature Sensor data */
     IMU_Read(icm42670p_drv_info.target_addr,
