@@ -92,7 +92,7 @@ static int32_t board_utimer_pins_config(void)
 #if (LED_USED == RED_LED)
     ret = pinconf_set(PORT_(BOARD_LEDRGB0_R_GPIO_PORT),
                       BOARD_LEDRGB0_R_GPIO_PIN,
-                      BOARD_LEDRGB0_R_ALTERNATE_FUNCTION,
+                      BOARD_LEDRGB0_R_UT_ALTERNATE_FUNCTION,
                       PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Red LED PINMUX.\r\n");
@@ -101,7 +101,7 @@ static int32_t board_utimer_pins_config(void)
 #elif (LED_USED == GREEN_LED)
     ret = pinconf_set(PORT_(BOARD_LEDRGB0_G_GPIO_PORT),
                       BOARD_LEDRGB0_G_GPIO_PIN,
-                      BOARD_LEDRGB0_G_ALTERNATE_FUNCTION,
+                      BOARD_LEDRGB0_G_UT_ALTERNATE_FUNCTION,
                       PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Green LED PINMUX.\r\n");
@@ -110,7 +110,7 @@ static int32_t board_utimer_pins_config(void)
 #elif (LED_USED == BLUE_LED)
     ret = pinconf_set(PORT_(BOARD_LEDRGB0_B_GPIO_PORT),
                       BOARD_LEDRGB0_B_GPIO_PIN,
-                      BOARD_LEDRGB0_B_ALTERNATE_FUNCTION,
+                      BOARD_LEDRGB0_B_UT_ALTERNATE_FUNCTION,
                       PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA);
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error in Blue LED PINMUX.\r\n");

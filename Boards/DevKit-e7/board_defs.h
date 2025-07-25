@@ -1827,6 +1827,8 @@
 #define BOARD_LEDRGB0_B_GPIO_PIN                        0
 // <o> "LEDRGB0_B" GPIO pin alternate function <0-7>
 #define BOARD_LEDRGB0_B_ALTERNATE_FUNCTION              0
+// <o> "UTIMER PWM LEDRGB0_B" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB0_B_UT_ALTERNATE_FUNCTION           4
 
 // <o> "LEDRGB0_R" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1837,6 +1839,8 @@
 #define BOARD_LEDRGB0_R_GPIO_PIN                        3
 // <o> "LEDRGB0_R" GPIO pin alternate function <0-7>
 #define BOARD_LEDRGB0_R_ALTERNATE_FUNCTION              0
+// <o> "UTIMER PWM LEDRGB0_R" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB0_R_UT_ALTERNATE_FUNCTION           4
 
 // <o> "LEDRGB0_G" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
@@ -1847,6 +1851,8 @@
 #define BOARD_LEDRGB0_G_GPIO_PIN                        4
 // <o> "LEDRGB0_G" GPIO pin alternate function <0-7>
 #define BOARD_LEDRGB0_G_ALTERNATE_FUNCTION              0
+// <o> "UTIMER PWM LEDRGB0_G" GPIO pin alternate function <0-7>
+#define BOARD_LEDRGB0_G_UT_ALTERNATE_FUNCTION           6
 
 // <o> "JOY_SW_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=> GPIO5
 // <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=> GPIO13
