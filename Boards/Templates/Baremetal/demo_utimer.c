@@ -144,7 +144,7 @@ static int32_t gpio_init(ARM_UTIMER_MODE mode)
 #endif
     }
 
-    if (mode == ARM_UTIMER_MODE_CAPTURING) {
+    else if (mode == ARM_UTIMER_MODE_CAPTURING) {
 #if BOARD_CAPTURE_MODE_UTIMER_INSTANCE
         ret = ptrCapt0GPO->Initialize(BOARD_UT_CAPTURE_MODE_GPO0_GPIO_PIN, NULL);
         if (ret != ARM_DRIVER_OK) {
