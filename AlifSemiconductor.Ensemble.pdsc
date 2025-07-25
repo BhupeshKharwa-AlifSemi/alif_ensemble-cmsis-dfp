@@ -1654,6 +1654,11 @@
       <require Cclass="File System" Cgroup="CORE"/>
     </condition>
 
+    <condition id="USBD Driver">
+      <description>Requirement for USB Device Driver</description>
+      <require condition="Ensemble CMSIS_Driver"/>
+      <require Cclass="USB" Cgroup="CORE"/>
+    </condition>
     <condition id="MIPI DPHY Driver">
       <description>Requirement for MIPI DPHY Driver</description>
       <require condition="Ensemble CMSIS_Driver"/>      
@@ -1989,6 +1994,8 @@
         <file category="source" name="Boards/Templates/FreeRTOS/demo_i2s_freertos.c" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="header" name="Boards/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_mci_mdk_cmsisrtos2.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
+        <file category="source" name="Boards/Templates/cmsis_rtos2/demo_usb_device_app.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
+        <file category="source" name="Boards/Templates/cmsis_rtos2/USBD_User_CDC_ACM.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
 
 	<!--  LWIP templates -->
         <file category="source" name="Boards/Templates/lwip/httpd/fs.c" attr="template" select="LWIP httpd Demo"/>
@@ -2282,6 +2289,23 @@
 		<file category="header" name="drivers/include/sys_ctrl_spi.h"/>
 		<file category="source" name="drivers/source/spi.c"/>
 		<file category="header" name="Alif_CMSIS/Include/Driver_SPI_EX.h"/>
+      </files>
+    </component>
+
+    <component Cclass="CMSIS Driver" Cgroup="USB Device" Cversion="2.0.0" Capiversion="2.3.0" condition="USBD Driver">
+      <description>USB Device Driver for Alif Semiconductor SOC</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_USBD          /* Driver USBD  */
+      </RTE_Components_h>
+      <files>
+        <file category="source" name="Alif_CMSIS/Source/Driver_USBD.c"/>
+		<file category="header" name="drivers/include/sys_ctrl_usb.h"/>
+		<file category="header" name="drivers/include/usbd.h"/>
+		<file category="source" name="drivers/source/usb/usbd_bulk_transfer.c"/>
+		<file category="source" name="drivers/source/usb/usbd_control_transfer.c"/>
+		<file category="source" name="drivers/source/usb/usbd_endpoint_create.c"/>
+		<file category="source" name="drivers/source/usb/usbd_initialize.c"/>
+		<file category="source" name="drivers/source/usb/usbd_interrupt_handler.c"/>
       </files>
     </component>
 
