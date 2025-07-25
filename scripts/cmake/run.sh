@@ -38,12 +38,14 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     build_param=""
     preset_param=""
     list_param=""
+    custom_build_dir_param=""
 
     arg_option=""
     config_param_cnt=0
     build_param_cnt=0
     preset_param_cnt=0
     list_param_cnt=0
+    custom_build_dir_param_cnt=0
     fresh_build_flag=0
 
     echo ""
@@ -70,6 +72,10 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
                 fresh_build_flag=$((fresh_build_flag+1))
                 rm -rf build
                 echo -e "${YELLOW}Fresh Build has been triggered and build dir will be deleted.${NC}"
+                ;;
+            -d|-D)
+                arg_option="custom_build_dir_param"
+                custom_build_dir_param_cnt=$((custom_build_dir_param_cnt+1))
                 ;;
             -help|-HELP|--h|--H|-h|-H|help|HELP)
                 # Insert help message here
@@ -99,6 +105,7 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
                 [[ $arg_option == "build_param" ]]  && build_param+=" $1"
                 [[ $arg_option == "preset_param" ]] && preset_param+=" $1"
                 [[ $arg_option == "list_param" ]]   && list_param+=" $1"
+                [[ $arg_option == "custom_build_dir_param" ]]   && custom_build_dir_param+=" $1"
                 ;;
             *)
                 # Input received, reset warning flag
@@ -106,6 +113,7 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
                 [[ $arg_option == "build_param" ]]  && build_param+=" $1"
                 [[ $arg_option == "preset_param" ]] && preset_param+=" $1"
                 [[ $arg_option == "list_param" ]]   && list_param+=" $1"
+                [[ $arg_option == "custom_build_dir_param" ]]   && custom_build_dir_param+=" $1"
                 ;;
         esac
         shift
@@ -125,6 +133,7 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
     config_param="${config_param#" "}"
     build_param="${build_param#" "}"
     preset_param="${preset_param#" "}"
+    custom_build_dir_param="${custom_build_dir_param#" "}"
 
     #cfg_num_args=$(echo "$config_param"  | grep -o " " | wc -l)
     #build_num_args=$(echo "$build_param" | grep -o " " | wc -l)
@@ -141,6 +150,38 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
         echo -e "📤 ${CYAN} TEST      PRESETS --> ${PURPLE}" ${EXISTING_TEST_PRESETS//$'\n'/,} "${NC}"
         echo -e "🔄 ${CYAN} WORKFLOW  PRESETS --> ${PURPLE}" ${EXISTING_WORKFLOW_PRESETS//$'\n'/,} "${NC}\n"
         exit 0
+    fi
+
+    custom_build_dir=""
+
+    if [[ "$custom_build_dir_param_cnt" -gt 0 ]]; then
+        datetimeStr=$(date +"%H%M%S_%d%m%y")
+
+        if [[ ! -f "CMakePresets_json.bak" ]] ; then
+            cp -v "CMakePresets.json" "CMakePresets_json.bak"
+        else
+            echo -e "${YELLOW}Already backup of CMakePresets.json is created ${NC}"
+        fi
+
+        if [[ -n "$custom_build_dir_param" ]]; then
+            if [[ "$custom_build_dir_param_cnt" -eq 1 ]]; then
+                num_of_arg_for_custom_buid_dir=$(echo $custom_build_dir_param | wc -w)
+                if [[ "$num_of_arg_for_custom_buid_dir" -gt 1 ]]; then
+                    echo -e "${YELLOW}Custom build directory needs only one argument i.e. folder_name/path, considering first word ${NC}"
+                fi
+            else
+                echo -e "${YELLOW}Custom build directory needs only one argument, i.e. folder_name/path, found more than 1 args, considering 1st arg ${NC}"
+            fi
+            custom_build_dir="${custom_build_dir_param%% *}"
+            echo -e "${YELLOW}Custom Build Directory option has been opted so${NC} $custom_build_dir ${YELLOW} will be build dir.${NC}"
+        else
+            echo -e "${YELLOW}Custom Build Directory option has been opted so${NC} build/build_HHMMSS_DDMMYY ${YELLOW} will be build dir.${NC}"
+            custom_build_dir="build_$datetimeStr"
+        fi
+        #default_build_dir_str="\"binaryDir\": \"\${sourceDir}/build/\${presetName}\","
+        custom_build_dir_str="\"binaryDir\": \"\${sourceDir}/build/${custom_build_dir}/\${presetName}\","
+        custom_build_dir_replace_str="$(printf '\t\t\t%s' "$custom_build_dir_str")"
+        sed -i "/\"binaryDir\":/c\\$custom_build_dir_replace_str" "CMakePresets.json"
     fi
 
     # In below array (list) of configuration
@@ -231,6 +272,10 @@ if [ $ARGUMENTS_PASSED -gt 0 ] ; then
             elapsed_1=$(( SECONDS - start_time ))
             eval "echo Elapsed time : $(date -ud "@$elapsed_1" +'$((%s/3600/24)) days %H hr %M min %S sec')"
         done
+    fi
+
+    if [[ "$custom_build_dir_param_cnt" -gt 0 ]]; then
+        git checkout CMakePresets.json
     fi
 
 else

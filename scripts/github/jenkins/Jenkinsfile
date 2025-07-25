@@ -1,5 +1,164 @@
 def allRecipientEmails = ""
 def rebaseNeeded = "-1"
+
+def gDevices   = ['AE722F80F55D5', 'AE1C1F4051920', 'AE822FA0E5597', 'AE402FA0E5597']
+
+def buildDevice(deviceList) {
+    def stagesMap = [:]
+
+    for (devicePartNumber in deviceList) {
+        def currentDev = devicePartNumber
+
+        stagesMap[currentDev] = {
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                echo "Starting build for ${currentDev}"
+
+                stage("Build ${currentDev}") {
+                    sh """
+                        #!/bin/bash
+                        set -x
+                        mkdir -pv ${currentDev}
+                        cp -r \${REPO_NAME}  ${currentDev}/
+                        cd "${currentDev}/$REPO_NAME/scripts/cmake" || { echo -e "🚫Error: $REPO_NAME/scripts/cmake folder/dir not found."; exit 1; }
+                        echo "PWD : \${PWD}"
+                        chmod -Rv 777 *.sh
+
+                        total_cfg_run_cnt=0
+                        skipped_cfg_run_cnt=0
+                        actual_cfg_run_cnt=0
+                        fail_cfg_run_cnt=0
+                        success_cfg_run_cnt=0
+                        total_cmakeError=-1
+                        collective_total_Error=0
+                        number_of_iter=0
+                        cdc200_run_cnt=0
+                        cdc200_fail_cnt=0
+                        cdc200_success_cnt=0
+                        parallel_dis_run_cnt=0
+                        parallel_dis_fail_cnt=0
+                        parallel_dis_success_cnt=0
+                        retargeting_status=-1
+
+                        CURR_OS=("NONE")
+                        CURR_COMPILER=("armclang" "gcc")
+                        CURR_BOARDS=("DevKit-e7" "DevKit-e1c" "DevKit-e8" "DevKit-e4")
+                        CURR_RTSS=("HE" "HP")
+                        CURR_BOOT=("TCM" "MRAM")
+
+                        for comp in \${!CURR_COMPILER[@]} ; do
+                            for bootType in \${!CURR_BOOT[@]} ; do
+                                for rtssType in \${!CURR_RTSS[@]} ; do
+									for brdName in \${!CURR_BOARDS[@]} ; do
+										devShortName="\${CURR_BOARDS[brdName]#*-}"
+										alifDevShortName="A\$(echo "\${devShortName}" | tr '[:lower:]' '[:upper:]')"
+										echo "Device : ${currentDev}, Board: \${CURR_BOARDS[brdName]}, ShortName:\${alifDevShortName}."
+										number_of_iter=\$((number_of_iter + 1))
+
+										echo "🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱 # \${number_of_iter} starts 🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱"
+										if [[ "${currentDev}" == "\$alifDevShortName"* ]]; then
+											for osName in \${!CURR_OS[@]} ; do
+												echo "=================================================================================="
+												if [ -d build ]; then
+													echo -e "Deleting Build directory..."
+													rm -rf build
+												fi
+
+												total_cfg_run_cnt=\$((total_cfg_run_cnt + 1))
+												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}"
+
+												if [ "${currentDev}" = "AE1C1F4051920" ] && [ "\${CURR_RTSS[rtssType]}" = "HP" ]; then
+													echo -e "🚨 ${currentDev} does not have \${CURR_RTSS[rtssType]} subsystem"
+													skipped_cfg_run_cnt=\$((skipped_cfg_run_cnt + 1))
+													continue
+												fi
+
+												actual_cfg_run_cnt=\$((actual_cfg_run_cnt + 1))
+												./run.sh -p \${CURR_COMPILER[comp]},\${CURR_COMPILER[comp]}_build,\${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
+
+												tmp=\$?
+												if [[ "\$total_cmakeError" -eq -1 ]] ; then
+													total_cmakeError=\$tmp
+												else
+													total_cmakeError=\$((total_cmakeError + tmp))
+												fi
+												echo -e "🚫Error Status total_cmakeError: \$total_cmakeError and tmp: \$tmp"
+												if [ "\$tmp" -ne 0 ] ; then
+													fail_cfg_run_cnt=\$((fail_cfg_run_cnt + 1))
+												fi
+
+                                                #CDC200
+                                                cdc200_run_cnt=\$((cdc200_run_cnt + 1))
+												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_cdc200"
+                                                ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=OFF -DENABLE_MIPI_DSI_ILI9488E_PANEL=ON -DENABLE_CDC_ILI6122E_PANEL=OFF -DTEST_APP=demo_cdc200 --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
+
+                                                tmp=\$?
+                                                if [ "\$tmp" -ne 0 ] ; then
+													cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
+                                                else
+                                                    cdc200_success_cnt=\$((cdc200_success_cnt + 1))
+												fi
+                                                total_cmakeError=\$((total_cmakeError + tmp))
+
+                                                cdc200_run_cnt=\$((cdc200_run_cnt + 1))
+
+                                                ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=ON -DENABLE_MIPI_DSI_ILI9488E_PANEL=OFF -DENABLE_CDC_ILI6122E_PANEL=OFF -DTEST_APP=demo_cdc200 --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
+                                                tmp=\$?
+
+                                                if [ "\$tmp" -ne 0 ] ; then
+													cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
+                                                else
+                                                    cdc200_success_cnt=\$((cdc200_success_cnt + 1))
+												fi
+                                                total_cmakeError=\$((total_cmakeError + tmp))
+
+                                                #Parallel Display
+                                                parallel_dis_run_cnt=\$((parallel_dis_run_cnt + 1))
+												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_parallel_display"
+
+                                                ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=OFF -DENABLE_MIPI_DSI_ILI9488E_PANEL=OFF -DENABLE_MIPI_DSI_CSI2_DPHY=OFF -DENABLE_MIPI_DSI=OFF -DTEST_APP=demo_parallel_display --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
+
+                                                tmp=\$?
+                                                if [ "\$tmp" -ne 0 ] ; then
+													parallel_dis_fail_cnt=\$((parallel_dis_fail_cnt + 1))
+                                                else
+                                                    parallel_dis_success_cnt=\$((parallel_dis_success_cnt + 1))
+												fi
+                                                total_cmakeError=\$((total_cmakeError + tmp))
+
+                                                echo "=================================================================================="
+											done
+										fi
+										echo "🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩 # \${number_of_iter} ends 🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩"
+										echo -e ""
+									done
+                                done
+                            done
+                        done
+
+                        echo -e ""
+                        # Check Retargetting
+                        ./run.sh -c --fresh -DENABLE_STDOUT=1 -DENABLE_STDIN=1 -DENABLE_STDERR=1
+                        tmp=\$?
+                        retargeting_status=\$tmp
+                        total_cmakeError=\$((total_cmakeError + tmp))
+
+                        echo -e ""
+                        echo -e " 🏆Success   : \$((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: \$fail_cfg_run_cnt, Skipped: \$skipped_cfg_run_cnt"
+                        echo -e " 🏆CDC       : success \$cdc200_success_cnt/\$cdc200_run_cnt, Failed: \$cdc200_fail_cnt/\$cdc200_run_cnt"
+                        echo -e " 🏆Retarting : \$retargeting_status"
+                        echo -e " 🏆Parallel_Display : success \$parallel_dis_success_cnt/\$parallel_dis_run_cnt, Failed: \$parallel_dis_fail_cnt/\$parallel_dis_run_cnt"
+                        echo -e " 🔥Total Run => (\$actual_cfg_run_cnt/\$total_cfg_run_cnt)"
+                        collective_total_Error=\$((total_cmakeError))
+                        exit \$collective_total_Error
+
+                    """
+				}
+			}
+		}
+	}
+	return stagesMap
+}
+
 pipeline {
     agent any
 
@@ -79,7 +238,7 @@ pipeline {
                             ''',
                         returnStdout: true
                     ).trim()
-                     echo "🎯 rebase needed: [${rebaseNeeded}]..."
+                     echo  " 🎯Git Rebase Needed  =>  ${rebaseNeeded}"
                 }
             }
         }
@@ -109,7 +268,7 @@ pipeline {
             }
         }
 
-        stage('build') {
+        stage('verifying patch') {
             steps {
                 script {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -206,96 +365,28 @@ pipeline {
                             pr_checker_err=0
                             check_patch_errors=0
                         fi
-
-                        cd scripts/cmake || { echo -e "🚫Error: scripts/cmake folder/ dir not found."; exit 1; }
-                        tmp=$?
-                        if [ "$tmp" -ne 0 ] ; then
-                            echo -e "🚫Error: $tmp ❗ cmake script is not available"
-                        fi
-                        chmod -Rv 777 *.sh
-
-                        total_cfg_run_cnt=0
-                        skipped_cfg_run_cnt=0
-                        actual_cfg_run_cnt=0
-                        fail_cfg_run_cnt=0
-                        success_cfg_run_cnt=0
-                        total_cmakeError=-1
-                        collective_total_Error=0
-                        number_of_iter=0
-
-                        CURR_OS=("NONE")
-                        CURR_COMPILER=("armclang" "gcc")
-                        CURR_DEV=("AE722F80F55D5" "AE1C1F4051920" "AE822FA0E5597" "AE402FA0E5597")
-                        CURR_BOARDS=("DevKit-e7" "DevKit-e1c" "DevKit-e8" "DevKit-e4")
-                        CURR_RTSS=("HE" "HP")
-                        CURR_BOOT=("TCM" "MRAM")
-
-                        for comp in ${!CURR_COMPILER[@]}
-                        do
-                            for bootType in ${!CURR_BOOT[@]}
-                            do
-                                for rtssType in ${!CURR_RTSS[@]}
-                                do
-                                    for devName in ${!CURR_DEV[@]}
-                                    do
-                                        for brdName in ${!CURR_BOARDS[@]}
-                                        do
-                                            devShortName="${CURR_BOARDS[brdName]#*-}"
-                                            alifDevShortName="A$(echo "$devShortName" | tr '[:lower:]' '[:upper:]')"
-                                            echo "Device : ${CURR_DEV[devName]}, Board: ${CURR_BOARDS[brdName]}, ShortName:${alifDevShortName}."
-                                            number_of_iter=$((number_of_iter + 1))
-
-                                            echo "🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱 # ${number_of_iter} starts 🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱"
-                                            if [[ "${CURR_DEV[devName]}" == "$alifDevShortName"* ]]; then
-                                                for osName in ${!CURR_OS[@]}
-                                                do
-                                                    echo "=================================================================================="
-                                                    if [ -d build ]; then
-                                                        echo -e "Deleting Build directory..."
-                                                        rm -rf build
-                                                    fi
-
-                                                    total_cfg_run_cnt=$((total_cfg_run_cnt + 1))
-                                                    echo "🚩 Building for ${CURR_COMPILER[comp]}, ${CURR_DEV[devName]}, ${CURR_OS[osName]}, ${CURR_BOOT[bootType]} ${CURR_RTSS[rtssType]} ${CURR_BOARDS[brdName]}"
-
-                                                    if [ "${CURR_DEV[devName]}" = "AE1C1F4051920" ] && [ "${CURR_RTSS[rtssType]}" = "HP" ]; then
-                                                        echo -e "🚨 ${CURR_DEV[devName]} does not have ${CURR_RTSS[rtssType]} subsystem"
-                                                        skipped_cfg_run_cnt=$((skipped_cfg_run_cnt + 1))
-                                                        continue
-                                                    fi
-
-                                                    actual_cfg_run_cnt=$((actual_cfg_run_cnt + 1))
-                                                    ./run.sh -p ${CURR_COMPILER[comp]},${CURR_COMPILER[comp]}_build,${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=${CURR_BOOT[bootType]} -DDEVICE=${CURR_DEV[devName]} -DBOARD_NAME=${CURR_BOARDS[brdName]} -DOS=${CURR_OS[osName]} -DRTSS=${CURR_RTSS[rtssType]} -b --clean-first
-
-                                                    tmp=$?
-                                                    if [[ "$total_cmakeError" -eq -1 ]] ; then
-                                                        total_cmakeError=$tmp
-                                                    else
-                                                        total_cmakeError=$((total_cmakeError + tmp))
-                                                    fi
-                                                    echo -e "🚫Error Status total_cmakeError: $total_cmakeError and tmp: $tmp"
-                                                    if [ "$tmp" -ne 0 ] ; then
-                                                        fail_cfg_run_cnt=$((fail_cfg_run_cnt + 1))
-                                                    fi
-                                                    echo "=================================================================================="
-                                                done
-                                            fi
-                                            echo "🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩 # ${number_of_iter} ends 🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩"
-                                            echo -e ""
-                                        done
-                                    done
-                                done
-                            done
-                        done
                         echo -e ""
                         echo -e " 🏆Check-Patch Result =>  Error: $check_patch_errors, Warnings: $check_patch_warnings, Tabs: $tabCnt"
-                        echo -e " 🏆Success: $((actual_cfg_run_cnt - fail_cfg_run_cnt)), Failed: $fail_cfg_run_cnt, Skipped: $skipped_cfg_run_cnt"
-                        echo -e " 🔥Total Run => ($actual_cfg_run_cnt/$total_cfg_run_cnt)"
-                        collective_total_Error=$((total_cmakeError + check_patch_errors))
-                        exit $collective_total_Error
+                        exit $check_patch_errors
                         '''
                     }
-                    echo  " 🏆Git Rebase Needed  =>  ${rebaseNeeded}"
+                }
+            }
+        }
+
+        stage('build') {
+            steps {
+                script {
+                    try {
+                        def buildDeviceStatus = buildDevice(gDevices)
+                        parallel buildDeviceStatus
+                        if (!buildDeviceStatus || buildDeviceStatus.isEmpty()) {
+                            error "❌ buildDevice returned empty or null stages!"
+                        }
+                        echo "✅ Generated ${buildDeviceStatus.size()} tstages."
+                    } catch (err) {
+                        error "❌ Failed to generate ttages: ${err}"
+                    }
                 }
             }
         }
