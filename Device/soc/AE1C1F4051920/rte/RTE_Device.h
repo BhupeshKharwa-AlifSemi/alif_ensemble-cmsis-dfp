@@ -126,16 +126,6 @@
 // <i> default: 640
 #define RTE_MT9M114_CAMERA_SENSOR_LPCPI_FRAME_WIDTH     640
 
-// <o RTE_MT9M114_CAMERA_SENSOR_LPCPI_I2C_INSTANCE> Select camera sensor MT9M114 i2c instance
-// <i> Defines camera sensor MT9M114 i2c instance
-//     <0=>   I2C0
-//     <1=>   I2C1
-//     <2=>   I2C2
-//     <3=>   I2C3
-//     <I3C=> I2C OVER I3C
-// <i> Default: 1
-#define RTE_MT9M114_CAMERA_SENSOR_LPCPI_I2C_INSTANCE    1
-
 #endif
 // </e> MT9M114 [Driver_MT9M114]
 

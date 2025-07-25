@@ -84,7 +84,7 @@
 //     <1=> enable
 // <i> Defines CPI horizontal cropping
 // <i> Default: 0x1
-#define RTE_CPI_HFP_EN                                        1
+#define RTE_CPI_HFP_EN                                        0
 
 // <o> CPI vertical back porch
 // <i> Defines CPI vertical back porch.
@@ -101,7 +101,7 @@
 //     <1=> enable
 // <i> Defines CPI vertical cropping
 // <i> Default: 0x1
-#define RTE_CPI_VFP_EN                                        1
+#define RTE_CPI_VFP_EN                                        0
 
 // <e> MT9M114 [Driver_MT9M114]
 // <o> Enable/Disable MT9M114 camera sensor
@@ -191,16 +191,6 @@
 // <i> default: 640
 #define RTE_MT9M114_CAMERA_SENSOR_CPI_FRAME_WIDTH     640
 
-// <o> RTE_MT9M114_CAMERA_SENSOR_CPI_I2C_INSTANCE
-// <i> Defines camera sensor MT9M114 i2c instance
-//     <0=>   I2C0
-//     <1=>   I2C1
-//     <2=>   I2C2
-//     <3=>   I2C3
-//     <4=>   I2C OVER I3C
-// <i> Default: 1
-#define RTE_MT9M114_CAMERA_SENSOR_CPI_I2C_INSTANCE    1
-
 #endif
 // </e> MT9M114 [Driver_MT9M114]
 
@@ -263,7 +253,7 @@
 //     <1=> enable
 // <i> Defines LPCPI horizontal cropping
 // <i> Default: 0x1
-#define RTE_LPCPI_HFP_EN                                        1
+#define RTE_LPCPI_HFP_EN                                        0
 
 // <o> LPCPI vertical back porch
 // <i> Defines LPCPI vertical back porch.
@@ -280,7 +270,7 @@
 //     <1=> enable
 // <i> Defines LPCPI vertical cropping
 // <i> Default: 0x1
-#define RTE_LPCPI_VFP_EN                                        1
+#define RTE_LPCPI_VFP_EN                                        0
 
 // <e> MT9M114 [Driver_MT9M114]
 // <o> Enable/Disable MT9M114 camera sensor
@@ -359,16 +349,6 @@
 // <i> defines select MT9M114 frame width.
 // <i> default: 640
 #define RTE_MT9M114_CAMERA_SENSOR_LPCPI_FRAME_WIDTH     640
-
-// <o> RTE_MT9M114_CAMERA_SENSOR_LPCPI_I2C_INSTANCE
-// <i> Defines camera sensor MT9M114 i2c instance
-//     <0=>   I2C0
-//     <1=>   I2C1
-//     <2=>   I2C2
-//     <3=>   I2C3
-//     <4=>   I2C OVER I3C
-// <i> Default: 1
-#define RTE_MT9M114_CAMERA_SENSOR_LPCPI_I2C_INSTANCE    1
 
 #endif
 // </e> MT9M114 [Driver_MT9M114]

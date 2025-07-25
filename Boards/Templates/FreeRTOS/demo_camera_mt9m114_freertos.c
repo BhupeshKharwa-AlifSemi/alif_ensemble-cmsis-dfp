@@ -305,25 +305,25 @@ int32_t i2c_pinmux(void)
 {
     int32_t ret;
 
-    /* Configure GPIO Pin : P7_2 as i2c1_sda_c
+    /* Configure GPIO Pin as i2c_sda
      * Pad function: PADCTRL_READ_ENABLE |
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_(BOARD_I2C1_SDA_C_GPIO_PORT),
-                      BOARD_I2C1_SDA_C_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_5,
+    ret = pinconf_set(PORT_(BOARD_CAMERA_I2C_SDA_GPIO_PORT),
+                      BOARD_CAMERA_I2C_SDA_GPIO_PIN,
+                      BOARD_CAMERA_I2C_SDA_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P7_3 as i2c1_scl_c
+    /* Configure GPIO Pin as i2c_scl
      * Pad function: PADCTRL_READ_ENABLE |
      *               PADCTRL_DRIVER_DISABLED_PULL_UP
      */
-    ret = pinconf_set(PORT_(BOARD_I2C1_SCL_C_GPIO_PORT),
-                      BOARD_I2C1_SCL_C_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_5,
+    ret = pinconf_set(PORT_(BOARD_CAMERA_I2C_SCL_GPIO_PORT),
+                      BOARD_CAMERA_I2C_SCL_GPIO_PIN,
+                      BOARD_CAMERA_I2C_SCL_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP);
     if (ret != ARM_DRIVER_OK) {
         return ret;
@@ -344,117 +344,93 @@ static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
-    /* @Note: Below GPIO pins are configured for Camera.
-     *           - P0_0 as cam_hsync_a
-     *           - P0_1 as cam_vsync_a
-     *           - P0_2 as cam_pclk_a
-     *
-     *         - Data Lines D0-D7
-     *           - P8_0 as cam_d0_b
-     *           - P8_1 as cam_d1_b
-     *           - P8_2 as cam_d2_b
-     *           - P8_3 as cam_d3_b
-     *           - P8_4 as cam_d4_b
-     *           - P8_5 as cam_d5_b
-     *           - P8_6 as cam_d6_b
-     *           - P8_7 as cam_d7_b
-     */
-
-    /* Configure GPIO Pin : P0_0 as cam_hsync_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT),
-                      BOARD_CAMERA_HSYNC_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_6,
+    /* Configure GPIO Pin as cam_hsync_a */
+    ret = pinconf_set(PORT_(BOARD_CAM_HSYNC_GPIO_PORT),
+                      BOARD_CAM_HSYNC_GPIO_PIN,
+                      BOARD_CAM_HSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P0_1 as cam_vsync_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT),
-                      BOARD_CAMERA_VSYNC_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_6,
+    /* Configure GPIO Pin as cam_vsync_a */
+    ret = pinconf_set(PORT_(BOARD_CAM_VSYNC_GPIO_PORT),
+                      BOARD_CAM_VSYNC_GPIO_PIN,
+                      BOARD_CAM_VSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P0_2 as cam_pclk_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT),
-                      BOARD_CAMERA_PCLK_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_6,
+    /* Configure GPIO Pin as cam_pclk_a */
+    ret = pinconf_set(PORT_(BOARD_CAM_PCLK_GPIO_PORT),
+                      BOARD_CAM_PCLK_GPIO_PIN,
+                      BOARD_CAM_PCLK_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Data Lines: D0-D7 */
-    /* Configure GPIO Pin : P8_0 as cam_d0_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT),
-                      BOARD_CAMERA_D0_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D0_GPIO_PORT),
+                      BOARD_CAM_D0_GPIO_PIN,
+                      BOARD_CAM_D0_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_1 as cam_d1_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT),
-                      BOARD_CAMERA_D1_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_6,
+    ret = pinconf_set(PORT_(BOARD_CAM_D1_GPIO_PORT),
+                      BOARD_CAM_D1_GPIO_PIN,
+                      BOARD_CAM_D1_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_2 as cam_d2_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT),
-                      BOARD_CAMERA_D2_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D2_GPIO_PORT),
+                      BOARD_CAM_D2_GPIO_PIN,
+                      BOARD_CAM_D2_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_3 as cam_d3_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT),
-                      BOARD_CAMERA_D3_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D3_GPIO_PORT),
+                      BOARD_CAM_D3_GPIO_PIN,
+                      BOARD_CAM_D3_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_4 as cam_d4_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT),
-                      BOARD_CAMERA_D4_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D4_GPIO_PORT),
+                      BOARD_CAM_D4_GPIO_PIN,
+                      BOARD_CAM_D4_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_5 as cam_d5_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT),
-                      BOARD_CAMERA_D5_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D5_GPIO_PORT),
+                      BOARD_CAM_D5_GPIO_PIN,
+                      BOARD_CAM_D5_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_6 as cam_d6_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT),
-                      BOARD_CAMERA_D6_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D6_GPIO_PORT),
+                      BOARD_CAM_D6_GPIO_PIN,
+                      BOARD_CAM_D6_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_7 as cam_d7_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT),
-                      BOARD_CAMERA_D7_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_7,
+    ret = pinconf_set(PORT_(BOARD_CAM_D7_GPIO_PORT),
+                      BOARD_CAM_D7_GPIO_PIN,
+                      BOARD_CAM_D7_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
@@ -476,117 +452,93 @@ static int32_t board_camera_pins_config(void)
 {
     int32_t ret;
 
-    /* @Note: Below GPIO pins are configured for Camera.
-     *           - P0_0 as lpcam_hsync_b
-     *           - P0_1 as lpcam_vsync_b
-     *           - P0_2 as lpcam_pclk_b
-     *
-     *         - Data Lines D0-D7
-     *           - P8_0 as lpcam_d0_a
-     *           - P8_1 as lpcam_d1_a
-     *           - P8_2 as lpcam_d2_a
-     *           - P8_3 as lpcam_d3_a
-     *           - P8_4 as lpcam_d4_a
-     *           - P8_5 as lpcam_d5_a
-     *           - P8_6 as lpcam_d6_a
-     *           - P8_7 as lpcam_d7_a
-     */
-
-    /* Configure GPIO Pin : P0_0 as lpcam_hsync_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_HSYNC_GPIO_PORT),
-                      BOARD_CAMERA_HSYNC_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_5,
+    /* Configure GPIO Pin as lpcam_hsync_c */
+    ret = pinconf_set(PORT_(BOARD_LPCAM_HSYNC_GPIO_PORT),
+                      BOARD_LPCAM_HSYNC_GPIO_PIN,
+                      BOARD_LPCAM_HSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P0_1 as lpcam_vsync_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_VSYNC_GPIO_PORT),
-                      BOARD_CAMERA_VSYNC_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_5,
+    /* Configure GPIO Pin as lpcam_vsync_c */
+    ret = pinconf_set(PORT_(BOARD_LPCAM_VSYNC_GPIO_PORT),
+                      BOARD_LPCAM_VSYNC_GPIO_PIN,
+                      BOARD_LPCAM_VSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P0_2 as lpcam_pclk_b */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_PCLK_GPIO_PORT),
-                      BOARD_CAMERA_PCLK_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_5,
+    /* Configure GPIO Pin as lpcam_pclk_c */
+    ret = pinconf_set(PORT_(BOARD_LPCAM_PCLK_GPIO_PORT),
+                      BOARD_LPCAM_PCLK_GPIO_PIN,
+                      BOARD_LPCAM_PCLK_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
     /* Data Lines: D0-D7 */
-    /* Configure GPIO Pin : P8_0 as lpcam_d0_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D0_GPIO_PORT),
-                      BOARD_CAMERA_D0_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D0_GPIO_PORT),
+                      BOARD_LPCAM_D0_GPIO_PIN,
+                      BOARD_LPCAM_D0_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_1 as lpcam_d1_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D1_GPIO_PORT),
-                      BOARD_CAMERA_D1_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_3,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D1_GPIO_PORT),
+                      BOARD_LPCAM_D1_GPIO_PIN,
+                      BOARD_LPCAM_D1_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_2 as lpcam_d2_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D2_GPIO_PORT),
-                      BOARD_CAMERA_D2_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D2_GPIO_PORT),
+                      BOARD_LPCAM_D2_GPIO_PIN,
+                      BOARD_LPCAM_D2_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_3 as lpcam_d3_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D3_GPIO_PORT),
-                      BOARD_CAMERA_D3_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D0_GPIO_PORT),
+                      BOARD_LPCAM_D3_GPIO_PIN,
+                      BOARD_LPCAM_D3_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_4 as lpcam_d4_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D4_GPIO_PORT),
-                      BOARD_CAMERA_D4_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D4_GPIO_PORT),
+                      BOARD_LPCAM_D4_GPIO_PIN,
+                      BOARD_LPCAM_D4_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_5 as lpcam_d5_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D5_GPIO_PORT),
-                      BOARD_CAMERA_D5_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D5_GPIO_PORT),
+                      BOARD_LPCAM_D5_GPIO_PIN,
+                      BOARD_LPCAM_D5_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_6 as lpcam_d6_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D6_GPIO_PORT),
-                      BOARD_CAMERA_D6_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D6_GPIO_PORT),
+                      BOARD_LPCAM_D6_GPIO_PIN,
+                      BOARD_LPCAM_D6_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
 
-    /* Configure GPIO Pin : P8_7 as lpcam_d7_a */
-    ret = pinconf_set(PORT_(BOARD_CAMERA_D7_GPIO_PORT),
-                      BOARD_CAMERA_D7_GPIO_PIN,
-                      PINMUX_ALTERNATE_FUNCTION_4,
+    ret = pinconf_set(PORT_(BOARD_LPCAM_D7_GPIO_PORT),
+                      BOARD_LPCAM_D7_GPIO_PIN,
+                      BOARD_LPCAM_D7_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret != ARM_DRIVER_OK) {
         return ret;
@@ -616,7 +568,7 @@ int32_t hardware_init(void)
     /* i2c pinmux. */
     ret = i2c_pinmux();
     if (ret != 0) {
-        printf("\r\n Error in i3c pinmux.\r\n");
+        printf("\r\n Error in i2c pinmux.\r\n");
         return ret;
     }
 

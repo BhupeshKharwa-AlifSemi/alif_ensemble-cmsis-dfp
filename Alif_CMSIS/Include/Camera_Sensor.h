@@ -31,7 +31,9 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include "cpi.h"
+#if defined(CSI)
 #include "csi.h"
+#endif
 
 /****** CAMERA_SENSOR used for registering camera sensor *****/
 #define CAMERA_SENSOR(sensor)                                                                      \
@@ -71,6 +73,7 @@ typedef struct _CPI_INFO {
     CPI_COLOR_MODE_CONFIG   csi_mode;        /* CPI CSI Color mode */
 } CPI_INFO;
 
+#if defined(CSI)
 /**
 \brief CSI override CPI color mode structure
 */
@@ -100,6 +103,7 @@ typedef struct _CSI_INFO {
     CSI_OVERRIDE_CPI_COLOR cpi_cfg;      /* CSI override CPI color mode */
     CSI_PKT2PKT_TIME       pkt2pkt_time; /* CSI Time between Packets */
 } CSI_INFO;
+#endif
 
 /**
 \brief CAMERA Sensor Device Operations
@@ -121,7 +125,9 @@ typedef struct _CAMERA_SENSOR_DEVICE {
     int                       width;     /* Frame Width */
     int                       height;    /* Frame Height */
     CPI_INFO                 *cpi_info;  /* CPI Camera Sensor device Information */
+#if defined(CSI)
     CSI_INFO                 *csi_info;  /* CSI Camera Sensor device Information */
+#endif
     CAMERA_SENSOR_OPERATIONS *ops;       /* Camera Sensor device Operations */
 } CAMERA_SENSOR_DEVICE;
 
