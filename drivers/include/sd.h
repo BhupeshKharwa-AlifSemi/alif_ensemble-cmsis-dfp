@@ -27,18 +27,50 @@ extern "C" {
 
 #include "sd_host.h"
 #include "sdio.h"
+#include "sys_utils.h"
 
-// #define SDMMC_DEBUG_WARN
+// #define SDMMC_PRINT_ERR
+// #define SDMMC_PRINT_WARN
 // #define SDMMC_PRINTF_DEBUG
 // #define SDMMC_PRINTF_SD_STATE_DEBUG
 // #define SDMMC_PRINT_SEC_DATA
 #define SDMMC_IRQ_MODE
 
+#define SDMMC_RESET_DELAY_US      1000U
 #define SDMMC_CACHED_NUM_BLK      8U
 #define SDMMC_EXT_CSD_SIZE        512U
 #define SDMMC_DATA_TIMEOUT        0xFFFU
 #define SDMMC_CMD_TIMEOUT         0xFFU
 #define SDMMC_SDHC_MAX_SECTOR_CNT 0xFFFFU
+#define SDMMC_SWITCH_MODE_Pos     0x1FU
+#define SDMMC_SWITCH_MODE_Msk     0x1U
+
+/**
+ * @brief sd set io commands
+ * flags used to control clocl, vol, power, bus width
+ */
+typedef enum _SET_IO_CMD {
+    SDMMC_SET_IO_CLK,
+    SDMMC_SET_IO_VOL,
+    SDMMC_SET_IO_PWR,
+    SDMMC_SET_IO_BUS_WIDTH,
+} SDMMC_SET_IO_CMD;
+
+/**
+ * @brief SD support flags
+ * used by SD subsystem to determine support for SD card features.
+ */
+typedef enum _sdmmc_support_flag_t {
+    SDMMC_HIGH_CAPACITY_FLAG    = BIT(1),
+    SDMMC_4BITS_WIDTH           = BIT(2),
+    SDMMC_SDHC_FLAG             = BIT(3),
+    SDMMC_SDXC_FLAG             = BIT(4),
+    SDMMC_1P8V_FLAG             = BIT(5),
+    SDMMC_3P0V_FLAG             = BIT(6),
+    SDMMC_CMD23_FLAG            = BIT(7),
+    SDMMC_SPEED_CLASS_CTRL_FLAG = BIT(8),
+    SDMMC_MEM_PRESENT_FLAG      = BIT(9),
+} sdmmc_support_flag_t;
 
 /**
  * @brief  SD driver status enum definition
@@ -69,6 +101,14 @@ typedef enum _SD_CARD_STATE {
     SD_CARD_STATE_DIS,
     SD_CARD_STATE_RESV
 } SD_CARD_STATE;
+
+/**
+ * @brief MMC Switch Mode
+ */
+typedef enum _sdmmc_switch_t {
+    SDMMC_SWITCH_CHECK,
+    SDMMC_SWITCH_SET
+} sd_switch_type_t;
 
 /**
  * @brief MMC High Speed timing enum
@@ -109,6 +149,53 @@ typedef enum _mmc_ext_csd_ver_t {
 } mmc_ext_csd_ver_t;
 
 /**
+ * @brief SDMMC Power ON/OFF
+ */
+typedef enum _sdmmc_power_t {
+    SDMMC_POWER_OFF,
+    SDMMC_POWER_ON
+} sdmmc_power_t;
+
+/**
+ * @brief SDMMC Voltage
+ */
+typedef enum _sdmmc_vol_t {
+    SDMMC_VOL_1P8V,
+    SDMMC_VOL_3P3V
+} sdmmc_vol_t;
+
+/**
+ * @brief SDMMC Clocks
+ */
+typedef enum _sdmmc_clock_t {
+    SDMMC_CLK_DISABLE,
+    SDMMC_CLK_ENABLE,
+    SDMMC_CLK_400KHZ,
+    SDMMC_CLK_12P5MHZ,
+    SDMMC_CLK_25MHZ,
+    SDMMC_CLK_50MHZ
+} sdmmc_clock_t;
+
+/**
+ * @brief SDMMC Bus Width
+ */
+typedef enum _sdmmc_bus_width_t {
+    SDMMC_BUS_WIDTH_1BIT,
+    SDMMC_BUS_WIDTH_4BIT,
+    SDMMC_BUS_WIDTH_8BIT
+} sdmmc_bus_width_t;
+
+/**
+ * @brief SDMMC IO definition
+ */
+typedef struct _sdmmc_io_t {
+    sdmmc_power_t     sdmmc_power;
+    sdmmc_vol_t       sdmmc_vol;
+    sdmmc_clock_t     sdmmc_clock;
+    sdmmc_bus_width_t sdmmc_bus_width;
+} sdmmc_io_t;
+
+/**
  * @brief MMC ext csd register
  */
 typedef struct _mmc_ext_csd {
@@ -135,6 +222,7 @@ typedef struct _sd_cardinfo_t {
     uint32_t logblocksize;  /*!< Specifies logical block size in bytes          */
     uint32_t busspeed;      /*!< Clock                                          */
     uint16_t card_class;    /*!< Specifies the class of the card class          */
+    uint16_t flags;         /*!< SD Card Supported Flags                        */
     uint8_t  iscardpresent; /*!< is card present flag                           */
     uint8_t  f8flag;        /*!< CMD8 support flag, set after good resp of CMD8 */
     uint8_t  sdio_mode;     /*!< sdio only mode flag                            */
@@ -163,6 +251,7 @@ typedef struct _sd_param_t {
     uint8_t dma_mode;                         /*!< SD DMA Mode 0: SDMA 1: ADMA2               */
     uint8_t operation_mode;                   /*!< SD operation mode 0: Polling 1: Interrupt  */
     void (*app_callback)(uint16_t, uint16_t); /*!< SD Application Callback function pointer   */
+    void (*reset_cb)(void);                    /*!< SD Application Callback function pointer   */
 } sd_param_t;
 
 /**
@@ -196,6 +285,8 @@ typedef struct _diskio_t {
     (uint32_t, uint16_t, volatile uint8_t *); /*!< Read Sector(s)             */
     SD_DRV_STATUS (*disk_write)
     (uint32_t, uint32_t, volatile uint8_t *); /*!< Write Sector(s)            */
+    SD_DRV_STATUS (*disk_set_io)
+    (sdmmc_io_t *, SDMMC_SET_IO_CMD);         /*!< Set SDMMC IO, power, clk   */
 #ifdef SDMMC_IRQ_MODE
     void (*disk_cb)(uint16_t, uint16_t);
 #endif
@@ -214,6 +305,7 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *, sd_param_t *);
 SD_DRV_STATUS sd_card_init(sd_handle_t *, sd_param_t *);
 SD_DRV_STATUS sd_write(uint32_t, uint32_t, volatile unsigned char *);
 SD_DRV_STATUS sd_read(uint32_t, uint16_t, volatile unsigned char *);
+SD_DRV_STATUS sd_set_io(sdmmc_io_t *p_sdmmc_io, SDMMC_SET_IO_CMD set_io_cmd);
 SD_DRV_STATUS sd_error_handler();
 void          sdmmc_decode_card_csd(sd_handle_t *);
 void          sdmmc_decode_card_ext_csd(sd_handle_t *, uint8_t *);
@@ -222,13 +314,14 @@ void sd_cb(uint16_t, uint16_t);
 #endif
 SDMMC_HC_STATUS hc_send_cmd(sd_handle_t *, sd_cmd_t *);
 SDMMC_HC_STATUS hc_reset(sd_handle_t *, uint8_t);
-void            hc_set_bus_power(sd_handle_t *, uint8_t);
+void            hc_power_cycle(sd_handle_t *pHsd);
+SDMMC_HC_STATUS hc_set_bus_power(sd_handle_t *pHsd, uint8_t req_vol);
 SDMMC_HC_STATUS hc_set_clk_freq(sd_handle_t *, uint16_t);
 void            hc_set_tout(sd_handle_t *, uint8_t);
 SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t len);
 SDMMC_HC_STATUS hc_identify_card(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_ifcond(sd_handle_t *);
-SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *);
+SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *pHsd, uint32_t ocr);
 SDMMC_HC_STATUS hc_get_emmc_card_opcond(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_cid(sd_handle_t *);
 SDMMC_HC_STATUS hc_get_card_csd(sd_handle_t *);

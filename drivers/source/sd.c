@@ -25,7 +25,7 @@
 #include "string.h"
 #include "sys_utils.h"
 
-#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_DEBUG_WARN) ||                                    \
+#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_PRINT_WARN) || defined(SDMMC_PRINT_ERR) ||    \
     defined(SDMMC_PRINTF_SD_STATE_DEBUG) || defined(SDMMC_PRINT_SEC_DATA)
 #include <stdio.h>
 #include <inttypes.h>
@@ -39,11 +39,95 @@ const diskio_t SD_Driver = {
     sd_info,
     sd_read,
     sd_write,
+    sd_set_io,
     NULL
 };
 
 /* Global SD Handle */
 sd_handle_t Hsd __attribute__((section("sd_dma_buf")));
+
+/**
+ * \fn           sd_set_io
+ * \brief        SD set IO common api for power and clock
+ * \param[in]    SD error number
+ * \return       sd driver state
+ */
+SD_DRV_STATUS sd_set_io(sdmmc_io_t *p_sdmmc_io_param, SDMMC_SET_IO_CMD set_io_cmd)
+{
+    sd_handle_t *pHsd      = &Hsd;
+    SDMMC_HC_STATUS status = SDMMC_HC_STATUS_OK;
+
+    switch (set_io_cmd) {
+    case SDMMC_SET_IO_CLK:
+        if (p_sdmmc_io_param->sdmmc_clock == SDMMC_CLK_DISABLE) {
+            status = hc_set_clk_freq(pHsd, 0);
+        } else if (p_sdmmc_io_param->sdmmc_clock == SDMMC_CLK_ENABLE) {
+            status = hc_set_clk_freq(pHsd, 1);
+        }
+        break;
+
+    case SDMMC_SET_IO_VOL:
+        if (p_sdmmc_io_param->sdmmc_vol == SDMMC_VOL_1P8V) {
+            status = hc_set_bus_power(pHsd, SDMMC_PC_BUS_VSEL_1V8_Msk);
+        } else if (p_sdmmc_io_param->sdmmc_vol == SDMMC_VOL_3P3V) {
+            status = hc_set_bus_power(pHsd, SDMMC_PC_BUS_VSEL_3V3_Msk);
+        }
+        break;
+
+    case SDMMC_SET_IO_PWR:
+        if (p_sdmmc_io_param->sdmmc_power == SDMMC_POWER_OFF) {
+            status = hc_set_bus_power(pHsd, SDMMC_POWER_OFF);
+        } else {
+            status = hc_set_bus_power(pHsd, SDMMC_POWER_ON);
+        }
+        break;
+
+    case SDMMC_SET_IO_BUS_WIDTH:
+        status = hc_set_bus_width(pHsd, p_sdmmc_io_param->sdmmc_bus_width);
+        break;
+
+    default:
+        return SD_DRV_STATUS_ERR;
+    }
+
+    return status ? SD_DRV_STATUS_CARD_INIT_ERR : SD_DRV_STATUS_OK;
+}
+
+/**
+ * \fn           sd_switch_voltage
+ * \brief        switch sd line volatge
+ * \param[in]    SD Global Handle pointer
+ * \param[in]    new voltage
+ * \return       sd driver status
+ */
+SD_DRV_STATUS sd_switch_voltage(sd_handle_t *pHsd, uint8_t req_vol)
+{
+    uint32_t   status;
+    sdmmc_io_t sdmmc_io_param;
+
+#ifdef SDMMC_PRINT_WARN
+    printf("Switching to 1.8v...\n");
+#endif
+    pHsd->sd_cmd.cmdidx = CMD11;
+    pHsd->sd_cmd.arg    = 0;
+
+    if (hc_send_cmd(pHsd, &pHsd->sd_cmd) != SDMMC_HC_STATUS_OK) {
+        sd_error_handler();
+    }
+
+    sdmmc_io_param.sdmmc_vol = req_vol;
+    status                   = sd_set_io(&sdmmc_io_param, SDMMC_SET_IO_VOL);
+
+    if (status) {
+
+#ifdef SDMMC_PRINT_ERR
+        printf("Error Switching to UHS-I voltage...\n");
+#endif
+        return SD_DRV_STATUS_CARD_INIT_ERR;
+    } else {
+        return SD_DRV_STATUS_OK;
+    }
+}
 
 /**
   \fn           SDErrorHandler
@@ -82,6 +166,10 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
            (const void *) &p_sd_param->dev_id,
            sizeof(pHsd->sd_param));
 
+    if (Hsd.sd_param.reset_cb) {
+        pHsd->sd_param.reset_cb();
+    }
+
     /* Get the Host Controller version */
     pHsd->hc_version = *((volatile uint16_t *) (SDMMC_HC_VERSION_REG)) & SDMMC_HC_VERSION_REG_Msk;
 
@@ -89,7 +177,7 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
     hc_get_capabilities(pHsd, &pHsd->hc_caps);
 
     /* Disable the SD Voltage supply */
-    hc_set_bus_power(pHsd, 0x0);
+    hc_set_bus_power(pHsd, SDMMC_POWER_OFF);
 
     /* Soft reset Host controller cmd and data lines */
     hc_reset(pHsd, (uint8_t) (SDMMC_SW_RST_ALL_Msk));
@@ -105,7 +193,7 @@ SD_DRV_STATUS sd_host_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
         powerlevel = 0U;
     }
 
-    hc_set_bus_power(pHsd, (uint8_t) (powerlevel | SDMMC_PC_BUS_PWR_VDD1_Msk));
+    hc_set_bus_power(pHsd, (uint8_t)(powerlevel));
     hc_set_tout(pHsd, 0xE);
 
     hc_config_interrupt(pHsd);
@@ -167,16 +255,21 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
 {
 
     uint16_t       reg;
+    uint32_t       ocr;
+    uint8_t        re_init_cnt    = 2;
     const uint32_t clk_div_tbl[4] = {
-    SDMMC_CLK_12_5MHz_DIV,
-    SDMMC_CLK_25MHz_DIV,
-    SDMMC_CLK_50MHz_DIV,
-    SDMMC_CLK_100MHz_DIV
-};
+        SDMMC_CLK_12_5MHz_DIV,
+        SDMMC_CLK_25MHz_DIV,
+        SDMMC_CLK_50MHz_DIV,
+        SDMMC_CLK_100MHz_DIV
+    };
 
     /* Default settings */
     pHsd->sd_card.cardtype        = SDMMC_CARD_SDHC;
     pHsd->sd_card.busspeed        = SDMMC_CLK_400_KHZ;
+    ocr                           = (SDMMC_CMD41_HCS |
+                                     SDMMC_CMD41_3V3 |
+                                     SDMMC_OCR_S18R);
 
     reg = SDMMC_CLK_GEN_SEL_Msk | SDMMC_INIT_CLK_DIVSOR_Msk | SDMMC_PLL_EN_Msk | SDMMC_CLK_EN_Msk |
           SDMMC_INTERNAL_CLK_EN_Msk;
@@ -198,6 +291,8 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
         return SD_DRV_STATUS_TIMEOUT_ERR;
     }
 
+RE_INIT:
+
     /* Reset the SD/UHS Cards */
     if (hc_go_idle(pHsd) != SDMMC_HC_STATUS_OK) {
         return SD_DRV_STATUS_CARD_INIT_ERR;
@@ -211,11 +306,39 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
     }
 
     /* Get the card operating condition */
-    if (hc_get_card_opcond(pHsd) != SDMMC_HC_STATUS_OK) {
+    if (hc_get_card_opcond(pHsd, ocr) != SDMMC_HC_STATUS_OK) {
         if (hc_get_emmc_card_opcond(pHsd) != SDMMC_HC_STATUS_OK) {
             return SD_DRV_STATUS_CARD_INIT_ERR;  // No Valid Card Found
         } else {
             pHsd->sd_card.cardtype = SDMMC_CARD_MMC;
+        }
+    }
+
+    if (pHsd->sd_card.flags == SDMMC_1P8V_FLAG) {
+
+        if (sd_switch_voltage(pHsd, SDMMC_VOL_1P8V)) {
+
+            if (re_init_cnt--) {
+
+                if (Hsd.sd_param.reset_cb) {
+                    pHsd->sd_param.reset_cb();
+                }
+
+                /* 1.8V switch Failed Re-init with 3.3V */
+                ocr                 &= ~SDMMC_OCR_S18R;
+                pHsd->sd_card.flags &= ~SDMMC_1P8V_FLAG;
+
+                /* Disable the SD Voltage supply */
+                hc_set_bus_power(pHsd, SDMMC_PC_BUS_VSEL_3V3_Msk);
+
+                sys_busy_loop_us(SDMMC_RESET_DELAY_US);
+
+                hc_reset(pHsd, SDMMC_SW_RST_CMD_Msk | SDMMC_SW_RST_DAT_Msk);
+                goto RE_INIT;
+
+            } else {
+                return SD_DRV_STATUS_CARD_INIT_ERR;
+            }
         }
     }
 
@@ -559,7 +682,7 @@ SD_DRV_STATUS sd_write(uint32_t sector, uint32_t blk_cnt, volatile unsigned char
 #endif
 
     if ((uint32_t) src_buff & (SDMMC_BLK_SIZE_512_Msk - 1)) {
-#ifdef SDMMC_DEBUG_WARN
+#ifdef SDMMC_PRINT_WARN
         printf("SD Write ADMA access un-aligned buffer ...\n");
 #endif
         if (blk_cnt <= SDMMC_CACHED_NUM_BLK) {

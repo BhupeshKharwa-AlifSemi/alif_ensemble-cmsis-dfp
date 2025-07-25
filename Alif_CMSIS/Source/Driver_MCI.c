@@ -16,13 +16,13 @@
  * @date     24-Jan-2025
  * @brief    MCI Driver
  * @bug      None.
- * @Note     make MC_MCI fs_mc0_mci as non static in fs_config.c
- *           Keil MDK-Middleware pack required
  ******************************************************************************/
 #include "RTE_Components.h"
 #include "stdio.h"
 #include "Driver_MCI.h"
 #include "sd.h"
+#include "board_config.h"
+#include "Driver_IO.h"
 
 #if defined(RTE_FileSystem_Drive_MC_0)
 #include "fs_memory_card.h"
@@ -41,6 +41,7 @@ extern sd_handle_t Hsd;
 volatile uint32_t  dma_done_irq;
 static uint32_t    g_block_count;
 static uint8_t    *gp_buff;
+static ARM_MCI_SignalEvent_t p_arm_mci_event_cb;
 
 /* Driver Capabilities */
 static const ARM_MCI_CAPABILITIES DriverCapabilities = {
@@ -82,8 +83,6 @@ static const ARM_MCI_CAPABILITIES DriverCapabilities = {
   \param[in]    uint32_t status
   \return       none
 */
-extern MC_MCI fs_mc0_mci;
-
 void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 {
     uint32_t arm_mci_event = 0;
@@ -99,8 +98,41 @@ void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
         arm_mci_event |= ARM_MCI_EVENT_TRANSFER_COMPLETE;
     }
 
-    fs_mc0_mci.Callback(arm_mci_event);
+    p_arm_mci_event_cb(arm_mci_event);
 }
+
+/**
+ * \fn           sd_reset_cb(void)
+ * \brief        Perform SD reset sequence
+ * \return       none
+ */
+#ifdef BOARD_SD_RESET_GPIO_PORT
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+void sd_reset_cb(void)
+{
+    int status;
+
+    ARM_DRIVER_GPIO *sd_rst_gpio = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+    status = sd_rst_gpio->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
+    }
+
+    sys_busy_loop_us(SDMMC_RESET_DELAY_US);
+
+    status = sd_rst_gpio->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
+    }
+
+    return;
+}
+#endif
 
 /**
  @fn       ARM_DRIVER_VERSION ARM_MCI_GetVersion(void)
@@ -130,16 +162,59 @@ static ARM_MCI_CAPABILITIES ARM_MCI_GetCapabilities(void)
 **/
 static int32_t ARM_MCI_Initialize(ARM_MCI_SignalEvent_t cb_event)
 {
+    int status;
     sd_param_t sd_param;
 
+#ifdef BOARD_SD_RESET_GPIO_PORT
+    ARM_DRIVER_GPIO *sd_rst_gpio = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+    status = sd_rst_gpio->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to initialize SD RST GPIO\n");
+#endif
+    }
+
+    status = sd_rst_gpio->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to powered full\n");
+#endif
+    }
+
+    status = sd_rst_gpio->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to configure\n");
+#endif
+    }
+
+    status = sd_rst_gpio->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
+    }
+
+#endif
+
+    p_arm_mci_event_cb    = cb_event;
     sd_param.dev_id       = SDMMC_DEV_ID;
     sd_param.clock_id     = RTE_SDC_CLOCK_SELECT;
     sd_param.bus_width    = RTE_SDC_BUS_WIDTH;
     sd_param.dma_mode     = RTE_SDC_DMA_SELECT;
     sd_param.app_callback = sd_cb;
 
+#ifdef BOARD_SD_RESET_GPIO_PORT
+    sd_param.reset_cb     = sd_reset_cb;
+#else
+    sd_param.reset_cb     = 0;
+#endif
+
     if (p_SD_Driver->disk_initialize(&sd_param)) {
+#ifdef SDMMC_PRINT_ERR
         printf("SD initialization failed...\n");
+#endif
         return ARM_DRIVER_ERROR;
     }
 
@@ -262,7 +337,7 @@ static int32_t ARM_MCI_SendCommand(uint32_t cmd, uint32_t arg, uint32_t flags, u
 
     *response = hc_get_response1(&Hsd);
 
-    if ((cmd == MC_CMD_SEND_CID) || (cmd == MC_CMD_SEND_CSD)) {
+    if (flags ==  ARM_MCI_RESPONSE_LONG) {
         *(response + 1) = hc_get_response2(&Hsd);
         *(response + 2) = hc_get_response3(&Hsd);
         *(response + 3) = hc_get_response4(&Hsd);
@@ -380,7 +455,9 @@ static ARM_MCI_STATUS ARM_MCI_GetStatus(void)
     ARM_MCI_STATUS mci_status;
     mci_status.command_active = 0;
     if (p_SD_Driver->disk_status() < SD_CARD_STATE_IDLE) {
+#ifdef SDMMC_PRINT_WARN
         printf("SD invalid status...\n");
+#endif
         return mci_status;
     }
 

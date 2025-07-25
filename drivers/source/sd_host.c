@@ -24,7 +24,7 @@
 #include "sd.h"
 #include "sys_utils.h"
 
-#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_DEBUG_WARN) ||                                    \
+#if defined(SDMMC_PRINTF_DEBUG) || defined(SDMMC_PRINT_WARN) || defined(SDMMC_PRINT_ERR) || \
     defined(SDMMC_PRINTF_SD_STATE_DEBUG) || defined(SDMMC_PRINT_SEC_DATA)
 #include <stdio.h>
 #include <inttypes.h>
@@ -119,7 +119,10 @@ static uint8_t hc_get_cmd_rsp_type(uint8_t Cmd)
         ret_val = SDMMC_RESP_R48;
         break;
     case CMD8:
-        ret_val = SDMMC_CMD_R_DATA_PRES_SEL_Msk | SDMMC_RESP_R48;
+        ret_val = SDMMC_RESP_R48;
+        if (Hsd.sd_card.cardtype == SDMMC_CARD_MMC) {
+            ret_val |= SDMMC_CMD_R_DATA_PRES_SEL_Msk;
+        }
         break;
     case CMD9:
         ret_val = SDMMC_RESP_R136;
@@ -273,7 +276,7 @@ void hc_set_tout(sd_handle_t *pHsd, uint8_t tout)
 void hc_power_cycle(sd_handle_t *pHsd)
 {
 
-    pHsd->regs->SDMMC_PWR_CTRL_R ^= SDMMC_PC_BUS_PWR_VDD1_Msk;  // disable vdd1
+    pHsd->regs->SDMMC_PWR_CTRL_R &= ~SDMMC_PC_BUS_PWR_VDD1_Msk; // disable vdd1
     sys_busy_loop_us(1000);
     pHsd->regs->SDMMC_PWR_CTRL_R |= SDMMC_PC_BUS_PWR_VDD1_Msk;  // enable vdd1
     sys_busy_loop_us(1000);
@@ -283,34 +286,72 @@ void hc_power_cycle(sd_handle_t *pHsd)
     pHsd->regs->SDMMC_NORMAL_INT_STAT_R  = SDMMC_NORM_INTR_ALL_Msk;
     pHsd->regs->SDMMC_ERROR_INT_STAT_R   = SDMMC_ERROR_INTR_ALL_Msk;
 
+    hc_reset(pHsd, SDMMC_SW_RST_CMD_Msk | SDMMC_SW_RST_DAT_Msk);
+
     return;
 }
 
 /**
-  \fn           SDMMC_HC_STATUS hc_set_bus_power(sd_handle_t *pHsd, uint8_t PwrVal){
+  \fn           SDMMC_HC_STATUS hc_set_bus_power(sd_handle_t *pHsd, uint8_t bus_power) {
   \brief        Set required sd bus power supply
   \param[in]    Global SD Handle pointer
   \param[in]    required bus voltage equivalent register value as per host controller data sheet
   \return       Host controller driver status
   */
-void hc_set_bus_power(sd_handle_t *pHsd, uint8_t PwrVal)
+SDMMC_HC_STATUS hc_set_bus_power(sd_handle_t *pHsd, uint8_t bus_power)
 {
 
-    /* Disable clock */
-    pHsd->regs->SDMMC_PWR_CTRL_R = 0U;
+    uint32_t status, timeout_cnt = 0xFFFF;
+
+    /* Disable the power supply */
+    pHsd->regs->SDMMC_PWR_CTRL_R &= ~SDMMC_PC_BUS_PWR_VDD1_Msk;
 
     /* If selected power is zero, return from here */
-    if (PwrVal == 0U) {
-        return;
+    if (bus_power == SDMMC_PC_BUS_PWR_OFF) {
+        return SDMMC_HC_STATUS_OK;
     }
 
-    /* set the required voltage level */
-    pHsd->regs->SDMMC_PWR_CTRL_R = PwrVal;
+    if (bus_power == SDMMC_PC_BUS_VSEL_1V8_Msk) {
+        /* set the 1.8v */
+        /* delay or check bus gating status */
+        sys_busy_loop_us(10000);
+
+        /* Disable clock */
+        HC_CLOCK_DISABLE(pHsd);
+
+        pHsd->regs->SDMMC_PWR_CTRL_R = SDMMC_PC_BUS_VSEL_1V8_Msk;
+
+        /* Delay 10ms eventhough spec says 5ms after switching to 1.8v */
+        sys_busy_loop_us(10000);
+        pHsd->regs->SDMMC_PWR_CTRL_R   |= SDMMC_PC_BUS_PWR_VDD1_Msk;
+        pHsd->regs->SDMMC_HOST_CTRL2_R |= SDMMC_HOST_CTRL2_SIGNALING_EN_Msk;
+
+        /* Enable clock and let is stable */
+        HC_CLOCK_ENABLE(pHsd);
+
+        /* check CMD line status after voltage switch */
+        do {
+            status = pHsd->regs->SDMMC_PSTATE_REG & SDMMC_CMD_LINE_LVL_UP_Msk;
+            sys_busy_loop_us(1);
+        } while (!status && timeout_cnt--);
+
+        return status ? SDMMC_HC_STATUS_OK : SDMMC_HC_STATUS_ERR;
+    } else {
+        /* set the 3.3v */
+        pHsd->regs->SDMMC_PWR_CTRL_R    = bus_power;
+        pHsd->regs->SDMMC_HOST_CTRL2_R &= ~SDMMC_HOST_CTRL2_SIGNALING_EN_Msk;
+    }
+
+    /* Enable the power supply */
+    pHsd->regs->SDMMC_PWR_CTRL_R |= SDMMC_PC_BUS_PWR_VDD1_Msk;
+
+    /* Enable Clock */
+    pHsd->regs->SDMMC_CLK_CTRL_R |= SDMMC_CLK_EN_Msk;
 
     /* .2ms delay after power on/off */
     sys_busy_loop_us(2000);
 
-    return;
+    return SDMMC_HC_STATUS_OK;
 }
 
 /**
@@ -390,7 +431,7 @@ SDMMC_HC_STATUS hc_set_bus_width(sd_handle_t *pHsd, uint8_t buswidth)
     if (pHsd->sd_card.cardtype != SDMMC_CARD_MMC) {
         if (buswidth > SDMMC_4_BIT_MODE) {
             /* invalid initial parameter, switching back to max supported bus width for sd card */
-#ifdef SDMMC_DEBUG_WARN
+#ifdef SDMMC_PRINT_WARN
             printf("invalid initial parameter, switching back to max supported bus width for sd "
                    "card\n");
 #endif
@@ -617,7 +658,7 @@ SDMMC_HC_STATUS hc_get_emmc_card_opcond(sd_handle_t *pHsd)
 
     /* UHS-I Specific Initializations */
     if (switch1v8) {
-        hc_switch_1v8(pHsd);
+        pHsd->sd_card.flags |= SDMMC_1P8V_FLAG;
     }
 
     /* detected card is eMMC */
@@ -632,11 +673,11 @@ SDMMC_HC_STATUS hc_get_emmc_card_opcond(sd_handle_t *pHsd)
   \param[in]    Global sd Handle pointer
   \return       Host controller driver status
   */
-SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *pHsd)
+SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *pHsd, uint32_t req_ocr)
 {
 
     uint32_t resp_OPcond;
-    uint32_t timeout   = 0xFFU;
+    uint32_t timeout   = 0x1FFU;         /* Added extra delay for diff types of card */
     uint32_t switch1v8 = 0;
     uint32_t ocr;
     uint32_t sdio_func_number = 0;
@@ -676,8 +717,9 @@ SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *pHsd)
                 sd_error_handler();
             }
 
-            pHsd->sd_cmd.cmdidx = CMD41;
-            pHsd->sd_cmd.arg    = (SDMMC_CMD41_HCS | SDMMC_CMD41_3V3);  // | SD_OCR_S18R);
+            pHsd->sd_cmd.cmdidx       = CMD41;
+            pHsd->sd_cmd.arg          = req_ocr;
+
             if (hc_send_cmd(pHsd, &pHsd->sd_cmd) != SDMMC_HC_STATUS_OK) {
                 sd_error_handler();
             }
@@ -700,7 +742,7 @@ SDMMC_HC_STATUS hc_get_card_opcond(sd_handle_t *pHsd)
 
     /* UHS-I Specific Initializations */
     if (switch1v8) {
-        hc_switch_1v8(pHsd);
+        pHsd->sd_card.flags |= SDMMC_1P8V_FLAG;
     }
 
     return SDMMC_HC_STATUS_OK;
@@ -815,52 +857,6 @@ SDMMC_HC_STATUS hc_get_card_scr(sd_handle_t *pHsd)
     /* update the global instance */
     pHsd->scr[0] = pHsd->regs->SDMMC_RESP01_R;
     pHsd->scr[1] = pHsd->regs->SDMMC_RESP23_R;
-
-    return SDMMC_HC_STATUS_OK;
-}
-
-/**
-  \fn           SDMMC_HC_STATUS hc_switch_1v8(sd_handle_t *pHsd)
-  \brief        switch to 1.8v signaling
-  \param[in]    Global sd Handle pointer
-  \return       Host controller driver status
-  */
-SDMMC_HC_STATUS hc_switch_1v8(sd_handle_t *pHsd)
-{
-    uint16_t clk;
-    uint8_t  power_level;
-
-#ifdef SDMMC_PRINTF_DEBUG
-    printf("Switching to 1.8v...\n");
-#endif
-    pHsd->sd_cmd.cmdidx = CMD11;
-    pHsd->sd_cmd.arg    = 0;
-
-    if (hc_send_cmd(pHsd, &pHsd->sd_cmd) != SDMMC_HC_STATUS_OK) {
-        sd_error_handler();
-    }
-
-    clk  = pHsd->regs->SDMMC_CLK_CTRL_R;
-    clk &= ~(SDMMC_CLK_EN_Msk | SDMMC_INTERNAL_CLK_EN_Msk);
-
-    /* Disable clock */
-    hc_set_clk_freq(pHsd, clk);
-
-    pHsd->regs->SDMMC_HOST_CTRL1_R |= 6;
-    pHsd->regs->SDMMC_HOST_CTRL2_R |= SDMMC_HOST_CTRL2_SIGNALING_EN_Msk;
-
-    power_level                     = SDMMC_PC_BUS_VSEL_1V8_Msk | SDMMC_PC_BUS_PWR_VDD1_Msk;
-    hc_set_bus_power(pHsd, power_level);
-
-    /* Delay 5ms after switching to 1.8v */
-    sys_busy_loop_us(5000);
-
-    clk |= (SDMMC_CLK_EN_Msk | SDMMC_INTERNAL_CLK_EN_Msk);
-
-    /* Enable clock */
-    hc_set_clk_freq(pHsd, clk);
-
-    sys_busy_loop_us(1000);
 
     return SDMMC_HC_STATUS_OK;
 }
@@ -1081,7 +1077,7 @@ SDMMC_HC_STATUS hc_set_blk_cnt(sd_handle_t *pHsd, uint32_t blk_cnt)
 }
 
 /**
-  \fn           SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t blk_cnt){
+  \fn           SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t blk_cnt) {
   \brief        Setup read parameter and start reading sector
   \param[in]    Global sd Handle pointer
   \param[in]    destination buffer
@@ -1138,7 +1134,7 @@ SDMMC_HC_STATUS hc_dma_config(sd_handle_t *pHsd, uint32_t buff, uint16_t blk_cnt
 
 /**
   \fn           SDMMC_HC_STATUS hc_read_setup(sd_handle_t *pHsd, uint32_t buff, uint32_t sector,
-  uint16_t blk_cnt){ \brief        Setup read parameter and start reading sector \param[in] Global
+  uint16_t blk_cnt) { \brief        Setup read parameter and start reading sector \param[in] Global
   sd Handle pointer \param[in]    destination buffer \param[in]    sector number to read \param[in]
   Block Count \return       Host controller driver status
   */

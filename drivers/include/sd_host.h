@@ -175,6 +175,8 @@ typedef struct _adma2_desc_t {
 #define DMA_IRQ_Msk                       (1U << DMA_IRQ_Pos)
 #define NORMAL_INT_STAT_XFER_COMPLETE_Pos 1U
 #define NORMAL_INT_STAT_XFER_COMPLETE_Msk (1U << NORMAL_INT_STAT_XFER_COMPLETE_Pos)
+#define SDMMC_CMD_LINE_LVL_UP_Pos         23U
+#define SDMMC_CMD_LINE_LVL_UP_Msk         (1U << SDMMC_CMD_LINE_LVL_UP_Pos)
 
 /* Card CSD */
 #define RAW_CSD_BUF_IDX0                  0U
@@ -226,6 +228,7 @@ typedef struct _adma2_desc_t {
 #define SDMMC_ERROR_INTR_ALL_Msk          0x0000F3FFU /*!< Mask for error irq bits  */
 
 /* Power Control */
+#define SDMMC_PC_BUS_PWR_OFF              0x0U        /**< Bus Power Off      */
 #define SDMMC_PC_BUS_PWR_VDD1_Msk         0x00000001U /**< Bus Power Control  */
 #define SDMMC_PC_BUS_VSEL_Msk             0x0000000EU /**< Bus Voltage Select */
 #define SDMMC_PC_BUS_VSEL_3V3_Msk         0x0000000EU /**< Bus Voltage 3.3V   */
@@ -366,6 +369,9 @@ typedef struct _adma2_desc_t {
 #define SDMMC_RCA_Pos                       0x10U
 #define SDMMC_RCA_Msk                       0xFFFF0000U
 #define EMMC_DEFAULT_RCA                    0x12340000U
+
+#define HC_CLOCK_DISABLE(pHsd)              (pHsd->regs->SDMMC_CLK_CTRL_R &= ~SDMMC_CLK_EN_Msk)
+#define HC_CLOCK_ENABLE(pHsd)               (pHsd->regs->SDMMC_CLK_CTRL_R |= SDMMC_CLK_EN_Msk)
 
 #ifdef __cplusplus
 }
