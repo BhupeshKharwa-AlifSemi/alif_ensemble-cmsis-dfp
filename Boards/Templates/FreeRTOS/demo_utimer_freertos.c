@@ -38,6 +38,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
+#include "semphr.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
@@ -90,8 +91,15 @@ TaskHandle_t utimer_trigger_xHandle;
 TaskHandle_t utimer_capture_xHandle;
 TaskHandle_t utimer_compare_xHandle;
 
+SemaphoreHandle_t utimer_sem;
+
+/*
+ * For this testapp, do the following changes in FreeRTOSConfig.h header
+ * #define configTOTAL_HEAP_SIZE                 ((size_t)8192)
+ * #define configMINIMAL_STACK_SIZE              ((uint16_t)512)
+ */
+
 /*Define for FreeRTOS*/
-#define STACK_SIZE                    1024
 #define TIMER_SERVICE_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH  // 512
 #define IDLE_TASK_STACK_SIZE          configMINIMAL_STACK_SIZE      // 1024
 
@@ -399,6 +407,9 @@ static void utimer_basic_mode_app(void *pvParameters)
     uint32_t   count_array[2];
     BaseType_t xReturned;
 
+    /* wait for semaphore */
+    xSemaphoreTake(utimer_sem, portMAX_DELAY);
+
     /* utimer channel 0 is configured for utimer basic mode (config counter ptr reg for 500ms) */
 
     printf("*** utimer demo application for basic mode started ***\n");
@@ -486,6 +497,9 @@ error_basic_mode_uninstall:
     }
     printf("*** demo application: basic mode completed *** \r\n\n");
 
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
+
     /* thread delete */
     vTaskDelete(NULL);
 }
@@ -528,6 +542,9 @@ static void utimer_buffering_mode_app(void *pvParameters)
     uint8_t    index;
     uint32_t   count_array[4];
     BaseType_t xReturned;
+
+    /* wait for semaphore */
+    xSemaphoreTake(utimer_sem, portMAX_DELAY);
 
     /* utimer channel 1 is configured for utimer buffer mode (selected double buffering)
      * configuring counter ptr, buf1, buf2 reg's as 500ms, 1 sec, 1.5 sec respectively */
@@ -648,6 +665,9 @@ error_buffering_mode_uninstall:
 
     printf("*** demo application: buffering mode completed *** \r\n\n");
 
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
+
     /* thread delete */
     vTaskDelete(NULL);
 }
@@ -693,6 +713,9 @@ static void utimer_trigger_mode_app(void *pvParameters)
     ARM_UTIMER_TRIGGER_CONFIG trig_config = {.triggerTarget = ARM_UTIMER_TRIGGER_START,
                                              .triggerSrc    = ARM_UTIMER_SRC_1,
                                              .trigger       = ARM_UTIMER_SRC1_DRIVE_A_RISING_B_0};
+
+    /* wait for semaphore */
+    xSemaphoreTake(utimer_sem, portMAX_DELAY);
 
     /*
      * utimer channel 3 is configured for utimer trigger mode.
@@ -801,6 +824,9 @@ error_trigger_mode_uninstall:
     }
     printf("*** demo application: trigger mode completed *** \r\n\n");
 
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
+
     /* thread delete */
     vTaskDelete(NULL);
 }
@@ -848,6 +874,9 @@ static void utimer_capture_mode_app(void *pvParameters)
     ARM_UTIMER_TRIGGER_CONFIG trig_config = {.triggerTarget = ARM_UTIMER_TRIGGER_CAPTURE_A,
                                              .triggerSrc    = ARM_UTIMER_SRC_1,
                                              .trigger       = ARM_UTIMER_SRC1_DRIVE_A_RISING_B_0};
+
+    /* wait for semaphore */
+    xSemaphoreTake(utimer_sem, portMAX_DELAY);
 
     /*
      * utimer channel 4 is configured for utimer input capture mode (selected driver A, double
@@ -971,6 +1000,9 @@ error_capture_mode_uninstall:
 
     printf("*** demo application: capture mode completed *** \r\n\n");
 
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
+
     /* thread delete */
     vTaskDelete(NULL);
 }
@@ -1042,6 +1074,9 @@ static void utimer_compare_mode_app(void *pvParameters)
     uint8_t    channel = BOARD_COMPARE_MODE_UTIMER_INSTANCE;
     uint32_t   count_array[5], NotificationValue = 0;
     BaseType_t xReturned;
+
+    /* wait for semaphore */
+    xSemaphoreTake(utimer_sem, portMAX_DELAY);
 
     /*
      * utimer channel 5 is configured for utimer compare mode (driver A, double buffer is enabled).
@@ -1184,6 +1219,9 @@ error_compare_mode_uninstall:
 
     printf("*** demo application: compare mode completed *** \r\n\n");
 
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
+
     /* thread delete */
     vTaskDelete(NULL);
 }
@@ -1223,74 +1261,80 @@ int main(void)
         printf("Error in pin-mux configuration: %d\n", ret);
         return ret;
     }
-#ifdef BOARD_BASIC_MODE_UTIMER_INSTANCE
-    /* Create application main thread */
-    xReturned = xTaskCreate(utimer_basic_mode_app,
-                            "utimer_basic_mode_app",
-                            256,
-                            NULL,
-                            configMAX_PRIORITIES - 1,
-                            &utimer_basic_xHandle);
-    if (xReturned != pdPASS) {
-        vTaskDelete(utimer_basic_xHandle);
+
+    utimer_sem = xSemaphoreCreateBinary();
+    if (utimer_sem == NULL) {
         return -1;
     }
+
+#ifdef BOARD_BASIC_MODE_UTIMER_INSTANCE
+        /* Create application main thread */
+        xReturned = xTaskCreate(utimer_basic_mode_app,
+                                "utimer_basic_mode_app",
+                                256,
+                                NULL,
+                                configMAX_PRIORITIES - 1,
+                                &utimer_basic_xHandle);
+        if (xReturned != pdPASS) {
+            vTaskDelete(utimer_basic_xHandle);
+            return -1;
+        }
 #endif
 
 #ifdef BOARD_BUFFER_MODE_UTIMER_INSTANCE
-    /* Create application main thread */
-    xReturned = xTaskCreate(utimer_buffering_mode_app,
-                            "utimer_buffering_mode_app",
-                            256,
-                            NULL,
-                            configMAX_PRIORITIES - 1,
-                            &utimer_buffer_xHandle);
-    if (xReturned != pdPASS) {
-        vTaskDelete(utimer_buffer_xHandle);
-        return -1;
-    }
+        /* Create application main thread */
+        xReturned = xTaskCreate(utimer_buffering_mode_app,
+                                "utimer_buffering_mode_app",
+                                256,
+                                NULL,
+                                configMAX_PRIORITIES - 1,
+                                &utimer_buffer_xHandle);
+        if (xReturned != pdPASS) {
+            vTaskDelete(utimer_buffer_xHandle);
+            return -1;
+        }
 #endif
 
 #ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
-    /* Create application main thread */
-    xReturned = xTaskCreate(utimer_trigger_mode_app,
-                            "utimer_trigger_mode_app",
-                            256,
-                            NULL,
-                            configMAX_PRIORITIES - 1,
-                            &utimer_trigger_xHandle);
-    if (xReturned != pdPASS) {
-        vTaskDelete(utimer_trigger_xHandle);
-        return -1;
-    }
+        /* Create application main thread */
+        xReturned = xTaskCreate(utimer_trigger_mode_app,
+                                "utimer_trigger_mode_app",
+                                256,
+                                NULL,
+                                configMAX_PRIORITIES - 1,
+                                &utimer_trigger_xHandle);
+        if (xReturned != pdPASS) {
+            vTaskDelete(utimer_trigger_xHandle);
+            return -1;
+        }
 #endif
 
 #ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
-    /* Create application main thread */
-    xReturned = xTaskCreate(utimer_capture_mode_app,
-                            "utimer_capture_mode_app",
-                            256,
-                            NULL,
-                            configMAX_PRIORITIES - 1,
-                            &utimer_capture_xHandle);
-    if (xReturned != pdPASS) {
-        vTaskDelete(utimer_capture_xHandle);
-        return -1;
-    }
+        /* Create application main thread */
+        xReturned = xTaskCreate(utimer_capture_mode_app,
+                                "utimer_capture_mode_app",
+                                256,
+                                NULL,
+                                configMAX_PRIORITIES - 1,
+                                &utimer_capture_xHandle);
+        if (xReturned != pdPASS) {
+            vTaskDelete(utimer_capture_xHandle);
+            return -1;
+        }
 #endif
 
 #ifdef BOARD_COMPARE_MODE_UTIMER_INSTANCE
-    /* Create application main thread */
-    xReturned = xTaskCreate(utimer_compare_mode_app,
-                            "utimer_compare_mode_app",
-                            256,
-                            NULL,
-                            configMAX_PRIORITIES - 1,
-                            &utimer_compare_xHandle);
-    if (xReturned != pdPASS) {
-        vTaskDelete(utimer_compare_xHandle);
-        return -1;
-    }
+        /* Create application main thread */
+        xReturned = xTaskCreate(utimer_compare_mode_app,
+                                "utimer_compare_mode_app",
+                                256,
+                                NULL,
+                                configMAX_PRIORITIES - 1,
+                                &utimer_compare_xHandle);
+        if (xReturned != pdPASS) {
+            vTaskDelete(utimer_compare_xHandle);
+            return -1;
+        }
 #endif
 
     /* Start thread execution */
