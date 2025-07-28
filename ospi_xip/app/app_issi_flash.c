@@ -265,11 +265,11 @@ int main(void)
     }
 #endif
 #if OSPI_XIP_SKIP_INITIALIZATION == 0
-    int32_t ret;
+    int32_t ret_val;
 
-    ret = setup_pinmux();
+    ret_val = setup_pinmux();
 
-    if (ret) {
+    if (ret_val) {
         WAIT_FOREVER_LOOP
     }
 
@@ -298,9 +298,9 @@ int main(void)
     }
 #endif
 
-    ret = setup_flash_xip();
+    ret_val = setup_flash_xip();
 
-    if (ret) {
+    if (ret_val) {
         WAIT_FOREVER_LOOP
     }
 #else
