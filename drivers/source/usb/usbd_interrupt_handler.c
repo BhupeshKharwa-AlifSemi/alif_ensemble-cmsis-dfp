@@ -138,7 +138,7 @@ void usbd_prepare_setup(USB_DRIVER *drv)
     ret           = usbd_send_ep_cmd(drv, 0U, USB_DEPCMD_STARTTRANSFER, params);
     if (ret) {
 #ifdef DEBUG
-        printf("Failed in send the command for setup pkt and status: %d\n", ret);
+        printf("Failed to send the command for setup pkt:%" PRIu32 "\n", ret);
 #endif
     }
     SET_BIT(ept->ep_status, USB_EP_BUSY);
@@ -820,11 +820,14 @@ void usbd_reset_event(USB_DRIVER *drv)
 void usbd_connectionDone_event(USB_DRIVER *drv)
 {
     uint32_t reg;
-    uint32_t speed;
 
     reg   = drv->regs->DSTS;
     /* if speed value is 0 then it's HIGH SPEED */
-    speed = reg & USB_DSTS_CONNECTSPD;
+    if ((reg & USB_DSTS_CONNECTSPD) == USB_DSTS_HIGHSPEED) {
+#ifdef DEBUG
+        printf("High speed device\n");
+#endif
+    }
     /* Enable USB2 LPM Capability */
     reg   = drv->regs->DCFG;
     SET_BIT(reg, USB_DCFG_LPM_CAP);

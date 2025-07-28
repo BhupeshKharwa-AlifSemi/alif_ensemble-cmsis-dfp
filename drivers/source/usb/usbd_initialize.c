@@ -139,7 +139,7 @@ static uint32_t usbd_setup_scratchpad(USB_DRIVER *drv)
     ret             = usbd_send_generic_cmd(drv, USB_DGCMD_SET_SCRATCHPAD_ADDR_LO, param);
     if (ret != USB_SUCCESS) {
 #ifdef DEBUG
-        printf("Failed to set scratchpad low addr: %d\n", ret);
+        printf("Failed to set scratchpad low addr:%" PRIu32 "\n", ret);
 #endif
         return ret;
     }
@@ -147,7 +147,7 @@ static uint32_t usbd_setup_scratchpad(USB_DRIVER *drv)
     ret   = usbd_send_generic_cmd(drv, USB_DGCMD_SET_SCRATCHPAD_ADDR_HI, param);
     if (ret != USB_SUCCESS) {
 #ifdef DEBUG
-        printf("Failed to set scratchpad high addr: %d\n", ret);
+        printf("Failed to set scratchpad high addr:%" PRIu32 "\n", ret);
 #endif
         return ret;
     }

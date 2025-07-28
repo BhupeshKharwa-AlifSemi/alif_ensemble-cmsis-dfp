@@ -32,10 +32,10 @@
 #include <stdio.h>
 #include "rl_usb.h"
 
-#define UART_BUFFER_SIZE    (512)
-/* *********** Alif change **********************************/
+#define UART_BUFFER_SIZE          (512)
+/* USB read event */
 #define USB_DATA_READ_EVENT_FLAG  1
-/* *********** Alif change **********************************/
+
 static uint8_t  uart_tx_buf[UART_BUFFER_SIZE];
 static uint32_t recv_len;
 static void     *cdc_acm_thread_id;
@@ -81,7 +81,7 @@ __NO_RETURN static void CDC0_ACM_UART_to_USB_Thread(void *arg)
     (void) (arg);
 
     for (;;) {
-        /* Alif change */
+        /* waiting for USB read event */
         ret = osEventFlagsWait(event_flag_id, USB_DATA_READ_EVENT_FLAG, osFlagsWaitAny, osWaitForever);
         if (!ret) {
             printf("failed to get event\n");
@@ -103,7 +103,7 @@ void USBD_CDC0_ACM_Initialize(void)
         printf("Creation of Thread failed\n");
         return;
     }
-    /* Alif change  */
+    /* Create and Initialize an Event Flag */
     event_flag_id = osEventFlagsNew(&usb_event_flag);
     if (event_flag_id == NULL) {
         printf("Creation of event flag failed\n");
@@ -203,9 +203,12 @@ void USBD_CDC0_ACM_DataReceived(uint32_t len)
     (void) len;
     cnt = USBD_CDC_ACM_ReadData(0U, uart_tx_buf, UART_BUFFER_SIZE);
     if (cnt > 0) {
-        /* Alif change */
         recv_len = cnt;
+        /* Set the USB read event flag */
         ret      = osEventFlagsSet(event_flag_id, USB_DATA_READ_EVENT_FLAG);
+        if (ret != 0) {
+            printf("failed to set the event\n");
+        }
     }
 }
 

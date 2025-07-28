@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <inttypes.h>
+
 #include "sys_utils.h"
 #include "Driver_USBD.h"
 
@@ -32,7 +34,7 @@
 /* Yes, C++ compiler is present.  Use standard C.  */
 extern "C" {
 #endif
-// #define DEBUG
+//#define DEBUG
 /* Define the macros    */
 #define USB_SUCCESS                        0
 #define USB_INIT_ERROR                     -1
@@ -423,6 +425,8 @@ extern "C" {
 
 #define USB_DSTS_CONNECTSPD          (7 << 0)
 #define USB_DSTS_HIGHSPEED           (0 << 0)
+#define USB_DSTS_FULLSPEED           (1 << 0)
+#define USB_DSTS_SUPERSPEED          (4 << 0)
 
 /* Device control register */
 #define USB_DCTL_CSFTRST             BIT(30)
