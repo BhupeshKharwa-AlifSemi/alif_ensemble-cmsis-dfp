@@ -74,10 +74,10 @@ macro (GET_MACRO_VALUE    headerFileName      macro_name      macro_val)
 endmacro ()
 
 # MACRO CHECK_MACRO_DEF to see macro is defined or not
-# argv[0] - header file name with path
+# argv[0] - header file content
 # argv[1] - marco name which will be searched
 # argv[2] - flag : TRUE if macro enable/exit FLASE if not exist
-macro (CHECK_MACRO_DEF    headerFileName      macro_name      macroExist)
+macro (CHECK_MACRO_DEF    file_content      macro_name      macroExist)
 
     set(${macroExist}           OFF)
     FOREACH(arg     ${file_content})
@@ -471,27 +471,27 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   ENABLE_STDERR   "Enable/disable retarget STDERR Driver.")
 
     if(${ENABLE_STDIN})
-        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN   MACRO_DEFINED)
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN   STDIN_MACRO_DEFINED)
 
-        if(NOT ${MACRO_DEFINED})
+        if(NOT ${STDIN_MACRO_DEFINED})
             add_definitions(-DRTE_CMSIS_Compiler_STDIN)
         endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDIN_Custom)
     endif()
 
     if(${ENABLE_STDOUT})
-        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT   MACRO_DEFINED)
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT   STDOUT_MACRO_DEFINED)
 
-        if(NOT ${MACRO_DEFINED})
+        if(NOT ${STDOUT_MACRO_DEFINED})
             add_definitions(-DRTE_CMSIS_Compiler_STDOUT)
         endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDOUT_Custom)
     endif()
 
     if(${ENABLE_STDERR})
-        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   MACRO_DEFINED)
+        CHECK_MACRO_DEF("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR   STDERR_MACRO_DEFINED)
 
-        if(NOT ${MACRO_DEFINED})
+        if(NOT ${STDERR_MACRO_DEFINED})
             add_definitions(-DRTE_CMSIS_Compiler_STDERR)
         endif()
         add_definitions(-DRTE_CMSIS_Compiler_STDERR_Custom)
