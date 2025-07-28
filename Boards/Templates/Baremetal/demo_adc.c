@@ -40,7 +40,7 @@
  *                P1_1(channel3)
  *                P1_2(channel4)
  *                P1_3(channel5)
- *              - GPIO port are reserved for ADC12 instance 2 input:
+ *              - GPIO port are reserved for ADC12 instance 2 input: (not supported in E1C)
  *                P1_4(channel0)
  *                P1_5(channel1)
  *                P1_6(channel2)
@@ -221,7 +221,7 @@ static int32_t board_adc_pins_config(void)
                 return ret;
             }
 
-            /* ADC122 channel 1 */
+            /* channel 1 */
             ret = pinconf_set(PORT_(BOARD_ADC12_CH1_GPIO_PORT),
                               BOARD_ADC12_CH1_GPIO_PIN,
                               PINMUX_ALTERNATE_FUNCTION_7,
@@ -231,7 +231,7 @@ static int32_t board_adc_pins_config(void)
                 return ret;
             }
 
-            /* ADC122 channel 2 */
+            /* channel 2 */
             ret = pinconf_set(PORT_(BOARD_ADC12_CH2_GPIO_PORT),
                               BOARD_ADC12_CH2_GPIO_PIN,
                               PINMUX_ALTERNATE_FUNCTION_7,
@@ -241,7 +241,7 @@ static int32_t board_adc_pins_config(void)
                 return ret;
             }
 
-            /* ADC122 channel 3 */
+            /* channel 3 */
             ret = pinconf_set(PORT_(BOARD_ADC12_CH3_GPIO_PORT),
                               BOARD_ADC12_CH3_GPIO_PIN,
                               PINMUX_ALTERNATE_FUNCTION_7,
@@ -251,7 +251,7 @@ static int32_t board_adc_pins_config(void)
                 return ret;
             }
 
-            /* ADC122 channel 4 */
+            /* channel 4 */
             ret = pinconf_set(PORT_(BOARD_ADC12_CH4_GPIO_PORT),
                               BOARD_ADC12_CH4_GPIO_PIN,
                               PINMUX_ALTERNATE_FUNCTION_7,
@@ -261,7 +261,7 @@ static int32_t board_adc_pins_config(void)
                 return ret;
             }
 
-            /* ADC122 channel 5 */
+            /* channel 5 */
             ret = pinconf_set(PORT_(BOARD_ADC12_CH5_GPIO_PORT),
                               BOARD_ADC12_CH5_GPIO_PIN,
                               PINMUX_ALTERNATE_FUNCTION_7,

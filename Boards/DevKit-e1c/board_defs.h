@@ -385,45 +385,45 @@
 
 // <o> "ADC12_CH0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH0_GPIO_PORT                       1
+#define BOARD_ADC12_CH0_GPIO_PORT                       0
 // <o> "ADC12_CH0" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH0_GPIO_PIN                        4
+#define BOARD_ADC12_CH0_GPIO_PIN                        0
 
 // <o> "ADC12_CH1" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH1_GPIO_PORT                       1
+#define BOARD_ADC12_CH1_GPIO_PORT                       0
 // <o> "ADC12_CH1" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH1_GPIO_PIN                        5
+#define BOARD_ADC12_CH1_GPIO_PIN                        1
 
 // <o> "ADC12_CH2" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH2_GPIO_PORT                       1
+#define BOARD_ADC12_CH2_GPIO_PORT                       0
 // <o> "ADC12_CH2" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH2_GPIO_PIN                        6
+#define BOARD_ADC12_CH2_GPIO_PIN                        2
 
 // <o> "ADC12_CH3" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH3_GPIO_PORT                       1
+#define BOARD_ADC12_CH3_GPIO_PORT                       0
 // <o> "ADC12_CH3" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH3_GPIO_PIN                        7
+#define BOARD_ADC12_CH3_GPIO_PIN                        3
 
 // <o> "ADC12_CH4" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH4_GPIO_PORT                       2
+#define BOARD_ADC12_CH4_GPIO_PORT                       0
 // <o> "ADC12_CH4" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH4_GPIO_PIN                        0
+#define BOARD_ADC12_CH4_GPIO_PIN                        4
 
 // <o> "ADC12_CH5" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO
-#define BOARD_ADC12_CH5_GPIO_PORT                       2
+#define BOARD_ADC12_CH5_GPIO_PORT                       0
 // <o> "ADC12_CH5" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5 <6=>
 // PIN6 <7=> PIN7
-#define BOARD_ADC12_CH5_GPIO_PIN                        1
+#define BOARD_ADC12_CH5_GPIO_PIN                        5
 
 // <o> "ADC24_CH0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <15=> LPGPIO

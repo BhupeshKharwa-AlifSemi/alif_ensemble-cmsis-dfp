@@ -22,13 +22,13 @@
  *              - Converted digital value are stored in user provided memory
  *                address.
  *              ADC configurations for Demo testApp:
- *              Single channel scan(Default scan ADC12)
+ *              Single channel scan(Default scan ADC12) (For E1C P0_0)
  *              - GPIO pin P1_4 are connected to Regulated DC Power supply.
  *                DC Power supply:
- *                - +ve connected to P1_4 (ADC2 channel 0) at 1.0V
+ *                - +ve connected to P1_4 (ADC122 channel 0) at 1.0V
  *                - -ve connect to GND.
  *              Differential input
- *              -ADC12
+ *              -ADC12 (For E1C P0_0 and P0_4)
  *                GPIO pin P1_4 and P1_5 are connected to Regulated DC Power supply.
  *                2 channel DC Power supply:
  *                - +ve connected to P1_4 (ADC122 channel 0) at 1.0V and
@@ -83,8 +83,8 @@ ARM_DRIVER_UTIMER       *ptrUTIMER = &Driver_UTIMER0;
 
 #if (ADC_INSTANCE == ADC_12)
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC  ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
-static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
+extern ARM_DRIVER_ADC  ARM_Driver_ADC12(BOARD_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *ADCdrv = &ARM_Driver_ADC12(BOARD_ADC12_INSTANCE);
 #else
 /* Instance for ADC24 */
 extern ARM_DRIVER_ADC  Driver_ADC24;
@@ -112,7 +112,7 @@ static int32_t board_adc_pins_config(void)
     int32_t ret = 0U;
 
     if (ADC_INSTANCE == ADC_12) {
-        /* ADC122 channel 0 */
+        /* channel 0 */
         ret = pinconf_set(PORT_(BOARD_ADC12_CH0_GPIO_PORT),
                           BOARD_ADC12_CH0_GPIO_PIN,
                           PINMUX_ALTERNATE_FUNCTION_7,
@@ -124,7 +124,7 @@ static int32_t board_adc_pins_config(void)
     }
 
     if (ADC_INSTANCE == ADC_24) {
-        /* ADC24 channel 0 */
+        /* channel 0 */
         ret = pinconf_set(PORT_(BOARD_ADC24_CH0_POS_GPIO_PORT),
                           BOARD_ADC24_CH0_POS_GPIO_PIN,
                           PINMUX_ALTERNATE_FUNCTION_7,
@@ -133,7 +133,7 @@ static int32_t board_adc_pins_config(void)
             printf("ERROR: Failed to configure PINMUX \r\n");
             return ret;
         }
-        /* ADC24 channel 0 */
+        /* channel 0 */
         ret = pinconf_set(PORT_(BOARD_ADC24_CH0_NEG_GPIO_PORT),
                           BOARD_ADC24_CH0_NEG_GPIO_PIN,
                           PINMUX_ALTERNATE_FUNCTION_7,

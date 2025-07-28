@@ -50,8 +50,8 @@
 #define ADC_CONVERSION ARM_ADC_SINGLE_SHOT_CH_CONV
 
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC  Driver_ADC122;
-static ARM_DRIVER_ADC *ADCdrv = &Driver_ADC122;
+extern ARM_DRIVER_ADC  Driver_ADC120;
+static ARM_DRIVER_ADC *ADCdrv = &Driver_ADC120;
 
 #define TEMPERATURE_SENSOR ARM_ADC_CHANNEL_6
 #define NUM_CHANNELS       (8)

@@ -22,7 +22,7 @@
  *              - Converted digital value are stored in user provided memory
  *                address.
  *              ADC configurations for Demo testApp:
- *              Single channel scan(Default scan)
+ *              Single channel scan(Default scan) (For E1C use pin P0_0)
  *              - GPIO pin P1_4 are connected to Regulated DC Power supply.
  *                DC Power supply:
  *                - +ve connected to P1_4 (ADC2 channel 0) at 1.0V
@@ -78,8 +78,8 @@ ARM_DRIVER_UTIMER       *pxUTIMERDrv = &Driver_UTIMER0;
 
 #if (ADC_INSTANCE == ADC12)
 /* Instance for ADC12 */
-extern ARM_DRIVER_ADC  ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
-static ARM_DRIVER_ADC *pxADCDrv = &ARM_Driver_ADC12(BOARD_P1_4_ADC12_INSTANCE);
+extern ARM_DRIVER_ADC  ARM_Driver_ADC12(BOARD_ADC12_INSTANCE);
+static ARM_DRIVER_ADC *pxADCDrv = &ARM_Driver_ADC12(BOARD_ADC12_INSTANCE);
 #else
 /* Instance for ADC24 */
 extern ARM_DRIVER_ADC  Driver_ADC24;
