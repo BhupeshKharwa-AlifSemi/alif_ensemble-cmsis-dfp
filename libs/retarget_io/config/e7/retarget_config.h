@@ -29,6 +29,7 @@ extern "C" {
 #include "pinconf.h"
 #include "RTE_Device.h"
 
+#define LP                            8
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
 
 // <o PRINTF_UART_CONSOLE> UART Console
@@ -41,7 +42,7 @@ extern "C" {
 //     <5=>   UART5
 //     <6=>   UART6
 //     <7=>   UART7
-//     <LP=>  LPUART
+//     <8=>   LPUART
 // <i> Default: 4
 #define PRINTF_UART_CONSOLE           4
 
@@ -50,20 +51,23 @@ extern "C" {
 // <i> Default: 115200
 #define PRINTF_UART_CONSOLE_BAUD_RATE 115200
 
-/* UART Related Macros */
-#if (PRINTF_UART_CONSOLE == LP)
-#define _UART_BLOCKING_(n) RTE_##n##UART_BLOCKING_MODE_ENABLE
-#else
-#define _UART_BLOCKING_(n) RTE_UART##n##_BLOCKING_MODE_ENABLE
-#endif
-
 #define UART_BLOCKING(n) _UART_BLOCKING_(n)
 #define STR(x)           #x
 #define XSTR(x)          STR(x)
 
+/* UART Related Macros */
+#if (PRINTF_UART_CONSOLE == LP)
+#define _UART_BLOCKING_(n) RTE_LPUART_BLOCKING_MODE_ENABLE
+#elif ((PRINTF_UART_CONSOLE >= 0) && (PRINTF_UART_CONSOLE <= 7))
+#define _UART_BLOCKING_(n) RTE_UART##n##_BLOCKING_MODE_ENABLE
+#else
+#pragma message("UART" XSTR(PRINTF_UART_CONSOLE) " NOT AVAILABLE")
+#error "SELECTED UART IS NOT CORRECT"
+#endif
+
 #if (UART_BLOCKING(PRINTF_UART_CONSOLE) == 0)
 #if (PRINTF_UART_CONSOLE == LP)
-#pragma message("Selected UART : " XSTR(PRINTF_UART_CONSOLE) "UART")
+#pragma message("Selected UART : LPUART")
 #else
 #pragma message("Selected UART : UART" XSTR(PRINTF_UART_CONSOLE))
 #endif
