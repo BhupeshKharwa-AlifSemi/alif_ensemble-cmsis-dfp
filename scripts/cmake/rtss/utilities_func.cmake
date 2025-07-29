@@ -220,6 +220,11 @@ macro (BUILD_PROJECT)
     # Adding executable file name
     add_executable (${EXECUTABLE} ${testsourcefile}  ${addonsourcefiles})
 
+    if (COMPILER STREQUAL GCC)
+        target_link_options(${EXECUTABLE} PRIVATE -Wl,--whole-archive -Wl,--start-group)
+        target_link_libraries(${EXECUTABLE} PRIVATE   -Wl,--whole-archive    PRIVATE     ${COMMON_LIB}   -Wl,--no-whole-archive)
+    endif()
+
     if (OS STREQUAL FREERTOS)
 
         # Linking all the library files to the test application
@@ -245,8 +250,8 @@ macro (BUILD_PROJECT)
 
         target_link_options(${EXECUTABLE} PRIVATE  -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
         target_link_libraries(${EXECUTABLE} PRIVATE m)
+        target_link_options(${EXECUTABLE} PRIVATE -Wl,--end-group -Wl,--no-whole-archive)
         set_target_properties(${EXECUTABLE} PROPERTIES OUTPUT_NAME ${EXECUTABLE}.elf)
-        target_link_libraries(${EXECUTABLE} PRIVATE   -Wl,--whole-archive    PRIVATE     ${COMMON_LIB}   -Wl,--no-whole-archive)
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
