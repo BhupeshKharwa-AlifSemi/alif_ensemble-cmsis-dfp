@@ -746,7 +746,7 @@ extern "C" {
 #define LPI3C_DMA_RX_PERIPH_REQ     20
 #define LPI3C_DMA_TX_PERIPH_REQ     21
 #define LPI3C_DMA_GROUP             1
-#define LPI3C_DMA_HANDSHAKE_ENABLE  0
+#define LPI3C_DMA_HANDSHAKE_ENABLE  1
 
 #define LPGPIO_DMA                  2
 #define LPGPIO_DMA_PIN0_PERIPH_REQ  24

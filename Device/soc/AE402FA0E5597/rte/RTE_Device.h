@@ -1787,12 +1787,6 @@
 #define RTE_LPI3C_DMA_ENABLE 0
 
 #if RTE_LPI3C_DMA_ENABLE
-// <o> LPI3C DMA Selection
-//    <0=> DMA2(M55-HE)
-//    <1=> DMA0
-// <i> Defines Select DMA0 for LPI3C. By default DMA0 will be considered
-// <i> Default: DMA0
-#define RTE_LPI3C_SELECT_DMA0 1
 
 // <o> LPI3C DMA IRQ priority <0-255>
 // <i> Defines LPI3C DMA Interrupt priority
