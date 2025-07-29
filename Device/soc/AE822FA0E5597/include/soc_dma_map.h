@@ -740,7 +740,7 @@ extern "C" {
 #define LPI2C1_DMA_RX_PERIPH_REQ    10
 #define LPI2C1_DMA_TX_PERIPH_REQ    11
 #define LPI2C1_DMA_GROUP            1
-#define LPI2C1_DMA_HANDSHAKE_ENABLE 0
+#define LPI2C1_DMA_HANDSHAKE_ENABLE 1
 
 #define LPI3C_DMA                   2
 #define LPI3C_DMA_RX_PERIPH_REQ     20

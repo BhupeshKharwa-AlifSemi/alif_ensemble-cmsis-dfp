@@ -9125,13 +9125,6 @@
 #define RTE_LPI2C1_DMA_ENABLE        0
 #if RTE_LPI2C1_DMA_ENABLE
 
-// <o> LPI2C1 DMA Selection
-//    <0=> DMA2(M55-HE)
-//    <1=> DMA0
-// <i> Defines Select DMA0 for LPI2C1. By default DMA0 will be considered
-// <i> Default: DMA0
-#define RTE_LPI2C1_SELECT_DMA0 1
-
 // <o> LPI2C1 DMA IRQ priority <0-255>
 // <i> Defines LPI2C1 DMA Interrupt priority
 // <i> Default: 0
