@@ -86,7 +86,7 @@ int stdin_init(void)
 
     /*Initialize the USART driver */
     /* RX PIN */
-    ret         = pinconf_set(PRINTF_UART_CONSOLE_PORT_NUM,
+    ret         = pinconf_set(PRINTF_UART_CONSOLE_RX_PORT_NUM,
                       PRINTF_UART_CONSOLE_RX_PIN,
                       PRINTF_UART_CONSOLE_RX_PINMUX_FUNCTION,
                       PRINTF_UART_CONSOLE_RX_PADCTRL);

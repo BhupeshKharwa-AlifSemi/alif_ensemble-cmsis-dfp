@@ -86,7 +86,7 @@ int stdout_init(void)
     /*Initialize the USART driver */
 
     /* TX_PIN */
-    ret         = pinconf_set(PRINTF_UART_CONSOLE_PORT_NUM,
+    ret         = pinconf_set(PRINTF_UART_CONSOLE_TX_PORT_NUM,
                       PRINTF_UART_CONSOLE_TX_PIN,
                       PRINTF_UART_CONSOLE_TX_PINMUX_FUNCTION,
                       PRINTF_UART_CONSOLE_TX_PADCTRL);
