@@ -73,6 +73,25 @@ macro (GET_MACRO_VALUE    headerFileName      macro_name      macro_val)
 
 endmacro ()
 
+# MACRO GET_MACRO_STR_VALUE to get macro value (integer value 0-9)
+# argv[0] - header file name with path
+# argv[1] - marco name which will be searched
+# argv[2] - macro value (some string) which will read for given macro name
+macro (GET_MACRO_STR_VALUE    headerFileName      macro_name      macro_val)
+
+    file (STRINGS ${headerFileName}  file_content)
+
+    FOREACH(arg ${file_content})
+        string(REGEX MATCHALL "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]*.*" foundDefines "${arg}")
+
+        if (foundDefines)
+            string(REGEX MATCH "^[ \t]*#(define|DEFINE)[ \t]+${macro_name}[ \t]+([A-Za-z_][A-Za-z0-9_]*)" _ "${foundDefines}")
+            set(${macro_val}     ${CMAKE_MATCH_2})
+        endif (foundDefines)
+    endforeach()
+
+endmacro ()
+
 # MACRO CHECK_MACRO_DEF to see macro is defined or not
 # argv[0] - header file content
 # argv[1] - marco name which will be searched
