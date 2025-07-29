@@ -29,7 +29,6 @@ extern "C" {
 #include "pinconf.h"
 #include "RTE_Device.h"
 
-#define LP                            8
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
 
 // <o PRINTF_UART_CONSOLE> UART Console
@@ -42,7 +41,7 @@ extern "C" {
 //     <5=>   UART5
 //     <6=>   UART6
 //     <7=>   UART7
-//     <8=>   LPUART
+//     <LP=>  LPUART
 // <i> Default: 4
 #define PRINTF_UART_CONSOLE           4
 
@@ -51,9 +50,9 @@ extern "C" {
 // <i> Default: 115200
 #define PRINTF_UART_CONSOLE_BAUD_RATE 115200
 
-#define UART_BLOCKING(n) _UART_BLOCKING_(n)
 #define STR(x)           #x
 #define XSTR(x)          STR(x)
+#define LP               8
 
 /* UART Related Macros */
 #if (PRINTF_UART_CONSOLE == LP)
@@ -65,6 +64,8 @@ extern "C" {
 #error "SELECTED UART IS NOT CORRECT"
 #endif
 
+#define UART_BLOCKING(n) _UART_BLOCKING_(n)
+
 #if (UART_BLOCKING(PRINTF_UART_CONSOLE) == 0)
 #if (PRINTF_UART_CONSOLE == LP)
 #pragma message("Selected UART : LPUART")
@@ -72,8 +73,11 @@ extern "C" {
 #pragma message("Selected UART : UART" XSTR(PRINTF_UART_CONSOLE))
 #endif
 
+#pragma message("NEED TO ENABLE FLAG: " XSTR(UART_BLOCKING(PRINTF_UART_CONSOLE)))
+
 #error                                                                                             \
-    " ***** [RETARGET-FAILED] POLLING MODE IS NOT ENABLED (Enable Polling mode in RTE_Device.h) !!! ****** \n"
+    " ***** [RETARGET-FAILED] POLLING MODE IS NOT ENABLED (Enable Polling mode in RTE_Device.h)"   \
+    " !!! ****** \n"
 #endif
 
 #if (PRINTF_UART_CONSOLE == LP) /* Instance B */
@@ -149,6 +153,8 @@ extern "C" {
 #define PRINTF_UART_CONSOLE_RX_PADCTRL         PADCTRL_READ_ENABLE
 #define PRINTF_UART_CONSOLE_TX_PADCTRL         0
 #endif /* PRINTF_UART_CONSOLE */
+
+#undef LP
 
 #ifdef __cplusplus
 }
