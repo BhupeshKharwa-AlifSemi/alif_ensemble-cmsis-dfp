@@ -1268,74 +1268,77 @@ int main(void)
     }
 
 #ifdef BOARD_BASIC_MODE_UTIMER_INSTANCE
-        /* Create application main thread */
-        xReturned = xTaskCreate(utimer_basic_mode_app,
-                                "utimer_basic_mode_app",
-                                256,
-                                NULL,
-                                configMAX_PRIORITIES - 1,
-                                &utimer_basic_xHandle);
-        if (xReturned != pdPASS) {
-            vTaskDelete(utimer_basic_xHandle);
-            return -1;
-        }
+    /* Create application main thread */
+    xReturned = xTaskCreate(utimer_basic_mode_app,
+                            "utimer_basic_mode_app",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 1,
+                            &utimer_basic_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(utimer_basic_xHandle);
+        return -1;
+    }
 #endif
 
 #ifdef BOARD_BUFFER_MODE_UTIMER_INSTANCE
-        /* Create application main thread */
-        xReturned = xTaskCreate(utimer_buffering_mode_app,
-                                "utimer_buffering_mode_app",
-                                256,
-                                NULL,
-                                configMAX_PRIORITIES - 1,
-                                &utimer_buffer_xHandle);
-        if (xReturned != pdPASS) {
-            vTaskDelete(utimer_buffer_xHandle);
-            return -1;
-        }
+    /* Create application main thread */
+    xReturned = xTaskCreate(utimer_buffering_mode_app,
+                            "utimer_buffering_mode_app",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 1,
+                            &utimer_buffer_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(utimer_buffer_xHandle);
+        return -1;
+    }
 #endif
 
 #ifdef BOARD_TRIGGER_MODE_UTIMER_INSTANCE
-        /* Create application main thread */
-        xReturned = xTaskCreate(utimer_trigger_mode_app,
-                                "utimer_trigger_mode_app",
-                                256,
-                                NULL,
-                                configMAX_PRIORITIES - 1,
-                                &utimer_trigger_xHandle);
-        if (xReturned != pdPASS) {
-            vTaskDelete(utimer_trigger_xHandle);
-            return -1;
-        }
+    /* Create application main thread */
+    xReturned = xTaskCreate(utimer_trigger_mode_app,
+                            "utimer_trigger_mode_app",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 1,
+                            &utimer_trigger_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(utimer_trigger_xHandle);
+        return -1;
+    }
 #endif
 
 #ifdef BOARD_CAPTURE_MODE_UTIMER_INSTANCE
-        /* Create application main thread */
-        xReturned = xTaskCreate(utimer_capture_mode_app,
-                                "utimer_capture_mode_app",
-                                256,
-                                NULL,
-                                configMAX_PRIORITIES - 1,
-                                &utimer_capture_xHandle);
-        if (xReturned != pdPASS) {
-            vTaskDelete(utimer_capture_xHandle);
-            return -1;
-        }
+    /* Create application main thread */
+    xReturned = xTaskCreate(utimer_capture_mode_app,
+                            "utimer_capture_mode_app",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 1,
+                            &utimer_capture_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(utimer_capture_xHandle);
+        return -1;
+    }
 #endif
 
 #ifdef BOARD_COMPARE_MODE_UTIMER_INSTANCE
-        /* Create application main thread */
-        xReturned = xTaskCreate(utimer_compare_mode_app,
-                                "utimer_compare_mode_app",
-                                256,
-                                NULL,
-                                configMAX_PRIORITIES - 1,
-                                &utimer_compare_xHandle);
-        if (xReturned != pdPASS) {
-            vTaskDelete(utimer_compare_xHandle);
-            return -1;
-        }
+    /* Create application main thread */
+    xReturned = xTaskCreate(utimer_compare_mode_app,
+                            "utimer_compare_mode_app",
+                            256,
+                            NULL,
+                            configMAX_PRIORITIES - 1,
+                            &utimer_compare_xHandle);
+    if (xReturned != pdPASS) {
+        vTaskDelete(utimer_compare_xHandle);
+        return -1;
+    }
 #endif
+
+    /* release semaphore */
+    xSemaphoreGive(utimer_sem);
 
     /* Start thread execution */
     vTaskStartScheduler();
