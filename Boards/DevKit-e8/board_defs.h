@@ -1425,204 +1425,204 @@
 // <o> baudrate for Microwire SPI
 #define BOARD_MW_SPI_MASTER_BUS_SPEED                   1000000
 
-// <o>  "LPSPI_MISO_A" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o>  "LPSPI_MISO" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_LPSPI_MISO_GPIO_PORT                      7
-// <o> "LPSPI_MISO_A" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "LPSPI_MISO" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_LPSPI_MISO_GPIO_PIN                       4
-// <o> "LPSPI_MISO_A" GPIO pin alternate function <0-7>
+// <o> "LPSPI_MISO" GPIO pin alternate function <0-7>
 #define BOARD_LPSPI_MISO_ALTERNATE_FUNCTION             4
 
-// <o>  "LPSPI_MOSI_A" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o>  "LPSPI_MOSI" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_LPSPI_MOSI_GPIO_PORT                      7
-// <o> "LPSPI_MOSI_A" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "LPSPI_MOSI" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_LPSPI_MOSI_GPIO_PIN                       5
-// <o> "LPSPI_MOSI_A" GPIO pin alternate function <0-7>
+// <o> "LPSPI_MOSI" GPIO pin alternate function <0-7>
 #define BOARD_LPSPI_MOSI_ALTERNATE_FUNCTION             5
 
-// <o>  "LPSPI_SCLK_A" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o>  "LPSPI_SCLK" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_LPSPI_SCLK_GPIO_PORT                      7
-// <o> "LPSPI_SCLK_A" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "LPSPI_SCLK" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_LPSPI_SCLK_GPIO_PIN                       6
-// <o> "LPSPI_SCLK_A" GPIO pin alternate function <0-7>
+// <o> "LPSPI_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_LPSPI_SCLK_ALTERNATE_FUNCTION             5
 
-// <o>  "LPSPI_SS_A" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o>  "LPSPI_SS" master GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_LPSPI_SS_GPIO_PORT                        7
-// <o> "LPSPI_SS_A" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "LPSPI_SS" masterGPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_LPSPI_SS_GPIO_PIN                         7
-// <o> "LPSPI_SS_A" GPIO pin alternate function <0-7>
+// <o> "LPSPI_SS" GPIO pin alternate function <0-7>
 #define BOARD_LPSPI_SS_ALTERNATE_FUNCTION               5
 
-// <o> "SPI0_MISO_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI0_MISO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_SPI0_MISO_GPIO_PORT                       5
-// <o>  "SPI0_MISO_B"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+#define BOARD_SPI0_MISO_GPIO_PORT                       1
+// <o>  "SPI0_MISO"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI0_MISO_GPIO_PIN                        0
-// <o> "SPI0_MISO_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_MISO_ALTERNATE_FUNCTION              4
+// <o> "SPI0_MISO" GPIO pin alternate function <0-7>
+#define BOARD_SPI0_MISO_ALTERNATE_FUNCTION              2
 
-// <o> "SPI0_MOSI_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI0_MOSI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_SPI0_MOSI_GPIO_PORT                       5
-// <o> "SPI0_MOSI_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+#define BOARD_SPI0_MOSI_GPIO_PORT                       1
+// <o> "SPI0_MOSI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI0_MOSI_GPIO_PIN                        1
-// <o> "SPI0_MOSI_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_MOSI_ALTERNATE_FUNCTION              4
+// <o> "SPI0_MOSI" GPIO pin alternate function <0-7>
+#define BOARD_SPI0_MOSI_ALTERNATE_FUNCTION              2
 
-// <o> "SPI0_SCLK_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI0_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_SPI0_SCLK_GPIO_PORT                       5
-// <o> "SPI0_SCLK_B" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
+#define BOARD_SPI0_SCLK_GPIO_PORT                       1
+// <o> "SPI0_SCLK" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
 // <5=> PIN5 <6=> PIN6 <7=> PIN7
-#define BOARD_SPI0_SCLK_GPIO_PIN                        3
-// <o> "SPI0_SCLK_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_SCLK_ALTERNATE_FUNCTION              3
+#define BOARD_SPI0_SCLK_GPIO_PIN                        2
+// <o> "SPI0_SCLK" GPIO pin alternate function <0-7>
+#define BOARD_SPI0_SCLK_ALTERNATE_FUNCTION              2
 
-// <o> "SPI0_SS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI0_SS0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
-#define BOARD_SPI0_SS0_GPIO_PORT                        5
-// <o> "SPI0_SS0_B"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+#define BOARD_SPI0_SS0_GPIO_PORT                        1
+// <o> "SPI0_SS0"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
-#define BOARD_SPI0_SS0_GPIO_PIN                         2
-// <o> "SPI0_SS0_B" GPIO pin alternate function <0-7>
-#define BOARD_SPI0_SS0_ALTERNATE_FUNCTION               4
+#define BOARD_SPI0_SS0_GPIO_PIN                         3
+// <o> "SPI0_SS0" GPIO pin alternate function <0-7>
+#define BOARD_SPI0_SS0_ALTERNATE_FUNCTION               2
 
-// <o> "SPI1_MISO_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI1_MISO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_SPI1_MISO_GPIO_PORT                       8
-// <o>  "SPI1_MISO_B"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+// <o>  "SPI1_MISO"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI1_MISO_GPIO_PIN                        3
-// <o> "SPI1_MISO_B" GPIO pin alternate function <0-7>
+// <o> "SPI1_MISO" GPIO pin alternate function <0-7>
 #define BOARD_SPI1_MISO_ALTERNATE_FUNCTION              2
 
-// <o> "SPI1_MOSI_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI1_MOSI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_SPI1_MOSI_GPIO_PORT                       8
-// <o> "SPI1_MOSI_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+// <o> "SPI1_MOSI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI1_MOSI_GPIO_PIN                        4
-// <o> "SPI1_MOSI_B" GPIO pin alternate function <0-7>
+// <o> "SPI1_MOSI" GPIO pin alternate function <0-7>
 #define BOARD_SPI1_MOSI_ALTERNATE_FUNCTION              2
 
-// <o> "SPI1_SCLK_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI1_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_SPI1_SCLK_GPIO_PORT                       8
-// <o> "SPI1_SCLK_B" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
+// <o> "SPI1_SCLK" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
 // <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_SPI1_SCLK_GPIO_PIN                        5
-// <o> "SPI1_SCLK_B" GPIO pin alternate function <0-7>
+// <o> "SPI1_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_SPI1_SCLK_ALTERNATE_FUNCTION              2
 
-// <o> "SPI1_SS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
+// <o> "SPI1_SS0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
 // GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12 <13=>
 // GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_SPI1_SS0_GPIO_PORT                        6
-// <o> "SPI1_SS0_B"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
+// <o> "SPI1_SS0"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=> PIN5
 // <6=> PIN6 <7=> PIN7
 #define BOARD_SPI1_SS0_GPIO_PIN                         4
-// <o> "SPI1_SS0_B" GPIO pin alternate function <0-7>
+// <o> "SPI1_SS0" GPIO pin alternate function <0-7>
 #define BOARD_SPI1_SS0_ALTERNATE_FUNCTION               4
 
-// <o> "MW_SPI_MASTER_MISO_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o> "MW_SPI_MASTER_MISO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_MASTER_MISO_GPIO_PORT              9
-// <o>  "MW_SPI_MASTER_MISO_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
+// <o>  "MW_SPI_MASTER_MISO" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4
 // <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_MASTER_MISO_GPIO_PIN               2
-// <o> "MW_SPI_MASTER_MISO_B" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_MASTER_MISO" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_MASTER_MISO_ALTERNATE_FUNCTION     3
 
-// <o> "MW_SPI_MASTER_MOSI_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o> "MW_SPI_MASTER_MOSI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_MASTER_MOSI_GPIO_PORT              9
-// <o> "MW_SPI_MASTER_MOSI_B" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "MW_SPI_MASTER_MOSI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_MASTER_MOSI_GPIO_PIN               3
-// <o> "MW_SPI_MASTER_MOSI_B" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_MASTER_MOSI" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_MASTER_MOSI_ALTERNATE_FUNCTION     4
 
-// <o> "MW_SPI_MASTER_SCLK_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
+// <o> "MW_SPI_MASTER_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=>
 // GPIO4 <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=>
 // GPIO12 <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_MASTER_SCLK_GPIO_PORT              9
-// <o> "MW_SPI_MASTER_SCLK_B" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=>
+// <o> "MW_SPI_MASTER_SCLK" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=>
 // PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_MASTER_SCLK_GPIO_PIN               4
-// <o> "MW_SPI_MASTER_SCLK_B" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_MASTER_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_MASTER_SCLK_ALTERNATE_FUNCTION     3
 
-// <o> "MW_SPI_MASTER_SS0_B" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o> "MW_SPI_MASTER_SS0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_MASTER_SS0_GPIO_PORT               9
-// <o> "MW_SPI_MASTER_SS0_B"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "MW_SPI_MASTER_SS0"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_MASTER_SS0_GPIO_PIN                5
-// <o> "MW_SPI_MASTER_SS0_B" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_MASTER_SS0" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_MASTER_SS0_ALTERNATE_FUNCTION      3
 
-// <o> "MW_SPI_SLAVE_MISO_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o> "MW_SPI_SLAVE_MISO" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_SLAVE_MISO_GPIO_PORT               12
-// <o>  "MW_SPI_SLAVE_MISO_A"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o>  "MW_SPI_SLAVE_MISO"GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_SLAVE_MISO_GPIO_PIN                4
-// <o> "MW_SPI_SLAVE_MISO_A" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_SLAVE_MISO" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_SLAVE_MISO_ALTERNATE_FUNCTION      2
 
-// <o> "MW_SPI_SLAVE_MOSI_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o> "MW_SPI_SLAVE_MOSI" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_SLAVE_MOSI_GPIO_PORT               12
-// <o> "MW_SPI_SLAVE_MOSI_A" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "MW_SPI_SLAVE_MOSI" GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_SLAVE_MOSI_GPIO_PIN                5
-// <o> "MW_SPI_SLAVE_MOSI_A" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_SLAVE_MOSI" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_SLAVE_MOSI_ALTERNATE_FUNCTION      2
 
-// <o> "MW_SPI_SLAVE_SCLK_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o> "MW_SPI_SLAVE_SCLK" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_SLAVE_SCLK_GPIO_PORT               12
-// <o> "MW_SPI_SLAVE_SCLK_A" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=>
+// <o> "MW_SPI_SLAVE_SCLK" SPI slave GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=>
 // PIN4 <5=> PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_SLAVE_SCLK_GPIO_PIN                6
-// <o> "MW_SPI_SLAVE_SCLK_A" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_SLAVE_SCLK" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_SLAVE_SCLK_ALTERNATE_FUNCTION      2
 
-// <o> "MW_SPI_SLAVE_SS0_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
+// <o> "MW_SPI_SLAVE_SS0" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4
 // <5=> GPIO5 <6=> GPIO6 <7=> GPIO7 <8=> GPIO8 <9=> GPIO9 <10=> GPIO10 <11=> GPIO11 <12=> GPIO12
 // <13=> GPIO13 <14=> GPIO14 <15=> LPGPIO
 #define BOARD_MW_SPI_SLAVE_SS0_GPIO_PORT                12
-// <o> "MW_SPI_SLAVE_SS0_A"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
+// <o> "MW_SPI_SLAVE_SS0"  GPIO pin number <0=> PIN0 <1=> PIN1 <2=> PIN2 <3=> PIN3 <4=> PIN4 <5=>
 // PIN5 <6=> PIN6 <7=> PIN7
 #define BOARD_MW_SPI_SLAVE_SS0_GPIO_PIN                 7
-// <o> "MW_SPI_SLAVE_SS0_A" GPIO pin alternate function <0-7>
+// <o> "MW_SPI_SLAVE_SS0" GPIO pin alternate function <0-7>
 #define BOARD_MW_SPI_SLAVE_SS0_ALTERNATE_FUNCTION       3
 
 // <o> "LPUART_RX_A" GPIO port number <0=> GPIO0 <1=> GPIO1 <2=> GPIO2 <3=> GPIO3 <4=> GPIO4 <5=>
