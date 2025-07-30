@@ -101,9 +101,9 @@ else()
 endif()
 
 if(${RTSS} STREQUAL HE)
-    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_lpi2c.c           ENABLE_LPI2C       TEST_APP_SRCS   "test-apps")
+    COND_FILE_ADD(${BARE_METAL_APP_DIR}/demo_lpi2c0.c          ENABLE_LPI2C       TEST_APP_SRCS   "test-apps")
 else()
-    list(APPEND     RM_TEST_APPS_LIST   "demo_lpi2c")
+    list(APPEND     RM_TEST_APPS_LIST   "demo_lpi2c0")
 endif()
 
 if (NOT ${ENABLE_E1C_DEVKIT})
