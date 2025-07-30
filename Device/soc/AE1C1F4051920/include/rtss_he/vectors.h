@@ -52,7 +52,7 @@
 
 #define IRQ45_Handler LPUART_IRQHandler
 #define IRQ46_Handler LPSPI_IRQHandler
-#define IRQ47_Handler LPI2C_IRQHandler
+#define IRQ47_Handler LPI2C0_IRQHandler
 #define IRQ48_Handler LPI2S_IRQHandler
 #define IRQ49_Handler LPPDM_IRQHandler
 
