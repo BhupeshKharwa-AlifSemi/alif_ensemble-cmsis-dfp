@@ -388,7 +388,7 @@ int main(void)
     }
 #endif
     /* Enter the demo Application.  */
-    LPI2C_demo();
+    LPI2C0_demo();
 
     return 0;
 }
