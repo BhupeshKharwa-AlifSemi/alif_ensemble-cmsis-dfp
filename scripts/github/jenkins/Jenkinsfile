@@ -48,55 +48,56 @@ def buildDevice(deviceList) {
                         for comp in \${!CURR_COMPILER[@]} ; do
                             for bootType in \${!CURR_BOOT[@]} ; do
                                 for rtssType in \${!CURR_RTSS[@]} ; do
-									for brdName in \${!CURR_BOARDS[@]} ; do
-										devShortName="\${CURR_BOARDS[brdName]#*-}"
-										alifDevShortName="A\$(echo "\${devShortName}" | tr '[:lower:]' '[:upper:]')"
-										echo "Device : ${currentDev}, Board: \${CURR_BOARDS[brdName]}, ShortName:\${alifDevShortName}."
-										number_of_iter=\$((number_of_iter + 1))
+                                    for brdName in \${!CURR_BOARDS[@]} ; do
+                                        devShortName="\${CURR_BOARDS[brdName]#*-}"
+                                        alifDevShortName="A\$(echo "\${devShortName}" | tr '[:lower:]' '[:upper:]')"
+                                        echo "Device : ${currentDev}, Board: \${CURR_BOARDS[brdName]}, ShortName:\${alifDevShortName}."
+                                        number_of_iter=\$((number_of_iter + 1))
 
-										echo "🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱 # \${number_of_iter} starts 🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱"
-										if [[ "${currentDev}" == "\$alifDevShortName"* ]]; then
-											for osName in \${!CURR_OS[@]} ; do
-												echo "=================================================================================="
-												if [ -d build ]; then
-													echo -e "Deleting Build directory..."
-													rm -rf build
-												fi
+                                        echo "🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱 # \${number_of_iter} starts 🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱🧱"
+                                        if [[ "${currentDev}" == "\$alifDevShortName"* ]]; then
+                                            for osName in \${!CURR_OS[@]} ; do
+                                                echo "=================================================================================="
+                                                if [ -d build ]; then
+                                                    echo -e "Deleting Build directory..."
+                                                    rm -rf build
+                                                fi
 
-												total_cfg_run_cnt=\$((total_cfg_run_cnt + 1))
-												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}"
+                                                total_cfg_run_cnt=\$((total_cfg_run_cnt + 1))
+                                                echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}"
 
-												if [ "${currentDev}" = "AE1C1F4051920" ] && [ "\${CURR_RTSS[rtssType]}" = "HP" ]; then
-													echo -e "🚨 ${currentDev} does not have \${CURR_RTSS[rtssType]} subsystem"
-													skipped_cfg_run_cnt=\$((skipped_cfg_run_cnt + 1))
-													continue
-												fi
+                                                if [ "${currentDev}" = "AE1C1F4051920" ] && [ "\${CURR_RTSS[rtssType]}" = "HP" ]; then
+                                                    echo -e "🚨 ${currentDev} does not have \${CURR_RTSS[rtssType]} subsystem"
+                                                    skipped_cfg_run_cnt=\$((skipped_cfg_run_cnt + 1))
+                                                    continue
+                                                fi
 
-												actual_cfg_run_cnt=\$((actual_cfg_run_cnt + 1))
-												./run.sh -p \${CURR_COMPILER[comp]},\${CURR_COMPILER[comp]}_build,\${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
+                                                actual_cfg_run_cnt=\$((actual_cfg_run_cnt + 1))
+                                                ./run.sh -p \${CURR_COMPILER[comp]},\${CURR_COMPILER[comp]}_build,\${CURR_COMPILER[comp]}_build_test -c --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
 
-												tmp=\$?
-												if [[ "\$total_cmakeError" -eq -1 ]] ; then
-													total_cmakeError=\$tmp
-												else
-													total_cmakeError=\$((total_cmakeError + tmp))
-												fi
-												echo -e "🚫Error Status total_cmakeError: \$total_cmakeError and tmp: \$tmp"
-												if [ "\$tmp" -ne 0 ] ; then
-													fail_cfg_run_cnt=\$((fail_cfg_run_cnt + 1))
-												fi
+                                                tmp=\$?
+                                                if [[ "\$total_cmakeError" -eq -1 ]] ; then
+                                                    total_cmakeError=\$tmp
+                                                else
+                                                    total_cmakeError=\$((total_cmakeError + tmp))
+                                                fi
+
+                                                echo -e "🚫Error Status total_cmakeError: \$total_cmakeError and tmp: \$tmp"
+                                                if [ "\$tmp" -ne 0 ] ; then
+                                                    fail_cfg_run_cnt=\$((fail_cfg_run_cnt + 1))
+                                                fi
 
                                                 #CDC200
                                                 cdc200_run_cnt=\$((cdc200_run_cnt + 1))
-												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_cdc200"
+                                                echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_cdc200"
                                                 ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=OFF -DENABLE_MIPI_DSI_ILI9488E_PANEL=ON -DENABLE_CDC_ILI6122E_PANEL=OFF -DTEST_APP=demo_cdc200 --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
 
                                                 tmp=\$?
                                                 if [ "\$tmp" -ne 0 ] ; then
-													cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
+                                                    cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
                                                 else
                                                     cdc200_success_cnt=\$((cdc200_success_cnt + 1))
-												fi
+                                                fi
                                                 total_cmakeError=\$((total_cmakeError + tmp))
 
                                                 cdc200_run_cnt=\$((cdc200_run_cnt + 1))
@@ -105,32 +106,32 @@ def buildDevice(deviceList) {
                                                 tmp=\$?
 
                                                 if [ "\$tmp" -ne 0 ] ; then
-													cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
+                                                    cdc200_fail_cnt=\$((cdc200_fail_cnt + 1))
                                                 else
                                                     cdc200_success_cnt=\$((cdc200_success_cnt + 1))
-												fi
+                                                fi
                                                 total_cmakeError=\$((total_cmakeError + tmp))
 
                                                 #Parallel Display
                                                 parallel_dis_run_cnt=\$((parallel_dis_run_cnt + 1))
-												echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_parallel_display"
+                                                echo "🚩 Building for \${CURR_COMPILER[comp]}, ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, demo_parallel_display"
 
                                                 ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=OFF -DENABLE_MIPI_DSI_ILI9488E_PANEL=OFF -DENABLE_MIPI_DSI_CSI2_DPHY=OFF -DENABLE_MIPI_DSI=OFF -DTEST_APP=demo_parallel_display --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -b --clean-first
 
                                                 tmp=\$?
                                                 if [ "\$tmp" -ne 0 ] ; then
-													parallel_dis_fail_cnt=\$((parallel_dis_fail_cnt + 1))
+                                                    parallel_dis_fail_cnt=\$((parallel_dis_fail_cnt + 1))
                                                 else
                                                     parallel_dis_success_cnt=\$((parallel_dis_success_cnt + 1))
-												fi
+                                                fi
                                                 total_cmakeError=\$((total_cmakeError + tmp))
 
                                                 echo "=================================================================================="
-											done
-										fi
-										echo "🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩 # \${number_of_iter} ends 🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩"
-										echo -e ""
-									done
+                                            done
+                                        fi
+                                        echo "🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩 # \${number_of_iter} ends 🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩🧩"
+                                        echo -e ""
+                                    done
                                 done
                             done
                         done
@@ -150,7 +151,6 @@ def buildDevice(deviceList) {
                         echo -e " 🔥Total Run => (\$actual_cfg_run_cnt/\$total_cfg_run_cnt)"
                         collective_total_Error=\$((total_cmakeError))
                         exit \$collective_total_Error
-
                     """
 				}
 			}
@@ -320,7 +320,7 @@ pipeline {
                                 echo -e "🚫Error: VALIDATION_SCRIPT_DIR is null"
                             fi
 
-                            check_patch_output=$(./scripts/scripts/checkpatch.pl --patch *.patch  --ignore CODE_INDENT,TABS,C99_COMMENTS,OPEN_BRACE,LEADING_SPACE)
+                            check_patch_output=$(./scripts/scripts/checkpatch.pl --patch *.patch  --ignore CODE_INDENT,C99_COMMENTS,LEADING_SPACE)
                             echo -e "$check_patch_output"
                             check_patch_output_summary=$(echo "$check_patch_output" | grep "total:")
                             echo -e "$check_patch_output_summary"
