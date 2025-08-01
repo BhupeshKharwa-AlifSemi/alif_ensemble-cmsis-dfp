@@ -50,10 +50,10 @@
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
 
-#if defined(RTE_Compiler_IO_STDOUT)
+#if defined(RTE_CMSIS_Compiler_STDOUT)
 #include "retarget_init.h"
 #include "retarget_stdout.h"
-#endif /* RTE_Compiler_IO_STDOUT */
+#endif /* RTE_CMSIS_Compiler_STDOUT */
 
 #include "app_utils.h"
 
@@ -549,7 +549,7 @@ static void LPI2C0_demo(void)
  */
 int main(void)
 {
-#if defined(RTE_Compiler_IO_STDOUT_User)
+#if defined(RTE_CMSIS_Compiler_STDOUT_Custom)
     int32_t ret;
     ret = stdout_init();
     if (ret != ARM_DRIVER_OK) {
