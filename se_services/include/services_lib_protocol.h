@@ -58,10 +58,10 @@ extern "C" {
  *  M A C R O   D E F I N E S
  ******************************************************************************/
 /* See SERVICES documentation for change log */
-#define SE_SERVICES_VERSION_STRING    "0.50.6"
+#define SE_SERVICES_VERSION_STRING    "0.50.7"
 #define SE_SERVICES_VERSION_MAJOR     0
 #define SE_SERVICES_VERSION_MINOR     50
-#define SE_SERVICES_VERSION_PATCH     6
+#define SE_SERVICES_VERSION_PATCH     7
 
 #define IMAGE_NAME_LENGTH             8
 #define VERSION_RESPONSE_LENGTH       80

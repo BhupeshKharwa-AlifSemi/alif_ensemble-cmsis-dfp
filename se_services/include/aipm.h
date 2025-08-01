@@ -220,9 +220,9 @@ typedef enum {
  */
 typedef enum {
     MB_SRAM0_1 = 0, /**< MB_SRAM0 */
-    MB_SRAM0_2 = 0, /**< MB_SRAM0 */
-    MB_SRAM0_3 = 0, /**< MB_SRAM0 */
-    MB_SRAM0_4 = 0, /**< MB_SRAM0 */
+    MB_SRAM0_2, /**< MB_SRAM0 */
+    MB_SRAM0_3, /**< MB_SRAM0 */
+    MB_SRAM0_4, /**< MB_SRAM0 */
     MB_SRAM1,       /**< MB_SRAM1 */
     MB_SRAM2,       /**< MB_SRAM2 */
     MB_SRAM3,       /**< MB_SRAM3 */

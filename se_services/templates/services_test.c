@@ -1979,7 +1979,23 @@ static uint32_t test_services_get_bus_frequencies(char *p_test_name, uint32_t se
                                 &frequency,
                                 &service_error_code);
     TEST_print(services_handle, "APB frequency: %d\n", frequency);
+  SERVICES_clocks_set_divider(services_handle, DIVIDER_ACLK, 1, &service_error_code);
+  TEST_print(services_handle, "Reduced AXI frequency:\n");
 
+  SERVICES_clocks_setting_get(services_handle,
+                              CLOCK_SETTING_AXI_FREQ, &frequency,
+                              &service_error_code);
+  TEST_print(services_handle, "AXI frequency: %d\n", frequency);
+
+  SERVICES_clocks_setting_get(services_handle,
+                              CLOCK_SETTING_AHB_FREQ, &frequency,
+                              &service_error_code);
+  TEST_print(services_handle, "AHB frequency: %d\n", frequency);
+
+  SERVICES_clocks_setting_get(services_handle,
+                              CLOCK_SETTING_APB_FREQ, &frequency,
+                              &service_error_code);
+  TEST_print(services_handle, "APB frequency: %d\n", frequency);
     SERVICES_clocks_setting_get(services_handle,
                                 CLOCK_SETTING_SYSREF_FREQ,
                                 &frequency,
