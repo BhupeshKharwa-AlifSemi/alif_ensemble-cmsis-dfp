@@ -34,7 +34,7 @@
       - I2C Restart feature support
       - LPI3C, LPI2C, LPUTIMER, instance support for E8
       - OSPI HyperRAM XIP demo fixes
-      - SE Services updates to FWv106.
+      - SE Services updates to FWv107
       - WM8904 support
       - EMMC mode support in SD Driver
       - BMI323 Driver support
