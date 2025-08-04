@@ -8,7 +8,7 @@
   <license>License.txt</license>
 
   <releases>
-     <release version="2.0.0-rc5"  tag="v2.0.0-rc5" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0-rc5/AlifSemiconductor.Ensemble.2.0.0-rc5.pack" date="2025-07-28">
+     <release version="2.0.0"  tag="v2.0.0" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.0/AlifSemiconductor.Ensemble.2.0.0.pack" date="2025-08-04">
       - Add Cropping Support for CPI
       - Update E4 SOC part Numbers
       - Add High Speed mode in I2C
