@@ -36,7 +36,6 @@
 
 /* include for Pin Mux config */
 #include "pinconf.h"
-#include "Driver_IO.h"
 #include "board_config.h"
 #include "app_utils.h"
 
@@ -66,60 +65,7 @@
 unsigned char filebuffer[(SD_BLK_SIZE * NUM_BLK_TEST) + 1] __attribute__((section("sd_dma_buf")))
 __attribute__((aligned(512)));
 FATFS sd_card __attribute__((section("sd_dma_buf"))) __attribute__((aligned(512)));
-FIL   test_file;
-
-#ifdef BOARD_SD_RESET_GPIO_PORT
-extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
-
-/**
-  \fn           sd_reset(void)
-  \brief        Perform SD reset sequence
-  \return       none
-  */
-int sd_reset(void)
-{
-    int              status;
-    ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
-
-    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0);  // SD reset
-
-    status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to initialize SD RST GPIO\n");
-        return 1;
-    }
-    status = gpioSD_RST->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to powered full\n");
-        return 1;
-    }
-    status = gpioSD_RST->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to configure\n");
-        return 1;
-    }
-
-    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
-    }
-    sys_busy_loop_us(100);
-    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
-    }
-    sys_busy_loop_us(100);
-    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
-    }
-
-    return 0;
-}
-#endif
+FIL test_file;
 
 /**
   \fn           mySD_Thread_entry(unsigned long int args)
@@ -154,10 +100,9 @@ void SD_Baremetal_fatfs_test()
      */
 
 #ifdef BOARD_SD_RESET_GPIO_PORT
-    if (sd_reset()) {
-        printf("Error reseting SD interface..\n");
-        return;
-    }
+
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0); //SD reset
+
 #endif
 
     pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT),
@@ -250,7 +195,7 @@ void SD_Baremetal_fatfs_test()
 
     /* Check the file open status.  */
     if (fr) {
-        printf("File open status: %" PRId32 "\n", fr);
+        printf("File open status: %" PRIi16 "\n", fr);
         /* Error opening file, break the loop.  */
         WAIT_FOREVER_LOOP
     }
@@ -258,7 +203,7 @@ void SD_Baremetal_fatfs_test()
     printf("Writing Data in File...%s\n", FILE_WRITE_TEST);
     memset(filebuffer, '\0', sizeof(filebuffer));
 
-    for (int i = 0; i < SD_TEST_ITTR_CNT; i++) {
+    for (int32_t i = 0; i < SD_TEST_ITTR_CNT; i++) {
 
         memset(filebuffer, 'F', (SD_BLK_SIZE * NUM_BLK_TEST));
 
@@ -267,7 +212,7 @@ void SD_Baremetal_fatfs_test()
 
         /* Check the file write status.  */
         if (fr) {
-            printf("ittr: %" PRId32 " File write status: %" PRId32 "\n", i, fr);
+            printf("ittr: %" PRId32 " File write status: %" PRIi16 "\n", i, fr);
             break;
         }
     }

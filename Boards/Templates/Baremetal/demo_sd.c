@@ -27,7 +27,6 @@
 #include "sd.h"
 #include "pinconf.h"
 #include "board_config.h"
-#include "app_utils.h"
 
 #include "RTE_Components.h"
 #if defined(RTE_CMSIS_Compiler_STDOUT)
@@ -37,6 +36,7 @@
 #endif /* RTE_CMSIS_Compiler_STDOUT */
 #include "Driver_IO.h"
 #include "board_config.h"
+#include "app_utils.h"
 
 // Set to 0: Use application-defined SDC A revision pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
@@ -71,52 +71,32 @@ void sd_cb(uint16_t cmd_status, uint16_t xfer_status)
 extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
 /**
-  \fn           sd_reset(void)
+  \fn           sd_reset_cb(void)
   \brief        Perform SD reset sequence
   \return       none
   */
-int sd_reset(void)
+void sd_reset_cb(void)
 {
     int              status;
     ARM_DRIVER_GPIO *gpioSD_RST = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
 
-    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0);  // SD reset
-
-    status = gpioSD_RST->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to initialize SD RST GPIO\n");
-        return 1;
-    }
-    status = gpioSD_RST->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to powered full\n");
-        return 1;
-    }
-    status = gpioSD_RST->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to configure\n");
-        return 1;
-    }
-
-    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
-    }
-    sys_busy_loop_us(100);
     status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_LOW);
     if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
-    }
-    sys_busy_loop_us(100);
-    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
-    if (status != ARM_DRIVER_OK) {
-        printf("ERROR: Failed to toggle LEDs\n");
-        return 1;
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
     }
 
-    return 0;
+    sys_busy_loop_us(SDMMC_RESET_DELAY_US);
+
+    status = gpioSD_RST->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status != ARM_DRIVER_OK) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
+    }
+
+    return;
 }
 #endif
 
@@ -149,10 +129,40 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector)
      * in the board support library. Therefore, pins are configured manually here.
      */
 #ifdef BOARD_SD_RESET_GPIO_PORT
-    if (sd_reset()) {
-        printf("Error reseting SD interface..\n");
-        return;
+
+    uint32_t status;
+
+    pinconf_set(PORT_(BOARD_SD_RESET_GPIO_PORT), BOARD_SD_RESET_GPIO_PIN, 0, 0);  // SD reset
+
+    ARM_DRIVER_GPIO *sd_rst_gpio = &ARM_Driver_GPIO_(BOARD_SD_RESET_GPIO_PORT);
+
+    status = sd_rst_gpio->Initialize(BOARD_SD_RESET_GPIO_PIN, NULL);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to initialize SD RST GPIO\n");
+#endif
     }
+
+    status = sd_rst_gpio->PowerControl(BOARD_SD_RESET_GPIO_PIN, ARM_POWER_FULL);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to powered full\n");
+#endif
+    }
+
+    status = sd_rst_gpio->SetDirection(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_DIRECTION_OUTPUT);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to configure\n");
+#endif
+    }
+    status = sd_rst_gpio->SetValue(BOARD_SD_RESET_GPIO_PIN, GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (status) {
+#ifdef SDMMC_PRINT_ERR
+        printf("ERROR: Failed to toggle sd reset pin\n");
+#endif
+    }
+
 #endif
     pinconf_set(PORT_(BOARD_SD_CMD_A_GPIO_PORT),
                 BOARD_SD_CMD_A_GPIO_PIN,
@@ -207,6 +217,12 @@ void BareMetalSDTest(uint32_t startSec, uint32_t EndSector)
     sd_param.bus_width    = RTE_SDC_BUS_WIDTH;
     sd_param.dma_mode     = RTE_SDC_DMA_SELECT;
     sd_param.app_callback = sd_cb;
+
+#ifdef BOARD_SD_RESET_GPIO_PORT
+    sd_param.reset_cb     = sd_reset_cb;
+#else
+    sd_param.reset_cb     = 0;
+#endif
 
     if (p_SD_Driver->disk_initialize(&sd_param)) {
         printf("SD initialization failed...\n");
