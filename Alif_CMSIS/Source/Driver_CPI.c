@@ -122,12 +122,6 @@ static int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam
     /* Set the user callback event. */
     CPI_RES->cb_event = cb_event;
 
-    /* Call Camera Sensor specific init */
-    ret               = cam_sensor->ops->Init();
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
 #if (RTE_MIPI_CSI2)
     /*Initializing MIPI CSI2 if the sensor is MIPI CSI2 sensor*/
     ret = Driver_MIPI_CSI2.Initialize(ARM_MIPI_CSI2_Event_Callback);
@@ -163,6 +157,7 @@ static int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *c
 {
     int32_t ret = ARM_DRIVER_OK;
 
+    ARG_UNUSED(camera_sensor);
     if (CPI_RES->status.initialized == 0) {
         /* Driver is uninitialized */
         return ARM_DRIVER_OK;
@@ -172,9 +167,6 @@ static int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *c
         /* Driver is not powered off */
         return ARM_DRIVER_ERROR;
     }
-
-    /* Call Camera Sensor specific uninit */
-    camera_sensor->ops->Uninit();
 
 #if (RTE_MIPI_CSI2)
     /*Uninitializing MIPI CSI2 if the sensor is MIPI CSI2 sensor*/
@@ -199,6 +191,9 @@ static int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *c
 static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
 {
     int32_t ret = ARM_DRIVER_OK;
+    CAMERA_SENSOR_DEVICE *camera_sensor;
+
+    camera_sensor = Get_Camera_Sensor();
 
     if (CPI_RES->status.initialized == 0) {
         /* Driver is not initialized */
@@ -225,6 +220,9 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
                 disable_lpcpi_periph_clk();
             }
 
+            /* Call Camera Sensor specific uninit */
+            camera_sensor->ops->Uninit();
+
 #if (RTE_MIPI_CSI2)
             /*Disable MIPI CSI2*/
             ret = Driver_MIPI_CSI2.PowerControl(ARM_POWER_OFF);
@@ -243,6 +241,12 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
             if (CPI_RES->status.powered == 1) {
                 /* Driver is already powered ON */
                 return ARM_DRIVER_OK;
+            }
+
+            /* Call Camera Sensor specific init */
+            ret = camera_sensor->ops->Init();
+            if (ret != ARM_DRIVER_OK) {
+                return ret;
             }
 
             if (CPI_RES->drv_instance == CPI_INSTANCE_CPI0) {
@@ -276,6 +280,31 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
         }
 
     case ARM_POWER_LOW:
+        {
+            if (CPI_RES->status.powered == 0) {
+                /* Driver is already powered OFF */
+                return ARM_DRIVER_ERROR;
+            }
+
+            /* If Suspend API is available, Suspend the Camera sensor. */
+            if (camera_sensor->ops->Suspend) {
+                ret = camera_sensor->ops->Suspend();
+                if (ret) {
+                    return ret;
+                }
+            }
+
+#if (RTE_MIPI_CSI2)
+            /*Disable MIPI CSI2*/
+            ret = Driver_MIPI_CSI2.PowerControl(ARM_POWER_LOW);
+            if (ret != ARM_DRIVER_OK) {
+                return ret;
+            }
+#endif
+            /* CPI has been put to low power. */
+            CPI_RES->status.powered = 0;
+            break;
+        }
 
     default:
         {
