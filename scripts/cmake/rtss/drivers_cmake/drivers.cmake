@@ -50,6 +50,9 @@ target_sources(${DRIVER_LIB} PRIVATE
     #IO Driver
     $<$<BOOL:${ENABLE_IO}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_IO.c>
 
+    #Common file for ADC, DAC and CMP
+    $<$<OR:$<BOOL:${ENABLE_CMP}>,$<BOOL:${ENABLE_ADC}>,$<BOOL:${ENABLE_DAC}>>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/sys_ctrl_analog.c>
+
     #ADC Driver
     $<$<BOOL:${ENABLE_ADC}>:${ALIF_ENSEMBLE_DRIVERS_SRC_DIR}/adc.c>
     $<$<BOOL:${ENABLE_ADC}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_ADC.c>
