@@ -42,7 +42,9 @@
                 "BOARD_NAME": "DevKit-e7",
                 "COMPILER": "ARMCLANG",
                 "OS": "NONE",
-                "TEST_APP": "ALL"
+                "TEST_APP": "ALL",
+                "CFG_DMA_ENABLE": "OFF",
+                "CFG_BLOCKING_MODE_ENABLE": "OFF"
             }
         },
         {
@@ -74,7 +76,6 @@
         {
             "name": "default",
             "description": "Default Setting",
-            //"cleanFirst": true,
             "jobs": 16,
             "hidden": true,
             "nativeToolOptions": [

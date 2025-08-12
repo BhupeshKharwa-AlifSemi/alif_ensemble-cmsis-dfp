@@ -64,6 +64,12 @@
 #define RTE_Drivers_RTC                     1 /* Driver RTC                               */
 /* AlifSemiconductor::CMSIS Driver.SOC Peripherals.UTIMER */
 #define RTE_Drivers_UTIMER                  1 /* Driver UTIMER                            */
+/* AlifSemiconductor::CMSIS Driver.SOC Peripherals.WDT */
+#define RTE_Drivers_WDT                     1 /* Driver WDT                               */
+/* AlifSemiconductor::Device.SOC Peripherals.WiFi */
+#define RTE_Drivers_WIFI                    0 /* Driver WiFi                              */
+/* AlifSemiconductor::Device.SOC Peripherals.DMA */
+#define RTE_Drivers_DMA                     1 /* Driver DMA                               */
 /* AlifSemiconductor::Device.SOC Peripherals.I2C */
 #define RTE_Drivers_I2C                     1 /* Driver I2C                               */
 /* AlifSemiconductor::Device.SOC Peripherals.MIPI DSI */
