@@ -317,7 +317,7 @@ void i3c_slave_loopback_thread(void *pvParameters)
                         portMAX_DELAY);
 
         if (actual_events == I3C_CB_EVENT_ERROR) {
-            printf("\nError: I2C Slave Transmit failed\n");
+            printf("\nError: I3C Slave Transmit failed\n");
             WAIT_FOREVER_LOOP
         }
 

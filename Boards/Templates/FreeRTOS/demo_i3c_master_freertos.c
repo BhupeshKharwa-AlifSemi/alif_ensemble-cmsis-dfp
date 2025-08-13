@@ -303,8 +303,6 @@ void i3c_master_loopback_thread(void *pvParameters)
         goto error_poweroff;
     }
 
-    sys_busy_loop_us(1000);
-
     /* Reset all slaves' address */
     i3c_cmd.rw     = 0U;
     i3c_cmd.cmd_id = I3C_CCC_RSTDAA(true);
@@ -345,8 +343,6 @@ void i3c_master_loopback_thread(void *pvParameters)
 
     if (actual_events == I3C_CB_EVENT_ERROR) {
         printf("\r\n Error: First attempt failed. retrying \r\n");
-        /* Delay */
-        sys_busy_loop_us(1000);
 
         /* Observation:
          *  Master needs to send "MasterAssignDA" two times,
@@ -387,9 +383,6 @@ void i3c_master_loopback_thread(void *pvParameters)
     while (1) {
         len = 4;
 
-        /* Delay */
-        sys_busy_loop_us(1000);
-
         /* fill any random TX data. */
         tx_data[0] += 1;
         tx_data[1] += 1;
@@ -416,7 +409,7 @@ void i3c_master_loopback_thread(void *pvParameters)
         tx_cnt += 1;
 
         /* Delay */
-        sys_busy_loop_us(1000);
+        sys_busy_loop_us(1);
 
         /* clear rx_data buffer */
         rx_data[0] = 0x00;
