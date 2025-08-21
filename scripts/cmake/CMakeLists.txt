@@ -62,19 +62,38 @@ CONVERT_PRESET_VAR_TO_CMAKE_VAR(TEST_APP                    TEST_APP            
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER                    COMPILER                    CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CFG_DMA_ENABLE              CFG_DMA_ENABLE              CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CFG_BLOCKING_MODE_ENABLE    CFG_BLOCKING_MODE_ENABLE    CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CPU                         CPU                         CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(RTSS                        RTSS                        CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOARD_REV                   BOARD_REV                   CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOOT                        BOOT                        CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(DEVICE                      DEVICE                      CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(BOARD_NAME                  BOARD_NAME                  CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER                    COMPILER                    CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(OS                          OS                          CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(TEST_APP                    TEST_APP                    CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER_USER_ARGS          COMPILER_USER_ARGS          CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER_USER_ARGS_APPEND   COMPILER_USER_ARGS_APPEND   CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(ASM_USER_ARGS               ASM_USER_ARGS               CACHE)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(ASM_USER_ARGS_APPEND        ASM_USER_ARGS_APPEND        CACHE)
-CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_PACK_PATH             CMSIS_PACK_PATH             ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(ENABLE_INSTALLATION         ENABLE_INSTALLATION         CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(PACK_EXEC_NAME              PACK_EXEC_NAME              CACHE)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(PACK_EXEC_VERSION           PACK_EXEC_VERSION           CACHE)
+
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER_BIN_PATH           COMPILER_BIN_PATH           ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_PACK_PATH             CMSIS_PACK_PATH             ENV)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_COMPILER_PATH         CMSIS_COMPILER_PATH         ENV)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(SE_TOOLS_IMAGE_DIR          SE_TOOLS_IMAGE_DIR          ENV)
 
+#if user wants to setup environment
+if(${ENABLE_INSTALLATION})
+    message(STATUS        "${Cyan} 🚀🚀🚀 SETTING-UP CMAKE ENVIRONMENT 🚀🚀🚀!!!${ColourReset}")
+    setup_cmake_enironment()
+endif()
+
 #Error Check
-ERR_CHECK_MSG(FATAL_ERROR    CMSIS_PACK_PATH        "CMSIS PACK"        Red)
-ERR_CHECK_MSG(FATAL_ERROR    COMPILER_BIN_PATH      "COMPILER"          Red)
-ERR_CHECK_MSG(WARNING        CMSIS_COMPILER_PATH    "CMSIS COMPILER"    Magenta)
+ERR_CHECK_MSG(FATAL_ERROR    CMSIS_PACK_PATH        "CMSIS PACK"        Red         retValue)
+ERR_CHECK_MSG(FATAL_ERROR    COMPILER_BIN_PATH      "COMPILER"          Red         retValue)
+ERR_CHECK_MSG(WARNING        CMSIS_COMPILER_PATH    "CMSIS COMPILER"    Magenta     retValue)
 
 # Extract Device Series
 string(SUBSTRING    ${DEVICE}   1   1   DEV_FAMILY)
@@ -324,6 +343,7 @@ set(TMP_FILE                "${CMAKE_TEMP_FOLDER}/.tmp" )
 set(TMP_FILE1               "${CMAKE_TEMP_FOLDER}/.tmp1")
 set(GENERATED_TEST_APP_LIST     "")
 set(REQUESTED_TEST_APP_LIST     "")
+set(INVALID_TEST_APP_LIST       "")
 
 file(WRITE      ${TMP_FILE}     ${OUTPUT_DIR})
 file(WRITE      ${TMP_FILE1}    "")
@@ -387,6 +407,7 @@ foreach (testApp ${TEST_APPS})
 
     if ( (TEST_FOUND_FLAG STREQUAL "Not Found") AND (NOT testApp STREQUAL "ALL" ) )
         message (STATUS "🚨 App Name --> ${Yellow}${testApp}    => [ :${Red}${TEST_FOUND_FLAG} ]${ColourReset}")
+        list(APPEND     ${INVALID_TEST_APP_LIST}      ${testApp})
         MATH(EXPR INVALID_TESTAPP_CNT "${INVALID_TESTAPP_CNT}+1")
     endif ()
 
@@ -440,6 +461,13 @@ endif()
 
 message("")
 file(APPEND ${TMP_FILE} "\n${INVALID_TESTAPP_CNT}")
+
+if(${INVALID_TESTAPP_CNT} GREATER 0)
+    add_custom_target(INVALID_TARGET ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "❌ ${Red}Build is being failed due to INVALID APP Name ${INVALID_TEST_APP_LIST}...${ColourReset}"
+        COMMAND ${CMAKE_COMMAND} -E false
+    )
+endif()
 
 # Replace multiple spaces with a single space
 string(REGEX REPLACE " + " " " REFINED_LINKER_CMD       "${LINKER_CMD}")

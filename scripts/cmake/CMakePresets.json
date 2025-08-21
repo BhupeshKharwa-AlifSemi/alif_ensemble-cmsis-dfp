@@ -48,7 +48,10 @@
                 "COMPILER_USER_ARGS":"",
                 "COMPILER_USER_ARGS_APPEND": "OFF",
                 "ARM_USER_ARGS":"",
-                "ARM_USER_ARGS_APPEND":"OFF"
+                "ARM_USER_ARGS_APPEND":"OFF",
+                "ENABLE_INSTALLATION": "OFF",
+                "PACK_EXEC_NAME": "ALL",
+                "PACK_EXEC_VERSION": "0.0.0"
             }
         },
         {
