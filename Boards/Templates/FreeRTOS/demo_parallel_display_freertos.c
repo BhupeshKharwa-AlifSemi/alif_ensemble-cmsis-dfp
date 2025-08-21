@@ -9,7 +9,7 @@
  */
 
 /*******************************************************************************
- * @file     : demo_display_parallel_freertos.c
+ * @file     : demo_parallel_display_freertos.c
  * @author   : Chandra Bhushan Singh
  * @email    : chandrabhushan.singh@alifsemi.com
  * @version  : V1.0.0
@@ -22,6 +22,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <RTE_Components.h>
 #include CMSIS_device_header
@@ -79,7 +80,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    (void) pxTask;
+    ARG_UNUSED(pxTask);
+    ARG_UNUSED(pcTaskName);
 
     ASSERT_HANG_LOOP
 }
@@ -135,8 +137,8 @@ static uint8_t lcd_image[DIMAGE_Y][DIMAGE_X][PIXEL_BYTES]
  */
 static void display_callback(uint32_t event)
 {
+    ARG_UNUSED(event);
     /* We are not handling any error for our parallel display demo app */
-    ;
 }
 
 #if (!USE_CONDUCTOR_TOOL_PINS_CONFIG)
@@ -157,7 +159,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_PCLK_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_PCLK \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_PCLK\n");
         return ret;
     }
 
@@ -167,7 +169,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_DE_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_DE \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_DE\n");
         return ret;
     }
 
@@ -177,7 +179,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_HSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_HSYNC \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_HSYNC\n");
         return ret;
     }
 
@@ -187,7 +189,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_VSYNC_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_VSYNC \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_VSYNC\n");
         return ret;
     }
 
@@ -197,7 +199,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D0_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D0 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D0\n");
         return ret;
     }
 
@@ -207,7 +209,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D1_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D1 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D1\n");
         return ret;
     }
 
@@ -217,7 +219,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D2_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D2 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D2\n");
         return ret;
     }
 
@@ -227,7 +229,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D3_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D3 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D3\n");
         return ret;
     }
 
@@ -237,7 +239,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D4_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D4 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D4\n");
         return ret;
     }
 
@@ -247,7 +249,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D5_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D5 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D5\n");
         return ret;
     }
 
@@ -257,7 +259,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D6_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D6 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D6\n");
         return ret;
     }
 
@@ -267,7 +269,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D7_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D7 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D7\n");
         return ret;
     }
 
@@ -277,7 +279,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D8_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D8 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D8\n");
         return ret;
     }
 
@@ -287,7 +289,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D9_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D9 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D9\n");
         return ret;
     }
 
@@ -297,7 +299,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D10_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D10 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D10\n");
         return ret;
     }
 
@@ -307,7 +309,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D11_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D11 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D11\n");
         return ret;
     }
 
@@ -317,7 +319,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D12_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D12 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D12\n");
         return ret;
     }
 
@@ -327,7 +329,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D13_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D13 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D13\n");
         return ret;
     }
 
@@ -337,7 +339,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D14_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D14 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D14\n");
         return ret;
     }
 
@@ -347,7 +349,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D15_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D15 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D15\n");
         return ret;
     }
 
@@ -357,7 +359,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D16_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D16 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D16\n");
         return ret;
     }
 
@@ -367,7 +369,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D17_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D17 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D17\n");
         return ret;
     }
 
@@ -377,7 +379,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D18_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D18 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D18\n");
         return ret;
     }
 
@@ -387,7 +389,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D19_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D19 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D19\n");
         return ret;
     }
 
@@ -397,7 +399,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D20_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D20 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D20\n");
         return ret;
     }
 
@@ -407,7 +409,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D21_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D21 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D21\n");
         return ret;
     }
 
@@ -417,7 +419,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D22_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D22 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D22\n");
         return ret;
     }
 
@@ -427,7 +429,7 @@ int board_cdc200_pins_config(void)
                       BOARD_CDC_D23_ALTERNATE_FUNCTION,
                       PADCTRL_READ_ENABLE);
     if (ret) {
-        printf("ERROR: Failed to configure PINMUX for CDC_D23 \n");
+        printf("ERROR: Failed to configure PINMUX for CDC_D23\n");
         return ret;
     }
 
@@ -449,12 +451,13 @@ void parallel_display_demo_thread_entry(void *pvParameters)
     uint32_t           service_error_code;
     uint32_t           error_code;
     ARM_DRIVER_VERSION version;
+    ARG_UNUSED(pvParameters);
 
 #if USE_CONDUCTOR_TOOL_PINS_CONFIG
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -465,7 +468,7 @@ void parallel_display_demo_thread_entry(void *pvParameters)
      */
     ret = board_cdc200_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
@@ -481,14 +484,14 @@ void parallel_display_demo_thread_entry(void *pvParameters)
                                               true,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock enable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock enable = %" PRIu32 "\n", error_code);
         return;
     }
 
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, true, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %" PRIu32 "\n", error_code);
         goto error_disable_100mhz_clk;
     }
 
@@ -516,7 +519,7 @@ void parallel_display_demo_thread_entry(void *pvParameters)
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n", (uint32_t) lcd_image);
+    printf(">>> Allocated memory buffer Address is 0x%" PRIX32 " <<<\n", (uint32_t) lcd_image);
 
     /* Start CDC */
     ret = CDCdrv->Start();
@@ -560,7 +563,7 @@ error_disable_hfosc_clk:
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, false, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %" PRIu32 "\n", error_code);
     }
 error_disable_100mhz_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
@@ -568,7 +571,7 @@ error_disable_100mhz_clk:
                                               false,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock disable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock disable = %" PRIu32 "\n", error_code);
     }
 
     printf("\r\n XXX CDC demo exiting XXX...\r\n");
@@ -595,7 +598,7 @@ int main()
     BaseType_t xReturned = xTaskCreate(parallel_display_demo_thread_entry,
                                        "parallel_display_demo_thread_entry",
                                        216,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &display_xHandle);
     if (xReturned != pdPASS) {

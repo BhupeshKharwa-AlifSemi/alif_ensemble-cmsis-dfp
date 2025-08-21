@@ -28,6 +28,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "RTE_Device.h"
 #include "RTE_Components.h"
@@ -77,7 +78,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    (void) pxTask;
+    ARG_UNUSED(pxTask);
+    ARG_UNUSED(pcTaskName);
 
     ASSERT_HANG_LOOP
 }
@@ -149,6 +151,7 @@ void cdc_demo_thread_entry(void *pvParameters)
     run_profile_t runp = {0};
 
     ARM_DRIVER_VERSION version;
+    ARG_UNUSED(pvParameters);
 
     printf("\r\n >>> CDC demo with FreeRTOS is starting up!!! <<< \r\n");
 
@@ -161,21 +164,21 @@ void cdc_demo_thread_entry(void *pvParameters)
                                               true,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock enable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock enable = %" PRIu32 "\n", error_code);
         return;
     }
 
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, true, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %" PRIu32 "\n", error_code);
         goto error_disable_100mhz_clk;
     }
 
     /* Get the current run configuration from SE */
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        printf("\r\nSE: get_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: get_run_cfg error = %" PRIu32 "\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -190,14 +193,18 @@ void cdc_demo_thread_entry(void *pvParameters)
      * almost everything.
      */
 
-    runp.memory_blocks  = MRAM_MASK | SRAM0_MASK;
+    #if defined(SRAM0_MASK)
+        runp.memory_blocks  = MRAM_MASK | SRAM0_MASK;
+    #else
+        runp.memory_blocks  = MRAM_MASK;
+    #endif
 
     runp.phy_pwr_gating = MIPI_PLL_DPHY_MASK | MIPI_TX_DPHY_MASK | MIPI_RX_DPHY_MASK | LDO_PHY_MASK;
 
     /* Set the new run configuration */
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        printf("\r\nSE: set_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: set_run_cfg error = %" PRIu32 "\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -225,7 +232,7 @@ void cdc_demo_thread_entry(void *pvParameters)
         goto error_poweroff;
     }
 
-    printf(">>> Allocated memory buffer Address is 0x%X <<<\n", (uint32_t) lcd_image);
+    printf(">>> Allocated memory buffer Address is 0x%" PRIx32 " <<<\n", (uint32_t) lcd_image);
 
     /* Start CDC */
     ret = CDCdrv->Start();
@@ -269,7 +276,7 @@ error_disable_hfosc_clk:
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, false, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %" PRIu32 "\n", error_code);
     }
 error_disable_100mhz_clk:
     error_code = SERVICES_clocks_enable_clock(se_services_s_handle,
@@ -277,7 +284,7 @@ error_disable_100mhz_clk:
                                               false,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock disable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock disable = %" PRIu32 "\n", error_code);
     }
 
     printf("\r\n XXX CDC demo exiting XXX...\r\n");
@@ -304,7 +311,7 @@ int main()
     BaseType_t xReturned = xTaskCreate(cdc_demo_thread_entry,
                                        "cdc_demo_thread_entry",
                                        216,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &display_xHandle);
     if (xReturned != pdPASS) {

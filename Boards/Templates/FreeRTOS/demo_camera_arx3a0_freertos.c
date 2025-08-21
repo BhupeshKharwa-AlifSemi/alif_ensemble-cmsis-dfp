@@ -22,6 +22,7 @@
 
 //* System Includes */
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Cpi Driver */
 #include "Driver_CPI.h"
@@ -78,7 +79,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    (void) pxTask;
+    ARG_UNUSED(pxTask);
+    ARG_UNUSED(pcTaskName);
 
     ASSERT_HANG_LOOP
 }
@@ -395,7 +397,7 @@ int32_t camera_image_conversion(IMAGE_CONVERSION image_conversion, uint8_t *src,
     case BAYER_TO_RGB_CONVERSION:
         {
             printf("\r\n Start Bayer to RGB Conversion: \r\n");
-            printf("\t Frame Buffer Addr: 0x%X \r\n \t Bayer_to_RGB Addr: 0x%X\n",
+            printf("\t Frame Buffer Addr: 0x%" PRIx32 " \r\n \t Bayer_to_RGB Addr: 0x%" PRIx32 "\n",
                    (uint32_t) src,
                    (uint32_t) dest);
             ret = bayer_to_RGB(src, dest, frame_width, frame_height);
@@ -453,6 +455,7 @@ void camera_demo_thread_entry(void *pvParameters)
     uint32_t           error_code;
     run_profile_t      runp = {0};
     ARM_DRIVER_VERSION version;
+    ARG_UNUSED(pvParameters);
 
     printf("\r\n \t\t >>> ARX3A0 Camera Sensor demo with FreeRTOS is starting up!!! <<< \r\n");
 
@@ -460,12 +463,12 @@ void camera_demo_thread_entry(void *pvParameters)
      *   - Camera frame buffer and
      *   - (Optional) Camera frame buffer for Bayer to RGB Conversion
      */
-    printf("\n \t frame buffer        pool size: 0x%0X  pool addr: 0x%0X \r\n ",
+    printf("\n \t frame buffer        pool size: 0x%0X  pool addr: 0x%08" PRIx32 " \r\n ",
            FRAMEBUFFER_POOL_SIZE,
            (uint32_t) framebuffer_pool);
 
 #if IMAGE_CONVERSION_BAYER_TO_RGB_EN
-    printf("\n \t bayer_to_rgb buffer pool size: 0x%0X  pool addr: 0x%0X \r\n ",
+    printf("\n \t bayer_to_rgb buffer pool size: 0x%0X  pool addr: 0x%08" PRIX32 " \r\n ",
            BAYER_TO_RGB_BUFFER_POOL_SIZE,
            (uint32_t) bayer_to_rgb_buffer_pool);
 #endif
@@ -474,7 +477,7 @@ void camera_demo_thread_entry(void *pvParameters)
     /* pin mux and configuration for all device IOs requested from pins.h */
     ret = board_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #else
@@ -484,7 +487,7 @@ void camera_demo_thread_entry(void *pvParameters)
      */
     ret = hardware_init();
     if (ret != 0) {
-        printf("Error: CAMERA Hardware Initialize failed: %d\n", ret);
+        printf("Error: CAMERA Hardware Initialize failed: %" PRId32 "\n", ret);
         return;
     }
 #endif
@@ -498,21 +501,21 @@ void camera_demo_thread_entry(void *pvParameters)
                                               true,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock enable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock enable = %" PRId32 "\n", error_code);
         return;
     }
 
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, true, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC) clock enable = %" PRId32 "\n", error_code);
         goto error_disable_100mhz_clk;
     }
 
     /* Get the current run configuration from SE */
     error_code = SERVICES_get_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        printf("\r\nSE: get_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: get_run_cfg error = %" PRId32 "\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
@@ -534,12 +537,13 @@ void camera_demo_thread_entry(void *pvParameters)
     /* Set the new run configuration */
     error_code          = SERVICES_set_run_cfg(se_services_s_handle, &runp, &service_error_code);
     if (error_code) {
-        printf("\r\nSE: set_run_cfg error = %d\n", error_code);
+        printf("\r\nSE: set_run_cfg error = %" PRId32 "\n", error_code);
         goto error_disable_hfosc_clk;
     }
 
     version = CAMERAdrv->GetVersion();
-    printf("\r\n Camera driver version api:0x%X driver:0x%X \r\n", version.api, version.drv);
+    printf("\r\n Camera driver version api:0x%" PRIx16 " driver:0x%" PRIx16 " \r\n", version.api,
+        version.drv);
 
     ret = CAMERAdrv->Initialize(camera_callback);
     if (ret != ARM_DRIVER_OK) {
@@ -587,7 +591,7 @@ void camera_demo_thread_entry(void *pvParameters)
     }
 
     /* wait till any event to comes in isr callback */
-    xTaskNotifyWait(NULL,
+    xTaskNotifyWait(0,
                     CAM_CB_EVENT_CAPTURE_STOPPED | CAM_CB_EVENT_ERROR,
                     &actual_events,
                     portMAX_DELAY);
@@ -673,11 +677,12 @@ void camera_demo_thread_entry(void *pvParameters)
            (uint32_t) (bayer_to_rgb_buffer_pool + BAYER_TO_RGB_BUFFER_POOL_SIZE - 1));
 
 #else
-    printf("Ulink:\n   dump binary memory /home/user/camera_dump/cam_image0_560p.bin 0x%X 0x%X "
-           "\r\n",
+    printf("Ulink:\n   dump binary memory /home/user/camera_dump/cam_image0_560p.bin 0x%" PRIX32
+           " 0x%" PRIX32 "\r\n",
            (uint32_t) framebuffer_pool,
            (uint32_t) (framebuffer_pool + FRAMEBUFFER_POOL_SIZE - 1));
-    printf("T32:\n   data.save.binary /home/user/camera_dump/cam_image0_560p.bin 0x%X--0x%X \r\n",
+    printf("T32:\n   data.save.binary /home/user/camera_dump/cam_image0_560p.bin 0x%" PRIx32
+            "--0x%" PRIX32 " \r\n",
            (uint32_t) framebuffer_pool,
            (uint32_t) (framebuffer_pool + FRAMEBUFFER_POOL_SIZE - 1));
 #endif
@@ -707,7 +712,7 @@ error_disable_hfosc_clk:
     error_code =
         SERVICES_clocks_enable_clock(se_services_s_handle, CLKEN_HFOSC, false, &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %d\n", error_code);
+        printf("SE: MIPI 38.4Mhz(HFOSC)  clock disable = %" PRId32 "\n", error_code);
     }
 
 error_disable_100mhz_clk:
@@ -716,7 +721,7 @@ error_disable_100mhz_clk:
                                               false,
                                               &service_error_code);
     if (error_code != SERVICES_REQ_SUCCESS) {
-        printf("SE: MIPI 100MHz clock disable = %d\n", error_code);
+        printf("SE: MIPI 100MHz clock disable = %" PRId32 "\n", error_code);
     }
 
     printf("\r\n XXX Camera demo thread is exiting XXX...\r\n");
@@ -746,7 +751,7 @@ int main(void)
     BaseType_t xReturned = xTaskCreate(camera_demo_thread_entry,
                                        "camera_demo_thread_entry",
                                        216,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &camera_xHandle);
     if (xReturned != pdPASS) {

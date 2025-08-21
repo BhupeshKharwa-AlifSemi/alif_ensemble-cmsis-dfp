@@ -22,6 +22,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 /* include for Drivers */
 #include "Driver_SPI.h"
 #include "pinconf.h"
@@ -53,14 +54,14 @@
  * */
 #define DATA_TRANSFER_TYPE             0
 
-#define LPSPI                          LP /* LPSPI instance */
-#define SPI0                           0  /* SPI0 instance */
+#define SELECTED_LPSPI                 LP /* LPSPI instance */
+#define SELECTED_SPI                   0  /* SPI0 instance */
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(LPSPI);
-ARM_DRIVER_SPI       *ptrLPSPI = &ARM_Driver_SPI_(LPSPI);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(SELECTED_LPSPI);
+ARM_DRIVER_SPI       *ptrLPSPI = &ARM_Driver_SPI_(SELECTED_LPSPI);
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI0);
-ARM_DRIVER_SPI       *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(SELECTED_SPI);
+ARM_DRIVER_SPI       *ptrSPI0 = &ARM_Driver_SPI_(SELECTED_SPI);
 
 /*Define for the FreeRTOS objects*/
 #define LPSPI_CALLBACK_EVENT          0x01
@@ -92,7 +93,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    (void) pxTask;
+    ARG_UNUSED(pxTask);
+    ARG_UNUSED(pcTaskName);
 
     ASSERT_HANG_LOOP
 }
@@ -248,6 +250,8 @@ static void lpspi_spi0_transfer(void *pvParameters)
     int32_t    ret = ARM_DRIVER_OK;
     uint32_t   lpspi_control, spi0_control;
     BaseType_t xReturned;
+    ARG_UNUSED(pvParameters);
+
 #if DATA_TRANSFER_TYPE
     uint32_t spi0_tx_buff, lpspi_rx_buff = 0;
 #endif
@@ -266,7 +270,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -277,7 +281,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
      */
     ret = board_lpspi_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
@@ -343,7 +347,7 @@ static void lpspi_spi0_transfer(void *pvParameters)
 
     spi0_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
 
-    ret          = ptrSPI0->Control(spi0_control, NULL);
+    ret          = ptrSPI0->Control(spi0_control, 0);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI0\n");
         goto error_spi0_power_off;
@@ -388,9 +392,9 @@ static void lpspi_spi0_transfer(void *pvParameters)
 #endif
 
     xReturned =
-        xTaskNotifyWait(NULL, LPSPI_CALLBACK_EVENT | SPI0_CALLBACK_EVENT, NULL, portMAX_DELAY);
+        xTaskNotifyWait(0, LPSPI_CALLBACK_EVENT | SPI0_CALLBACK_EVENT, 0, portMAX_DELAY);
     if (xReturned != pdTRUE) {
-        printf("\n\r Task Wait Time out expired \n\r");
+        printf("\n\r Task Wait Time out expired\n\r");
         goto error_spi0_power_off;
     }
 
@@ -398,9 +402,9 @@ static void lpspi_spi0_transfer(void *pvParameters)
     }
     printf("Data Transfer completed\n");
 
-    printf("SPI0 received value 0x%x\n", spi0_rx_buff);
+    printf("SPI0 received value 0x%" PRIx32 "\n", spi0_rx_buff);
 #if DATA_TRANSFER_TYPE
-    printf("LPSPI received value 0x%x\n", lpspi_rx_buff);
+    printf("LPSPI received value 0x%" PRIx32 "\n", lpspi_rx_buff);
 #endif
 
 error_spi0_power_off:
@@ -430,7 +434,7 @@ error_lpspi_uninitialize:
     printf("*** Demo FreeRTOS app using SPI0 & LPSPI is ended ***\n");
 
     /* thread delete */
-    vTaskDelete(NULL);
+    vTaskDelete(0);
 }
 
 /*----------------------------------------------------------------------------
@@ -453,7 +457,7 @@ int main(void)
     BaseType_t xReturned = xTaskCreate(lpspi_spi0_transfer,
                                        "SPI_Thread",
                                        216,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &spi_xHandle);
     if (xReturned != pdPASS) {

@@ -104,7 +104,9 @@ static ARM_CPI_CAPABILITIES CPI_GetCapabilities(void)
 static int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor,
                                ARM_CPI_SignalEvent_t cb_event)
 {
+#if (RTE_MIPI_CSI2)
     int32_t ret = ARM_DRIVER_OK;
+#endif
 
     if (cam_sensor == NULL) {
         return ARM_DRIVER_ERROR_PARAMETER;
