@@ -44,7 +44,11 @@
                 "OS": "NONE",
                 "TEST_APP": "ALL",
                 "CFG_DMA_ENABLE": "OFF",
-                "CFG_BLOCKING_MODE_ENABLE": "OFF"
+                "CFG_BLOCKING_MODE_ENABLE": "OFF",
+                "COMPILER_USER_ARGS":"",
+                "COMPILER_USER_ARGS_APPEND": "OFF",
+                "ARM_USER_ARGS":"",
+                "ARM_USER_ARGS_APPEND":"OFF"
             }
         },
         {
