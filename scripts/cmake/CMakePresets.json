@@ -47,11 +47,12 @@
                 "CFG_BLOCKING_MODE_ENABLE": "OFF",
                 "COMPILER_USER_ARGS":"",
                 "COMPILER_USER_ARGS_APPEND": "OFF",
-                "ARM_USER_ARGS":"",
-                "ARM_USER_ARGS_APPEND":"OFF",
+                "ASM_USER_ARGS":"",
+                "ASM_USER_ARGS_APPEND":"OFF",
                 "ENABLE_INSTALLATION": "OFF",
                 "PACK_EXEC_NAME": "ALL",
-                "PACK_EXEC_VERSION": "0.0.0"
+                "PACK_EXEC_VERSION": "0.0.0",
+                "ENABLE_BUILD_ERROR_WHEN_INVALID_APP": "ON"
             }
         },
         {
