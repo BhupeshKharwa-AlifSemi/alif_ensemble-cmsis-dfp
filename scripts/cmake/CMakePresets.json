@@ -62,10 +62,11 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             },
             "environment": {
-                "COMPILER_BIN_PATH": "$env{ARMCLANG_PATH}/bin",
-                "CMSIS_PACK_PATH": "$env{CMSIS_CORE_PACK_PATH}",
+                "COMPILER_BIN_PATH"  : "$env{ARMCLANG_PATH}/bin",
+                "CMSIS_PACK_PATH"    : "$env{CMSIS_CORE_PACK_PATH}",
                 "CMSIS_COMPILER_PATH": "$env{CMSIS_COMPILER_PACK_PATH}",
-                "SE_TOOLS_IMAGE_DIR":"$env{SE_TOOLS}/build/images"
+                "CMSIS_FREERTOS_PATH": "$env{CMSIS_FREE_RTOS_PACK_PATH}",
+                "SE_TOOLS_IMAGE_DIR" : "$env{SE_TOOLS}/build/images"
             }
         }
     ],

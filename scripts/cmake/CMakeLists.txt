@@ -82,6 +82,7 @@ CONVERT_PRESET_VAR_TO_CMAKE_VAR(PACK_EXEC_VERSION           PACK_EXEC_VERSION   
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(COMPILER_BIN_PATH           COMPILER_BIN_PATH           ENV)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_PACK_PATH             CMSIS_PACK_PATH             ENV)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_COMPILER_PATH         CMSIS_COMPILER_PATH         ENV)
+CONVERT_PRESET_VAR_TO_CMAKE_VAR(CMSIS_FREERTOS_PATH         CMSIS_FREERTOS_PATH         ENV)
 CONVERT_PRESET_VAR_TO_CMAKE_VAR(SE_TOOLS_IMAGE_DIR          SE_TOOLS_IMAGE_DIR          ENV)
 
 #if user wants to setup environment
@@ -94,6 +95,7 @@ endif()
 ERR_CHECK_MSG(FATAL_ERROR    CMSIS_PACK_PATH        "CMSIS PACK"        Red         retValue)
 ERR_CHECK_MSG(FATAL_ERROR    COMPILER_BIN_PATH      "COMPILER"          Red         retValue)
 ERR_CHECK_MSG(WARNING        CMSIS_COMPILER_PATH    "CMSIS COMPILER"    Magenta     retValue)
+ERR_CHECK_MSG(WARNING        CMSIS_FREERTOS_PATH    "FREERTOS"          Magenta     retValue)
 
 # Extract Device Series
 string(SUBSTRING    ${DEVICE}   1   1   DEV_FAMILY)
@@ -279,6 +281,11 @@ if (OS STREQUAL NONE)
     set(OS_CMAKE_FILE           "${OS_CMAKE_DIR}/baremetal.cmake")
     message (STATUS "📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
     file(APPEND          ${TMP_CFG_FILE}     "-- 📌 SELECTED OS              --> ${HCyan}Bare-Metal${ColourReset}\n")
+
+elseif (OS STREQUAL FREERTOS)
+    set(OS_CMAKE_FILE           "${OS_CMAKE_DIR}/freertos.cmake")
+    message (STATUS "📌 SELECTED OS              --> ${HCyan}Free-RTOS${ColourReset}\n")
+    file(APPEND          ${TMP_CFG_FILE}     "-- 📌 SELECTED OS              --> ${HCyan}Free-RTOS${ColourReset}\n")
 
 else()
     # OS is not proper
