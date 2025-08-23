@@ -37,6 +37,9 @@ def buildDevice(deviceList) {
                         parallel_dis_run_cnt=0
                         parallel_dis_fail_cnt=0
                         parallel_dis_success_cnt=0
+                        parallel_dis_with_mcmse_run_cnt=0
+                        parallel_dis_with_mcmse_fail_cnt=0
+                        parallel_dis_with_mcmse_success_cnt=0
                         dma_enable_run_cnt=0
                         dma_enable_fail_cnt=0
                         dma_enable_success_cnt=0
@@ -137,6 +140,20 @@ def buildDevice(deviceList) {
                                                 parallel_dis_fail_cnt=\$((parallel_dis_fail_cnt + 1))
                                             else
                                                 parallel_dis_success_cnt=\$((parallel_dis_success_cnt + 1))
+                                            fi
+
+                                            total_cmakeError=\$((total_cmakeError + tmp))
+
+                                            #Parallel Display with mcmse
+                                            parallel_dis_with_mcmse_run_cnt=\$((parallel_dis_with_mcmse_run_cnt + 1))
+                                            echo "🚩 Building for ${currentDev}, \${CURR_OS[osName]}, \${CURR_BOOT[bootType]} \${CURR_RTSS[rtssType]} \${CURR_BOARDS[brdName]}, \${testAppName}"
+                                            ./run.sh -f -c -DENABLE_MIPI_DSI_ILI9806E_PANEL=OFF -DENABLE_MIPI_DSI_ILI9488E_PANEL=OFF -DENABLE_MIPI_DSI_CSI2_DPHY=OFF -DENABLE_MIPI_DSI=OFF -DTEST_APP=\${testAppName} --fresh -DBOOT=\${CURR_BOOT[bootType]} -DDEVICE=${currentDev} -DBOARD_NAME=\${CURR_BOARDS[brdName]} -DOS=\${CURR_OS[osName]} -DRTSS=\${CURR_RTSS[rtssType]} -DCOMPILER_USER_ARGS_APPEND=ON -DCOMPILER_USER_ARGS="-mcmse" -b --clean-first
+
+                                            tmp=\$?
+                                            if [ "\$tmp" -ne 0 ] ; then
+                                                parallel_dis_with_mcmse_fail_cnt=\$((parallel_dis_with_mcmse_fail_cnt + 1))
+                                            else
+                                                parallel_dis_with_mcmse_success_cnt=\$((parallel_dis_with_mcmse_success_cnt + 1))
                                             fi
 
                                             total_cmakeError=\$((total_cmakeError + tmp))
