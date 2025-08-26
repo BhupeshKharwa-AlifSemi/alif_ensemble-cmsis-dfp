@@ -45,6 +45,12 @@
 #include "task.h"
 #include "app_utils.h"
 
+#include "Driver_IO.h"
+
+// set to 0: enable selfie camera (cam1)
+// set to 1: enable standard camera (cam2)
+#define STANDARD_CAM_EN                0
+
 // Set to 0: Use application-defined arx3A0 pin configuration.
 // Set to 1: Use Conductor-generated pin configuration (from pins.h).
 #define USE_CONDUCTOR_TOOL_PINS_CONFIG 0
@@ -52,6 +58,13 @@
 /* Camera  Driver instance 0 */
 extern ARM_DRIVER_CPI  Driver_CPI;
 static ARM_DRIVER_CPI *CAMERAdrv = &Driver_CPI;
+
+#if STANDARD_CAM_EN
+/* Switch Camera target. */
+extern ARM_DRIVER_GPIO ARM_Driver_GPIO_(BOARD_CAMERA_I2C_C1_C2_GPIO_PORT);
+static ARM_DRIVER_GPIO *GPIO_Driver_SWITCH_CAM =
+        &ARM_Driver_GPIO_(BOARD_CAMERA_I2C_C1_C2_GPIO_PORT);
+#endif
 
 /*Define for FreeRTOS*/
 #define STACK_SIZE                    1024
@@ -541,6 +554,38 @@ void camera_demo_thread_entry(void *pvParameters)
         goto error_disable_hfosc_clk;
     }
 
+#if STANDARD_CAM_EN
+    ret = GPIO_Driver_SWITCH_CAM->Initialize(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, NULL);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO Initialize failed (pin: %d, ret=%" PRId32 ")\r\n",
+               BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ret);
+        goto error_disable_hfosc_clk;
+    }
+
+    ret = GPIO_Driver_SWITCH_CAM->PowerControl(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ARM_POWER_FULL);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO PowerControl failed (pin: %d, ret=%" PRId32 ")\r\n",
+               BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ret);
+        goto error_uninitialize_gpio;
+    }
+
+    ret = GPIO_Driver_SWITCH_CAM->SetDirection(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN,
+                                               GPIO_PIN_DIRECTION_OUTPUT);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO SetDirection failed (pin: %d, ret=%" PRId32 ")\r\n",
+               BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ret);
+        goto error_poweroff_gpio;
+    }
+
+    ret = GPIO_Driver_SWITCH_CAM->SetValue(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN,
+                                           GPIO_PIN_OUTPUT_STATE_HIGH);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO SetValue failed (pin: %d, ret=%" PRId32 ")\r\n",
+               BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ret);
+        goto error_poweroff_gpio;
+    }
+#endif
+
     version = CAMERAdrv->GetVersion();
     printf("\r\n Camera driver version api:0x%" PRIx16 " driver:0x%" PRIx16 " \r\n", version.api,
         version.drv);
@@ -707,6 +752,22 @@ error_uninitialize_camera:
     if (ret != ARM_DRIVER_OK) {
         printf("\r\n Error: CAMERA Uninitialize failed.\r\n");
     }
+
+#if STANDARD_CAM_EN
+error_poweroff_gpio:
+    /* Power off GPIO peripheral */
+    ret = GPIO_Driver_SWITCH_CAM->PowerControl(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN, ARM_POWER_OFF);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO Power OFF failed.\r\n");
+    }
+
+error_uninitialize_gpio:
+    /* Un-initialize GPIO driver */
+    ret = GPIO_Driver_SWITCH_CAM->Uninitialize(BOARD_CAMERA_I2C_C1_C2_GPIO_PIN);
+    if (ret != ARM_DRIVER_OK) {
+        printf("\r\n Error: GPIO Uninitialize failed.\r\n");
+    }
+#endif
 
 error_disable_hfosc_clk:
     error_code =
