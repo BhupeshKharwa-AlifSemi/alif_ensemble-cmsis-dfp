@@ -56,6 +56,13 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+
+  /DISCARD/ :
+  {
+      *(.ARM.exidx*)
+      *(.ARM.extab* .gnu.linkonce.armextab.*)
+  }
+
   .startup.at_mram : ALIGN(2048)
   {
     KEEP(*(.vectors))
@@ -76,6 +83,9 @@ SECTIONS
   .copy.table : ALIGN(4)
   {
     __copy_table_start__ = .;
+    LONG ( LOADADDR(.tdata.at_dtcm) )
+    LONG ( ADDR(.tdata.at_dtcm) )
+    LONG ( SIZEOF(.tdata.at_dtcm)/4 )
     LONG ( LOADADDR(.data.at_dtcm) )
     LONG ( ADDR(.data.at_dtcm) )
     LONG ( SIZEOF(.data.at_dtcm)/4 )
@@ -89,6 +99,8 @@ SECTIONS
   .zero.table : ALIGN(4)
   {
     __zero_table_start__ = .;
+    LONG (ADDR(.tbss))
+    LONG (SIZEOF(.tbss)/4)
     LONG (ADDR(.bss))
     LONG (SIZEOF(.bss)/4)
 #if __HAS_BULK_SRAM
@@ -104,6 +116,29 @@ SECTIONS
     *(.text*)
     . = ALIGN(16);
   } > ITCM AT > MRAM
+
+  /* Thread Local Storage sections */
+  .tdata.at_dtcm : ALIGN(16)
+  {
+    /* TLS base = beginning of TLS block */
+    __tls_base = .;
+    /* Offset inside TLS block where TCB is expected */
+    __arm32_tls_tcb_offset = .;
+    /* Initialized TLS variables */
+    *(.tdata .tdata.* .gnu.linkonce.td.*)
+    __tdata_end = .;
+    . = ALIGN(16);
+  } > DTCM AT > MRAM
+
+  /* Thread-Local Uninitialized Data (.tbss) */
+  .tbss (NOLOAD) : ALIGN(16)
+  {
+    *(.tbss .tbss.* .gnu.linkonce.tb.*)
+    /* TLS commons here */
+    *(.tcommon)
+    __tbss_end = .;
+    . = ALIGN(16);
+  } > DTCM
 
   .data.at_dtcm : ALIGN(8)
   {
@@ -162,7 +197,7 @@ SECTIONS
      __RAM_segment_used_end__ = .;
      . = . + __APP_HEAP_SIZE;
      . = ALIGN(8);
-   } >DTCM
+   } > DTCM
 
   .heap (NOLOAD) : ALIGN(8)
   {
@@ -230,4 +265,21 @@ SECTIONS
 
   /* Check if data + heap + stack exceeds RAM limit */
   ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+  /* Picolib crt on clang compiler requires below definitions for data and bss sections copy.
+   * We have multiple sections at diff memory locations to copy e.g. itcm, dtcm etc.
+   * but the __start of picolib copies one section only.
+   * So, setting data and bss defines to zero to skip it.
+   */
+  PROVIDE(__stack_limit = __StackLimit);
+  PROVIDE(__data_start = 0);
+  PROVIDE(__data_source = 0);
+  PROVIDE(__data_size = 0);
+  PROVIDE(__bss_start = 0);
+  PROVIDE(__bss_size = 0);
+
+  /* TLS helper sizes */
+  __tdata_size = __tdata_end - __tls_base;
+  __tbss_size  = __tbss_end - __tdata_end;
+  __tls_end    = __tbss_end;
 }
