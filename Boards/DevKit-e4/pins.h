@@ -262,11 +262,8 @@ const struct pinconf board_pinconf[] = {
 
     /* P4_0 on pin F18. Functions: [0]: >>>GPIO4_0<<<, [1]: Reserved, [2]: Reserved, [3]: I2S1_WS_A,
        [4]: SPI1_SS2_A, [5]: QEC2_Z_A, [6]: CDC_VSYNC_B, [7]: CAM_D12_A */
-    /* Selected: GPIO4_0 for "TOUCH_RESET" */
-    {PORT_4,
-     PIN_0,
-     PINMUX_ALTERNATE_FUNCTION_0,
-     PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+    /* Selected: GPIO4_0 */
+    {PORT_4, PIN_0, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P4_1 on pin B19. Functions: [0]: >>>GPIO4_1<<<, [1]: Reserved, [2]: I2S0_SDI_B, [3]:
        SPI1_SS3_A, [4]: QEC3_X_A, [5]: SD_CLK_D, [6]: CDC_HSYNC_B, [7]: CAM_D13_A */
@@ -409,6 +406,15 @@ const struct pinconf board_pinconf[] = {
        LFRC_OUT_A, [4]: SPI1_SS0_B, [5]: UT6_T0_B, [6]: SD_D4_D, [7]: ETH_REFCLK_A */
     /* Selected: GPIO6_4 for "LEDRGB1_G" */
     {PORT_6, PIN_4, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+
+    /* P6_5 on pin E7. Functions: [0]: >>>GPIO6_5<<<, [1]: OSPI0_D5_C, [2]: UART2_RTS_B, [3]:
+     * LPI2C1_SDA_B, [4]: SPI1_SS1_B, [5]: UT6_T1_B, [6]: SD_D5_D, [7]: ETH_MDIO_A
+     */
+    /* Selected: GPIO6_5 for "TOUCH_RESET" */
+    {PORT_6,
+     PIN_5,
+     PINMUX_ALTERNATE_FUNCTION_0,
+     PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P6_6 on pin E6. Functions: [0]: >>>GPIO6_6<<<, [1]: OSPI0_D6_C, [2]: UART0_CTS_B, [3]:
        Reserved, [4]: SPI1_SS2_B, [5]: UT7_T0_B, [6]: SD_D6_D, [7]: ETH_MDC_A */
