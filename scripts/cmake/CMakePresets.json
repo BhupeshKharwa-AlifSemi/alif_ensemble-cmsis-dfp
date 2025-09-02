@@ -29,6 +29,19 @@
             }
         },
         {
+            "name": "clang",
+            "displayName": "Clang Build Config",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "inherits": "default",
+            "cacheVariables": {
+                "COMPILER": "CLANG"
+            },
+            "environment": {
+                "COMPILER_BIN_PATH": "$env{CLANG_PATH}/bin",
+                "PATH": "$env{COMPILER_BIN_PATH}${pathListSep}$penv{PATH}"
+            }
+        },
+        {
             "name": "default",
             "description": "Default Setting",
             "hidden": true,
@@ -83,6 +96,11 @@
             "inherits": "default"
         },
         {
+            "name": "clang_build",
+            "configurePreset": "clang",
+            "inherits": "default"
+        },
+        {
             "name": "default",
             "description": "Default Setting",
             "jobs": 16,
@@ -105,6 +123,11 @@
         {
             "name": "gcc_build_test",
             "configurePreset": "gcc",
+            "inherits": "default"
+        },
+        {
+            "name": "clang_build_test",
+            "configurePreset": "clang",
             "inherits": "default"
         },
         {
@@ -168,6 +191,23 @@
                 {
                     "type": "test",
                     "name": "gcc_build_test"
+                }
+            ]
+        },
+        {
+            "name": "clang_mram",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "clang"
+                },
+                {
+                    "type": "build",
+                    "name": "clang_build"
+                },
+                {
+                    "type": "test",
+                    "name": "clang_build_test"
                 }
             ]
         }

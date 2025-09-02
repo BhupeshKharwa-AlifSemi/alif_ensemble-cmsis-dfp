@@ -49,7 +49,7 @@ def buildDevice(deviceList) {
                         retargeting_status=-1
 
                         CURR_OS=("NONE" "FREERTOS")
-                        CURR_COMPILER=("armclang" "gcc")
+                        #CURR_COMPILER=("armclang" "gcc")
                         CURR_BOARDS=("DevKit-e7" "DevKit-e1c" "DevKit-e8" "DevKit-e4")
                         CURR_RTSS=("HE" "HP")
                         CURR_BOOT=("TCM" "MRAM")

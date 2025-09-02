@@ -33,6 +33,7 @@ if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
 
     if(COMPILER STREQUAL CLANG)
         set (RETARGET_IO_SRC                "${CMSIS_COMPILER_PATH}/source/clang/retarget_syscalls.c")
+        set_source_files_properties("${RETARGET_IO_SRC}"     PROPERTIES      COMPILE_FLAGS    "-w")
     endif()
 
 elseif (COMPILER STREQUAL GCC)
