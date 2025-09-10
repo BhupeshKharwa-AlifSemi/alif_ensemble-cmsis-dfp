@@ -2028,7 +2028,7 @@
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_normalmode_freertos.c" attr="template" select="CANFD Data transfer FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_extloopback_freertos.c" attr="template" select="CANFD External Loopback FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_intloopback_freertos.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/demo_cdc_freertos.c" attr="template" select="CDC200 FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_cdc200_freertos.c" attr="template" select="CDC200 FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_cmp_freertos.c" attr="template" select="CMP FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_crc_freertos.c" attr="template" select="CRC FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_dac_freertos.c" attr="template" select="DAC FreeRTOS Demo"/>
@@ -2051,7 +2051,7 @@
         <file category="header" name="Boards/Templates/bayer2rgb/bayer.h" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_flash_issi_freertos.c" attr="template" select="OSPI Flash FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_hyperram_freertos.c" attr="template" select="OSPI Hyperram XIP FreeRTOS Demo" condition="E7"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/demo_display_parallel_freertos.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_parallel_display_freertos.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_pdm_freertos.c" attr="template" select="PDM FreeRTOS Demo"/>
         <!--<file category="source" name="Boards/Templates/FreeRTOS/demo_qec_freertos.c" attr="template" select="QEC FreeRTOS Demo"/>-->
         <file category="source" name="Boards/Templates/FreeRTOS/demo_rtc_freertos.c" attr="template" select="RTC FreeRTOS Demo"/>
@@ -2062,7 +2062,7 @@
         <file category="source" name="Boards/Templates/FreeRTOS/demo_tsens_freertos.c" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_i2s_freertos.c" attr="template" select="I2S FreeRTOS Demo"/>
-        <file category="header" name="Boards/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
+        <file category="header" name="Boards/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_mci_mdk_cmsisrtos2.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_usb_device_app.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/USBD_User_CDC_ACM.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
