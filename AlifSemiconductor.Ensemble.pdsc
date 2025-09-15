@@ -1727,7 +1727,6 @@
     <condition id="USBD Driver">
       <description>Requirement for USB Device Driver</description>
       <require condition="Ensemble CMSIS_Driver"/>
-      <require Cclass="USB" Cgroup="CORE"/>
     </condition>
     <condition id="MIPI DPHY Driver">
       <description>Requirement for MIPI DPHY Driver</description>
