@@ -30,15 +30,51 @@ extern "C" {
 #endif
 
 #define USB_CTRL2_PHY_POR (1U << 8)
+/* Enable clock supply for USB */
+#define PERIPH_CLK_ENA_USB_CKEN (1U << 20)
 
-static inline void usb_ctrl2_phy_power_on_reset_set(void)
+/**
+ *\fn     static inline void usb_phy_por_set(void)
+ *\brief  Set the USB phy power on reset bit in USB_CTRL2 register.
+ *\param  none.
+ *\return none.
+ */
+static inline void usb_phy_por_set(void)
 {
     CLKCTL_PER_MST->USB_CTRL2 |= USB_CTRL2_PHY_POR;
 }
 
-static inline void usb_ctrl2_phy_power_on_reset_clear(void)
+/**
+ *\fn     static inline void usb_phy_por_clear(void)
+ *\brief  Clear the USB phy power on reset bit in USB_CTRL2 register.
+ *\param  none.
+ *\return none.
+ */
+static inline void usb_phy_por_clear(void)
 {
     CLKCTL_PER_MST->USB_CTRL2 &= ~USB_CTRL2_PHY_POR;
+}
+
+/**
+ *\fn     static inline void enable_usb_periph_clk(void)
+ *\brief  Enable the USB peripheral clock in PERIPH_CLK_ENA register.
+ *\param  none.
+ *\return none.
+ */
+static inline void enable_usb_periph_clk(void)
+{
+    CLKCTL_PER_MST->PERIPH_CLK_ENA |= PERIPH_CLK_ENA_USB_CKEN;
+}
+
+/**
+ *\fn     static inline void disable_usb_periph_clk(void)
+ *\brief  Disable the USB peripheral clock in PERIPH_CLK_ENA register.
+ *\param  none.
+ *\return none.
+ */
+static inline void disable_usb_periph_clk(void)
+{
+    CLKCTL_PER_MST->PERIPH_CLK_ENA &= ~PERIPH_CLK_ENA_USB_CKEN;
 }
 
 #ifdef __cplusplus
