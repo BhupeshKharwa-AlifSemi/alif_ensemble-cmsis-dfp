@@ -1211,16 +1211,20 @@
       </project>
     </example>
 
-    <example name="Csolution_Project" folder="Boards/DevKit-e7/Examples/Csolution_Project" doc="Readme.md">
-      <description>VScode csolution project for all peripherals</description>
+    <example name="Blinky_E7_M55_HE" folder="Boards/DevKit-e7/Examples/Blinky_HE" doc="README.md">
+      <description>Blinky example running on M55 High Efficiency core</description>
       <board name="DevKit-E7" vendor="Alif Semiconductor"/>
       <project>
-        <environment name="csolution"  load="alif.csolution.yml"/>
+        <environment name="csolution" load="Blinky_HE.csolution.yml"/>
       </project>
-      <attributes>
-        <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM"/>
-        <component Cclass="Device" Cgroup="Startup"  Cvendor="Alif Semiconductor"/>
-      </attributes>
+    </example>
+
+    <example name="Blinky_E7_M55_HP" folder="Boards/DevKit-e7/Examples/Blinky_HP" doc="README.md">
+      <description>Blinky example running on M55 High Performance core</description>
+      <board name="DevKit-E7" vendor="Alif Semiconductor"/>
+      <project>
+        <environment name="csolution" load="Blinky_HP.csolution.yml"/>
+      </project>
     </example>
 
     <example name="Blinky_M55_HE" doc="Abstract.txt" folder="Boards/DevKit-e7/Examples/BareMetal_LED_Blinky">
