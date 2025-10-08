@@ -43,13 +43,26 @@
 #include "Driver_MIPI_CSI2.h"
 extern ARM_DRIVER_MIPI_CSI2 Driver_MIPI_CSI2;
 
-/**
-  \fn        void ARM_MIPI_CSI2_Event_Callback (uint32_t int_event)
-  \brief     Signal MIPI CSI2 Events.
-  \param[in] int_event   \ref MIPI CSI2 event types.
-  \return    none.
-*/
+/*
+ * \fn        void ARM_MIPI_CSI2_Event_Callback (uint32_t int_event)
+ * \brief     Signal MIPI CSI2 Events.
+ * \param[in] int_event   \ref MIPI CSI2 event types.
+ * \return    none.
+ */
 void ARM_MIPI_CSI2_Event_Callback(uint32_t int_event);
+#endif
+
+#if (RTE_ISP)
+#include "Driver_ISP.h"
+extern ARM_DRIVER_ISP Driver_ISP;
+
+/*
+ * \fn        void ARM_ISP_Event_Callback (uint32_t int_event)
+ * \brief     Signal ISP Events.
+ * \param[in] int_event   \ref ISP event types.
+ * \return    none.
+ */
+void ARM_ISP_Event_Callback(uint32_t int_event);
 #endif
 
 #define ARM_CPI_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(1, 0) /* driver version */
@@ -68,39 +81,39 @@ static const ARM_CPI_CAPABILITIES DriverCapabilities = {
     0  /* Reserved (must be zero) */
 };
 
-/**
-  \fn        ARM_DRIVER_VERSION CPI_GetVersion(void)
-  \brief     get Camera version
-  \return    driver version
-*/
+/*
+ * \fn        ARM_DRIVER_VERSION CPI_GetVersion(void)
+ * \brief     get Camera version
+ * \return    driver version
+ */
 static ARM_DRIVER_VERSION CPI_GetVersion(void)
 {
     return DriverVersion;
 }
 
-/**
-  \fn        ARM_CPI_CAPABILITIES CPI_GetCapabilities(void)
-  \brief     get CPI capabilites
-  \return    driver capabilites
-*/
+/*
+ * \fn        ARM_CPI_CAPABILITIES CPI_GetCapabilities(void)
+ * \brief     get CPI capabilities
+ * \return    driver capabilities
+ */
 static ARM_CPI_CAPABILITIES CPI_GetCapabilities(void)
 {
     return DriverCapabilities;
 }
 
-/**
-  \fn         int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor,
-                                      ARM_CPI_SignalEvent_t cb_event)
-  \brief      Initialize Camera Sensor and CPI.
-              this function will
-                  - set the user callback event
-                  - call Camera Sensor initialize
-                  - if MIPI CSI is enabled, call CSI initialize
-  \param[in] CPI_RES       Pointer to CPI resources structure
-  \param[in] cam_sensor     Pointer to Camera Sensor Device resources structure
-  \param[in] cb_event       Pointer to Camera Event \ref ARM_CAMERA_CONTROLLER_SignalEvent_t
-  \return    \ref execution_status
-*/
+/*
+ * \fn         int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor,
+ *                                     ARM_CPI_SignalEvent_t cb_event)
+ * \brief      Initialize Camera Sensor and CPI.
+ *             this function will
+ *                 - set the user callback event
+ *                 - call Camera Sensor initialize
+ *                 - if MIPI CSI is enabled, call CSI initialize
+ * \param[in] CPI_RES       Pointer to CPI resources structure
+ * \param[in] cam_sensor     Pointer to Camera Sensor Device resources structure
+ * \param[in] cb_event       Pointer to Camera Event \ref ARM_CAMERA_CONTROLLER_SignalEvent_t
+ * \return    \ref execution_status
+ */
 static int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor,
                                ARM_CPI_SignalEvent_t cb_event)
 {
@@ -132,6 +145,13 @@ static int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam
     }
 #endif
 
+#if (RTE_ISP)
+    ret = Driver_ISP.Initialize(ARM_ISP_Event_Callback);
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
+
     if (!cam_sensor->cpi_info) {
         return ARM_DRIVER_ERROR_PARAMETER;
     }
@@ -146,15 +166,15 @@ static int32_t CPIx_Initialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam
     return ARM_DRIVER_OK;
 }
 
-/**
-  \fn        int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor)
-  \brief     Un-Initialize Camera Sensor and CPI.
-                 - Un-initialize Camera Sensor
-                 - If MIPI CSI is enabled, call CSI uninitialize
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
-  \return    \ref execution_status
-*/
+/*
+ * \fn        int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor)
+ * \brief     Un-Initialize Camera Sensor and CPI.
+ *                - Un-initialize Camera Sensor
+ *                - If MIPI CSI is enabled, call CSI uninitialize
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
+ * \return    \ref execution_status
+ */
 static int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor)
 {
     int32_t ret = ARM_DRIVER_OK;
@@ -177,6 +197,15 @@ static int32_t CPIx_Uninitialize(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *c
         return ret;
     }
 #endif
+
+#if (RTE_ISP)
+    /*Uninitializing MIPI CSI2 if the sensor is MIPI CSI2 sensor*/
+    ret = Driver_ISP.Uninitialize();
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
+
     /* Reset driver flags. */
     CPI_RES->status.initialized = 0;
 
@@ -233,6 +262,14 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
             }
 #endif
 
+#if (RTE_ISP)
+            /*Disable ISP */
+            ret = Driver_ISP.PowerControl(ARM_POWER_OFF);
+            if (ret != ARM_DRIVER_OK) {
+                return ret;
+            }
+#endif
+
             /* Reset the power status of Camera. */
             CPI_RES->status.powered = 0;
             break;
@@ -276,6 +313,13 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
             }
 #endif
 
+#if (RTE_ISP)
+            /*Enable ISP */
+            ret = Driver_ISP.PowerControl(ARM_POWER_FULL);
+            if (ret != ARM_DRIVER_OK) {
+                return ret;
+            }
+#endif
             /* Set the power flag enabled */
             CPI_RES->status.powered = 1;
             break;
@@ -317,21 +361,21 @@ static int32_t CPIx_PowerControl(CPI_RESOURCES *CPI_RES, ARM_POWER_STATE state)
     return ret;
 }
 
-/**
-  \fn         int32_t CPI_StartCapture(CPI_RESOURCES *CPI_RES)
-  \brief      Start CPI
-              This function will
-                  - check CPI capture status
-                  - set frame buffer start address
-                  - start capture in Snapshot /video mode.
-                      -clear control register
-                      -activate software reset
-                      -clear control register
-                      -enable snapshot or video mode with FIFO clock source selection
-                      and start capture
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \return    \ref execution_status
-*/
+/*
+ * \fn         int32_t CPI_StartCapture(CPI_RESOURCES *CPI_RES)
+ * \brief      Start CPI
+ *             This function will
+ *                 - check CPI capture status
+ *                 - set frame buffer start address
+ *                 - start capture in Snapshot /video mode.
+ *                     -clear control register
+ *                     -activate software reset
+ *                     -clear control register
+ *                     -enable snapshot or video mode with FIFO clock source selection
+ *                     and start capture
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \return    \ref execution_status
+ */
 static int32_t CPI_StartCapture(CPI_RESOURCES *CPI_RES)
 {
     /* Check CPI is busy in capturing? */
@@ -348,15 +392,15 @@ static int32_t CPI_StartCapture(CPI_RESOURCES *CPI_RES)
     return ARM_DRIVER_OK;
 }
 
-/**
-  \fn        int32_t CPI_StopCapture(CPI_RESOURCES *CPI_RES)
-  \brief     Stop CPI
-             This function will
-                 - disable CPI interrupt.
-                 - clear control register to stop capturing.
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \return    \ref execution_status
-*/
+/*
+ * \fn        int32_t CPI_StopCapture(CPI_RESOURCES *CPI_RES)
+ * \brief     Stop CPI
+ *            This function will
+ *                - disable CPI interrupt.
+ *                - clear control register to stop capturing.
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \return    \ref execution_status
+ */
 static int32_t CPI_StopCapture(CPI_RESOURCES *CPI_RES)
 {
     /* Disable CPI Interrupt. */
@@ -371,26 +415,26 @@ static int32_t CPI_StopCapture(CPI_RESOURCES *CPI_RES)
     return ARM_DRIVER_OK;
 }
 
-/**
-  \fn         int32_t CPIx_Capture(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor,
-                                                       void *framebuffer_startaddr,
-                                                       CPI_MODE_SELECT mode
-  \brief      Start Camera Sensor and CPI (in Snapshot mode or video mode).
-              In Snapshot mode, CPI will capture one frame then it gets stop.
-              In Video mode, CPI will capture video data continuously.
-              This function will
-                  - call Camera Sensor Start
-                  - set frame buffer start address in CPI
-                  - set CPI Capture mode as Snapshot mode or video mode.
-                  - start capturing
-  \param[in] CPI_RES              Pointer to CPI resources structure
-  \param[in] cam_sensor            Pointer to Camera Sensor Device resources structure
-  \param[in] framebuffer_startaddr Pointer to frame buffer start address,
-                                   where camera captured image will be stored.
-  /param[in] mode                  0: Capture video frames continuously
-                                   1: Capture one frame and stop
-  \return    \ref execution_status
-*/
+/*
+ * \fn         int32_t CPIx_Capture(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor,
+ *                                                      void *framebuffer_startaddr,
+ *                                                      CPI_MODE_SELECT mode
+ * \brief      Start Camera Sensor and CPI (in Snapshot mode or video mode).
+ *             In Snapshot mode, CPI will capture one frame then it gets stop.
+ *             In Video mode, CPI will capture video data continuously.
+ *             This function will
+ *                 - call Camera Sensor Start
+ *                 - set frame buffer start address in CPI
+ *                 - set CPI Capture mode as Snapshot mode or video mode.
+ *                 - start capturing
+ * \param[in] CPI_RES              Pointer to CPI resources structure
+ * \param[in] cam_sensor            Pointer to Camera Sensor Device resources structure
+ * \param[in] framebuffer_startaddr Pointer to frame buffer start address,
+ *                                  where camera captured image will be stored.
+ * /param[in] mode                  0: Capture video frames continuously
+ *                                  1: Capture one frame and stop
+ * \return    \ref execution_status
+ */
 static int32_t CPIx_Capture(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor,
                             void *framebuffer_startaddr, CPI_MODE_SELECT mode)
 {
@@ -411,6 +455,13 @@ static int32_t CPIx_Capture(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera
 
 #if (RTE_MIPI_CSI2)
     ret = Driver_MIPI_CSI2.StartIPI();
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
+
+#if (RTE_ISP)
+    ret = Driver_ISP.Start();
     if (ret != ARM_DRIVER_OK) {
         return ret;
     }
@@ -463,16 +514,23 @@ Error_Stop_CSI:
     }
 #endif
 
+#if (RTE_ISP)
+    ret = Driver_ISP.Stop();
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
+
     return ARM_DRIVER_ERROR;
 }
 
-/**
-  \fn        int32_t CPIx_Stop(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor)
-  \brief     Stop Camera Sensor and CPI.
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
-  \return    \ref execution_status
-*/
+/*
+ * \fn        int32_t CPIx_Stop(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *cam_sensor)
+ * \brief     Stop Camera Sensor and CPI.
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
+ * \return    \ref execution_status
+ */
 static int32_t CPIx_Stop(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor)
 {
     int32_t ret = ARM_DRIVER_OK;
@@ -491,6 +549,13 @@ static int32_t CPIx_Stop(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_se
     }
 #endif
 
+#if (RTE_ISP)
+    ret = Driver_ISP.Stop();
+    if (ret != ARM_DRIVER_OK) {
+        return ret;
+    }
+#endif
+
     /* Stop CPI */
     ret = CPI_StopCapture(CPI_RES);
     if (ret != ARM_DRIVER_OK) {
@@ -500,16 +565,16 @@ static int32_t CPIx_Stop(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_se
     return ARM_DRIVER_OK;
 }
 
-/**
-  \fn         int32_t CPIx_Control(CPI_RESOURCES *CPI_RES,CAMERA_SENSOR_DEVICE *cam_sensor,
-                                                      uint32_t control, uint32_t arg)
-  \brief     Control CPI and Camera Sensor.
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
-  \param[in] control    Operation
-  \param[in] arg        Argument of operation
-  \return    \ref execution_status
-*/
+/*
+ * \fn         int32_t CPIx_Control(CPI_RESOURCES *CPI_RES,CAMERA_SENSOR_DEVICE *cam_sensor,
+ *                                                     uint32_t control, uint32_t arg)
+ * \brief     Control CPI and Camera Sensor.
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \param[in] cam_sensor Pointer to Camera Sensor Device resources structure
+ * \param[in] control    Operation
+ * \param[in] arg        Argument of operation
+ * \return    \ref execution_status
+ */
 static int32_t CPIx_Control(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera_sensor,
                             uint32_t control, uint32_t arg)
 {
@@ -615,7 +680,11 @@ static int32_t CPIx_Control(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera
 
     default:
         {
+#if (RTE_ISP)
+            return Driver_ISP.Control(control, arg);
+#else
             return ARM_DRIVER_ERROR_UNSUPPORTED;
+#endif
         }
     }
 
@@ -646,17 +715,17 @@ static int32_t CPIx_Control(CPI_RESOURCES *CPI_RES, CAMERA_SENSOR_DEVICE *camera
     return ret;
 }
 
-/**
-  \fn        int32_t CPIx_IRQHandler(CPI_RESOURCES *CPI_RES)
-  \brief     Camera interrupt handler.
-                 This function will
-                     - check CPI received interrupt status.
-                     - update events based on interrupt status.
-                     - call the user callback function if any event occurs.
-                     - clear interrupt status.
-  \param[in] CPI_RES   Pointer to CPI resources structure
-  \return    \ref execution_status
-*/
+/*
+ * \fn        int32_t CPIx_IRQHandler(CPI_RESOURCES *CPI_RES)
+ * \brief     Camera interrupt handler.
+ *                This function will
+ *                    - check CPI received interrupt status.
+ *                    - update events based on interrupt status.
+ *                    - call the user callback function if any event occurs.
+ *                    - clear interrupt status.
+ * \param[in] CPI_RES   Pointer to CPI resources structure
+ * \return    \ref execution_status
+ */
 static void CPIx_IRQHandler(CPI_RESOURCES *CPI_RES)
 {
     uint32_t irqs        = 0u;
@@ -762,16 +831,29 @@ static CPI_RESOURCES CPI_CTRL = {
 };
 
 #if (RTE_MIPI_CSI2)
-/**
-  \fn        void ARM_MIPI_CSI2_Event_Callback (uint32_t int_event)
-  \brief     Signal MIPI CSI2 Events.
-  \param[in] int_event   \ref MIPI CSI2 event types.
-  \return    none.
-*/
+/*
+ * \fn        void ARM_MIPI_CSI2_Event_Callback (uint32_t int_event)
+ * \brief     Signal MIPI CSI2 Events.
+ * \param[in] int_event   \ref MIPI CSI2 event types.
+ * \return    none.
+ */
 void ARM_MIPI_CSI2_Event_Callback(uint32_t int_event)
 {
     ARG_UNUSED(int_event);
     CPI_CTRL.cb_event(ARM_CPI_EVENT_MIPI_CSI2_ERROR);
+}
+#endif
+
+#if (RTE_ISP)
+/*
+ * \fn        void ARM_ISP_Event_Callback (uint32_t int_event)
+ * \brief     Signal ISP Events.
+ * \param[in] int_event   \ref ISP event types.
+ * \return    none.
+ */
+void ARM_ISP_Event_Callback(uint32_t int_event)
+{
+    CPI_CTRL.cb_event(int_event);
 }
 #endif
 
