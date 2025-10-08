@@ -30,6 +30,7 @@ extern "C" {
 #include "soc_features.h"
 #include "vsios_isp.h"
 #include "vsi_comm_isp.h"
+#include "vsios_type.h"
 
 /* ISP Register (ISP_IMSC/ISP_RIS/ISP_MIS/ISP_ICR) bit Definition, Macros, Offsets and Masks
  * @these include Data-loss, size violation/Incorrect programming, AWB complete,
@@ -105,7 +106,7 @@ static inline uint32_t isp_get_interrupt_status(ISP_PORT IspPort)
 {
     uint32_t reg;
 
-    vsios_isp_read_reg(IspPort.devId, ISP_MIS, &reg);
+    vsios_isp_read_reg(IspPort.devId, ISP_MIS, (vsi_u32_t *) &reg);
     return reg;
 }
 
@@ -155,7 +156,7 @@ static inline uint32_t isp_mi_get_interrupt_status(ISP_PORT IspPort)
 {
     uint32_t reg;
 
-    vsios_isp_read_reg(IspPort.devId, MI_MIS, &reg);
+    vsios_isp_read_reg(IspPort.devId, MI_MIS, (vsi_u32_t *) &reg);
     return reg;
 }
 
