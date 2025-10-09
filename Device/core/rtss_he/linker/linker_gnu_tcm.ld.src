@@ -264,6 +264,8 @@ SECTIONS
   PROVIDE(__data_size = 0);
   PROVIDE(__bss_start = 0);
   PROVIDE(__bss_size = 0);
+  PROVIDE(__heap_start = 0);
+  PROVIDE(__heap_end = 0);
 
   /* TLS helper sizes */
   __tdata_size = __tdata_end - __tls_base;

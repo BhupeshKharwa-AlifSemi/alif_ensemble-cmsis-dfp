@@ -221,8 +221,11 @@ macro (BUILD_PROJECT)
     add_executable (${EXECUTABLE} ${testsourcefile}  ${addonsourcefiles})
 
     if (COMPILER STREQUAL GCC)
-        target_link_options(${EXECUTABLE} PRIVATE -Wl,--whole-archive -Wl,--start-group)
-        target_link_libraries(${EXECUTABLE} PRIVATE   -Wl,--whole-archive    PRIVATE     ${COMMON_LIB}   -Wl,--no-whole-archive)
+        #target_link_options(${EXECUTABLE}   PRIVATE   -Wl,--whole-archive    -Wl,--start-group)
+        target_link_libraries(${EXECUTABLE} PRIVATE    -Wl,--start-group)
+        if (${COMMON_LIB})
+            target_link_libraries(${EXECUTABLE}   -Wl,--whole-archive    PRIVATE     ${COMMON_LIB}   -Wl,--no-whole-archive)
+        endif()
     endif()
 
     if (OS STREQUAL FREERTOS)
@@ -248,10 +251,14 @@ macro (BUILD_PROJECT)
 
     if (COMPILER STREQUAL GCC)
 
-        target_link_options(${EXECUTABLE} PRIVATE  -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
-        target_link_libraries(${EXECUTABLE} PRIVATE m)
-        target_link_options(${EXECUTABLE} PRIVATE -Wl,--end-group -Wl,--no-whole-archive)
-        set_target_properties(${EXECUTABLE} PROPERTIES OUTPUT_NAME ${EXECUTABLE}.elf)
+        set_target_properties(${EXECUTABLE} PROPERTIES  OUTPUT_NAME ${EXECUTABLE}.elf)
+        target_link_options(${EXECUTABLE}   PRIVATE     -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
+
+        if (${ENABLE_ISP} AND ( (${testname} STREQUAL "demo_camera_arx3a0_freertos") OR (${testname} STREQUAL "demo_camera_mt9m114_freertos")))
+            target_link_libraries(${EXECUTABLE} PRIVATE     m   "${ALIF_DEV_SRC_DIR}/libs/isp/libisp.a"     -Wl,--end-group)
+        else()
+            target_link_libraries(${EXECUTABLE} PRIVATE     m   -Wl,--end-group)
+        endif()
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
@@ -267,6 +274,9 @@ macro (BUILD_PROJECT)
 
         target_link_options(${EXECUTABLE} PRIVATE  --list=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
         target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB})
+        if (${ENABLE_ISP} AND ( (${testname} STREQUAL "demo_camera_arx3a0_freertos") OR (${testname} STREQUAL "demo_camera_mt9m114_freertos")))
+            target_link_libraries(${EXECUTABLE} PRIVATE "${ALIF_DEV_SRC_DIR}/libs/isp/libisp.a")
+        endif()
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
@@ -280,9 +290,12 @@ macro (BUILD_PROJECT)
 
     elseif (COMPILER STREQUAL CLANG)
 
+        set_target_properties(${EXECUTABLE}     PROPERTIES      OUTPUT_NAME     ${EXECUTABLE}.elf)
         target_link_options(${EXECUTABLE} PRIVATE   -Wl,-Map=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE}.map)
         target_link_libraries(${EXECUTABLE} PRIVATE ${COMMON_LIB})
-        set_target_properties(${EXECUTABLE}     PROPERTIES      OUTPUT_NAME     ${EXECUTABLE}.elf)
+        if (${ENABLE_ISP} AND ( (${testname} STREQUAL "demo_camera_arx3a0_freertos") OR (${testname} STREQUAL "demo_camera_mt9m114_freertos")))
+            target_link_libraries(${EXECUTABLE} PRIVATE "${ALIF_DEV_SRC_DIR}/libs/isp/libisp.a")
+        endif()
 
         add_custom_command(TARGET  ${EXECUTABLE}
            POST_BUILD
@@ -490,6 +503,7 @@ function(get_rte_macros)
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_WM8904_CODEC               ENABLE_WM8904                   "Enable/disable WM8904 Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_BMI323                     ENABLE_BMI323                   "Enable/disable BMI323 Driver.")
     DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_MCI                        ENABLE_MCI                      "Enable/disable MCI Driver.")
+    DEF_BOOL_VAR_BASED_ON_MACRO("${RTEcomponentFile}"   RTE_Drivers_ISP                        ENABLE_ISP                      "Enable/disable ISP Driver.")
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDIN      ENABLE_STDIN                    "Enable/disable retarget STDIN  Driver.")
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDOUT     ENABLE_STDOUT                   "Enable/disable retarget STDOUT Driver.")
     DEF_BOOL_VAR_BASED_ON_DEF_MACRO_ONLY("${RTEcomponentFile}"   RTE_CMSIS_Compiler_STDERR     ENABLE_STDERR                   "Enable/disable retarget STDERR Driver.")

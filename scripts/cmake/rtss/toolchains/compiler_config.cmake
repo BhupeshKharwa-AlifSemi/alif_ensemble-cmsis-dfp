@@ -13,8 +13,7 @@ set (CMAKE_CROSSCOMPILING                   true)
 set (C_OPT_LEVEL                            "-O0")
 set (C_DEBUG_LEVEL                          "-g")
 set (C_WARNINGS_ERRORS                      "-Wall -Wextra -Werror -Wno-unused-function -Wvla  \
-                                            -Wno-error=cpp -fdata-sections -ffunction-sections \
-                                            -fshort-enums -funsigned-char")
+                                            -Wno-error=cpp -fdata-sections -ffunction-sections")
 
 # Coding Language Configurations
 set (C_LANGUAGE_MODE                        "-std=c99")
@@ -35,6 +34,8 @@ if ( (COMPILER STREQUAL ARMCLANG) OR (COMPILER STREQUAL CLANG) )
         set (RETARGET_IO_SRC                "${CMSIS_COMPILER_PATH}/source/clang/retarget_syscalls.c")
         set_source_files_properties("${RETARGET_IO_SRC}"     PROPERTIES      COMPILE_FLAGS    "-w")
     endif()
+
+    #set (C_WARNINGS_ERRORS                  "${C_WARNINGS_ERRORS} -funsigned-char -fshort-enums  -fshort-wchar")
 
 elseif (COMPILER STREQUAL GCC)
     # Changing C99 to GNU11 because of asm instruction (which comes under compiler retargetting)
