@@ -8,6 +8,14 @@
   <license>License.txt</license>
 
   <releases>
+    <release version="2.0.3"  tag="v2.0.3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.3/AlifSemiconductor.Ensemble.2.0.3.pack" date="2025-10-10">
+      - Add ISP driver and library
+      - IMU data precision has been updated
+      - Add standard camera support
+      - Add clang support
+      - HM0360 Suspend Resume support
+      - Add Blinky M55_HE/HP Example for DevKit-e7
+    </release>
     <release version="2.0.2"  tag="v2.0.2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.2/AlifSemiconductor.Ensemble.2.0.2.pack" date="2025-08-11">
       - Fix ospi1 rxds pinmux
       - retarget_config.h in layer and example updated to reflect 2.0.0 config file version
