@@ -2708,6 +2708,7 @@
       <files>
 	   <file category="source" name="components/Source/ICM42670P_IMU.c"/>
 	   <file category="header" name="components/Include/Driver_IMU.h"/>
+	   <file category="header" name="components/Include/sensor_utils.h"/>
       </files>
     </component>
 
@@ -2719,6 +2720,7 @@
       <files>
 	   <file category="source" name="components/Source/BMI323_IMU.c"/>
 	   <file category="header" name="components/Include/Driver_IMU.h"/>
+	   <file category="header" name="components/Include/sensor_utils.h"/>
       </files>
     </component>
 
