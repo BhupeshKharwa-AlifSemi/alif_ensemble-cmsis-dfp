@@ -308,7 +308,8 @@ include (${HOST_SERVICES_CMAKE_DIR}/se_host_services.cmake)
 
 # Creating a Library file for Retarget IO & Common Source Files
 if ((RETARGET_IO_SRCS) OR (COMMON_SRCS))
-    set(COMMON_LIB     "COMMON")
+    set(COMMON_LIB              "COMMON")
+    set(COMMON_LIB_FLAG         OFF)
 
     if(${RETARGET_EN_NO_SEMIHOSTING})
         list(APPEND     COMMON_SRCS     ${RETARGET_IO_SRCS})
@@ -318,6 +319,7 @@ if ((RETARGET_IO_SRCS) OR (COMMON_SRCS))
         message(WARNING "COMMON_SRCS is empty. No source files found!")
     else()
         add_library(${COMMON_LIB}   STATIC      ${COMMON_SRCS})
+        set(COMMON_LIB_FLAG         ON)
     endif()
 endif()
 
