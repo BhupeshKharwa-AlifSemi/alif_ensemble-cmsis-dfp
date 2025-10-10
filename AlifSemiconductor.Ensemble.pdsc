@@ -1661,6 +1661,14 @@
       <require Cclass="Device" Cgroup="Startup"/>
       <require Cclass="Device" Cgroup="SOC Peripherals" Csub="PINCONF"/>
     </condition>
+    <condition id="Ensemble ISP Driver">
+      <description>Requirement for CMSIS ISP Driver</description>
+      <require condition="Ensemble"/>
+      <require condition="E8"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+      <require Cclass="Device" Cgroup="Startup"/>
+      <require Cclass="Device" Cgroup="SOC Peripherals" Csub="PINCONF"/>
+    </condition>
     <condition id="Analog Components Driver">
       <description>Requirement for Analog Components Driver</description>
       <require condition="Ensemble CMSIS_Driver"/>
@@ -2399,6 +2407,21 @@
 	    <file category="source" name="drivers/source/cpi.c"/>
       </files>
     </component>
+
+    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="ISP" Cversion="2.0.0" condition="Ensemble ISP Driver">
+      <description>ISP Driver for Alif Semiconductor SOC</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_ISP              /* Driver ISP Controller */
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="libs/isp/inc/"/>
+		<file category="header" name="Alif_CMSIS/Include/Driver_ISP.h"/>
+		<file category="header" name="Alif_CMSIS/Source/Driver_ISP_Private.h"/>
+        <file category="source" name="Alif_CMSIS/Source/Driver_ISP.c"/>
+        <file category="library" name="libs/isp/libisp.a"/>
+      </files>
+    </component>
+
     <component Cclass="BSP" Cgroup="External peripherals" Csub="CAMERA Sensor MT9M114" Cversion="2.0.0" condition="Camera Sensor Driver">
       <description>CAMERA Sensor Driver for MT9M114</description>
       <RTE_Components_h> <!-- the following content goes into file 'RTE_Components.h' -->
