@@ -119,7 +119,7 @@
 #define SOC_FEAT_GPIO_HAS_PORT10_14                (1)
 #define SOC_FEAT_GPIO_HAS_PORT16_17                (1)
 
-#define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS        (1)
+#define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS        (0)
 
 #define SOC_FEAT_I3C_CORE_CLK_AXI                  (0)
 
