@@ -8,6 +8,14 @@
   <license>License.txt</license>
 
   <releases>
+    <release version="2.0.3"  tag="v2.0.3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.3/AlifSemiconductor.Ensemble.2.0.3.pack" date="2025-10-10">
+      - Add ISP driver and library
+      - IMU data precision has been updated
+      - Add standard camera support
+      - Add clang support
+      - HM0360 Suspend Resume support
+      - Add Blinky M55_HE/HP Example for DevKit-e7
+    </release>
     <release version="2.0.2"  tag="v2.0.2" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.2/AlifSemiconductor.Ensemble.2.0.2.pack" date="2025-08-11">
       - Fix ospi1 rxds pinmux
       - retarget_config.h in layer and example updated to reflect 2.0.0 config file version
@@ -1211,16 +1219,20 @@
       </project>
     </example>
 
-    <example name="Csolution_Project" folder="Boards/DevKit-e7/Examples/Csolution_Project" doc="Readme.md">
-      <description>VScode csolution project for all peripherals</description>
+    <example name="Blinky_E7_M55_HE" folder="Boards/DevKit-e7/Examples/Blinky_HE" doc="README.md">
+      <description>Blinky example running on M55 High Efficiency core</description>
       <board name="DevKit-E7" vendor="Alif Semiconductor"/>
       <project>
-        <environment name="csolution"  load="alif.csolution.yml"/>
+        <environment name="csolution" load="Blinky_HE.csolution.yml"/>
       </project>
-      <attributes>
-        <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM"/>
-        <component Cclass="Device" Cgroup="Startup"  Cvendor="Alif Semiconductor"/>
-      </attributes>
+    </example>
+
+    <example name="Blinky_E7_M55_HP" folder="Boards/DevKit-e7/Examples/Blinky_HP" doc="README.md">
+      <description>Blinky example running on M55 High Performance core</description>
+      <board name="DevKit-E7" vendor="Alif Semiconductor"/>
+      <project>
+        <environment name="csolution" load="Blinky_HP.csolution.yml"/>
+      </project>
     </example>
 
     <example name="Blinky_M55_HE" doc="Abstract.txt" folder="Boards/DevKit-e7/Examples/BareMetal_LED_Blinky">
@@ -1657,6 +1669,14 @@
       <require Cclass="Device" Cgroup="Startup"/>
       <require Cclass="Device" Cgroup="SOC Peripherals" Csub="PINCONF"/>
     </condition>
+    <condition id="Ensemble ISP Driver">
+      <description>Requirement for CMSIS ISP Driver</description>
+      <require condition="Ensemble"/>
+      <require condition="E8"/>
+      <require Cclass="CMSIS" Cgroup="CORE"/>
+      <require Cclass="Device" Cgroup="Startup"/>
+      <require Cclass="Device" Cgroup="SOC Peripherals" Csub="PINCONF"/>
+    </condition>
     <condition id="Analog Components Driver">
       <description>Requirement for Analog Components Driver</description>
       <require condition="Ensemble CMSIS_Driver"/>
@@ -1727,7 +1747,6 @@
     <condition id="USBD Driver">
       <description>Requirement for USB Device Driver</description>
       <require condition="Ensemble CMSIS_Driver"/>
-      <require Cclass="USB" Cgroup="CORE"/>
     </condition>
     <condition id="MIPI DPHY Driver">
       <description>Requirement for MIPI DPHY Driver</description>
@@ -2028,7 +2047,7 @@
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_normalmode_freertos.c" attr="template" select="CANFD Data transfer FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_extloopback_freertos.c" attr="template" select="CANFD External Loopback FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_canfd_intloopback_freertos.c" attr="template" select="CANFD Internal Loopback FreeRTOS Demo"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/demo_cdc_freertos.c" attr="template" select="CDC200 FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_cdc200_freertos.c" attr="template" select="CDC200 FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_cmp_freertos.c" attr="template" select="CMP FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_crc_freertos.c" attr="template" select="CRC FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_dac_freertos.c" attr="template" select="DAC FreeRTOS Demo"/>
@@ -2051,7 +2070,7 @@
         <file category="header" name="Boards/Templates/bayer2rgb/bayer.h" attr="template" select="MT9M114 Camera Sensor FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_flash_issi_freertos.c" attr="template" select="OSPI Flash FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_hyperram_freertos.c" attr="template" select="OSPI Hyperram XIP FreeRTOS Demo" condition="E7"/>
-        <file category="source" name="Boards/Templates/FreeRTOS/demo_display_parallel_freertos.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
+        <file category="source" name="Boards/Templates/FreeRTOS/demo_parallel_display_freertos.c" attr="template" select="Parallel Display FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_pdm_freertos.c" attr="template" select="PDM FreeRTOS Demo"/>
         <!--<file category="source" name="Boards/Templates/FreeRTOS/demo_qec_freertos.c" attr="template" select="QEC FreeRTOS Demo"/>-->
         <file category="source" name="Boards/Templates/FreeRTOS/demo_rtc_freertos.c" attr="template" select="RTC FreeRTOS Demo"/>
@@ -2062,7 +2081,7 @@
         <file category="source" name="Boards/Templates/FreeRTOS/demo_tsens_freertos.c" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/Common/Include/temperature.h" attr="template" select="TSENS FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/FreeRTOS/demo_i2s_freertos.c" attr="template" select="I2S FreeRTOS Demo"/>
-        <file category="header" name="Boards/Templates/FreeRTOS/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
+        <file category="header" name="Boards/Templates/Common/Include/i2s_samples.h" attr="template" select="I2S FreeRTOS Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_mci_mdk_cmsisrtos2.c" attr="template" select="MCI-MDK CMSIS RTOS2 Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/demo_usb_device_app.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
         <file category="source" name="Boards/Templates/cmsis_rtos2/USBD_User_CDC_ACM.c" attr="template" select="USBD CMSIS RTOS2 Demo"/>
@@ -2396,6 +2415,21 @@
 	    <file category="source" name="drivers/source/cpi.c"/>
       </files>
     </component>
+
+    <component Cclass="Device" Cgroup="SOC Peripherals" Csub="ISP" Cversion="2.0.0" condition="Ensemble ISP Driver">
+      <description>ISP Driver for Alif Semiconductor SOC</description>
+      <RTE_Components_h>  <!-- the following content goes into file 'RTE_Components.h' -->
+        #define RTE_Drivers_ISP              /* Driver ISP Controller */
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="libs/isp/inc/"/>
+		<file category="header" name="Alif_CMSIS/Include/Driver_ISP.h"/>
+		<file category="header" name="Alif_CMSIS/Source/Driver_ISP_Private.h"/>
+        <file category="source" name="Alif_CMSIS/Source/Driver_ISP.c"/>
+        <file category="library" name="libs/isp/libisp.a"/>
+      </files>
+    </component>
+
     <component Cclass="BSP" Cgroup="External peripherals" Csub="CAMERA Sensor MT9M114" Cversion="2.0.0" condition="Camera Sensor Driver">
       <description>CAMERA Sensor Driver for MT9M114</description>
       <RTE_Components_h> <!-- the following content goes into file 'RTE_Components.h' -->

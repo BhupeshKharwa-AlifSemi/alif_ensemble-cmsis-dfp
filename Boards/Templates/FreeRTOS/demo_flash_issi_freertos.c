@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 #include "stdint.h"
+#include <inttypes.h>
+
 #include "Driver_Flash.h"
 #include "Driver_IO.h"
 #include "board_config.h"
@@ -72,11 +74,11 @@ static int32_t prvSetupPinMUX(void)
     /* pin mux and configuration for all device IOs requested from pins.h*/
     lRet = board_pins_config();
     if (lRet != 0) {
-        printf("Error in pin-mux configuration: %d\n", lRet);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", lRet);
         return lRet;
     }
 
-    lRet = GPIODrv->Initialize(BOARD_ISSI_FLASH_RESET_GPIO_PIN, NULL);
+    lRet = GPIODrv->Initialize(BOARD_ISSI_FLASH_RESET_GPIO_PIN, 0);
     if (lRet != ARM_DRIVER_OK) {
         return -1;
     }
@@ -117,6 +119,7 @@ void vFlashThread(void *pvParameters)
     int32_t            lStatus, lRet;
     ARM_DRIVER_VERSION xVersion;
     ARM_FLASH_INFO    *pxFlashInfo;
+    ARG_UNUSED(pvParameters);
 
     /* Prepare the data for writing to flash */
     for (ulIndex = 0; ulIndex < BUFFER_SIZE; ulIndex++) {
@@ -138,7 +141,7 @@ void vFlashThread(void *pvParameters)
     printf("\r\n FLASH xVersion api:%X driver:%X...\r\n", xVersion.api, xVersion.drv);
 
     /* Initialize the flash */
-    lStatus = ptrFLASH->Initialize(NULL);
+    lStatus = ptrFLASH->Initialize(0);
 
     if (lStatus != ARM_DRIVER_OK) {
         printf("Flash initialization failed\n");
@@ -155,9 +158,10 @@ void vFlashThread(void *pvParameters)
     /* Get Flash Info.*/
     pxFlashInfo = ptrFLASH->GetInfo();
 
-    printf("\r\n FLASH Info : \n Sector ulCount : %d\n Sector Size : %d Bytes\n Page Size : %d\n "
-           "Program Unit : %d\n "
-           "Erased Value : 0x%X \r\n",
+    printf("\r\n FLASH Info :\n Sector ulCount : %" PRIu32 "\n Sector Size : %" PRIu32
+           " Bytes\n Page Size : %" PRIu32 "\n "
+           "Program Unit : %" PRIu32 "\n "
+           "Erased Value : 0x%" PRIx8 " \r\n",
            pxFlashInfo->sector_count,
            pxFlashInfo->sector_size,
            pxFlashInfo->page_size,
@@ -194,7 +198,7 @@ void vFlashThread(void *pvParameters)
         ulIter++;
     }
 
-    printf("Total errors after reading erased chip = %d\n", ulCount);
+    printf("Total errors after reading erased chip = %" PRIu32 "\n", ulCount);
 
     printf("Starting writing\n");
 
@@ -227,7 +231,7 @@ void vFlashThread(void *pvParameters)
         ulIter++;
     }
 
-    printf("Total errors after reading data written to flash = %d\n", ulCount);
+    printf("Total errors after reading data written to flash = %" PRIu32 "\n", ulCount);
 
     ulIter  = 0;
     ulCount = 0;
@@ -257,7 +261,7 @@ void vFlashThread(void *pvParameters)
         ulIter++;
     }
 
-    printf("Total errors after erasing a sector = %d\n", ulCount);
+    printf("Total errors after erasing a sector = %" PRIu32 "\n", ulCount);
 
     WAIT_FOREVER_LOOP
 
@@ -297,7 +301,7 @@ int main(void)
     BaseType_t xReturned = xTaskCreate(vFlashThread,
                                        "vFlashThread",
                                        DEMO_THREAD_STACK_SIZE,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &xDemoTask);
 
