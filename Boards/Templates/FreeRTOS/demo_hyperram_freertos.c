@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <inttypes.h>
+
 /*RTOS Includes */
 #include "RTE_Components.h"
 #include CMSIS_device_header
@@ -79,7 +81,7 @@ static uint16_t buff[BUFFER_SIZE / sizeof(uint16_t)]; /* Buffer size of 16KB */
 static const ospi_hyperram_xip_config issi_config = {
     .instance       = BOARD_ISSI_RAM_OSPI_INSTANCE,
     .bus_speed      = OSPI_BUS_SPEED,
-    .hyperram_init  = NULL, /* No special initialization needed by the hyperram device */
+    .hyperram_init  = 0, /* No special initialization needed by the hyperram device */
     .ddr_drive_edge = DDR_DRIVE_EDGE,
     .rxds_delay     = RXDS_DELAY,
     .wait_cycles    = ISSI_WAIT_CYCLES,
@@ -208,11 +210,11 @@ static int32_t pinmux_setup(void)
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret) {
-        printf("ERROR: Board pin mux configuration failed: %d\n", ret);
+        printf("ERROR: Board pin mux configuration failed: %" PRId32 "\n", ret);
         return ret;
     }
 
-    ret = GPIODrv->Initialize(OSPI_RESET_PIN, NULL);
+    ret = GPIODrv->Initialize(OSPI_RESET_PIN, 0);
     if (ret != ARM_DRIVER_OK) {
         return -1;
     }
@@ -246,14 +248,14 @@ void read_8bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint8_t *ptr8   = ptr;
     const uint8_t          *buff8  = buff;
 
-    for (int i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         if (ptr8[i] != buff8[i]) {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr8[i], buff8[i]);
+            printf("Data error at addr %" PRIu32 ", got %x, expected %x\n", i, ptr8[i], buff8[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 8-bit read memory %d\n", errors);
+    printf("Total Errors for 8-bit read memory %" PRIu32 "\n", errors);
 }
 
 void read_16bit(const void *ptr, const void *buff, uint32_t size)
@@ -262,14 +264,14 @@ void read_16bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint16_t *ptr16  = ptr;
     const uint16_t          *buff16 = buff;
 
-    for (int i = 0; i < (size / sizeof(uint16_t)); i++) {
+    for (uint32_t i = 0; i < (size / sizeof(uint16_t)); i++) {
         if (ptr16[i] != buff16[i]) {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr16[i], buff16[i]);
+            printf("Data error at addr %" PRIu32 ", got %x, expected %x\n", i, ptr16[i], buff16[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 16-bit read memory %d\n", errors);
+    printf("Total Errors for 16-bit read memory %" PRIu32 "\n", errors);
 }
 
 void read_32bit(const void *ptr, const void *buff, uint32_t size)
@@ -278,14 +280,15 @@ void read_32bit(const void *ptr, const void *buff, uint32_t size)
     volatile const uint32_t *ptr32  = ptr;
     const uint32_t          *buff32 = buff;
 
-    for (int i = 0; i < (size / sizeof(uint32_t)); i++) {
+    for (uint32_t i = 0; i < (size / sizeof(uint32_t)); i++) {
         if (ptr32[i] != buff32[i]) {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr32[i], buff32[i]);
+            printf("Data error at addr %" PRIu32 ", got %" PRIx32 ", expected %" PRIx32 "\n",
+                   i, ptr32[i], buff32[i]);
             errors++;
         }
     }
 
-    printf("Total Errors for 32-bit read memory %d\n", errors);
+    printf("Total Errors for 32-bit read memory %" PRIu32 "\n", errors);
 }
 
 void read_with_device_attr(const void *ptr, uint32_t size)
@@ -320,7 +323,7 @@ void read_with_normal_cacheable_attr(const void *ptr, uint32_t size)
     mpu_set_ospi0_xip_cacheable_attr();
 
     total_errors = memcmp(ptr, buff, size);
-    printf("Total Errors %d\n", total_errors);
+    printf("Total Errors %" PRIu32 "\n", total_errors);
 }
 
 void hyperram_test(void)
@@ -342,7 +345,7 @@ void hyperram_test(void)
         SCB_InvalidateDCache_by_Addr(ptr, BUFFER_SIZE);
 
         /* writing 16KB data to hyperram memory in device attr */
-        for (int i = 0; i < (BUFFER_SIZE / sizeof(uint16_t)); i++) {
+        for (uint32_t i = 0; i < (BUFFER_SIZE / sizeof(uint16_t)); i++) {
             val     = (rand() % 0xFFFF);
             buff[i] = val;
             ptr[i]  = val;
@@ -363,7 +366,7 @@ void hyperram_test(void)
     srand(3);
 
     mpu_set_ospi0_xip_device_attr();
-    for (int i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
         ptr[i] = (rand() % 0xFFFF);
     }
 
@@ -371,19 +374,21 @@ void hyperram_test(void)
     SCB_InvalidateDCache_by_Addr((void *) OSPI0_XIP_BASE, HRAM_SIZE_BYTES);
 
     srand(3);
-    for (int i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
+    for (uint32_t i = 0; i < (HRAM_SIZE_BYTES / sizeof(uint16_t)); i++) {
         val = rand() % 0xFFFF;
         if (ptr[i] != val) {
-            printf("Data error at addr %x, got %x, expected %x\n", i, ptr[i], val);
+            printf("Data error at addr %" PRIx32 ", got %x, expected %x\n", i, ptr[i], val);
             errors++;
         }
     }
 
-    printf("Total errors after read complete: %d\n", errors);
+    printf("Total errors after read complete: %" PRIu32 "\n", errors);
 }
 
 void hyperram_demo_thread(void *pvParameters)
 {
+    ARG_UNUSED(pvParameters);
+
     printf("OSPI HyperRAM FreeRTOS demo thread started\n");
 
     if (pinmux_setup() < 0) {
@@ -403,7 +408,7 @@ void hyperram_demo_thread(void *pvParameters)
 error_exit:
 
     /* thread delete */
-    vTaskDelete(NULL);
+    vTaskDelete(0);
 }
 
 /*----------------------------------------------------------------------------
@@ -425,7 +430,7 @@ int main(void)
     BaseType_t xReturned = xTaskCreate(hyperram_demo_thread,
                                        "Hyperram_Demo_Thread",
                                        256,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &hyperram_demo_xHandle);
     if (xReturned != pdPASS) {

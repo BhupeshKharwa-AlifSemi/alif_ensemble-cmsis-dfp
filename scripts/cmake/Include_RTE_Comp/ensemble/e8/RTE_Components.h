@@ -122,6 +122,8 @@
 #define RTE_Drivers_BMI323                  1 /* Driver BMI323                            */
 /* AlifSemiconductor::CMSIS Driver.MCI                */
 #define RTE_Drivers_MCI                     1 /* Driver MCI                               */
+/* AlifSemiconductor::CMSIS Driver.ISP                */
+#define RTE_Drivers_ISP                     1 /* Driver ISP                               */
 /* AlifSemiconductor::Device.SOC STDIN Retargetting */
 //#define RTE_CMSIS_Compiler_STDIN            /* Enable/Disable Re targetting for STDIN   */
 /* AlifSemiconductor::Device.SOC STDOUT Retargetting */

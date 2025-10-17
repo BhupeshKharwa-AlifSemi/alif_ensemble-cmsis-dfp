@@ -3,7 +3,8 @@ set (DRIVERS_INC            "${ALIF_CMSIS_DRIVER_DIR}/Include;\
                              ${ALIF_CMSIS_DRIVER_DIR}/Source;\
                              ${ALIF_ENSEMBLE_DRIVERS_DIR}/include;\
                              ${ALIF_CMSIS_DRIVER_DIR}/Include/config;\
-                             ${ALIF_COMPONENTS_DIR}/Include")
+                             ${ALIF_COMPONENTS_DIR}/Include;\
+                             ${ALIF_DEV_SRC_DIR}/libs/isp/inc")
 
 # Setting variables for OSPI drivers
 set (OSPI_XIP_DIR                       "${ALIF_DEV_SRC_DIR}/ospi_xip")
@@ -221,4 +222,7 @@ target_sources(${DRIVER_LIB} PRIVATE
 
     #MCI Driver
     $<$<AND:$<BOOL:${ENABLE_MCI}>,$<STREQUAL:${OS},FREE-RTOS>>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_MCI.c>
+
+    #ISP Driver
+    $<$<BOOL:${ENABLE_ISP}>:${ALIF_CMSIS_DRIVER_SRC_DIR}/Driver_ISP.c>
 )

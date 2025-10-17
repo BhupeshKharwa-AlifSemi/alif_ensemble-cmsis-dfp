@@ -22,6 +22,7 @@
 /* System Includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 /* include for Drivers */
 #include "Driver_SPI.h"
@@ -52,14 +53,14 @@
  * */
 #define DATA_TRANSFER_TYPE             1
 
-#define SPI1                           1 /* SPI1 instance */
-#define SPI0                           0 /* SPI0 instance */
+#define SPI_1                           1 /* SPI1 instance */
+#define SPI_0                           0 /* SPI0 instance */
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI1);
-ARM_DRIVER_SPI       *ptrSPI1 = &ARM_Driver_SPI_(SPI1);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI_1);
+ARM_DRIVER_SPI       *ptrSPI1 = &ARM_Driver_SPI_(SPI_1);
 
-extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI0);
-ARM_DRIVER_SPI       *ptrSPI0 = &ARM_Driver_SPI_(SPI0);
+extern ARM_DRIVER_SPI ARM_Driver_SPI_(SPI_0);
+ARM_DRIVER_SPI       *ptrSPI0 = &ARM_Driver_SPI_(SPI_0);
 
 /*Define for the FreeRTOS objects*/
 #define SPI0_CALLBACK_EVENT           0x01
@@ -91,7 +92,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
 
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
-    (void) pxTask;
+    ARG_UNUSED(pxTask);
+    ARG_UNUSED(pcTaskName);
 
     ASSERT_HANG_LOOP
 }
@@ -248,6 +250,8 @@ static void spi0_spi1_transfer(void *pvParameters)
     int32_t    ret = ARM_DRIVER_OK;
     BaseType_t xReturned;
     uint32_t   spi1_control, spi0_control;
+    ARG_UNUSED(pvParameters);
+
 #if DATA_TRANSFER_TYPE
     uint32_t spi1_tx_buff, spi0_rx_buff = 0;
 #endif
@@ -266,7 +270,7 @@ static void spi0_spi1_transfer(void *pvParameters)
     /* pin mux and configuration for all device IOs requested from pins.h*/
     ret = board_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 
@@ -277,7 +281,7 @@ static void spi0_spi1_transfer(void *pvParameters)
      */
     ret = board_spi_pins_config();
     if (ret != 0) {
-        printf("Error in pin-mux configuration: %d\n", ret);
+        printf("Error in pin-mux configuration: %" PRId32 "\n", ret);
         return;
     }
 #endif
@@ -320,7 +324,7 @@ static void spi0_spi1_transfer(void *pvParameters)
 
     spi1_control = (ARM_SPI_MODE_SLAVE | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_DATA_BITS(32));
 
-    ret          = ptrSPI1->Control(spi1_control, NULL);
+    ret          = ptrSPI1->Control(spi1_control, 0);
     if (ret != ARM_DRIVER_OK) {
         printf("ERROR: Failed to configure SPI1\n");
         goto error_spi1_power_off;
@@ -365,9 +369,9 @@ static void spi0_spi1_transfer(void *pvParameters)
 #endif
 
     xReturned =
-        xTaskNotifyWait(NULL, SPI1_CALLBACK_EVENT | SPI0_CALLBACK_EVENT, NULL, portMAX_DELAY);
+        xTaskNotifyWait(0, SPI1_CALLBACK_EVENT | SPI0_CALLBACK_EVENT, 0, portMAX_DELAY);
     if (xReturned != pdTRUE) {
-        printf("\n\r Task Wait Time out expired \n\r");
+        printf("\n\r Task Wait Time out expired\n\r");
         goto error_spi1_power_off;
     }
 
@@ -375,9 +379,9 @@ static void spi0_spi1_transfer(void *pvParameters)
     }
     printf("Data Transfer completed\n");
 
-    printf("SPI1 received value : 0x%x\n", spi1_rx_buff);
+    printf("SPI1 received value : 0x%" PRIx32 "\n", spi1_rx_buff);
 #if DATA_TRANSFER_TYPE
-    printf("SPI0 received value : 0x%x\n", spi0_rx_buff);
+    printf("SPI0 received value : 0x%" PRId32 "\n", spi0_rx_buff);
 #endif
 
 error_spi1_power_off:
@@ -407,7 +411,7 @@ error_spi0_uninitialize:
     printf("*** Demo FreeRTOS app using SPI0 & SPI1 is ended ***\n");
 
     /* thread delete */
-    vTaskDelete(NULL);
+    vTaskDelete(0);
 }
 
 /*----------------------------------------------------------------------------
@@ -431,7 +435,7 @@ int main(void)
     BaseType_t xReturned = xTaskCreate(spi0_spi1_transfer,
                                        "SPI_Thread",
                                        216,
-                                       NULL,
+                                       0,
                                        configMAX_PRIORITIES - 1,
                                        &spi_xHandle);
     if (xReturned != pdPASS) {
