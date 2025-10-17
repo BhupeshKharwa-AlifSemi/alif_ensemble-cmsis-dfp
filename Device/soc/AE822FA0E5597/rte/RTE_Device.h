@@ -1970,6 +1970,8 @@
 
 // <o> ICM42670 IMU INT pin GPIO port number range <0-15>
 // <i> Defines ICM42670 IMU INT pin GPIO port number.
+//    <1=> Port number for E8 Appkit
+//    <8=> Port number for E8 Devkit
 // <i> Default: 8
 #define RTE_ICM42670_INT_IO_PORT 8
 
@@ -1990,6 +1992,8 @@
 
 // <o> BMI323 IMU INT pin GPIO port number range <0-15>
 // <i> Defines BMI323 IMU INT pin GPIO port number.
+//    <1=> Port number for E8 Appkit
+//    <8=> Port number for E8 Devkit
 // <i> Default: 8
 #define RTE_BMI323_INT_IO_PORT 8
 
