@@ -1063,7 +1063,7 @@ static int32_t ARM_SPI_Control(SPI_RESOURCES *SPI, uint32_t control, uint32_t ar
         return ARM_DRIVER_ERROR;
     }
 
-    if (SPI->status.busy) {
+    if (SPI->status.busy && ((control & ARM_SPI_CONTROL_Msk) != ARM_SPI_ABORT_TRANSFER)) {
         return ARM_DRIVER_ERROR_BUSY;
     }
 
