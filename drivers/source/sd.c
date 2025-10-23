@@ -268,8 +268,10 @@ SD_DRV_STATUS sd_card_init(sd_handle_t *pHsd, sd_param_t *p_sd_param)
     pHsd->sd_card.cardtype        = SDMMC_CARD_SDHC;
     pHsd->sd_card.busspeed        = SDMMC_CLK_400_KHZ;
     ocr                           = (SDMMC_CMD41_HCS |
-                                     SDMMC_CMD41_3V3 |
-                                     SDMMC_OCR_S18R);
+                                     SDMMC_CMD41_3V3);
+#if SOC_FEAT_SDMMC_SUPPORT_1V8
+    ocr                          |= SDMMC_OCR_S18R;
+#endif
 
     reg = SDMMC_CLK_GEN_SEL_Msk | SDMMC_INIT_CLK_DIVSOR_Msk | SDMMC_PLL_EN_Msk | SDMMC_CLK_EN_Msk |
           SDMMC_INTERNAL_CLK_EN_Msk;
