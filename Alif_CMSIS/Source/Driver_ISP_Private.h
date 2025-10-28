@@ -39,7 +39,8 @@ typedef volatile struct _ISP_DRIVER_STATE {
     uint32_t initialized: 1;  /**< Driver Initialized    */
     uint32_t powered    : 1;  /**< Driver powered        */
     uint32_t configured : 1;  /**< Driver configured     */
-    uint32_t reserved   : 29; /**< Reserved              */
+    uint32_t streaming  : 1;  /**< Streaming on          */
+    uint32_t reserved   : 28; /**< Reserved              */
 } ISP_DRIVER_STATE;
 
 /** \brief Resources for a ISP instance */

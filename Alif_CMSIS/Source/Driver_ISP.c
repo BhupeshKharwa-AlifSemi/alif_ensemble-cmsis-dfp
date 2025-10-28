@@ -114,6 +114,7 @@ static int32_t ISP_Init(ARM_ISP_SignalEvent_t cb_event, CAMERA_SENSOR_DEVICE *ca
     }
 
     isp->cb_event = cb_event;
+    isp->state.streaming = 0;
 
     /* Init ISP system. */
     ret           = VSI_MPI_ISP_Init(isp->isp_dev_id);
@@ -293,7 +294,11 @@ static int32_t ISP_PowerCtrl(ARM_POWER_STATE state, ISP_RESOURCES *isp)
  */
 static int32_t ISP_start(ISP_RESOURCES *isp)
 {
-    int32_t ret;
+    int32_t ret = 0;
+
+    if (isp->state.streaming == 1)  {
+        return ARM_DRIVER_OK;
+    }
 
     // Library call to start capture using ISP library
 
@@ -312,6 +317,7 @@ static int32_t ISP_start(ISP_RESOURCES *isp)
         return ARM_DRIVER_ERROR;
     }
 
+    isp->state.streaming = 1;
     return ARM_DRIVER_OK;
 }
 
@@ -322,10 +328,13 @@ static int32_t ISP_start(ISP_RESOURCES *isp)
  */
 static int32_t ISP_stop(ISP_RESOURCES *isp)
 {
-    int32_t ret;
+    int32_t ret = 0;
+
+    if (isp->state.streaming == 0) {
+        return ARM_DRIVER_OK;
+    }
 
     // Library call to stop capture using ISP library
-
     ret = VSI_MPI_ISP_DisableChn(isp->isp_chn_id);
     if (ret) {
         return ARM_DRIVER_ERROR;
@@ -340,6 +349,8 @@ static int32_t ISP_stop(ISP_RESOURCES *isp)
     if (ret) {
         return ARM_DRIVER_ERROR;
     }
+
+    isp->state.streaming = 0;
 
     return ARM_DRIVER_OK;
 }
