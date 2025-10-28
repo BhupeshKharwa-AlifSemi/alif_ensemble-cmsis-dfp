@@ -373,7 +373,7 @@ static void spi0_spi1_transfer(void *pvParameters)
 
     printf("SPI1 received value : 0x%" PRIx32 "\n", spi1_rx_buff);
 #if DATA_TRANSFER_TYPE
-    printf("SPI0 received value : 0x%" PRId32 "\n", spi0_rx_buff);
+    printf("SPI0 received value : 0x%" PRIx32 "\n", spi0_rx_buff);
 #endif
 
 error_spi1_power_off:
