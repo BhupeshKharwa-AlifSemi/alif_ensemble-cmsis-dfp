@@ -318,7 +318,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_5,
      PIN_0,
      PINMUX_ALTERNATE_FUNCTION_7,
-     PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P5_1 on pin B14. Functions: [0]: GPIO5_1, [1]: OSPI1_SS0_A, [2]: UART4_TX_C, [3]: PDM_D3_A,
        [4]: SPI0_MOSI_B, [5]: I2C2_SCL_B, [6]: UT0_T1_B, [7]: >>>SD_D1_A<<< */
@@ -326,7 +326,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_5,
      PIN_1,
      PINMUX_ALTERNATE_FUNCTION_7,
-     PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P5_2 on pin E12. Functions: [0]: GPIO5_2, [1]: OSPI1_SCLKN_A, [2]: UART5_RX_C, [3]: PDM_C3_A,
        [4]: SPI0_SS0_B, [5]: LPI2C_SCL_B, [6]: UT1_T0_B, [7]: >>>SD_D2_A<<< */
@@ -334,7 +334,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_5,
      PIN_2,
      PINMUX_ALTERNATE_FUNCTION_7,
-     PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P5_3 on pin B13. Functions: [0]: GPIO5_3, [1]: OSPI1_SCLK_A, [2]: UART5_TX_C, [3]:
        SPI0_SCLK_B, [4]: LPI2C_SDA_B, [5]: UT1_T1_B, [6]: >>>SD_D3_A<<<, [7]: CDC_PCLK_A */
@@ -342,7 +342,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_5,
      PIN_3,
      PINMUX_ALTERNATE_FUNCTION_6,
-     PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P5_4 on pin E11. Functions: [0]: GPIO5_4, [1]: OSPI1_SS1_A, [2]: UART3_CTS_A, [3]:
        >>>PDM_D2_B<<<, [4]: SPI0_SS3_A, [5]: UT2_T0_B, [6]: SD_D4_A, [7]: CDC_DE_A */
@@ -396,7 +396,7 @@ const struct pinconf board_pinconf[] = {
 
     /* P6_3 on pin B10. Functions: [0]: >>>GPIO6_3<<<, [1]: OSPI0_D3_C, [2]: UART2_RTS_A, [3]:
        LPI3C_SCL_A, [4]: PDM_C1_C, [5]: UT5_T1_B, [6]: SD_D3_D, [7]: ETH_IRQ_A */
-    /* Selected: GPIO6_3 for "UTIMER_GPO3" */
+    /* Selected: GPIO6_3 "SD_VSEL" */
     {PORT_6,
      PIN_3,
      PINMUX_ALTERNATE_FUNCTION_0,
@@ -432,7 +432,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_7,
      PIN_0,
      PINMUX_ALTERNATE_FUNCTION_6,
-     PADCTRL_READ_ENABLE | PADCTRL_DRIVER_DISABLED_PULL_UP | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P7_1 on pin B3. Functions: [0]: GPIO7_1, [1]: Reserved, [2]: CMP2_OUT_A, [3]: SPI0_MOSI_C,
        [4]: I2C0_SCL_C, [5]: UT8_T1_B, [6]: >>>SD_CLK_A<<<, [7]: CAN_TXD_A */
@@ -440,7 +440,7 @@ const struct pinconf board_pinconf[] = {
     {PORT_7,
      PIN_1,
      PINMUX_ALTERNATE_FUNCTION_6,
-     PADCTRL_DRIVER_DISABLED_BUS_REPEATER | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+     PADCTRL_READ_ENABLE | PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P7_2 on pin D1. Functions: [0]: GPIO7_2, [1]: Reserved, [2]: UART3_CTS_B, [3]: CMP1_OUT_A,
        [4]: SPI0_SCLK_C, [5]: >>>I2C1_SDA_C<<<, [6]: UT9_T0_B, [7]: SD_RST_A */
@@ -850,8 +850,8 @@ const struct pinconf board_pinconf[] = {
 
     /* P14_7 on pin L12. Functions: [0]: GPIO14_7, [1]: >>>CMP0_OUT_B<<<, [2]: SPI1_SS0_C, [3]:
        FAULT3_C */
-    /* Selected: CMP0_OUT_B for "CMP0_OUT" */
-    {PORT_14, PIN_7, PINMUX_ALTERNATE_FUNCTION_1, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
+    /* Selected: GPIO14_7 "SD_RESET" */
+    {PORT_14, PIN_7, PINMUX_ALTERNATE_FUNCTION_0, PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA},
 
     /* P15_0 on pin V2 {FLEX IO}. Functions: [0]: >>>GPIOV_0<<<, [1]: LPTMR0_CLK_IO. Note that
        LPGPIO_CTRL_n register has a different layout! */
