@@ -8,6 +8,14 @@
   <license>License.txt</license>
 
   <releases>
+    <release version="2.0.4"  tag="v2.0.4" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.4/AlifSemiconductor.Ensemble.2.0.4.pack" date="2025-11-04">
+      - Add clang compiler support
+      - Fix SD card and fatfs applications
+      - Fix CAN-FD normal mode application
+      - Skip redundant ISP start in snapshot mode
+      - Add board entry for AppKit-E8-AIML
+      - Handling abort mode for SPI
+    </release>
     <release version="2.0.3"  tag="v2.0.3" url="https://github.com/alifsemi/alif_ensemble-cmsis-dfp/releases/download/v2.0.3/AlifSemiconductor.Ensemble.2.0.3.pack" date="2025-10-10">
       - Add ISP driver and library
       - IMU data precision has been updated
