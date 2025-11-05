@@ -113,7 +113,7 @@
 #define SOC_FEAT_GPIO_HAS_PORT10_14                (1)
 #define SOC_FEAT_GPIO_HAS_PORT16_17                (1)
 
-#define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS        (1)
+#define SOC_FEAT_FORCE_ENABLE_SYSTEM_CLOCKS        (0)
 
 #define SOC_FEAT_I3C_CORE_CLK_AXI                  (0)
 
@@ -123,5 +123,7 @@
 #define SOC_FEAT_HAS_ISP                (1)
 
 #define SOC_FEAT_U55_M1_CAN_ACCESS_HIGHER_ADDRESS (1)
+
+#define SOC_FEAT_SDMMC_SUPPORT_1V8                (1)
 
 #endif /* SOC_FEATURES_H */

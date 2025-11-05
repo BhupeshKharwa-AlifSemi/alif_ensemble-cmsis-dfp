@@ -138,7 +138,7 @@ static volatile bool    passive_mode;
 static uint8_t          rx_obj_id     = 255U;
 static ARM_CAN_MSG_INFO rx_msg_header;
 static volatile uint8_t rx_msg_size = 8U;
-static uint8_t          rx_data[CANFD_MAX_MSG_SIZE 1U];
+static uint8_t          rx_data[CANFD_MAX_MSG_SIZE + 1U];
 
 /* A map between Data length code to the payload size */
 static const uint8_t canfd_len_dlc_map[0x10U] = {
@@ -558,8 +558,8 @@ static void canfd_process_rx_message(void)
     /* Checking if a new message is received. If yes
      * performs the below operations */
     if (rx_msg_header.rtr == 1U) {
-        printf("Rx msg:\r\n    Type:Remote frame, Id:%" PRId32 "",
-               (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
+        printf("Rx msg:\r\n    Type:Remote frame, Id:%" PRIu32 "",
+               (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)));
     } else {
         printf("Rx msg:\r\n    Type:Data frame, ");
 
@@ -570,8 +570,8 @@ static void canfd_process_rx_message(void)
                 printf("\r\n    Error Occurred in Rx message \r\n");
                 return;
             }
-            printf("Id:%" PRId32 ", Len:%" PRId32 ":\r\n    Data:",
-                   (rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)),
+            printf("Id:%" PRIu32 ", Len:%" PRId32 ":\r\n    Data:",
+                    (uint32_t)(rx_msg_header.id & (~ARM_CAN_ID_IDE_Msk)),
                    rx_msg_size);
             for (iter = 0; iter < rx_msg_size; iter++) {
                 printf("%c", rx_data[iter]);
